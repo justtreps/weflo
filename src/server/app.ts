@@ -1,13 +1,15 @@
 import { Hono } from "hono";
 import { readFile } from "node:fs/promises";
 import { join, normalize, sep } from "node:path";
-import type { AppSession } from "../types";
+import type { AppSession, AuthPort } from "../types";
 import type { Store } from "../repos/types";
+import { authRoutes } from "./auth";
 import { pagesRoutes } from "./pages";
 
 export type AppDeps = {
   store: Store;
   session: (req: Request) => Promise<AppSession>;
+  auth?: AuthPort;
 };
 
 const htmlRoutes: Record<string, string> = {
@@ -52,6 +54,7 @@ export function createApp(deps: AppDeps) {
     }
   });
 
+  app.route("/api", authRoutes(deps));
   app.route("/api", pagesRoutes(deps));
 
   return app;

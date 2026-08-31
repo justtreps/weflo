@@ -57,3 +57,10 @@ export type ReferralAttribution = {
 };
 
 export type AppSession = User | null;
+
+export type AuthPort = {
+  signInEmail(email: string, password: string): Promise<{ accessToken: string; user: User }>;
+  signUpEmail(email: string, password: string, name: string): Promise<{ accessToken: string; user: User }>;
+  signInGoogle(): Promise<{ url: string }>;
+  signOut(): Promise<void>;
+};
