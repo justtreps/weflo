@@ -1,10 +1,42 @@
 import { createClient } from "@supabase/supabase-js";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { createOpenAiLlm } from "../lib/canardo";
 import { createSessionResolver } from "../lib/session";
 import { MemoryStore } from "../repos/memory";
 import { PostgresStore } from "../repos/postgres";
 import type { Store } from "../repos/types";
-import type { AuthPort } from "../types";
+import type { AuthPort, LlmPort } from "../types";
 import type { AppDeps } from "./app";
+
+function loadDotEnv() {
+  try {
+    const text = readFileSync(join(process.cwd(), ".env"), "utf8");
+    for (const line of text.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq < 0) continue;
+      const key = trimmed.slice(0, eq).trim();
+      if (process.env[key] !== undefined) continue;
+      let val = trimmed.slice(eq + 1).trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      process.env[key] = val;
+    }
+  } catch {
+    /* no .env file */
+  }
+}
+
+function openaiApiKey(): string | undefined {
+  const key = process.env.OPENAI_API_KEY?.trim();
+  return key || undefined;
+}
 
 function createStore(): Store {
   const databaseUrl = process.env.DATABASE_URL?.trim();
@@ -57,14 +89,21 @@ function createSupabaseAuth(url: string, anonKey: string): AuthPort {
   };
 }
 
+function createLlm(): LlmPort | undefined {
+  const key = openaiApiKey();
+  return key ? createOpenAiLlm(key) : undefined;
+}
+
 export function prodDeps(): AppDeps {
+  loadDotEnv();
   const url = process.env.SUPABASE_URL;
   const anonKey = process.env.SUPABASE_ANON_KEY;
+  const llm = createLlm();
 
   const store = createStore();
 
   if (!url || !anonKey) {
-    return { store, session: async () => null };
+    return { store, session: async () => null, llm };
   }
 
   const supabase = createClient(url, anonKey);
@@ -79,5 +118,6 @@ export function prodDeps(): AppDeps {
       },
     }),
     auth: createSupabaseAuth(url, anonKey),
+    llm,
   };
 }

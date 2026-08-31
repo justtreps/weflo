@@ -1,5 +1,7 @@
 import { Hono } from "hono";
+import { applyCanardo, canardoCreditCost } from "../lib/canardo";
 import { initialDocument } from "../lib/catalog";
+import { spendCredits, totalCredits } from "../lib/credits";
 import type { Store } from "../repos/types";
 import type { Page, PageStatus, PageType, User } from "../types";
 import type { AppDeps } from "./app";
@@ -131,6 +133,38 @@ export function pagesRoutes(deps: AppDeps) {
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
     await deps.store.deletePage(loaded.page.id);
     return c.body(null, 204);
+  });
+
+  app.post("/pages/:id/canardo", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
+    if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    const ledger = await deps.store.getCredits(loaded.page.workspaceId);
+    if (totalCredits(ledger) === 0) {
+      return c.json({ error: "credits", cta: "Add Credits" }, 402);
+    }
+    if (!deps.llm) return c.json({ error: "unavailable" }, 503);
+    const body = await c.req.json<{ prompt?: unknown }>().catch(() => ({}));
+    const prompt = typeof body.prompt === "string" ? body.prompt : "";
+    const raw = await deps.llm.complete({ prompt, document: loaded.page.document });
+    let applied: { message: string; document: Page["document"] };
+    try {
+      applied = applyCanardo(loaded.page.document, raw);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "catalog";
+      return c.json({ error: msg }, 400);
+    }
+    const cost = canardoCreditCost(prompt, applied.document);
+    let nextLedger;
+    try {
+      nextLedger = spendCredits(ledger, cost);
+    } catch {
+      return c.json({ error: "credits", cta: "Add Credits" }, 402);
+    }
+    const page = await deps.store.updatePage(loaded.page.id, { document: applied.document });
+    await deps.store.saveCredits(nextLedger);
+    return c.json({ message: applied.message, document: page.document, credits: nextLedger });
   });
 
   return app;

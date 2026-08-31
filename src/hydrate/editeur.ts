@@ -13,6 +13,47 @@ function previewPath(workspaceSlug: string, pageSlug: string): string {
   return `/s/${workspaceSlug}/${pageSlug}`;
 }
 
+function showCreditsToast() {
+  let toast = document.querySelector<HTMLElement>("[data-canardo-toast]");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.dataset.canardoToast = "1";
+    toast.style.cssText =
+      "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:400;display:flex;align-items:center;gap:10px;padding:11px 18px;border-radius:11px;background:#141310;color:#fff;font-size:14px;box-shadow:0 12px 32px rgba(20,19,16,0.28);white-space:nowrap";
+    const dot = document.createElement("span");
+    dot.style.cssText =
+      "width:7px;height:7px;border-radius:50%;background:#FBC531;flex:none;display:block";
+    const label = document.createElement("span");
+    label.textContent = "Plus de crédits";
+    const link = document.createElement("a");
+    link.href = "/facturation";
+    link.textContent = "Add Credits";
+    link.style.color = "#FBC531";
+    toast.append(dot, label, link);
+    document.body.appendChild(toast);
+  }
+  toast.style.display = "flex";
+  window.setTimeout(() => {
+    toast.style.display = "none";
+  }, 3600);
+}
+
+function appendConversation(text: string, mine: boolean) {
+  const list = document.querySelector('sc-for[list="{{ msgs }}"]');
+  if (!list) return;
+  const row = document.createElement("div");
+  row.style.cssText = `display:flex;gap:8px;align-items:center;justify-content:${mine ? "flex-end" : "flex-start"}`;
+  const bubble = document.createElement("div");
+  bubble.textContent = text;
+  bubble.style.cssText = mine
+    ? "background:#141310;color:#FFFFFF;border:none;font:400 15px/1.5;padding:11px 16px;border-radius:12px;max-width:76%"
+    : "background:#FFFFFF;color:#2E2A24;border:1px solid #E6E5E0;font:400 15px/1.5;padding:11px 16px;border-radius:12px;max-width:76%";
+  row.appendChild(bubble);
+  list.appendChild(row);
+  const hist = document.querySelector<HTMLElement>('[ref="{{ histRef }}"]');
+  if (hist) hist.scrollTop = hist.scrollHeight;
+}
+
 async function json<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
   if (res.status === 401) {
@@ -209,6 +250,58 @@ export async function hydrateEditeur() {
     e.stopPropagation();
     window.open(livePreviewPath(), "_blank", "noopener");
   });
+
+  const barInput = document.querySelector<HTMLInputElement>('input[sc-camel-on-change="{{ onInput }}"]');
+  const sendBtn = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onSend }}"]');
+  let sending = false;
+  const sendCanardo = async () => {
+    const prompt = barInput?.value.trim() ?? "";
+    if (!prompt || sending) return;
+    sending = true;
+    appendConversation(prompt, true);
+    if (barInput) barInput.value = "";
+    try {
+      const res = await fetch(`/api/pages/${current.id}/canardo`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      if (res.status === 402) {
+        showCreditsToast();
+        return;
+      }
+      if (res.status === 401) {
+        location.assign("/connexion");
+        return;
+      }
+      if (!res.ok) return;
+      const body = (await res.json()) as { message: string; document: PageDocument };
+      appendConversation(body.message, false);
+      current = { ...current, document: body.document };
+      setPreviewIframe(previewPath(workspace.slug, current.slug));
+    } finally {
+      sending = false;
+    }
+  };
+  sendBtn?.addEventListener(
+    "click",
+    (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      void sendCanardo();
+    },
+    true,
+  );
+  barInput?.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      void sendCanardo();
+    },
+    true,
+  );
 }
 
 void hydrateEditeur();

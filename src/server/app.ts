@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { readFile } from "node:fs/promises";
 import { join, normalize, sep } from "node:path";
-import type { AppSession, AuthPort } from "../types";
+import type { AppSession, AuthPort, LlmPort } from "../types";
 import type { Store } from "../repos/types";
 import { authRoutes } from "./auth";
 import { meRoutes } from "./me";
@@ -12,6 +12,7 @@ export type AppDeps = {
   store: Store;
   session: (req: Request) => Promise<AppSession>;
   auth?: AuthPort;
+  llm?: LlmPort;
 };
 
 const htmlRoutes: Record<string, string> = {

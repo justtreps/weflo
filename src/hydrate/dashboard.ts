@@ -34,14 +34,45 @@ function formatEdited(iso: string): string {
   return new Date(iso).toLocaleDateString("fr-FR");
 }
 
-function showToast(text: string) {
+function showToast(text: string, href?: string) {
   const toastIf = document.querySelector<HTMLElement>('sc-if[value="{{ toastOn }}"]');
-  const label = toastIf?.querySelector("span:last-child");
+  const box = toastIf?.querySelector("div");
+  const label = box?.querySelectorAll("span")[1];
   if (label) label.textContent = text;
+  toastIf?.querySelector("[data-credits-cta]")?.remove();
+  if (href && box) {
+    const link = document.createElement("a");
+    link.dataset.creditsCta = "1";
+    link.href = href;
+    link.textContent = "Add Credits";
+    link.style.color = "#FBC531";
+    box.appendChild(link);
+  }
   if (toastIf) toastIf.style.display = "block";
   window.setTimeout(() => {
     if (toastIf) toastIf.style.display = "none";
-  }, 2200);
+  }, href ? 3600 : 2200);
+}
+
+function setChatOpen(open: boolean) {
+  const closed = document.querySelector<HTMLElement>('sc-if[value="{{ chatClosed }}"]');
+  const opened = document.querySelector<HTMLElement>('sc-if[value="{{ chatOpen }}"]');
+  if (closed) closed.style.display = open ? "none" : "";
+  if (opened) opened.style.display = open ? "flex" : "none";
+}
+
+function appendChat(text: string, mine: boolean) {
+  const list = document.querySelector('sc-for[list="{{ chatMsgs }}"]');
+  if (!list) return;
+  const row = document.createElement("div");
+  row.style.cssText = `display:flex;align-items:flex-end;gap:8px;justify-content:${mine ? "flex-end" : "flex-start"}`;
+  const bubble = document.createElement("div");
+  bubble.textContent = text;
+  bubble.style.cssText = mine
+    ? "max-width:78%;padding:10px 13px;box-sizing:border-box;border-radius:14px;background:#141310;color:#fff;font-size:14px;line-height:20px"
+    : "max-width:78%;padding:10px 13px;box-sizing:border-box;border-radius:14px;background:#fff;color:#404040;border:0.5px solid rgba(82,82,82,0.22);font-size:14px;line-height:20px";
+  row.appendChild(bubble);
+  list.appendChild(row);
 }
 
 function fillProfile(me: MeProfile) {
@@ -266,6 +297,75 @@ function renderRows(pages: Page[], workspace: Workspace, reload: () => Promise<v
   if (empty) empty.style.display = pages.length ? "none" : "";
 }
 
+function bindCanardo(getPages: () => Page[]) {
+  document.querySelector('[sc-camel-on-click="{{ openChat }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setChatOpen(true);
+  });
+  document.querySelector('[sc-camel-on-click="{{ closeChat }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setChatOpen(false);
+  });
+
+  const input = document.querySelector<HTMLInputElement>('input[sc-camel-on-change="{{ onChatInput }}"]');
+  const sendBtn = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ sendChat }}"]');
+  let sending = false;
+
+  const send = async () => {
+    const prompt = input?.value.trim() ?? "";
+    if (!prompt || sending) return;
+    sending = true;
+    appendChat(prompt, true);
+    if (input) input.value = "";
+    try {
+      let page = getPages()[0];
+      if (!page) {
+        page = await json<Page>("/api/pages", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "sell", name: DEFAULT_NAME.sell }),
+        });
+      }
+      const res = await fetch(`/api/pages/${page.id}/canardo`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      if (res.status === 402) {
+        showToast("Plus de crédits", "/facturation");
+        return;
+      }
+      if (!res.ok) return;
+      const body = (await res.json()) as { message: string };
+      appendChat(body.message, false);
+    } finally {
+      sending = false;
+    }
+  };
+
+  sendBtn?.addEventListener(
+    "click",
+    (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      void send();
+    },
+    true,
+  );
+  input?.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      void send();
+    },
+    true,
+  );
+}
+
 export async function hydrateDashboard() {
   const me = await guardSession();
   if (!me) return;
@@ -274,12 +374,15 @@ export async function hydrateDashboard() {
   bindLogout();
   bindNav();
 
+  let pages: Page[] = [];
   const reload = async () => {
     const data = await json<PagesPayload>("/api/pages");
+    pages = data.pages;
     fillProfile({ ...me, workspace: data.workspace });
     renderRows(data.pages, data.workspace, reload);
   };
 
+  bindCanardo(() => pages);
   await reload();
 }
 

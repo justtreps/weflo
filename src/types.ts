@@ -64,3 +64,7 @@ export type AuthPort = {
   signInGoogle(): Promise<{ url: string }>;
   signOut(): Promise<void>;
 };
+
+export type LlmPort = {
+  complete(input: { prompt: string; document: PageDocument }): Promise<{ message: string; document: PageDocument }>;
+};
