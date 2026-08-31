@@ -1,18 +1,23 @@
 import { Hono } from "hono";
 import { readFile } from "node:fs/promises";
 import { join, normalize, sep } from "node:path";
-import type { AppSession, AuthPort, LlmPort } from "../types";
+import type { AppSession, AuthPort, LlmPort, ShopifyPort } from "../types";
 import type { Store } from "../repos/types";
 import { authRoutes } from "./auth";
 import { meRoutes } from "./me";
 import { pagesRoutes } from "./pages";
+import { shopifyRoutes } from "./shopify";
 import { storefrontRoutes } from "./storefront";
+
+export type { ShopifyPort };
 
 export type AppDeps = {
   store: Store;
   session: (req: Request) => Promise<AppSession>;
   auth?: AuthPort;
   llm?: LlmPort;
+  shopify?: ShopifyPort;
+  encryptionKey?: string;
 };
 
 const htmlRoutes: Record<string, string> = {
@@ -60,6 +65,7 @@ export function createApp(deps: AppDeps) {
   app.route("/api", authRoutes(deps));
   app.route("/api", meRoutes(deps));
   app.route("/api", pagesRoutes(deps));
+  app.route("/api", shopifyRoutes(deps));
   app.route("/", storefrontRoutes(deps));
 
   return app;

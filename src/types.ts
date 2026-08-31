@@ -68,3 +68,14 @@ export type AuthPort = {
 export type LlmPort = {
   complete(input: { prompt: string; document: PageDocument }): Promise<{ message: string; document: PageDocument }>;
 };
+
+export type ShopifyPort = {
+  ping(shop: string, token: string): Promise<void>;
+  publish(input: {
+    shop: string;
+    token: string;
+    document: PageDocument;
+    pageName: string;
+  }): Promise<{ themeId: string; productId: string }>;
+  rollback(input: { shop: string; token: string; themeId?: string; productId?: string }): Promise<void>;
+};

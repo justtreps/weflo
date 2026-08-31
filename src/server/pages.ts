@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { applyCanardo, canardoCreditCost } from "../lib/canardo";
 import { initialDocument } from "../lib/catalog";
 import { spendCredits, totalCredits } from "../lib/credits";
+import { resolveShopifyToken } from "../lib/shopify";
 import type { Store } from "../repos/types";
 import type { Page, PageStatus, PageType, User } from "../types";
 import type { AppDeps } from "./app";
@@ -153,11 +154,34 @@ export function pagesRoutes(deps: AppDeps) {
         message: "Page publiée sur l'aperçu hébergé.",
       });
     }
+    if (!deps.shopify) {
+      return c.json({
+        status: "published_hosted",
+        shopify: "connected",
+        previewUrl,
+        message: "Page publiée.",
+      });
+    }
+
+    const token = resolveShopifyToken(shopify.tokenEncrypted, deps.encryptionKey);
+    try {
+      await deps.shopify.publish({
+        shop: shopify.shopDomain,
+        token,
+        document: updated.document,
+        pageName: updated.name,
+      });
+    } catch {
+      await deps.shopify.rollback({ shop: shopify.shopDomain, token });
+      return c.json({ shopify: "failed", status: "published_hosted", previewUrl }, 502);
+    }
+
+    const published = await deps.store.updatePage(loaded.page.id, { status: "published_shopify" });
     return c.json({
-      status: "published_hosted",
-      shopify: "connected",
+      status: published.status,
+      shopify: "published",
       previewUrl,
-      message: "Page publiée.",
+      message: "Page publiée sur Shopify.",
     });
   });
 

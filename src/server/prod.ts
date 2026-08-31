@@ -6,6 +6,7 @@ import { createSessionResolver } from "../lib/session";
 import { MemoryStore } from "../repos/memory";
 import { PostgresStore } from "../repos/postgres";
 import type { Store } from "../repos/types";
+import { createShopifyPort } from "../lib/shopify";
 import type { AuthPort, LlmPort } from "../types";
 import type { AppDeps } from "./app";
 
@@ -94,16 +95,23 @@ function createLlm(): LlmPort | undefined {
   return key ? createOpenAiLlm(key) : undefined;
 }
 
+function shopifyDeps(): Pick<AppDeps, "shopify" | "encryptionKey"> {
+  const encryptionKey = process.env.INTEGRATION_ENCRYPTION_KEY?.trim();
+  if (!encryptionKey) return {};
+  return { shopify: createShopifyPort(), encryptionKey };
+}
+
 export function prodDeps(): AppDeps {
   loadDotEnv();
   const url = process.env.SUPABASE_URL;
   const anonKey = process.env.SUPABASE_ANON_KEY;
   const llm = createLlm();
+  const shopify = shopifyDeps();
 
   const store = createStore();
 
   if (!url || !anonKey) {
-    return { store, session: async () => null, llm };
+    return { store, session: async () => null, llm, ...shopify };
   }
 
   const supabase = createClient(url, anonKey);
@@ -119,5 +127,6 @@ export function prodDeps(): AppDeps {
     }),
     auth: createSupabaseAuth(url, anonKey),
     llm,
+    ...shopify,
   };
 }
