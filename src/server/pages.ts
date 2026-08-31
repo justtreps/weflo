@@ -62,6 +62,14 @@ export function pagesRoutes(deps: AppDeps) {
     return c.json({ workspace, pages, workspaces });
   });
 
+  app.get("/pages/:id", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
+    if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    return c.json(loaded.page);
+  });
+
   app.post("/pages", async (c) => {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);
