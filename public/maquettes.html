@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weflo — Maquettes</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#faf9f5; --ink:#141310; --muted:#6b6659;
+    --card:#ffffff; --line:#e7e3d8; --accent:#141310;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{--bg:#141310;--ink:#faf9f5;--muted:#9b9487;--card:#1e1c18;--line:#2e2b25;--accent:#faf9f5}
+  }
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:64px 24px 96px;
+  }
+  .wrap{max-width:920px;margin:0 auto}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  h1{font-size:clamp(30px,5vw,44px);letter-spacing:-.02em;line-height:1.1;margin-bottom:12px}
+  .sub{color:var(--muted);font-size:16px;line-height:1.6;max-width:60ch;margin-bottom:44px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  a.card{
+    display:block;text-decoration:none;color:inherit;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px 20px 18px;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+  }
+  a.card:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 6px 22px rgba(0,0,0,.07)}
+  .num{font-size:11px;color:var(--muted);letter-spacing:.1em;margin-bottom:10px}
+  .name{font-size:17px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
+  .desc{font-size:13.5px;color:var(--muted);line-height:1.5}
+  footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Weflo · maquettes</div>
+  <h1>Les écrans du builder</h1>
+  <p class="sub">Sept pages exportées du brainstorm design. Chaque écran est autonome — clique pour l'ouvrir en plein écran.</p>
+
+  <div class="grid">
+    <a class="card" href="/connexion"><div class="num">01</div><div class="name">Connexion</div><div class="desc">Entrée dans l'app, login marchand.</div></a>
+    <a class="card" href="/dashboard"><div class="num">02</div><div class="name">Dashboard</div><div class="desc">Vue d'ensemble des projets et sites.</div></a>
+    <a class="card" href="/editeur"><div class="num">03</div><div class="name">Éditeur</div><div class="desc">Le builder avec la barre IA.</div></a>
+    <a class="card" href="/direction-artistique"><div class="num">04</div><div class="name">Direction artistique</div><div class="desc">Couleurs, typo, radius, style du site.</div></a>
+    <a class="card" href="/mascottes"><div class="num">05</div><div class="name">Mascottes</div><div class="desc">Les personnages de l'interface.</div></a>
+    <a class="card" href="/facturation"><div class="num">06</div><div class="name">Facturation</div><div class="desc">Abonnement, plans et paiements.</div></a>
+    <a class="card" href="/parrainage"><div class="num">07</div><div class="name">Parrainage</div><div class="desc">Programme de referral.</div></a>
+  </div>
+
+  <footer>Weflo — build de pages Shopify piloté par une barre IA.</footer>
+</div>
+</body>
+</html>

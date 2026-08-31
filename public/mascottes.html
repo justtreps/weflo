@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="a83b7389-a386-4a1c-a547-f0c31b29efcc"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("ddd7547f-bcd8-449c-9142-3bb7d443a7c4") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("443084f9-3b0f-473e-a7a8-fdc415fce315") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4cb7bd5f-5102-4435-8bbb-5d5ff6da71d0") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("c463638d-3904-479f-8f4a-a3b723117099") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d31a005e-cfe6-4fc6-a15a-b909da4617ee") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("23c41c02-8d97-4d11-94e8-a8ca8ba8043a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("ddd7547f-bcd8-449c-9142-3bb7d443a7c4") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("443084f9-3b0f-473e-a7a8-fdc415fce315") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("4cb7bd5f-5102-4435-8bbb-5d5ff6da71d0") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("c463638d-3904-479f-8f4a-a3b723117099") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("d31a005e-cfe6-4fc6-a15a-b909da4617ee") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("23c41c02-8d97-4d11-94e8-a8ca8ba8043a") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("5a62063c-3591-4de8-8e1f-fb02359b7b17") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("bb83d074-6035-4af6-9d9f-66b58670d767") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("5a62063c-3591-4de8-8e1f-fb02359b7b17") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("bb83d074-6035-4af6-9d9f-66b58670d767") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("5a62063c-3591-4de8-8e1f-fb02359b7b17") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("bb83d074-6035-4af6-9d9f-66b58670d767") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("5a62063c-3591-4de8-8e1f-fb02359b7b17") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("bb83d074-6035-4af6-9d9f-66b58670d767") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("5a62063c-3591-4de8-8e1f-fb02359b7b17") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("bb83d074-6035-4af6-9d9f-66b58670d767") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { background: #FBF7EF; -webkit-font-smoothing: antialiased; }
+  a { color: #F5891F; text-decoration: none; }
+  a:hover { color: #D9741A; text-decoration: underline; }
+</style>
+<script src="8ead614b-c0ac-4663-aac1-7866c78118eb"></script>
+</helmet>
+
+
+
+
+<div style="min-height:100vh;background:#FBF7EF;font-family:Outfit,system-ui,sans-serif;color:#24211C;padding:72px 56px 96px;box-sizing:border-box">
+
+  <div style="max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:64px">
+
+    <header style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:#9A9184">Art direction · v0</span>
+        <span style="height:1px;flex:1;min-width:60px;background:#E4DCCC"></span>
+      </div>
+
+      <div style="display:flex;gap:48px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:420px;display:flex;flex-direction:column;gap:18px">
+          <h1 style="margin:0;font-size:76px;line-height:0.94;font-weight:600;letter-spacing:-0.03em;max-width:12ch">The mascots</h1>
+          <p style="margin:0;font-size:19px;line-height:1.6;color:#5C574E;max-width:52ch;text-wrap:pretty">Twelve states of the same duck. Each one has a job: it carries the product's voice in the moments where the interface speaks to the merchant — waiting, success, error, empty.</p>
+        </div>
+        <img src="79ed69aa-0ed5-44a9-a489-075229b65604" alt="Happy duck" style="width:190px;height:auto;display:block">
+      </div>
+    </header>
+
+    <section style="display:flex;flex-direction:column;gap:20px">
+      <h2 style="margin:0;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#9A9184;font-weight:500">Palette taken from the artwork</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:14px">
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:88px;border-radius:14px;background:#FBC531"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500">Duck yellow</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9A9184">#FBC531</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:88px;border-radius:14px;background:#E0A81C"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500">Feather shadow</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9A9184">#E0A81C</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:88px;border-radius:14px;background:#F5891F"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500">Beak orange</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9A9184">#F5891F</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:88px;border-radius:14px;background:#3D4A66"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500">Eye navy</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9A9184">#3D4A66</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:88px;border-radius:14px;background:#EE6572"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500">Heart pink</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9A9184">#EE6572</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:88px;border-radius:14px;background:#6C93C6"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500">Note blue</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9A9184">#6C93C6</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:88px;border-radius:14px;background:#FBF7EF;border:1px solid #E4DCCC;box-sizing:border-box"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500">Paper</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9A9184">#FBF7EF</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="height:88px;border-radius:14px;background:#24211C"></div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:14px;font-weight:500">Ink</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#9A9184">#24211C</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section style="display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;align-items:baseline;gap:16px">
+        <h2 style="margin:0;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#9A9184;font-weight:500">The cast · 12 states</h2>
+        <span style="height:1px;flex:1;background:#E4DCCC"></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:20px">
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="79ed69aa-0ed5-44a9-a489-075229b65604" alt="Happy duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">01</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Happy</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Arms wide, glowing halo.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">Store published. The only celebration screen in the flow.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="3b82130e-f85b-4490-9ff8-e31d02765cc5" alt="Surprised duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">02</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Surprised</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Wings clapped over the beak.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">The AI proposes an unexpected result — a theme, a suggested price.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="9f0d75ad-1bcf-46e4-b5b2-697503081930" alt="Jaded duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">03</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Jaded</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Half-closed eyes.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">A catalogue that's been empty for a while, or a draft never published.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="b6c8b8ee-83de-480a-a970-1b8975a5d964" alt="Sleeping duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">04</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Asleep</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Eyes shut, Zzz.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">Store paused, account inactive, session expired.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="1e40e3c3-1b37-46cb-a1c6-1ba5c7bc0d00" alt="Curious duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">05</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Curious</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Big round eyes.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">First screen. The creation prompt, while everything is still open.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="475f5d77-6138-4b64-8401-e3546af5e220" alt="Worried duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">06</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Worried</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Drooping brows.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">Gentle warning: low stock, incomplete product page.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="13be11bd-4454-4f2f-abcf-adb2279d514f" alt="Idea duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">07</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Idea</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Wing to beak, lightbulb.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">A copilot suggestion. This is the face of the recommendation.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="00c9414a-c03a-40f8-8668-a132d92fa28e" alt="Devil duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">08</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Devil</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Horns, smirk.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">Aggressive mode: full rebuild, slashed prices, offensive campaign.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="66618982-eed9-408d-b478-391272ee9472" alt="Anxious duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">09</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Anxious</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Blue jitters.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">Confirming an irreversible action — delete, unpublish.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="62867e2a-5ab2-4bdb-9e96-4197e62a57bb" alt="Duck in love" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">10</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">In love</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Heart eyes, music notes.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">First sale, revenue milestone crossed.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="cc3af668-c829-420b-bffb-10b6fecb131c" alt="Angry duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">11</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Angry</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Furrowed brows, steam.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">Technical failure: import failed, payment declined, generation crashed.</span>
+          </div>
+        </div>
+        <div style="background:#FFFFFF;border:1px solid #EDE5D6;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:18px;box-sizing:border-box" style-hover="border-color:#FBC531;transform:translateY(-3px)">
+          <div style="height:180px;border-radius:14px;background:#FCF8F0;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+            <img src="af4eb36f-7554-43ef-894e-094c6a065813" alt="Crying duck" style="max-height:100%;max-width:100%;width:auto;height:auto;display:block">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C0B6A4">12</span>
+              <span style="font-size:19px;font-weight:600;letter-spacing:-0.01em">Crying</span>
+            </div>
+            <p style="margin:0;font-size:14px;line-height:1.55;color:#7C7568;text-wrap:pretty">Blue tears.</p>
+          </div>
+          <div style="margin-top:auto;padding-top:16px;border-top:1px solid #F2EBDD;display:flex;flex-direction:column;gap:6px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#C0B6A4">Used for</span>
+            <span style="font-size:14px;line-height:1.5;color:#3F3A32;text-wrap:pretty">404, abandoned cart, end of free trial.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;align-items:baseline;gap:16px">
+        <h2 style="margin:0;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#9A9184;font-weight:500">Usage rules</h2>
+        <span style="height:1px;flex:1;background:#E4DCCC"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:17px;font-weight:600">One duck on screen at a time</span>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#7C7568;text-wrap:pretty">The mascot marks a moment, it doesn't decorate. Two ducks visible at once and the message dilutes.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:17px;font-weight:600">Never on a dark background for 01</span>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#7C7568;text-wrap:pretty">Its halo was drawn for a light background: on dark it reads as a pale ring. Ask for a halo-free version if you need one.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:17px;font-weight:600">Yellow belongs to the mascot</span>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#7C7568;text-wrap:pretty">Beak orange carries the interface actions. If yellow also becomes a button colour, the duck stops standing out.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:17px;font-weight:600">No duck on the money screens</span>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:#7C7568;text-wrap:pretty">Payment, billing, sales data: these screens need calm. The mascot would cost them credibility.</p>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{}">
+class Component extends DCLogic {
+  renderVals() {
+    const ducks = [
+      { num: "01", name: "Happy", src: "assets/mascots-web/01-joyeux.png", trait: "Arms wide, glowing halo.", usage: "Store published. The only celebration screen in the flow." },
+      { num: "02", name: "Surprised", src: "assets/mascots-web/02-surpris.png", trait: "Wings clapped over the beak.", usage: "The AI proposes an unexpected result — a theme, a suggested price." },
+      { num: "03", name: "Jaded", src: "assets/mascots-web/03-blase.png", trait: "Half-closed eyes.", usage: "A catalogue that's been empty for a while, or a draft never published." },
+      { num: "04", name: "Asleep", src: "assets/mascots-web/04-endormi.png", trait: "Eyes shut, Zzz.", usage: "Store paused, account inactive, session expired." },
+      { num: "05", name: "Curious", src: "assets/mascots-web/05-curieux.png", trait: "Big round eyes.", usage: "First screen. The creation prompt, while everything is still open." },
+      { num: "06", name: "Worried", src: "assets/mascots-web/06-inquiet.png", trait: "Drooping brows.", usage: "Gentle warning: low stock, incomplete product page." },
+      { num: "07", name: "Idea", src: "assets/mascots-web/07-idee.png", trait: "Wing to beak, lightbulb.", usage: "A copilot suggestion. This is the face of the recommendation." },
+      { num: "08", name: "Devil", src: "assets/mascots-web/08-diable.png", trait: "Horns, smirk.", usage: "Aggressive mode: full rebuild, slashed prices, offensive campaign." },
+      { num: "09", name: "Anxious", src: "assets/mascots-web/09-anxieux.png", trait: "Blue jitters.", usage: "Confirming an irreversible action — delete, unpublish." },
+      { num: "10", name: "In love", src: "assets/mascots-web/10-amoureux.png", trait: "Heart eyes, music notes.", usage: "First sale, revenue milestone crossed." },
+      { num: "11", name: "Angry", src: "assets/mascots-web/11-enerve.png", trait: "Furrowed brows, steam.", usage: "Technical failure: import failed, payment declined, generation crashed." },
+      { num: "12", name: "Crying", src: "assets/mascots-web/12-pleure.png", trait: "Blue tears.", usage: "404, abandoned cart, end of free trial." }
+    ];
+    return { ducks };
+  }
+}
+</script>
+
+
+</body></html>

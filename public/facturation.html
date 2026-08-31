@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="581ca772-87a2-459b-b3fb-f50f112c6750"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("869a4293-dd27-4e7e-af54-3929829183c4") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("e987f997-ddd1-46fb-b967-736c0feee798") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("8ec71a94-ed78-43cd-932f-7dda9dde478c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("869a4293-dd27-4e7e-af54-3929829183c4") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("e987f997-ddd1-46fb-b967-736c0feee798") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("8ec71a94-ed78-43cd-932f-7dda9dde478c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("869a4293-dd27-4e7e-af54-3929829183c4") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("e987f997-ddd1-46fb-b967-736c0feee798") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("8ec71a94-ed78-43cd-932f-7dda9dde478c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<script src="4f807a06-1b99-4486-9541-86e558bdacba"></script>
+<style>
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #141310; background: #fff; }
+  a { color: #141310; text-decoration: underline; text-decoration-color: #FBC531; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+  a:hover { color: #4A463F; }
+  .no-sb::-webkit-scrollbar { display: none; }
+  .no-sb { scrollbar-width: none; }
+  @keyframes om-dot { 0%, 100% { opacity: .3; transform: translateY(0) } 50% { opacity: 1; transform: translateY(-2px) } }
+</style>
+<script src="7c520428-0cc5-4996-9bd6-11f2004dd37f"></script>
+<script src="727a0d13-ceeb-4e17-8949-50d7dbaff85c"></script>
+</helmet>
+
+<div style="width: 1440px; height: 900px; display: flex; background: #fff; overflow: hidden; font-size: 14px;">
+
+  <div style="width: 256px; flex-shrink: 0; padding: 12px; box-sizing: border-box;">
+    <div style="height: 100%; display: flex; flex-direction: column; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 10px; box-shadow: 0 1px 2px rgba(82,82,82,0.06);">
+
+      <div style="padding: 12px 12px 0; display: flex; flex-direction: column;">
+        <div style="padding-bottom: 12px;">
+          <a href="buildstore-dashboard.html" style="text-decoration: none; display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; color: #000;" style-hover="background: #fafafa; color: #000;"><svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+            <span>Back to app</span>
+          </a>
+        </div>
+        <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+      </div>
+
+      <div class="no-sb" style="flex: 1; min-height: 0; overflow-y: auto; padding: 8px 12px 12px;">
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <sc-for list="{{ nav }}" as="row" hint-placeholder-count="0">
+            <sc-if value="{{ row.isLabel }}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; height: 32px; padding: 0 8px; font-size: 12px; font-weight: 500; color: #404040;">{{ row.label }}</div>
+            </sc-if>
+            <sc-if value="{{ row.isSep }}" hint-placeholder-val="{{ false }}">
+              <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+            </sc-if>
+            <sc-if value="{{ row.active }}" hint-placeholder-val="{{ false }}">
+              <div sc-camel-on-click="{{ row.onClick }}" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; font-weight: 500; color: #000; background: #f5f5f5; cursor: pointer;">
+                <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ row.icon }}</div>
+                <span>{{ row.label }}</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ row.inactive }}" hint-placeholder-val="{{ false }}">
+              <div sc-camel-on-click="{{ row.onClick }}" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; color: #000; cursor: pointer;" style-hover="background: #fafafa;">
+                <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ row.icon }}</div>
+                <span>{{ row.label }}</span>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 12px 12px 12px 0; box-sizing: border-box;">
+    <div class="no-sb" style="flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 10px; box-shadow: 0 1px 2px rgba(82,82,82,0.06);">
+      <div style="margin: 0 auto; display: flex; width: 100%; max-width: 1000px; flex-direction: column; padding: 24px 32px; box-sizing: border-box;">
+        <div style="display: flex; flex-direction: column; gap: 48px; width: 100%; padding-bottom: 64px;">
+
+          <sc-if value="{{ isBilling }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 20px; line-height: 28px; font-weight: 600; color: #000;">Billing</span>
+            </div>
+            <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+
+            <div style="display: flex; flex-direction: column; width: 100%; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 20px; box-sizing: border-box; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                    <div style="display: flex; justify-content: flex-start; align-items: center; gap: 8px;">
+                      <span style="font: 700 24px/32px Syne, sans-serif; letter-spacing: -0.025em;">{{ planName }}</span>
+                    </div>
+                    <span style="display: inline-flex; align-items: center; justify-content: center; height: 24px; padding: 4px 6px; box-sizing: border-box; border: 0.5px solid {{ planBadgeBorder }}; border-radius: 6px; background: {{ planBadgeBg }}; color: {{ planBadgeFg }}; font-size: 12px; white-space: nowrap;">{{ planBadge }}</span>
+                  </div>
+                  <div style="display: {{ managePayDisp }}; gap: 12px;">
+                    <div sc-camel-on-click="{{ act }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; cursor: pointer; white-space: nowrap;" style-hover="background: #fafafa;">
+                      <span>Manage Payments</span>
+                      <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: baseline;">
+                  <span style="font-size: 16px; font-weight: 500;">{{ planPrice }}<span style="font-size: 16px; font-weight: 500;">{{ planPer }}</span></span>
+                  <span style="font-size: 14px; color: #404040;">{{ planRenew }}</span>
+                </div>
+
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+
+                <div style="margin: -16px -20px -20px; padding: 16px 20px 16px 16px; background: #fff; border-radius: 0 0 16px 16px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-size: 16px; font-weight: 600;">{{ nudgeTitle }}</span>
+                        <span style="font-size: 14px; color: #404040;">{{ nudgeBody }}</span>
+                      </div>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px 6px 8px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #262626;">
+                      <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
+                      <span>{{ nudgeCta }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font: 700 19px/26px Syne, sans-serif; letter-spacing: -0.02em;">Buildstore Agent</span>
+              </div>
+
+              <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; gap: 32px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                  <div style="display: flex; flex-direction: column; gap: 8px; width: 400px; flex-shrink: 0;">
+                    <span style="font-size: 16px; font-weight: 500;">Active Sites</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #737373;">Sites are activated once you connect a custom domain. You get unlimited free sites when you use buildstoresites.com</span>
+                  </div>
+                  <div style="width: 100%; max-width: 500px; margin-left: auto;">
+                    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 16px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 12px;">
+                      <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <span style="font-size: 14px; font-weight: 500; color: #404040;">Active Sites</span>
+                        <div style="display: flex; align-items: baseline; gap: 4px;">
+                          <span style="font-size: 20px; line-height: 28px; font-weight: 600;">0</span>
+                          <span style="font-size: 14px; color: #737373;">/ {{ siteQuota }}</span>
+                        </div>
+                      </div>
+                      <div style="display: flex; align-items: center; justify-content: center; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="background: #fafafa;">
+                        <span>Add Sites</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 32px; padding: 20px;">
+                  <div style="display: flex; flex-direction: column; gap: 8px; width: 400px; flex-shrink: 0;">
+                    <span style="font-size: 16px; font-weight: 500;">Free Credits</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #737373;">Included monthly credits as part of your plan. Free credits get used first and reset monthly.</span>
+                  </div>
+                  <div style="width: 100%; max-width: 500px; margin-left: auto;">
+                    <div style="display: flex; flex-direction: column; gap: 16px; padding: 16px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 12px;">
+                      <span style="font-size: 14px; font-weight: 500; color: #404040;">Remaining Monthly Balance</span>
+                      <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="position: relative; height: 6px; width: 100%; overflow: hidden; border-radius: 999px; background: #e5e5e5;">
+                          <div style="height: 100%; width: {{ creditsW }}; border-radius: 999px; background: #000;"></div>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                          <span style="font-size: 20px; line-height: 28px; font-weight: 600;">{{ credits }}</span>
+                          <span style="font-size: 14px; color: #404040;">{{ credits }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin: 0 20px; border-top: 1px dashed rgba(82,82,82,0.22);"></div>
+
+                <div style="display: flex; align-items: center; gap: 32px; padding: 20px;">
+                  <div style="display: flex; flex-direction: column; gap: 8px; width: 400px; flex-shrink: 0;">
+                    <span style="font-size: 16px; font-weight: 500;">Purchased Credits</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #737373;">Additional credits purchased by you. Purchased credits never expire.</span>
+                  </div>
+                  <div style="width: 100%; max-width: 500px; margin-left: auto;">
+                    <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 12px;">
+                      <span style="font-size: 14px; font-weight: 500; color: #404040;">Remaining Balance</span>
+                      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;">
+                        <span style="font-size: 20px; line-height: 28px; font-weight: 600;">0</span>
+                        <div style="display: flex; align-items: center; justify-content: center; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; cursor: pointer; white-space: nowrap;" style-hover="background: #fafafa;">
+                          <span>Add Credits</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <img src="79caa8b4-a539-4ac5-84d1-305b0133222e" alt="" style="width: 32px; height: 32px; display: block;">
+                <span style="font: 700 19px/26px Syne, sans-serif; letter-spacing: -0.02em;">Shopify Theme Builder</span>
+              </div>
+
+              <div style="display: flex; flex-direction: column;">
+                <sc-for list="{{ shopifyRows }}" as="r" hint-placeholder-count="0">
+                  <div style="display: flex; align-items: center; gap: 24px; padding: 20px; border-bottom: {{ r.border }};">
+                    <div style="display: flex; flex-direction: column; gap: 8px; width: 360px; flex-shrink: 0;">
+                      <span style="font-size: 16px; font-weight: 500;">{{ r.title }}</span>
+                      <span style="font-size: 14px; line-height: 20px; color: #737373;">{{ r.desc }}</span>
+                    </div>
+                    <div style="width: 100%; max-width: 500px; margin-left: auto;">
+                      <div style="display: flex; flex-direction: column; gap: 8px; padding: 16px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                          <div style="display: flex; min-width: 0; flex-direction: column; gap: 4px;">
+                            <span style="font-size: 14px; color: #404040;">{{ r.metric }}</span>
+                            <div style="display: flex; align-items: baseline; gap: 2px;">
+                              <span style="font-size: 20px; line-height: 28px; font-weight: 600;">{{ r.value }}</span>
+                              <span style="font-size: 14px; color: #737373;">{{ r.limit }}</span>
+                            </div>
+                          </div>
+                          <div style="display: flex; align-items: center; justify-content: center; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #fafafa;">
+                            <span>{{ r.cta }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 24px; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+              <span style="font-size: 18px; line-height: 28px; font-weight: 600;">Compare {{ periodLabel }} Plans</span>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="font-size: 14px; font-weight: 600;">Annual discount</div>
+                <span style="display: inline-flex; align-items: center; justify-content: center; height: 24px; padding: 4px 6px; box-sizing: border-box; border: 0.5px solid rgba(231,0,102,0.2); border-radius: 6px; background: #fef0f4; color: #e70044; font-size: 12px; white-space: nowrap;">Save up to 17%</span>
+                <div sc-camel-on-click="{{ toggleAnnual }}" style="position: relative; display: inline-flex; align-items: center; width: 42.667px; height: 24px; flex-shrink: 0; border-radius: 999px; border: 1px solid transparent; cursor: pointer; background: {{ switchBg }};">
+                  <span style="display: block; width: 20px; height: 20px; border-radius: 999px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.12); transform: {{ switchThumb }}; transition: transform 150ms ease;"></span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+              <sc-for list="{{ plans }}" as="p" hint-placeholder-count="0">
+                <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+
+                  <div style="background: #fff; padding-top: 16px; border-radius: 12px 12px 0 0;">
+                    <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-bottom: 0; border-radius: 12px 12px 0 0;">
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; justify-content: flex-start; align-items: center; gap: 8px;">
+                          {{ p.iconEl }}
+                          <span style="font: 700 24px/32px Syne, sans-serif; letter-spacing: -0.025em;">{{ p.name }}</span>
+                        </div>
+                        <sc-if value="{{ p.current }}" hint-placeholder-val="{{ false }}">
+                          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+                        </sc-if>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 28px; line-height: 36px; font-weight: 600; display: flex; align-items: center; gap: 4px;">{{ p.price }}<span style="font-weight: 400; font-size: 14px;">/month</span></span>
+                        <sc-if value="{{ p.showSaving }}" hint-placeholder-val="{{ false }}">
+                          <span style="display: inline-flex; align-items: center; justify-content: center; height: 24px; padding: 4px 6px; box-sizing: border-box; border: 0.5px solid rgba(231,0,102,0.2); border-radius: 6px; background: #fef0f4; color: #e70044; font-size: 12px; white-space: nowrap;">Saving 17% annually</span>
+                        </sc-if>
+                      </div>
+                      <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" style-hover="background: #262626;">
+                        <span>{{ p.cta }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex: 1; flex-direction: column; gap: 16px; padding: 20px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-top: 0; border-radius: 0 0 12px 12px;">
+                    <sc-for list="{{ p.groups }}" as="g" hint-placeholder-count="0">
+                      <div style="border-radius: 12px; border: 0.5px solid rgba(82,82,82,0.22); background: #fff; display: flex; flex-direction: column;">
+                        <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px;">
+                          <div style="display: flex; align-items: center; gap: 8px;">
+                            {{ g.iconEl }}
+                            <span style="font: 700 19px/26px Syne, sans-serif; letter-spacing: -0.02em;">{{ g.name }}</span>
+                            <sc-if value="{{ g.soon }}" hint-placeholder-val="{{ false }}">
+                              <span style="display: inline-flex; align-items: center; justify-content: center; height: 24px; padding: 4px 6px; box-sizing: border-box; border: 0.5px solid rgba(231,0,102,0.2); border-radius: 6px; background: #fef0f4; color: #e70044; font-size: 12px; white-space: nowrap;">Coming soon</span>
+                            </sc-if>
+                          </div>
+                          <div style="display: flex; flex-direction: column; margin-left: 8px; gap: 12px; padding: 6px 0;">
+                            <sc-for list="{{ g.items }}" as="f" hint-placeholder-count="0">
+                              <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                <sc-if value="{{ f.ok }}" hint-placeholder-val="{{ false }}">
+                                  <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><path d="M20 6 9 17l-5-5"></path></svg>
+                                </sc-if>
+                                <sc-if value="{{ f.no }}" hint-placeholder-val="{{ false }}">
+                                  <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#e70044" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                </sc-if>
+                                <span style="font-size: 14px; line-height: 20px; min-width: 0; color: {{ f.color }};"><span style="font-weight: 700;">{{ f.bold }}</span>{{ f.text }}</span>
+                              </div>
+                            </sc-for>
+                          </div>
+                        </div>
+
+                        <sc-if value="{{ g.hasSteppers }}" hint-placeholder-val="{{ false }}">
+                          <div style="border-top: 0.5px solid rgba(82,82,82,0.22); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                            <sc-for list="{{ g.steppers }}" as="st" hint-placeholder-count="0">
+                              <div style="display: flex; width: 100%; align-items: center; gap: 12px; color: #000;">
+                                <span style="flex: 1; font-size: 14px;">{{ st.label }}</span>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                  <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); opacity: 0.5; cursor: not-allowed;">
+                                    <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="#404040" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"></path></svg>
+                                  </div>
+                                  <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); cursor: pointer;" style-hover="background: #fafafa;">
+                                    <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="#404040" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                                  </div>
+                                </div>
+                              </div>
+                            </sc-for>
+                            <sc-if value="{{ g.unlimitedNote }}" hint-placeholder-val="{{ false }}">
+                              <div style="display: flex; align-items: center; justify-content: center; border: 0.5px solid rgba(82,82,82,0.22); background: #fff; border-radius: 6px; padding: 0 8px; height: 32px;">
+                                <span style="font-size: 14px; color: #404040;">Unlimited published items</span>
+                              </div>
+                            </sc-if>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="border-radius: 12px; border: 0.5px solid rgba(82,82,82,0.22); background: #fff; display: flex; align-items: center; gap: 12px; padding: 12px; box-shadow: 0 1px 2px rgba(82,82,82,0.06);">
+              <img src="afd4b459-1e01-4fd2-ae14-5db1999549ec" alt="" style="width: 40px; height: 34px; flex-shrink: 0; display: block;">
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                <span style="font-size: 14px; font-weight: 600;">Looking for more?</span>
+                <span style="font-size: 14px; color: #404040;">Chat with our team to get dedicated support!</span>
+              </div>
+              <a href="#" style="text-decoration: none; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" style-hover="background: #262626;">
+                  <img src="7900f793-1b00-4dae-881e-0a1bfd997142" alt="" width="16" height="16" style="border-radius: 999px; display: block;">
+                  <span>Book a Call</span>
+                </div>
+              </a>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ isGeneral }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px; line-height: 28px; font-weight: 600; color: #000;">General</span>
+              </div>
+              <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Site Management</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+                <span style="font-size: 14px; line-height: 20px; color: #404040;">Manage your site name, domains, and workspace</span>
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Site Name</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Shown in the browser tab and on shared links.</span>
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                    <input type="text" value="{{ siteName }}" sc-camel-on-change="{{ onSiteName }}" style="height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; outline: none; width: 220px;">
+                    <div sc-camel-on-click="{{ save }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" style-hover="background: #262626;"><span>Save</span></div>
+                  </div>
+                </div>
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Domain</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">A custom domain replaces the default address.</span>
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                    <input type="text" value="{{ domain }}" sc-camel-on-change="{{ onDomain }}" style="height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; outline: none; width: 220px;">
+                    <div sc-camel-on-click="{{ save }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" style-hover="background: #262626;"><span>Save</span></div>
+                  </div>
+                </div>
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Move Project</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Move this project to a different workspace.</span>
+                  </div>
+                  <div sc-camel-on-click="{{ act }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #fafafa;"><span>Move Project</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Danger zone</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Delete Project</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Remove this project from your workspace. This cannot be undone.</span>
+                  </div>
+                  <div sc-camel-on-click="{{ act }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(231,0,102,0.3); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; font-weight: 500; color: #e70044; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #fef0f4;"><span>Delete Project</span></div>
+                </div>
+              </div>
+            </div>
+
+          </sc-if>
+
+
+          <sc-if value="{{ isIntegrations }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px; line-height: 28px; font-weight: 600; color: #000;">Integrations</span>
+              </div>
+              <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Available Integrations</span>
+              <span style="font-size: 14px; line-height: 20px; color: #404040;">Helpful guides to get you up and running with your favorite integrations.</span>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+
+              <div style="border-radius: 12px; border: 0.5px solid rgba(82,82,82,0.22); padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <span style="width: 44px; height: 44px; flex: none; border-radius: 10px; border: 0.5px solid rgba(82,82,82,0.22); background: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                  <img src="782c95da-4682-414d-85f1-8b63c0f3ce61" alt="" style="width: 26px; height: 26px; object-fit: contain; display: block;">
+                </span>
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                  <span style="font-size: 14px; font-weight: 600; color: #000;">Shopify</span>
+                  <span style="font-size: 14px; line-height: 20px; color: #404040;">Buildstore pulls your theme, products, and store info from the store below.</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 6px 0 12px; box-sizing: border-box; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 10px; background: #fff;">
+                  <span style="flex: 1; min-width: 0; font-size: 14px; color: {{ shopDomainFg }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ shopDomain }}</span>
+
+                  <div style="display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; box-sizing: border-box; flex: none; border: 0.5px solid {{ shopBadgeBorder }}; border-radius: 8px; background: {{ shopBadgeBg }}; color: {{ shopBadgeFg }}; font-size: 14px; font-weight: 500; white-space: nowrap;">
+                    <span style="width: 6px; height: 6px; flex: none; border-radius: 50%; background: {{ shopBadgeFg }}; display: block;"></span>
+                    <span>{{ shopBadge }}</span>
+                  </div>
+
+                  <div sc-camel-on-click="{{ toggleShop }}" style="display: flex; align-items: center; justify-content: center; height: 28px; padding: 0 10px; box-sizing: border-box; flex: none; border: 0.5px solid {{ shopCtaBorder }}; border-radius: 8px; background: #fff; color: {{ shopCtaFg }}; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background .2s ease;" style-hover="background: {{ shopCtaHover }};">
+                    <span>{{ shopCta }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 12px;">
+                <sc-for list="{{ integrations }}" as="it" hint-placeholder-count="6">
+                  <div sc-camel-on-click="{{ it.onPick }}" style="display: flex; align-items: center; gap: 12px; padding: 12px; box-sizing: border-box; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 12px; background: #fff; cursor: pointer; transition: border-color .2s ease, box-shadow .2s ease;" style-hover="border-color: rgba(82,82,82,0.4); box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                    <span style="width: 36px; height: 36px; flex: none; border-radius: 9px; overflow: hidden; display: flex; align-items: center; justify-content: center;">{{ it.logo }}</span>
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px;">
+                      <span style="font-size: 14px; font-weight: 600; color: #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ it.name }}</span>
+                      <span style="font-size: 12px; color: {{ it.stateFg }}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ it.state }}</span>
+                    </div>
+                    <span style="height: 28px; padding: 0 10px; box-sizing: border-box; flex: none; display: flex; align-items: center; border: 0.5px solid {{ it.ctaBorder }}; border-radius: 8px; background: #fff; color: {{ it.ctaFg }}; font-size: 13px; font-weight: 500; white-space: nowrap; transition: background .2s ease;">{{ it.cta }}</span>
+                  </div>
+                </sc-for>
+              </div>
+
+            </div>
+          </sc-if>
+
+
+          <sc-if value="{{ isWsGeneral }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px; line-height: 28px; font-weight: 600; color: #000;">General</span>
+              </div>
+              <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Workspace</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Workspace name</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Visible to members and on invoices.</span>
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                    <input type="text" value="{{ wsName }}" sc-camel-on-change="{{ onWsName }}" style="height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; outline: none; width: 220px;">
+                    <div sc-camel-on-click="{{ save }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" style-hover="background: #262626;"><span>Save</span></div>
+                  </div>
+                </div>
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Workspace URL</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">buildstore.app/acai</span>
+                  </div>
+                  <div sc-camel-on-click="{{ act }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #fafafa;"><span>Change URL</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Danger zone</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Delete Workspace</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Deletes the workspace and every project inside it. This cannot be undone.</span>
+                  </div>
+                  <div sc-camel-on-click="{{ act }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(231,0,102,0.3); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; font-weight: 500; color: #e70044; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #fef0f4;"><span>Delete Workspace</span></div>
+                </div>
+              </div>
+            </div>
+
+          </sc-if>
+
+          <sc-if value="{{ isMembers }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px; line-height: 28px; font-weight: 600; color: #000;">Members</span>
+              </div>
+              <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Team</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Invite people</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">{{ seatsLabel }}</span>
+                  </div>
+                  <div sc-camel-on-click="{{ openInvite }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #262626;">
+                    <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                    <span>Invite member</span>
+                  </div>
+                </div>
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                <sc-for list="{{ members }}" as="m" hint-placeholder-count="2">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="width: 32px; height: 32px; flex: none; border-radius: 999px; background: #fafafa; border: 0.5px solid rgba(82,82,82,0.22); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #404040;">{{ m.initials }}</span>
+                    <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                      <span style="font-size: 14px; font-weight: 600; color: #000;">{{ m.name }}</span>
+                      <span style="font-size: 14px; line-height: 20px; color: #404040;">{{ m.mail }}</span>
+                    </div>
+
+                    <div style="position: relative; flex-shrink: 0;">
+                      <div sc-camel-on-click="{{ m.onOpenRole }}" style="display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; box-sizing: border-box; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; background: #fff; font-size: 14px; color: #000; cursor: {{ m.roleCursor }}; white-space: nowrap;" style-hover="background: #fafafa;">
+                        <span>{{ m.role }}</span>
+                        <sc-if value="{{ m.canEdit }}" hint-placeholder-val="{{ true }}">
+                          <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#737373" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                        </sc-if>
+                      </div>
+                      <sc-if value="{{ m.roleOpen }}" hint-placeholder-val="{{ false }}">
+                        <div style="position: absolute; top: calc(100% + 4px); right: 0; width: 210px; z-index: 30; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); padding: 4px; display: flex; flex-direction: column; gap: 1px;">
+                          <sc-for list="{{ m.roleOptions }}" as="o" hint-placeholder-count="3">
+                            <div sc-camel-on-click="{{ o.onPick }}" style="display: flex; flex-direction: column; gap: 1px; padding: 7px 9px; border-radius: 7px; background: {{ o.bg }}; cursor: pointer;" style-hover="background: #fafafa;">
+                              <span style="font-size: 14px; font-weight: 500; color: #000;">{{ o.label }}</span>
+                              <span style="font-size: 12px; color: #737373;">{{ o.hint }}</span>
+                            </div>
+                          </sc-for>
+                          <sc-if value="{{ m.removable }}" hint-placeholder-val="{{ true }}">
+                            <div style="margin: 3px 0; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                            <div sc-camel-on-click="{{ m.onRemove }}" style="padding: 7px 9px; border-radius: 7px; font-size: 14px; color: #e70044; cursor: pointer;" style-hover="background: #fef0f4;">Remove from workspace</div>
+                          </sc-if>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+          </sc-if>
+
+          <sc-if value="{{ isAccount }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px; line-height: 28px; font-weight: 600; color: #000;">My Account</span>
+              </div>
+              <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Profile</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Name</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Shown on your comments and invitations.</span>
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                    <input type="text" value="{{ fullName }}" sc-camel-on-change="{{ onFullName }}" style="height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; outline: none; width: 220px;">
+                    <div sc-camel-on-click="{{ save }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" style-hover="background: #262626;"><span>Save</span></div>
+                  </div>
+                </div>
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Email address</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Used to sign in and for notifications.</span>
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                    <input type="text" value="{{ email }}" sc-camel-on-change="{{ onEmail }}" style="height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; outline: none; width: 220px;">
+                    <div sc-camel-on-click="{{ save }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;" style-hover="background: #262626;"><span>Save</span></div>
+                  </div>
+                </div>
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Password</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Last changed four months ago.</span>
+                  </div>
+                  <div sc-camel-on-click="{{ act }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #fafafa;"><span>Change password</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Danger zone</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Delete my account</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Deletes your account and removes you from every workspace.</span>
+                  </div>
+                  <div sc-camel-on-click="{{ act }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(231,0,102,0.3); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; font-weight: 500; color: #e70044; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #fef0f4;"><span>Delete my account</span></div>
+                </div>
+              </div>
+            </div>
+
+          </sc-if>
+
+          <sc-if value="{{ isReferrals }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 20px; line-height: 28px; font-weight: 600; color: #000;">My Referrals</span>
+              </div>
+              <div style="height: 0.5px; width: 100%; background: rgba(82,82,82,0.22);"></div>
+            </div>
+
+            <div style="border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 1px 3px rgba(0,0,0,0.06); background: #fff;">
+              <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+                <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000;">Referral programme</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Your link</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">buildstore.app/r/acai — 20% of the subscription for twelve months.</span>
+                  </div>
+                  <div sc-camel-on-click="{{ copyRef }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #fafafa;"><span>Copy link</span></div>
+                </div>
+                <div style="margin: 0 -20px; border-top: 0.5px solid rgba(82,82,82,0.22);"></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+                  <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1;">
+                    <span style="font-size: 14px; font-weight: 600; color: #000;">Referral page</span>
+                    <span style="font-size: 14px; line-height: 20px; color: #404040;">Referrals, earnings and payouts in detail.</span>
+                  </div>
+                  <div sc-camel-on-click="{{ openRef }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 32px; padding: 6px 10px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0;" style-hover="background: #262626;"><span>Open page</span></div>
+                </div>
+              </div>
+            </div>
+
+          </sc-if>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ chatClosed }}" hint-placeholder-val="{{ true }}">
+    <div sc-camel-on-click="{{ openChat }}" sc-camel-on-mouse-enter="{{ hoverDuck }}" sc-camel-on-mouse-leave="{{ leaveDuck }}" title="Canardo" style="position: fixed; right: 24px; bottom: 24px; z-index: 340; cursor: pointer; transform: scale({{ duckScale }}); transition: transform .22s cubic-bezier(.32,.72,0,1);">
+      <div style="position: relative; display: flex; align-items: center; gap: 10px; height: 62px; padding: 0 20px 0 9px; box-sizing: border-box; border-radius: 31px 31px 8px 31px; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 10px 30px rgba(0,0,0,0.16);">
+        <span style="position: relative; width: 46px; height: 46px; flex: none; display: flex; align-items: center; justify-content: center;">
+          <img src="5753ed1c-56ff-4ef5-97f8-194374c3c8e0" alt="" style="position: absolute; width: 44px; height: 44px; object-fit: contain; display: {{ duckIdle }};">
+          <img src="8690721c-10b7-496a-951e-d8ea4974a439" alt="" style="position: absolute; width: 44px; height: 44px; object-fit: contain; display: {{ duckHappy }};">
+        </span>
+        <span style="font-size: 15px; font-weight: 600; color: #000; white-space: nowrap;">{{ sayText }}</span>
+        <span style="position: absolute; right: 2px; bottom: -5px; width: 14px; height: 14px; background: #fff; border-right: 0.5px solid rgba(82,82,82,0.22); border-bottom: 0.5px solid rgba(82,82,82,0.22); border-radius: 0 0 4px 0; transform: rotate(20deg); display: block;"></span>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ chatOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; right: 24px; bottom: 24px; z-index: 350; width: 380px; max-width: calc(100vw - 48px); height: 520px; max-height: calc(100vh - 48px); background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 18px; box-shadow: 0 24px 64px rgba(0,0,0,0.26); display: flex; flex-direction: column; overflow: hidden;">
+
+      <div style="display: flex; align-items: center; gap: 10px; padding: 14px 14px 13px; border-bottom: 0.5px solid rgba(82,82,82,0.22); flex: none;">
+        <span style="position: relative; width: 34px; height: 34px; flex: none; display: flex; align-items: center; justify-content: center;">
+          <img src="5753ed1c-56ff-4ef5-97f8-194374c3c8e0" alt="" style="position: absolute; width: 32px; height: 32px; object-fit: contain; display: {{ headIdle }};">
+          <img src="d2bafe85-a1d8-49b3-8227-2b319f7598bc" alt="" style="position: absolute; width: 32px; height: 32px; object-fit: contain; display: {{ headThink }};">
+        </span>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <span style="font-size: 14px; font-weight: 600; color: #000;">Canardo</span>
+          <span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #737373;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #059669; display: block;"></span>
+            Répond tout de suite
+          </span>
+        </div>
+        <div sc-camel-on-click="{{ closeChat }}" title="Fermer" style="width: 28px; height: 28px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 7px; color: #737373; cursor: pointer;" style-hover="background: #fafafa; color: #000;">
+          <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </div>
+      </div>
+
+      <div ref="{{ chatRef }}" class="no-sb" style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px;">
+        <sc-for list="{{ chatMsgs }}" as="m" hint-placeholder-count="1">
+          <div style="display: flex; align-items: flex-end; gap: 8px; justify-content: {{ m.just }};">
+            <div style="max-width: 78%; padding: 10px 13px; box-sizing: border-box; border-radius: 14px; background: {{ m.bg }}; color: {{ m.fg }}; border: {{ m.bd }}; font-size: 14px; line-height: 20px; text-wrap: pretty;">{{ m.text }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ chatTyping }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; align-items: flex-end; gap: 8px;">
+            <span style="width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center;">
+              <img src="d2bafe85-a1d8-49b3-8227-2b319f7598bc" alt="" style="width: 24px; height: 24px; object-fit: contain; display: block;">
+            </span>
+            <div style="display: flex; align-items: center; gap: 4px; padding: 12px 14px; border-radius: 14px; background: #fff; border: 0.5px solid rgba(82,82,82,0.22);">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s infinite;"></span>
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s .16s infinite;"></span>
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s .32s infinite;"></span>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="display: {{ chatChipsDisp }}; gap: 6px; flex-wrap: wrap; padding: 0 14px 12px; flex: none;">
+        <sc-for list="{{ chatChips }}" as="c" hint-placeholder-count="3">
+          <div sc-camel-on-click="{{ c.onPick }}" style="height: 30px; padding: 0 11px; box-sizing: border-box; display: flex; align-items: center; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 999px; background: #fff; font-size: 13px; color: #404040; cursor: pointer; white-space: nowrap;" style-hover="background: #fafafa; color: #000;">{{ c.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-top: 0.5px solid rgba(82,82,82,0.22); background: #fafafa; flex: none;">
+        <input type="text" value="{{ chatInput }}" sc-camel-on-change="{{ onChatInput }}" sc-camel-on-key-down="{{ onChatKey }}" placeholder="Écris un message…" style="flex: 1; min-width: 0; height: 36px; padding: 0 12px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 10px; font-size: 14px; color: #000; outline: none;" style-focus="border-color: #000;">
+        <div sc-camel-on-click="{{ sendChat }}" style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: {{ chatSendBg }}; color: {{ chatSendFg }}; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>
+        </div>
+      </div>
+
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ inviteOpen }}" hint-placeholder-val="{{ false }}">
+    <div sc-camel-on-click="{{ closeInvite }}" style="position: fixed; inset: 0; z-index: 380; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box;">
+      <div sc-camel-on-click="{{ stop }}" style="width: 460px; max-width: 100%; background: #fff; border-radius: 16px; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 24px 64px rgba(0,0,0,0.28); overflow: hidden; display: flex; flex-direction: column;">
+
+        <div style="display: flex; align-items: center; gap: 8px; padding: 20px; border-bottom: 0.5px solid rgba(82,82,82,0.22);">
+          <img src="12b319b8-02b0-4153-9b04-db247032b23e" alt="" style="width: 30px; height: 30px; object-fit: contain; flex-shrink: 0; display: block;">
+          <span style="font-size: 16px; line-height: 24px; font-weight: 600; color: #000; flex: 1;">Invite to workspace</span>
+          <div sc-camel-on-click="{{ closeInvite }}" style="width: 26px; height: 26px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #737373; cursor: pointer;" style-hover="background: #fafafa; color: #000;">
+            <svg width="13" height="13" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px; padding: 20px;">
+
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 14px; font-weight: 600; color: #000;">Email address</span>
+            <input type="email" value="{{ inviteMail }}" sc-camel-on-change="{{ onInviteMail }}" sc-camel-on-key-down="{{ onInviteKey }}" placeholder="name@example.com" style="height: 36px; padding: 6px 10px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 8px; box-shadow: 0 1px 1px rgba(82,82,82,0.05); font-size: 14px; color: #000; outline: none;" style-focus="border-color: #000;">
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-size: 14px; font-weight: 600; color: #000;">Role</span>
+            <sc-for list="{{ inviteRoles }}" as="r" hint-placeholder-count="3">
+              <div sc-camel-on-click="{{ r.onPick }}" style="display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; box-sizing: border-box; border: 0.5px solid {{ r.border }}; border-radius: 10px; background: {{ r.bg }}; cursor: pointer;">
+                <span style="width: 17px; height: 17px; flex: none; margin-top: 1px; border-radius: 50%; border: 1.5px solid {{ r.dotBorder }}; display: flex; align-items: center; justify-content: center;">
+                  <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ r.dotBg }}; display: block;"></span>
+                </span>
+                <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                  <span style="font-size: 14px; font-weight: 500; color: #000;">{{ r.label }}</span>
+                  <span style="font-size: 13px; line-height: 18px; color: #737373; text-wrap: pretty;">{{ r.hint }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; padding: 16px 20px; border-top: 0.5px solid rgba(82,82,82,0.22); background: #fafafa;">
+          <span sc-camel-on-click="{{ closeInvite }}" style="font-size: 14px; color: #737373; cursor: pointer; white-space: nowrap;" style-hover="color: #000;">Cancel</span>
+          <span style="flex: 1;"></span>
+          <div sc-camel-on-click="{{ invite }}" style="display: flex; align-items: center; justify-content: center; height: 34px; padding: 6px 14px; box-sizing: border-box; background: {{ inviteBg }}; color: {{ inviteFg }}; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.06); font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;"><span>Send invite</span></div>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; box-sizing: border-box; background: #000; color: #fff; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.24); font-size: 14px; white-space: nowrap;">
+      <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+      <span>{{ toastText }}</span>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;hasPlan&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;State&quot;},&quot;annualDefault&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;State&quot;}}">
+
+const P = {
+  settings2: ["M20 7h-9", "M14 17H5", { c: [17, 17, 3] }, { c: [7, 7, 3] }],
+  tube: ["M21 7 6.82 21.18a2.83 2.83 0 0 1-3.99-.01a2.83 2.83 0 0 1 0-4L17 3", "m16 2 6 6", "M12 16H4"],
+  puzzle: ["M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"],
+  wrench: ["M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"],
+  users: ["M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", "M16 3.128a4 4 0 0 1 0 7.744", "M22 21v-2a4 4 0 0 0-3-3.87", { c: [9, 7, 4] }],
+  receipt: ["M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z", "M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8", "M12 17.5v-11"],
+  user: ["M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", { c: [12, 7, 4] }],
+  coins: [{ c: [8, 8, 6] }, "M18.09 10.37A6 6 0 1 1 10.34 18", "M7 6h1v4", "m16.71 13.88.7.71-2.82 2.82"]
+};
+
+function icon(paths) {
+  return React.createElement("svg", {
+    width: 16, height: 16, viewBox: "0 0 24 24", fill: "none",
+    stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"
+  }, paths.map((p, i) =>
+    p && p.c ? React.createElement("circle", { key: i, cx: p.c[0], cy: p.c[1], r: p.c[2] })
+    : React.createElement("path", { key: i, d: p })
+  ));
+}
+
+const ROLES = [
+  { label: "Owner", hint: "Full access, billing and workspace deletion." },
+  { label: "Editor", hint: "Can edit and publish pages." },
+  { label: "Viewer", hint: "Can view and comment only." }
+];
+
+const NAV = [
+  { label: "Project", type: "label" },
+  { label: "General", icon: "settings2" },
+  { label: "Integrations", icon: "puzzle" },
+  { type: "sep" },
+  { label: "Workspace", type: "label" },
+  { label: "General", icon: "settings2", id: "ws-general" },
+  { label: "Members", icon: "users" },
+  { label: "Billing", icon: "receipt" },
+  { type: "sep" },
+  { label: "Account", type: "label" },
+  { label: "My Account", icon: "user" },
+  { label: "My Referrals", icon: "coins" }
+];
+
+const ICONS = {
+  shopify: "assets/billing/shopify.svg",
+  general: "assets/billing/general.svg",
+  insights: "assets/billing/insights.png",
+  ab: "assets/billing/ab-testing.png",
+  agent: "assets/billing/agent.svg"
+};
+
+const F = (bold, text, ok) => ({ bold: bold || "", text: text || "", ok: ok !== false, no: ok === false, color: ok === false ? "#737373" : "#000" });
+
+const STARTER_GROUPS = [
+  { name: "Shopify Theme Builder", icon: ICONS.shopify, items: [
+    F("15 published items", " on Shopify"), F("", "Unlimited pageviews"),
+    F("5K", " A/B test sessions monthly"), F("", "Drag-and-drop Shopify Theme Builder"),
+    F("", "Conversion-tested template library"),
+    F("", "Direct integration with Shopify products & collections"),
+    F("", "AI assistant for faster page building")
+  ], steppers: [{ label: "1 project" }, { label: "15 published items" }] },
+  { name: "General", icon: ICONS.general, items: [
+    F("", "Basic email support"), F("", "Full template library access"), F("", "Unlimited team members"),
+    F("", "Dedicated Slack channel", false), F("", "White-glove services", false),
+    F("", "Dedicated account manager", false), F("", "1:1 onboarding & training", false)
+  ] },
+  { name: "Insights", icon: ICONS.insights, items: [
+    F("", "Full analytics across all your published pages"),
+    F("", "Track pageviews, sessions, conversion rate, AOV & revenue"),
+    F("", "Flexible attribution models including fractional"),
+    F("", "Real-time trends and KPI dashboards"),
+    F("", "AI-powered optimization recommendations", false)
+  ] },
+  { name: "A/B Testing", icon: ICONS.ab, items: [
+    F("", "Forever links for split-tests"), F("", "Real-time conversion tracking"),
+    F("", "Unlimited test variants"), F("", "Test any page, Buildstore or external")
+  ] },
+  { name: "Agent", icon: ICONS.agent, soon: true, items: [
+    F("10 000 agent credits", "/month"),
+    F("Build, update, and optimize your commerce site", " with Buildstore Agent"),
+    F("Connect integrations", " across your commerce stack"),
+    F("Use skills", " for repeatable commerce workflows"),
+    F("Custom domains", " included"),
+    F("100K visitor sessions", " included, then $1.50/1k"),
+    F("", "No Buildstore branding on generated sites"),
+    F("", "SEO optimization for your site"),
+    F("", "Volume session discounts", false),
+    F("", "Turn ad creative into site content", false),
+    F("", "Lower payment processing fees", false)
+  ], steppers: [{ label: "1 site" }] }
+];
+
+const PRO_GROUPS = [
+  { name: "Shopify Theme Builder", icon: ICONS.shopify, items: [
+    F("Unlimited published items", " on Shopify"), F("", "Unlimited pageviews"),
+    F("100,000", " A/B test sessions monthly"), F("", "Visual drag-and-drop Shopify Theme Builder"),
+    F("", "Conversion-tested template library"),
+    F("", "Auto-sync Shopify products & collections"),
+    F("", "AI assistant for faster page building")
+  ], steppers: [{ label: "1 project" }], unlimitedNote: true },
+  { name: "General", icon: ICONS.general, items: [
+    F("", "Priority chat support"), F("", "Full template library access"), F("", "Unlimited team members"),
+    F("", "Dedicated Slack channel"), F("", "White-glove services"),
+    F("", "Dedicated account manager"), F("", "1:1 onboarding & training")
+  ] },
+  { name: "Insights", icon: ICONS.insights, items: [
+    F("", "Full analytics across all your published pages"),
+    F("", "Track pageviews, sessions, conversion rate, AOV & revenue"),
+    F("", "Flexible attribution models including fractional"),
+    F("", "Real-time trends and KPI dashboards"),
+    F("", "AI-powered optimization recommendations")
+  ] },
+  { name: "A/B Testing", icon: ICONS.ab, items: [
+    F("", "Forever links for split-tests"), F("", "Real-time conversion tracking"),
+    F("", "Unlimited test variants"), F("", "Test any page, Buildstore or external")
+  ] },
+  { name: "Agent", icon: ICONS.agent, soon: true, items: [
+    F("50 000 agent credits", "/month"),
+    F("Build, update, and optimize your commerce site", " with Buildstore Agent"),
+    F("Connect integrations", " across your commerce stack"),
+    F("Use skills", " for repeatable commerce workflows"),
+    F("Custom domains", ""),
+    F("500,000 visitor sessions", " included, then $1.00/1k"),
+    F("", "No Buildstore branding on generated sites"),
+    F("", "SEO optimization for your site"),
+    F("33% off", " volume session pricing"),
+    F("Turn ad creative", " into site content"),
+    F("", "Lower payment processing fees")
+  ], steppers: [{ label: "1 site" }] }
+];
+
+function IA(p) {
+  const m = (typeof window !== "undefined" && window.__IA) || {};
+  return m[p] || p;
+}
+
+class Component extends DCLogic {
+  _assetGlobals = ["__BS_BILLING_ICONS","__IA"];
+
+  _assetsReady() {
+    if (typeof window === "undefined") return true;
+    return this._assetGlobals.every(k => !!window[k]);
+  }
+
+  // les tables d'images arrivent en différé dans un fichier autonome :
+  // on redessine dès qu'elles sont là
+  _ensureAssets() {
+    if (this._assetsOk || this._assetPoll) return;
+    if (this._assetsReady()) { this._assetsOk = true; return; }
+    this._assetPoll = setInterval(() => {
+      if (!this._assetsReady()) return;
+      clearInterval(this._assetPoll);
+      this._assetPoll = null;
+      this._assetsOk = true;
+      this.forceUpdate();
+    }, 120);
+    this._assetStop = setTimeout(() => {
+      if (this._assetPoll) { clearInterval(this._assetPoll); this._assetPoll = null; }
+    }, 15000);
+  }
+
+  state = {
+    nav: "Billing", annual: true,
+    siteName: "ACAI", domain: "acai.buildstore.app", wsName: "ACAI",
+    fullName: "Amir Ben Ettaleb", email: "amir@acai.studio",
+    ab: true, split: true, inviteMail: "", toast: null,
+    inviteOpen: false, inviteRole: "Editor", roleMenu: null, shopConnected: false,
+    chatOpen: false, chatInput: "", chatTyping: false,
+    chatMsgs: [{ me: false, text: "Salut. Dis-moi ce que je peux faire pour toi — plans, factures, membres, intégrations.", duck: "05-curieux" }],
+    members: [
+      { name: "Amir Ben Ettaleb", mail: "amir@acai.studio", role: "Owner" },
+      { name: "Léa Moreau", mail: "lea@acai.studio", role: "Editor" }
+    ],
+    integrations: [
+      { name: "Shopify", meta: "Products, collections and checkout", img: "assets/logo-shopify.png", on: false },
+      { name: "Klaviyo", meta: "Email and automations", img: "assets/logo-klaviyo.png", on: false },
+      { name: "Google Analytics", meta: "Audience measurement", img: "assets/logo-ga.png", on: false },
+      { name: "Recharge", meta: "Subscriptions", img: "assets/logo-recharge.png", on: false },
+      { name: "Skio", meta: "Subscriptions", img: "assets/logo-skio.png", on: false },
+      { name: "Postscript", meta: "SMS marketing", img: "assets/logo-postscript.png", on: false },
+      { name: "Judge.me", meta: "Product reviews", img: "assets/logo-judgeme.png", on: false },
+      { name: "Okendo", meta: "Reviews and loyalty", img: "assets/logo-okendo.png", on: false },
+      { name: "Stamped.io", meta: "Reviews and loyalty", img: "assets/logo-stamped.png", on: false },
+      { name: "Fera", meta: "Reviews and social proof", img: "assets/logo-fera.png", on: false },
+      { name: "Rebuy", meta: "Upsells and cross-sells", img: "assets/logo-rebuy.png", on: false },
+      { name: "Intelligems", meta: "Price and offer testing", img: "assets/logo-intelligems.png", on: false },
+      { name: "KnoCommerce", meta: "Post-purchase surveys", img: "assets/logo-knocommerce.png", on: false },
+      { name: "Infinite Options", meta: "Product options", img: "assets/logo-infiniteoptions.png", on: false },
+      { name: "Clean Size Charts", meta: "Size guides", img: "assets/logo-sizecharts.png", on: false },
+      { name: "Shopify Product Reviews", meta: "Native reviews", img: "assets/logo-shopifyreviews.png", on: false },
+      { name: "YouTube", meta: "Video embeds", img: "assets/logo-youtube.png", on: false },
+      { name: "Vimeo", meta: "Video embeds", img: "assets/logo-vimeo.png", on: false },
+      { name: "TikTok", meta: "Video embeds and pixel", img: "assets/logo-tiktok.png", on: false }
+    ]
+  };
+
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._ct); }
+
+  chatReply(text) {
+    this.setState({ chatTyping: true });
+    clearTimeout(this._ct);
+    this._ct = setTimeout(() => this.setState(st => ({
+      chatTyping: false,
+      chatMsgs: st.chatMsgs.concat([{ me: false, text, duck: "07-idee" }])
+    })), 900);
+  }
+
+  chatSend(raw) {
+    const v = (raw || this.state.chatInput || "").trim();
+    if (!v) return;
+    this.setState(st => ({ chatMsgs: st.chatMsgs.concat([{ me: true, text: v }]), chatInput: "" }));
+    const t = v.toLowerCase();
+    let a = "Noté. Je peux t'aider sur les plans, les factures, les membres et les intégrations — dis-moi lequel.";
+    if (t.includes("plan") || t.includes("prix") || t.includes("tarif")) a = "Starter, c'est 29,99 $ par mois, Pro 99,99 $. Les deux baissent d'environ 17 % en annuel. Je te compare ce que chacun débloque ?";
+    else if (t.includes("facture") || t.includes("reçu")) a = "Tes factures sont dans Espace › Facturation. Je peux t'envoyer les douze dernières en un seul PDF si ça t'arrange.";
+    else if (t.includes("annul") || t.includes("rembours") || t.includes("résil")) a = "Tu peux annuler quand tu veux et garder l'accès jusqu'à la fin de la période. J'ouvre la procédure ?";
+    else if (t.includes("membre") || t.includes("invit") || t.includes("équipe")) a = "Va dans Espace › Membres, puis Inviter un membre. Tu choisis Owner, Editor ou Viewer au moment de l'envoi.";
+    else if (t.includes("shopify") || t.includes("intégr") || t.includes("connect")) a = "Shopify et Klaviyo sont déjà reliés. Dix-sept autres attendent dans Intégrations — laquelle il te faut ?";
+    else if (t.includes("domaine")) a = "Ajoute ton domaine dans Projet › Général, puis fais pointer le DNS. Ça se propage en 24 h au plus.";
+    else if (t.includes("crédit")) a = "Les crédits offerts se rechargent chaque mois et partent en premier. Les crédits achetés n'expirent jamais.";
+    else if (t.includes("merci")) a = "Avec plaisir. Appelle-moi dès que quelque chose te paraît de travers.";
+    this.chatReply(a);
+  }
+
+  doInvite() {
+    const mail = (this.state.inviteMail || "").trim();
+    if (!/.+@.+\..+/.test(mail)) return;
+    const role = this.state.inviteRole || "Editor";
+    this.setState(st => {
+      if (st.members.some(m => m.mail.toLowerCase() === mail.toLowerCase())) return { inviteOpen: false, inviteMail: "" };
+      return {
+        members: st.members.concat([{ name: mail.replace(/@.*$/, "").replace(/[._-]+/g, " "), mail, role }]),
+        inviteOpen: false, inviteMail: ""
+      };
+    });
+    this.flash("Invite sent to " + mail + " as " + role);
+  }
+
+  flash(text) {
+    clearTimeout(this._t);
+    this.setState({ toast: text });
+    this._t = setTimeout(() => this.setState({ toast: null }), 2200);
+  }
+
+  renderVals() {
+
+    this._ensureAssets();
+    const s = this.state;
+    const I = (typeof window !== "undefined" && window.__BS_BILLING_ICONS) || {};
+    const src = p => I[p] || p;
+    const prep = g => ({
+      name: g.name, icon: src(g.icon), soon: !!g.soon,
+      iconEl: React.createElement("img", { src: src(g.icon), alt: "", style: { width: 16, height: 16, objectFit: "contain", display: "block", flexShrink: 0 } }),
+      items: g.items.map((f, i) => ({ ...f, key: g.name + i })),
+      hasSteppers: !!g.steppers,
+      steppers: (g.steppers || []).map((x, i) => ({ ...x, key: g.name + "s" + i })),
+      unlimitedNote: !!g.unlimitedNote,
+      key: g.name
+    });
+
+    const ini = (str) => {
+      const p = str.replace(/@.*$/, "").split(/[.\s_-]+/).filter(Boolean);
+      return ((p[0] || "?")[0] + (p[1] ? p[1][0] : "")).toUpperCase();
+    };
+
+    const hasPlan = s.hasPlan != null ? s.hasPlan : (this.props.hasPlan ?? false);
+
+    return {
+      planName: hasPlan ? "Starter" : "Free",
+      planBadge: hasPlan ? "Billed Monthly" : "No plan",
+      planBadgeBg: hasPlan ? "#fef0f4" : "#f5f5f5",
+      planBadgeFg: hasPlan ? "#e70044" : "#404040",
+      planBadgeBorder: hasPlan ? "rgba(231,0,102,0.2)" : "rgba(82,82,82,0.22)",
+      planPrice: hasPlan ? "$29.99" : "$0",
+      planPer: "/month",
+      planRenew: hasPlan ? "Renews 26 September 2026" : "No subscription yet",
+      planIconEl: React.createElement("img", {
+        src: IA(hasPlan ? "assets/billing-plan-starter.svg" : "assets/mascots-web/04-endormi.png"),
+        alt: "",
+        style: { width: 25, height: 28, objectFit: "contain", flexShrink: 0, display: "block" }
+      }),
+      managePayDisp: hasPlan ? "flex" : "none",
+      nudgeTitle: hasPlan ? "Momentum looks good on you" : "Pick a plan to go live",
+      nudgeBody: hasPlan
+        ? "You've hit your plan's limits — upgrade to Pro to keep accelerating."
+        : "You can build for free. A plan adds a custom domain, the Agent and monthly credits.",
+      nudgeCta: hasPlan ? "Upgrade" : "Choose a plan",
+      siteQuota: hasPlan ? "1" : "0",
+      credits: hasPlan ? "10 000" : "0",
+      creditsW: hasPlan ? "100%" : "0%",
+
+      chatOpen: !!s.chatOpen,
+      chatClosed: !s.chatOpen,
+      openChat: () => this.setState({ chatOpen: true, duckHover: false }),
+      hoverDuck: () => this.setState({ duckHover: true }),
+      leaveDuck: () => this.setState({ duckHover: false }),
+      duckIdle: s.duckHover ? "none" : "block",
+      duckHappy: s.duckHover ? "block" : "none",
+      duckScale: s.duckHover ? "1.08" : "1",
+      sayText: "Hey !",
+      sayOpa: s.duckHover ? "1" : "0.92",
+      sayY: s.duckHover ? "-2px" : "0px",
+      closeChat: () => this.setState({ chatOpen: false }),
+      chatRef: (el) => {
+        if (!el) return;
+        if (this._cn !== s.chatMsgs.length + (s.chatTyping ? 0.5 : 0)) {
+          this._cn = s.chatMsgs.length + (s.chatTyping ? 0.5 : 0);
+          requestAnimationFrame(() => { if (el) el.scrollTop = el.scrollHeight; });
+        }
+      },
+      chatTyping: !!s.chatTyping,
+      headIdle: s.chatTyping ? "none" : "block",
+      headThink: s.chatTyping ? "block" : "none",
+      chatMsgs: s.chatMsgs.map(m => ({
+        text: m.text,
+        isDuck: !m.me,
+        just: m.me ? "flex-end" : "flex-start",
+        bg: m.me ? "#000" : "#fff",
+        fg: m.me ? "#fff" : "#000",
+        bd: m.me ? "none" : "0.5px solid rgba(82,82,82,0.22)",
+        avatar: m.me ? null : React.createElement("img", {
+          src: IA("assets/mascots-web/" + (m.duck || "05-curieux") + ".png"),
+          alt: "", style: { width: 24, height: 24, objectFit: "contain", display: "block" }
+        })
+      })),
+      chatChipsDisp: s.chatMsgs.length <= 1 ? "flex" : "none",
+      chatChips: ["Compare les plans", "Où sont mes factures ?", "Inviter quelqu'un"].map(label => ({
+        label, onPick: () => this.chatSend(label)
+      })),
+      chatInput: s.chatInput,
+      onChatInput: (e) => this.setState({ chatInput: e.target.value }),
+      onChatKey: (e) => { if (e.key === "Enter") { e.preventDefault(); this.chatSend(); } },
+      sendChat: () => this.chatSend(),
+      chatSendBg: (s.chatInput || "").trim() ? "#000" : "rgba(82,82,82,0.14)",
+      chatSendFg: (s.chatInput || "").trim() ? "#fff" : "#737373",
+
+      isBilling: s.nav === "Billing",
+      isGeneral: s.nav === "General",
+      isAb: s.nav === "A/B Testing",
+      isIntegrations: s.nav === "Integrations",
+      isAdvanced: s.nav === "Advanced",
+      isWsGeneral: s.nav === "ws-general",
+      isMembers: s.nav === "Members",
+      isAccount: s.nav === "My Account",
+      isReferrals: s.nav === "My Referrals",
+
+      siteName: s.siteName, onSiteName: (e) => this.setState({ siteName: e.target.value }),
+      domain: s.domain, onDomain: (e) => this.setState({ domain: e.target.value }),
+      wsName: s.wsName, onWsName: (e) => this.setState({ wsName: e.target.value }),
+      fullName: s.fullName, onFullName: (e) => this.setState({ fullName: e.target.value }),
+      email: s.email, onEmail: (e) => this.setState({ email: e.target.value }),
+      save: () => this.flash("Saved"),
+      act: () => this.flash("Done"),
+
+      abBg: s.ab ? "#000" : "rgba(82,82,82,0.28)",
+      abX: s.ab ? "15px" : "0px",
+      abLabel: s.ab ? "Enabled" : "Disabled",
+      abToggle: () => this.setState({ ab: !s.ab }),
+      splitBg: s.split ? "#000" : "rgba(82,82,82,0.28)",
+      splitX: s.split ? "15px" : "0px",
+      splitLabel: s.split ? "50 / 50" : "Adaptive",
+      splitToggle: () => this.setState({ split: !s.split }),
+
+      shopConnected: !!s.shopConnected,
+      shopDomain: s.shopConnected ? "im0qj1-c8.myshopify.com" : "No store connected",
+      shopDomainFg: s.shopConnected ? "#000" : "#a3a3a3",
+      shopBadge: s.shopConnected ? "Connected" : "Not connected",
+      shopBadgeBg: s.shopConnected ? "#ecfdf5" : "#f5f5f5",
+      shopBadgeFg: s.shopConnected ? "#059669" : "#737373",
+      shopBadgeBorder: s.shopConnected ? "rgba(5,150,105,0.3)" : "rgba(82,82,82,0.22)",
+      shopCta: s.shopConnected ? "Disconnect" : "Connect",
+      shopCtaFg: s.shopConnected ? "#e70044" : "#059669",
+      shopCtaBorder: s.shopConnected ? "rgba(231,0,102,0.3)" : "rgba(5,150,105,0.3)",
+      shopCtaHover: s.shopConnected ? "#fef0f4" : "#ecfdf5",
+      toggleShop: () => {
+        this.setState({ shopConnected: !s.shopConnected });
+        this.flash(s.shopConnected ? "Shopify disconnected" : "Shopify connected");
+      },
+
+      integrations: s.integrations.map((it, i) => ({
+        name: it.name, meta: it.meta,
+        state: it.on ? "Connected" : "Not connected",
+        stateFg: it.on ? "#059669" : "#a3a3a3",
+        ctaBorder: it.on ? "rgba(231,0,102,0.3)" : "rgba(5,150,105,0.3)",
+        logo: React.createElement("img", {
+          src: IA(it.img), alt: "",
+          style: { width: "100%", height: "100%", objectFit: "contain", display: "block" }
+        }),
+        cta: it.on ? "Disconnect" : "Connect",
+        ctaFg: it.on ? "#e70044" : "#059669",
+        onPick: () => this.setState(st => ({
+          integrations: st.integrations.map((x, j) => j === i ? Object.assign({}, x, { on: !x.on }) : x)
+        }))
+      })),
+
+      seatsLabel: s.members.length + (s.members.length > 1 ? " people have access" : " person has access"),
+      members: s.members.map((m, i) => {
+        const canEdit = m.role !== "Owner";
+        return {
+          name: m.name, mail: m.mail, role: m.role, initials: ini(m.name),
+          canEdit,
+          removable: canEdit,
+          roleCursor: canEdit ? "pointer" : "default",
+          roleOpen: s.roleMenu === i,
+          onOpenRole: () => { if (canEdit) this.setState({ roleMenu: s.roleMenu === i ? null : i }); },
+          roleOptions: ROLES.map(r => ({
+            label: r.label, hint: r.hint,
+            bg: m.role === r.label ? "#fafafa" : "transparent",
+            onPick: () => {
+              this.setState(st => ({
+                members: st.members.map((x, j) => j === i ? Object.assign({}, x, { role: r.label }) : x),
+                roleMenu: null
+              }));
+              this.flash(m.name.split(" ")[0] + " is now " + r.label);
+            }
+          })),
+          onRemove: () => {
+            this.setState(st => ({ members: st.members.filter((_, j) => j !== i), roleMenu: null }));
+            this.flash(m.name.split(" ")[0] + " removed");
+          }
+        };
+      }),
+
+      inviteOpen: !!s.inviteOpen,
+      openInvite: () => this.setState({ inviteOpen: true, inviteMail: "", inviteRole: "Editor", roleMenu: null }),
+      closeInvite: () => this.setState({ inviteOpen: false }),
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+      inviteMail: s.inviteMail,
+      onInviteMail: (e) => this.setState({ inviteMail: e.target.value }),
+      onInviteKey: (e) => { if (e.key === "Enter") { e.preventDefault(); this.doInvite(); } },
+      inviteRoles: ROLES.map(r => {
+        const on = (s.inviteRole || "Editor") === r.label;
+        return {
+          label: r.label, hint: r.hint,
+          bg: on ? "#fafafa" : "#fff",
+          border: on ? "#000" : "rgba(82,82,82,0.22)",
+          dotBorder: on ? "#000" : "rgba(82,82,82,0.35)",
+          dotBg: on ? "#000" : "transparent",
+          onPick: () => this.setState({ inviteRole: r.label })
+        };
+      }),
+      inviteBg: /.+@.+\..+/.test(s.inviteMail || "") ? "#000" : "rgba(82,82,82,0.14)",
+      inviteFg: /.+@.+\..+/.test(s.inviteMail || "") ? "#fff" : "#737373",
+      invite: () => this.doInvite(),
+
+      copyRef: () => {
+        if (navigator.clipboard) navigator.clipboard.writeText("https://buildstore.app/r/acai").catch(() => {});
+        this.flash("Link copied");
+      },
+      openRef: () => { window.location.href = "buildstore-parrainage.html"; },
+
+      toastOn: !!s.toast,
+      toastText: s.toast || "",
+
+      nav: NAV.map((n, i) => ({
+        key: (n.id || n.label || "sep") + i,
+        label: n.label || "",
+        isLabel: n.type === "label",
+        isSep: n.type === "sep",
+        active: !n.type && s.nav === (n.id || n.label),
+        inactive: !n.type && s.nav !== (n.id || n.label),
+        icon: n.icon ? icon(P[n.icon]) : null,
+        onClick: () => this.setState({ nav: n.id || n.label })
+      })),
+
+      shopifyRows: [
+        { key: "proj", title: "Active Shopify Projects", desc: "Shopify Theme Builder integrations that have at least one published page or section built in Buildstore.", metric: "Active projects", value: "1", limit: "/ 1", cta: "Add Shopify Projects", border: "0.5px solid rgba(82,82,82,0.22)" },
+        { key: "pub", title: "Published Elements on Shopify", desc: "Shopify Theme Builder pages and sections that are currently published.", metric: "Published elements", value: "1", limit: "/ 15", cta: "Add Published Elements", border: "0" }
+      ],
+
+      periodLabel: s.annual ? "Annual" : "Monthly",
+      toggleAnnual: () => this.setState({ annual: !s.annual }),
+      switchBg: s.annual ? "#0084d1" : "#f5f5f5",
+      switchThumb: s.annual ? "translateX(calc(100% - 1px))" : "translateX(1px)",
+
+      plans: [
+        {
+          key: "starter", name: "Starter", icon: src("assets/billing/plan-starter.svg"), iconW: "25px", iconH: "28px",
+          iconEl: React.createElement("img", { src: src("assets/billing/plan-starter.svg"), alt: "", style: { width: 25, height: 28, objectFit: "contain", display: "block", flexShrink: 0 } }),
+          price: s.annual ? "$24.99" : "$29.99", showSaving: s.annual, current: true,
+          cta: s.annual ? "Update to Annual" : "Current Plan",
+          groups: STARTER_GROUPS.map(prep)
+        },
+        {
+          key: "pro", name: "Pro", icon: src("assets/billing/plan-pro.svg"), iconW: "30px", iconH: "31px",
+          iconEl: React.createElement("img", { src: src("assets/billing/plan-pro.svg"), alt: "", style: { width: 30, height: 31, objectFit: "contain", display: "block", flexShrink: 0 } }),
+          price: s.annual ? "$82.99" : "$99.99", showSaving: s.annual, current: false,
+          cta: "Upgrade to Pro",
+          groups: PRO_GROUPS.map(prep)
+        }
+      ]
+    };
+  }
+}
+
+</script>
+
+
+<script type="module" src="/hydrate/facturation.js"></script>
+</body></html>

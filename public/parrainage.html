@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="c31034de-1b0f-4c2f-a552-26ef31f16ad2"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<style>/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3f072b8b-2aeb-42af-ba06-290935f4e45e") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("174c5bdd-cd06-4168-9a80-2343afa6c2bb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("9e288f24-0c94-4812-9965-c2bb4ca2417f") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("3f072b8b-2aeb-42af-ba06-290935f4e45e") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("174c5bdd-cd06-4168-9a80-2343afa6c2bb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("9e288f24-0c94-4812-9965-c2bb4ca2417f") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("3f072b8b-2aeb-42af-ba06-290935f4e45e") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("174c5bdd-cd06-4168-9a80-2343afa6c2bb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("9e288f24-0c94-4812-9965-c2bb4ca2417f") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+  html, body { height: 100%; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #141310; background: #F1F0EC; }
+  a { color: #141310; text-decoration: underline; text-decoration-color: #FBC531; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+  a:hover { color: #4A463F; }
+  input { font-family: inherit; }
+  .no-sb::-webkit-scrollbar { width: 0; height: 0; }
+  @keyframes om-fade { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes om-rise { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+  @keyframes om-dot { 0%, 100% { opacity: .3; transform: translateY(0) } 50% { opacity: 1; transform: translateY(-2px) } }
+</style>
+<script src="b03d8db0-edc0-4888-b34a-370bd943b66e"></script>
+<script src="15508546-ee17-46bb-bfea-9c0d1e986747"></script>
+</helmet>
+
+<div style="width: 100%; height: 100vh; display: flex; background: #fff; overflow: hidden; font-size: 14px; position: relative;">
+
+  <sc-if value="{{ anyOpen }}" hint-placeholder-val="{{ false }}">
+    <div sc-camel-on-click="{{ closeAll }}" style="position: fixed; inset: 0; z-index: 50;"></div>
+  </sc-if>
+
+  <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+  <div style="width: 256px; flex-shrink: 0; padding: 12px; box-sizing: border-box; position: relative;">
+    <div style="height: 100%; display: flex; flex-direction: column; background: #fff; border: 1px solid #E6E5E0; border-radius: 10px; box-shadow: 0 1px 2px rgba(20,19,16,0.05); position: relative;">
+
+      <div style="padding: 12px 12px 0; display: flex; flex-direction: column; position: relative; z-index: 50;">
+        <div style="padding-bottom: 8px; position: relative;">
+          <div sc-camel-on-click="{{ toggleWorkspace }}" style="display: flex; align-items: flex-start; gap: 8px; width: 100%; height: 48px; padding: 6px; box-sizing: border-box; border-radius: 4px; cursor: pointer;" style-hover="background: #FAFAF8;">
+            <div style="display: flex; gap: 8px; align-items: center; height: 100%; min-width: 0; flex: 1;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; background: #F1F0EC; border: 1px solid #E6E5E0; border-radius: 8px; box-shadow: 0 1px 1px rgba(20,19,16,0.04);">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"></path><path d="m8 6 2-2"></path><path d="m18 16 2-2"></path><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg>
+              </span>
+              <div style="display: grid; min-width: 0; text-align: left;">
+                <span style="font: 700 17px/20px Syne, sans-serif; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ACAI</span>
+                <span style="font-size: 12px; line-height: 16px; color: #4A463F; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Espace ACAI</span>
+              </div>
+            </div>
+            <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 8px; flex-shrink: 0;"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+          </div>
+
+          <sc-if value="{{ workspaceOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; top: calc(100% + 2px); left: 0; width: 100%; z-index: 60; background: #fff; border: 1px solid #E6E5E0; border-radius: 8px; box-shadow: 0 8px 24px #EDEBE5, 0 1px 2px rgba(20,19,16,0.09); padding: 4px; display: flex; flex-direction: column; gap: 2px;">
+              <div style="padding: 6px 8px 2px; font: 500 10px/16px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; color: #9C9890; text-transform: uppercase; letter-spacing: 0.08em;">Espaces</div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; background: #F1F0EC;">
+                <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; background: #fff; border: 1px solid #E6E5E0; border-radius: 6px;">
+                  <svg width="11" height="11" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"></path><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+                </span>
+                <span style="flex: 1; font-size: 14px; font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ACAI</span>
+                <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+              <div style="height: 0.5px; background: #E6E5E0; margin: 2px 0;"></div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                <span>Créer un espace</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <span>Réglages de l'espace</span>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+        <div style="height: 0.5px; width: 100%; background: #E6E5E0;"></div>
+      </div>
+
+      <div sc-camel-on-click="{{ toggleCollapse }}" style="position: absolute; top: 73px; right: -12px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #E6E5E0; border-radius: 6px; box-shadow: 0 1px 2px rgba(82,82,82,0.08); cursor: pointer; z-index: 55;" style-hover="background: #FAFAF8;">
+        <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"></path><path d="m18 17-5-5 5-5"></path></svg>
+      </div>
+
+      <div style="flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding-top: 8px; overflow-y: auto; overflow-x: hidden;">
+        <div style="padding: 0 12px 12px;">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+
+            <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="4">
+              <sc-if value="{{ item.active }}" hint-placeholder-val="{{ false }}">
+                <div sc-camel-on-click="{{ item.onClick }}" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; font-weight: 500; color: #141310; background: #F1F0EC; cursor: pointer;">
+                  <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ item.icon }}</div>
+                  <span>{{ item.label }}</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ item.inactive }}" hint-placeholder-val="{{ true }}">
+                <div sc-camel-on-click="{{ item.onClick }}" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; font-weight: 400; color: #141310; cursor: pointer;" style-hover="background: #FAFAF8;">
+                  <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ item.icon }}</div>
+                  <span>{{ item.label }}</span>
+                </div>
+              </sc-if>
+            </sc-for>
+
+            <div>
+              <div sc-camel-on-click="{{ toggleLearn }}" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; font-weight: 400; color: #141310; cursor: pointer;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="18" x="3" y="3" rx="1"></rect><path d="M7 3v18"></path><path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"></path></svg>
+                <span style="flex: 1;">En savoir plus</span>
+                <div style="width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ learnChevron }}</div>
+              </div>
+
+              <sc-if value="{{ learnOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-left: 14px; padding-left: 10px; margin-top: 8px; border-left: 1px solid #E6E5E0; display: flex; flex-direction: column; gap: 8px;">
+                  <sc-for list="{{ learnItems }}" as="sub" hint-placeholder-count="6">
+                    <a href="{{ sub.href }}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 6px; height: 28px; padding: 4px 8px; box-sizing: border-box; border-radius: 6px; font-size: 14px; color: #141310; min-width: 0;" style-hover="background: #FAFAF8; color: #141310;">
+                      <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ sub.icon }}</div>
+                      <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ sub.label }}</span>
+                      <sc-if value="{{ sub.external }}" hint-placeholder-val="{{ true }}">
+                        <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#75736C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                      </sc-if>
+                    </a>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+          </div>
+        </div>
+
+        <sc-if value="{{ showReferralCard }}" hint-placeholder-val="{{ true }}">
+          <div style="padding: 0 12px; margin-top: auto;">
+            <div style="position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; border: 1px solid #E6E5E0; background: #fff;">
+              <img src="8a56df8f-362f-487a-b472-c65f17fd2424" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block;">
+              <img src="f472dc31-766c-4df9-a69d-ac1f05c53b80" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block;">
+              <div style="position: absolute; top: 0; left: 0; right: 0; padding-top: 12px; text-align: center;">
+                <span style="font: 700 15px/20px Syne, sans-serif; letter-spacing: -0.015em; color: #141310;">Gagne en parrainant</span>
+              </div>
+
+              <div style="position: absolute; top: 24%; left: -3.5%; width: 88%; height: 14%; display: flex; align-items: center; justify-content: space-between; border-radius: 8px; background: rgba(255,255,255,0.5); border: 3px solid rgba(255,255,255,0.5); backdrop-filter: blur(1px); padding: 4px 8px; box-sizing: border-box;">
+                <div style="display: flex; align-items: center; gap: 4px; padding-left: 4px;">
+                  <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                  <span style="font-size: 11px; font-weight: 500;">Tes liens</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 2px;">
+                  <svg width="10" height="10" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"></path><path d="m5.1 8-2.9-.8"></path><path d="m6 12-1.9 2"></path><path d="M7.2 2.2 8 5.1"></path><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"></path></svg>
+                  <span style="font-size: 10px; line-height: 16px; color: #4A463F;">0 clic</span>
+                </div>
+              </div>
+
+              <div style="position: absolute; top: 45.5%; left: 14%; right: 6%; height: 24%; display: flex; align-items: center; gap: 8px; border-radius: 8px; background: rgba(255,255,255,0.5); border: 4px solid rgba(255,255,255,0.5); backdrop-filter: blur(1px); padding: 8px; box-sizing: border-box;">
+                <img src="59b495f3-238f-4388-a5ef-34b4225a7c3f" alt="" style="width: 25px; height: 28px; flex-shrink: 0; display: block;">
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 10px; line-height: 14px; color: #4A463F; white-space: nowrap;">Revenus du mois</span>
+                  <span style="font-size: 14px; line-height: 20px; font-weight: 600; color: #141310;">0,00 €</span>
+                </div>
+              </div>
+
+              <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 12px;">
+                <a href="buildstore-parrainage.html" style="display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; height: 24px; background: #141310; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; text-decoration: none; box-sizing: border-box; box-shadow: 0 1px 1px rgba(0,0,0,0.06);" style-hover="background: #2E2A24;">
+                  <span>Partager et gagner</span>
+                  <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="padding: 12px; display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 50;">
+        <div style="position: relative;">
+          <div sc-camel-on-click="{{ toggleUser }}" style="display: flex; align-items: flex-start; gap: 8px; width: 100%; height: 48px; padding: 6px; box-sizing: border-box; border-radius: 4px; cursor: pointer;" style-hover="background: #FAFAF8;">
+            <div style="display: flex; gap: 8px; align-items: center; height: 100%; min-width: 0; flex: 1;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; background: #F1F0EC; border: 1px solid #E6E5E0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 1px rgba(20,19,16,0.04);">
+                <span style="font-family: 'PP Editorial New', Georgia, serif; font-style: italic; font-size: 20px; color: #141310;">A</span>
+              </span>
+              <div style="display: grid; min-width: 0; text-align: left;">
+                <span style="font-size: 14px; line-height: 20px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Amir Ben Ettaleb</span>
+                <span style="font-size: 12px; line-height: 16px; color: #4A463F; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">amir.benettaleb35@gmail.com</span>
+              </div>
+            </div>
+            <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 8px; flex-shrink: 0;"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+          </div>
+
+          <sc-if value="{{ userOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; bottom: calc(100% + 4px); left: 0; width: 100%; z-index: 60; background: #fff; border: 1px solid #E6E5E0; border-radius: 8px; box-shadow: 0 8px 24px #EDEBE5, 0 1px 2px rgba(20,19,16,0.09); padding: 4px; display: flex; flex-direction: column; gap: 2px;">
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Réglages du compte</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"></rect><path d="M2 10h20"></path></svg>
+                <span>Facturation</span>
+              </div>
+              <div style="height: 0.5px; background: #E6E5E0; margin: 2px 0;"></div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px; color: #e70044;" style-hover="background: #fef0f4;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
+                <span>Se déconnecter</span>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ collapsed }}" hint-placeholder-val="{{ false }}">
+    <div style="width: 82px; flex-shrink: 0; padding: 12px; box-sizing: border-box; position: relative;">
+      <div style="height: 100%; display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid #E6E5E0; border-radius: 10px; box-shadow: 0 1px 2px rgba(20,19,16,0.05); position: relative; padding: 12px 0;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; background: #F1F0EC; border: 1px solid #E6E5E0; border-radius: 8px;">
+          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"></path><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+        </span>
+        <div style="height: 0.5px; width: 100%; background: #E6E5E0; margin: 12px 0;"></div>
+        <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+          <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="4">
+            <sc-if value="{{ item.active }}" hint-placeholder-val="{{ false }}">
+              <div sc-camel-on-click="{{ item.onClick }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #F1F0EC; color: #141310; cursor: pointer;">{{ item.icon }}</div>
+            </sc-if>
+            <sc-if value="{{ item.inactive }}" hint-placeholder-val="{{ true }}">
+              <div sc-camel-on-click="{{ item.onClick }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #141310; cursor: pointer;" style-hover="background: #FAFAF8;">{{ item.icon }}</div>
+            </sc-if>
+          </sc-for>
+        </div>
+        <div style="margin-top: auto;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #F1F0EC; border: 1px solid #E6E5E0; border-radius: 8px; cursor: pointer;">
+            <span style="font-family: 'PP Editorial New', Georgia, serif; font-style: italic; font-size: 20px; color: #141310;">A</span>
+          </span>
+        </div>
+        <div sc-camel-on-click="{{ toggleCollapse }}" style="position: absolute; top: 73px; right: -12px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #E6E5E0; border-radius: 6px; box-shadow: 0 1px 2px rgba(82,82,82,0.08); cursor: pointer; z-index: 55;" style-hover="background: #FAFAF8;">
+          <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 12px 12px 12px 0; box-sizing: border-box; overflow: hidden;">
+    <div class="no-sb" style="flex: 1; min-height: 0; background: #FFFFFF; border: 1px solid #E6E5E0; border-radius: 12px; overflow-y: auto; overflow-x: hidden;">
+      <div style="max-width: 1080px; width: 100%; margin: 0 auto; padding: 28px 28px 56px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px;">
+
+    <div style="display:flex;align-items:center;gap:26px;padding:26px 28px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E6E5E0;border-radius:18px">
+      <span style="position:relative;height:104px;width:100px;flex:none;display:flex;align-items:center;justify-content:center">
+        <span style="position:absolute;left:50%;top:62%;width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#FFE79A 0%,#FBC531 46%,rgba(251,197,49,0) 74%);opacity:.5;display:block"></span>
+        <img src="8f5abc0e-9351-424a-8436-e5bbbce8518a" alt="" style="position:relative;height:98px;width:auto;object-fit:contain;display:block">
+      </span>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+        <h1 style="margin:0;font:700 36px/1.08 Syne,sans-serif;letter-spacing:-0.03em;color:#141310">Gagne en parrainant</h1>
+        <p style="margin:0;font-size:16px;line-height:1.55;color:#4A463F;max-width:62ch;text-wrap:pretty">Chaque espace que tu amènes te rapporte 20&nbsp;% de son abonnement pendant douze mois. Le filleul garde 20&nbsp;% de remise sur ses trois premiers mois.</p>
+      </div>
+    </div>
+
+    <div style="display:{{ emptyDisp }};flex-direction:column;gap:16px;padding:24px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E6E5E0;border-radius:18px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;background:#FDF3D2;font-size:12px;font-weight:600;color:#8A6A10;white-space:nowrap">
+          <span style="width:5px;height:5px;border-radius:50%;background:#FBC531;display:block"></span>
+          Étape 1 sur 3
+        </span>
+        <span style="font:700 19px/24px Syne,sans-serif;letter-spacing:-0.02em;color:#141310">Partage ton lien</span>
+      </div>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:#4A463F;max-width:64ch;text-wrap:pretty">Tu n'as encore parrainé personne. Envoie ton lien à un marchand : dès qu'il s'abonne, ses gains apparaissent ici et tu es payé chaque mois.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div sc-camel-on-click="{{ copyLink }}" style="height:42px;padding:0 20px;box-sizing:border-box;display:flex;align-items:center;gap:9px;border-radius:11px;background:#141310;color:#fff;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .24s cubic-bezier(.32,.72,0,1)" style-hover="background:#2E2A24">
+          <svg width="15" height="15" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          <span>{{ copyLabel }}</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;box-sizing:border-box;border:1px solid #EDEBE5;border-radius:12px;background:#FAFAF8">
+        <span style="font-size:13px;color:#75736C">0 clic</span>
+        <span style="width:1px;height:14px;background:#E6E5E0;display:block"></span>
+        <span style="font-size:13px;color:#75736C">0 inscription</span>
+        <span style="width:1px;height:14px;background:#E6E5E0;display:block"></span>
+        <span style="font-size:13px;color:#75736C">0,00 € gagnés</span>
+      </div>
+    </div>
+
+    <div style="display:{{ statsDisp }};grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:7px;padding:18px 20px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E6E5E0;border-radius:14px">
+          <span style="font-size:13px;color:#75736C;white-space:nowrap">{{ s.label }}</span>
+          <span style="font:700 26px/1.1 Syne,sans-serif;letter-spacing:-0.02em;color:#141310;white-space:nowrap">{{ s.value }}</span>
+          <span style="font-size:12px;line-height:1.4;color:{{ s.deltaColor }};text-wrap:pretty">{{ s.delta }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;padding:22px 24px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E6E5E0;border-radius:18px">
+      <div style="display:flex;align-items:baseline;gap:12px">
+        <span style="font:700 18px/24px Syne,sans-serif;letter-spacing:-0.02em;color:#141310">Ton lien</span>
+        <span style="font-size:13px;color:#9C9890">{{ clicksLabel }}</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:280px;display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;box-sizing:border-box;border:1px solid #E6E5E0;border-radius:11px;background:#FAFAF8">
+          <span style="width:7px;height:7px;border-radius:50%;background:#2FA36B;flex:none;display:block"></span>
+          <span style="flex:1;min-width:0;font-size:14px;color:#4A463F;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ link }}</span>
+        </div>
+        <div sc-camel-on-click="{{ copyLink }}" style="flex:none;height:44px;padding:0 18px;box-sizing:border-box;display:flex;align-items:center;gap:8px;border-radius:11px;background:#FBC531;color:#141310;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .24s cubic-bezier(.32,.72,0,1)" style-hover="background:#EFB824">
+          <span>{{ copyLabel }}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:2px">
+        <sc-for list="{{ channels }}" as="c" hint-placeholder-count="3">
+          <div sc-camel-on-click="{{ c.onPick }}" style="display:flex;align-items:center;gap:8px;height:34px;padding:0 14px;box-sizing:border-box;border:1px solid #E6E5E0;border-radius:999px;background:#fff;font-size:13px;color:#4A463F;cursor:pointer;white-space:nowrap;transition:border-color .24s cubic-bezier(.32,.72,0,1),color .24s cubic-bezier(.32,.72,0,1)" style-hover="border-color:#FBC531;color:#141310">
+            <span style="display:flex;align-items:center;color:#75736C">{{ c.icon }}</span>
+            <span>{{ c.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:{{ tableDisp }};flex-direction:column;gap:0;background:#FFFFFF;border:1px solid #E6E5E0;border-radius:18px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid #EDEBE5">
+        <span style="font:700 18px/24px Syne,sans-serif;letter-spacing:-0.02em;color:#141310">Tes filleuls</span>
+        <span style="font-size:13px;color:#9C9890">{{ countLabel }}</span>
+        <span style="flex:1"></span>
+        <div style="display:flex;gap:2px">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+            <div sc-camel-on-click="{{ f.onPick }}" style="height:30px;padding:0 12px;box-sizing:border-box;display:flex;align-items:center;border-radius:8px;background:{{ f.bg }};color:{{ f.fg }};font-size:13px;font-weight:{{ f.fw }};cursor:pointer;white-space:nowrap;transition:background .2s ease,color .2s ease">{{ f.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;height:36px;background:#FDF6E4;border-bottom:1px solid #E6E5E0;flex:none">
+        <div style="display:flex;align-items:center;padding:0 22px;font-size:12px;font-weight:600;color:#75736C">Espace</div>
+        <div style="display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:600;color:#75736C">Arrivé le</div>
+        <div style="display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:600;color:#75736C">Statut</div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;padding:0 22px;font-size:12px;font-weight:600;color:#75736C">Gains</div>
+      </div>
+
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;min-height:58px;border-bottom:1px solid #EDEBE5;transition:background .18s ease" style-hover="background:#FAFAF8">
+          <div style="display:flex;align-items:center;gap:11px;padding:0 22px;min-width:0">
+            <span style="width:30px;height:30px;flex:none;border-radius:9px;background:{{ r.avatarBg }};color:{{ r.avatarFg }};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ r.initials }}</span>
+            <div style="display:flex;flex-direction:column;min-width:0">
+              <span style="font-size:14px;font-weight:500;color:#141310;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span>
+              <span style="font-size:12px;color:#75736C;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.plan }}</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;padding:0 16px;font-size:14px;color:#4A463F;white-space:nowrap">{{ r.date }}</div>
+          <div style="display:flex;align-items:center;padding:0 16px">
+            <span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;box-sizing:border-box;border-radius:999px;background:{{ r.badgeBg }};color:{{ r.badgeFg }};font-size:12px;font-weight:500;white-space:nowrap">
+              <span style="width:6px;height:6px;border-radius:50%;background:{{ r.dot }};flex:none;display:block"></span>
+              {{ r.status }}
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:flex-end;padding:0 22px;font-size:14px;font-weight:600;color:#141310;white-space:nowrap">{{ r.earned }}</div>
+        </div>
+      </sc-for>
+
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:52px 24px">
+          <span style="font:700 19px/24px Syne,sans-serif;letter-spacing:-0.02em;color:#141310">Aucun filleul ici</span>
+          <span style="font-size:14px;color:#75736C;text-align:center">{{ emptyHint }}</span>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;align-items:center;gap:12px;padding:16px 22px;background:#FAFAF8">
+        <span style="font-size:13px;color:#75736C">Prochain versement</span>
+        <span style="font-size:13px;font-weight:600;color:#141310">{{ nextPayout }}</span>
+        <span style="flex:1"></span>
+        <span style="font-size:13px;color:#75736C">En attente</span>
+        <span style="font-size:13px;font-weight:600;color:#141310">{{ pending }}</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+      <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:12px;padding:22px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E6E5E0;border-radius:16px">
+          <span style="position:relative;height:74px;width:72px;flex:none;display:flex;align-items:center;justify-content:center">
+            <span style="position:absolute;left:50%;top:62%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;background:radial-gradient(circle at 42% 38%,#FFE79A 0%,#FBC531 46%,rgba(251,197,49,0) 74%);opacity:.42;display:block"></span>
+            {{ st.thumb }}
+          </span>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <span style="font-size:12px;color:#9C9890">Étape {{ st.n }}</span>
+            <span style="font:700 17px/22px Syne,sans-serif;letter-spacing:-0.02em;color:#141310">{{ st.title }}</span>
+            <span style="font-size:14px;line-height:1.5;color:#4A463F;text-wrap:pretty">{{ st.body }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;padding:22px 24px;box-sizing:border-box;background:#FFFFFF;border:1px solid #E6E5E0;border-radius:18px">
+      <span style="font:700 18px/24px Syne,sans-serif;letter-spacing:-0.02em;color:#141310">Les conditions, en clair</span>
+      <sc-for list="{{ terms }}" as="t" hint-placeholder-count="4">
+        <div style="display:flex;gap:11px;align-items:flex-start">
+          <span style="width:5px;height:5px;flex:none;border-radius:50%;background:#FBC531;margin-top:8px;display:block"></span>
+          <span style="font-size:14px;line-height:1.55;color:#4A463F;text-wrap:pretty">{{ t.text }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+      </div>
+    </div>
+  </div>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:400;display:flex;align-items:center;gap:10px;padding:11px 18px;border-radius:11px;background:#141310;color:#fff;font-size:14px;box-shadow:0 12px 32px rgba(20,19,16,0.28);white-space:nowrap;animation:om-rise .26s cubic-bezier(.32,.72,0,1) both">
+      <span style="width:7px;height:7px;border-radius:50%;background:#FBC531;flex:none;display:block"></span>
+      <span>{{ toastText }}</span>
+    </div>
+  </sc-if>
+
+</div>
+  <sc-if value="{{ chatClosed }}" hint-placeholder-val="{{ true }}">
+    <div sc-camel-on-click="{{ openChat }}" sc-camel-on-mouse-enter="{{ hoverDuck }}" sc-camel-on-mouse-leave="{{ leaveDuck }}" title="Canardo" style="position: fixed; right: 24px; bottom: 24px; z-index: 340; cursor: pointer; transform: scale({{ duckScale }}); transition: transform .22s cubic-bezier(.32,.72,0,1);">
+      <div style="position: relative; display: flex; align-items: center; gap: 10px; height: 62px; padding: 0 20px 0 9px; box-sizing: border-box; border-radius: 31px 31px 8px 31px; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 10px 30px rgba(0,0,0,0.16);">
+        <span style="position: relative; width: 46px; height: 46px; flex: none; display: flex; align-items: center; justify-content: center;">
+          <img src="9de00222-53af-4ecc-9d0a-d6851959b081" alt="" style="position: absolute; width: 44px; height: 44px; object-fit: contain; display: {{ duckIdle }};">
+          <img src="aba8ce82-41d0-434a-9730-6c877c2d872a" alt="" style="position: absolute; width: 44px; height: 44px; object-fit: contain; display: {{ duckHappy }};">
+        </span>
+        <span style="font-size: 15px; font-weight: 600; color: #000; white-space: nowrap;">{{ sayText }}</span>
+        <span style="position: absolute; right: 2px; bottom: -5px; width: 14px; height: 14px; background: #fff; border-right: 0.5px solid rgba(82,82,82,0.22); border-bottom: 0.5px solid rgba(82,82,82,0.22); border-radius: 0 0 4px 0; transform: rotate(20deg); display: block;"></span>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ chatOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; right: 24px; bottom: 24px; z-index: 350; width: 380px; max-width: calc(100vw - 48px); height: 520px; max-height: calc(100vh - 48px); background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 18px; box-shadow: 0 24px 64px rgba(0,0,0,0.26); display: flex; flex-direction: column; overflow: hidden;">
+
+      <div style="display: flex; align-items: center; gap: 10px; padding: 14px 14px 13px; border-bottom: 0.5px solid rgba(82,82,82,0.22); flex: none;">
+        <span style="position: relative; width: 34px; height: 34px; flex: none; display: flex; align-items: center; justify-content: center;">
+          <img src="9de00222-53af-4ecc-9d0a-d6851959b081" alt="" style="position: absolute; width: 32px; height: 32px; object-fit: contain; display: {{ headIdle }};">
+          <img src="cd546c4a-29af-4aa9-8263-135e2c81985f" alt="" style="position: absolute; width: 32px; height: 32px; object-fit: contain; display: {{ headThink }};">
+        </span>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <span style="font-size: 14px; font-weight: 600; color: #000;">Canardo</span>
+          <span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #737373;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #059669; display: block;"></span>
+            Répond tout de suite
+          </span>
+        </div>
+        <div sc-camel-on-click="{{ closeChat }}" title="Fermer" style="width: 28px; height: 28px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 7px; color: #737373; cursor: pointer;" style-hover="background: #fafafa; color: #000;">
+          <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </div>
+      </div>
+
+      <div ref="{{ chatRef }}" class="no-sb" style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px;">
+        <sc-for list="{{ chatMsgs }}" as="m" hint-placeholder-count="1">
+          <div style="display: flex; align-items: flex-end; gap: 8px; justify-content: {{ m.just }};">
+            <div style="max-width: 78%; padding: 10px 13px; box-sizing: border-box; border-radius: 14px; background: {{ m.bg }}; color: {{ m.fg }}; border: {{ m.bd }}; font-size: 14px; line-height: 20px; text-wrap: pretty;">{{ m.text }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ chatTyping }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; align-items: flex-end; gap: 8px;">
+            <span style="width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center;">
+              <img src="cd546c4a-29af-4aa9-8263-135e2c81985f" alt="" style="width: 24px; height: 24px; object-fit: contain; display: block;">
+            </span>
+            <div style="display: flex; align-items: center; gap: 4px; padding: 12px 14px; border-radius: 14px; background: #fff; border: 0.5px solid rgba(82,82,82,0.22);">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s infinite;"></span>
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s .16s infinite;"></span>
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s .32s infinite;"></span>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="display: {{ chatChipsDisp }}; gap: 6px; flex-wrap: wrap; padding: 0 14px 12px; flex: none;">
+        <sc-for list="{{ chatChips }}" as="c" hint-placeholder-count="3">
+          <div sc-camel-on-click="{{ c.onPick }}" style="height: 30px; padding: 0 11px; box-sizing: border-box; display: flex; align-items: center; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 999px; background: #fff; font-size: 13px; color: #404040; cursor: pointer; white-space: nowrap;" style-hover="background: #fafafa; color: #000;">{{ c.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-top: 0.5px solid rgba(82,82,82,0.22); background: #fafafa; flex: none;">
+        <input type="text" value="{{ chatInput }}" sc-camel-on-change="{{ onChatInput }}" sc-camel-on-key-down="{{ onChatKey }}" placeholder="Écris un message…" style="flex: 1; min-width: 0; height: 36px; padding: 0 12px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 10px; font-size: 14px; color: #000; outline: none;" style-focus="border-color: #000;">
+        <div sc-camel-on-click="{{ sendChat }}" style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: {{ chatSendBg }}; color: {{ chatSendFg }}; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>
+        </div>
+      </div>
+
+    </div>
+  </sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;hasReferrals&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;État&quot;},&quot;link&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;buildstore.app/r/acai&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Parrainage&quot;}}">
+function svg(paths, opts) {
+  const o = opts || {};
+  return React.createElement("svg", {
+    width: o.size || 16, height: o.size || 16, viewBox: "0 0 24 24", fill: "none",
+    stroke: o.stroke || "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round",
+    style: { flexShrink: 0 }
+  }, paths.map((p, i) =>
+    p.tag === "rect" ? React.createElement("rect", { key: i, ...p.attrs })
+    : p.tag === "circle" ? React.createElement("circle", { key: i, ...p.attrs })
+    : React.createElement("path", { key: i, d: p })
+  ));
+}
+
+const P = {
+  pages: ["M7 2h10", "M5 6h14", { tag: "rect", attrs: { width: 18, height: 12, x: 3, y: 10, rx: 2 } }],
+  card: [{ tag: "rect", attrs: { width: 20, height: 14, x: 2, y: 5, rx: 2 } }, "M2 10h20"],
+  abtest: ["M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2", "M6.453 15h11.094", "M8.5 2h7"],
+  settings: ["M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z", { tag: "circle", attrs: { cx: 12, cy: 12, r: 3 } }],
+  file: ["M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", "M14 2v4a2 2 0 0 0 2 2h4"],
+  bag: ["M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z", "M3 6h18", "M16 10a4 4 0 0 1-8 0"],
+  section: [{ tag: "rect", attrs: { width: 10, height: 6, x: 7, y: 9, rx: 2 } }, "M22 20H2", "M22 4H2"],
+  news: ["M15 18h-5", "M18 14h-8", "M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2", { tag: "rect", attrs: { width: 8, height: 4, x: 10, y: 6, rx: 1 } }],
+  layers: ["M12 2 2 7l10 5 10-5-10-5Z", "m2 17 10 5 10-5", "m2 12 10 5 10-5"],
+  arrowDown: ["M12 5v14", "m19 12-7 7-7-7"],
+  arrowUp: ["M12 19V5", "m5 12 7-7 7 7"],
+  gift: [{ tag: "rect", attrs: { width: 20, height: 5, x: 2, y: 7, rx: 1 } }, "M12 22V7", "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8", "M7.5 7a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7", "M16.5 7a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7"],
+  chevronRight: ["m9 18 6-6-6-6"],
+  chevronDown: ["m6 9 6 6 6-6"],
+  sparkle: ["M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"],
+  book: [{ tag: "rect", attrs: { width: 8, height: 18, x: 3, y: 3, rx: 1 } }, "M7 3v18", "M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"],
+  lifebuoy: [{ tag: "circle", attrs: { cx: 12, cy: 12, r: 10 } }, { tag: "circle", attrs: { cx: 12, cy: 12, r: 4 } }, "m4.93 4.93 4.24 4.24", "m14.83 9.17 4.24-4.24", "m14.83 14.83 4.24 4.24", "m9.17 14.83-4.24 4.24"],
+  users: ["M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", { tag: "circle", attrs: { cx: 9, cy: 7, r: 4 } }, "M22 21v-2a4 4 0 0 0-3-3.87", "M16 3.13a4 4 0 0 1 0 7.75"],
+  message: ["M7.9 20A9 9 0 1 0 4 16.1L2 22Z"],
+  megaphone: ["m3 11 18-5v12L3 14v-3z", "M11.6 16.8a3 3 0 1 1-5.8-1.6"]
+};
+
+const ANNOUNCEMENTS = [
+  { title: "Créer une boutique en parlant",
+    body: "Décris ce que tu vends, le canard monte la boutique et tu corriges une phrase à la fois.",
+    link: "Par où commencer" },
+  { title: "Les tests A/B sortent de bêta",
+    body: "Deux versions d'une page s'affrontent, le canard désigne la gagnante en trois jours.",
+    link: "Lire les notes" },
+  { title: "Le parrainage paie au mois",
+    body: "Chaque espace que tu amènes rapporte douze mois, tes liens déjà partagés compris.",
+    link: "Voir les conditions" }
+];
+
+
+const ALL = [
+  { name: "Brûlerie Sud", plan: "Croissance · 79 €/mois", date: "12 mars", status: "Actif", earned: "142,20 €", months: 9 },
+  { name: "Terre Brute", plan: "Croissance · 79 €/mois", date: "4 avril", status: "Actif", earned: "126,40 €", months: 8 },
+  { name: "Peau Nue", plan: "Départ · 29 €/mois", date: "28 mai", status: "Actif", earned: "40,60 €", months: 7 },
+  { name: "Fil Écru", plan: "Croissance · 79 €/mois", date: "9 juillet", status: "Essai", earned: "0,00 €", months: 0 },
+  { name: "Comptoir 44", plan: "Départ · 29 €/mois", date: "2 août", status: "En attente", earned: "5,80 €", months: 1 },
+  { name: "Onzième", plan: "Croissance · 79 €/mois", date: "18 janvier", status: "Terminé", earned: "189,60 €", months: 12 }
+];
+
+const AVATARS = [
+  { bg: "#FDF2CF", fg: "#8A6A10" },
+  { bg: "#EAEFF6", fg: "#3D4A66" },
+  { bg: "#FCEDEF", fg: "#B0505C" },
+  { bg: "#F1F0EC", fg: "#4A463F" }
+];
+
+const BADGE = {
+  "Actif":      { bg: "#EAF6EF", fg: "#1F7A4D", dot: "#2FA36B" },
+  "Essai":      { bg: "#FDF3D2", fg: "#8A6A10", dot: "#FBC531" },
+  "En attente": { bg: "#F1F0EC", fg: "#4A463F", dot: "#9C9890" },
+  "Terminé":    { bg: "#F1F0EC", fg: "#75736C", dot: "#D8D5CE" }
+};
+
+const STEPS = [
+  { n: "1", img: "assets/mascots-web/05-curieux.png", title: "Partage ton lien",
+    body: "Un lien unique, valable sans limite de temps. Les clics et les inscriptions sont comptés dès aujourd'hui." },
+  { n: "2", img: "assets/mascots-web/07-idee.png", title: "Ton filleul s'abonne",
+    body: "Il garde 20 % de remise sur ses trois premiers mois, quel que soit le plan qu'il choisit." },
+  { n: "3", img: "assets/mascots-web/01-joyeux.png", title: "Tu es payé chaque mois",
+    body: "20 % de son abonnement pendant douze mois, versés le 5 du mois suivant." }
+];
+
+const TERMS = [
+  { text: "La commission court douze mois à partir du premier paiement du filleul, puis s'arrête." },
+  { text: "Le versement part le 5 du mois suivant, à partir de 25 € cumulés." },
+  { text: "Un filleul qui annule pendant les quatorze premiers jours n'ouvre pas de commission." },
+  { text: "Pas d'auto-parrainage : un espace créé depuis ton propre lien n'est pas compté." }
+];
+
+function initials(str) {
+  const p = str.split(/[\s-]+/).filter(Boolean);
+  return ((p[0] || "?")[0] + (p[1] ? p[1][0] : "")).toUpperCase();
+}
+
+function icon(paths) {
+  return React.createElement("svg", {
+    width: 14, height: 14, viewBox: "0 0 24 24", fill: "none",
+    stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"
+  }, paths.map((d, i) => React.createElement("path", { key: i, d })));
+}
+
+
+const NAV = [
+  { label: "Pages", icon: "pages", href: "Buildstore Dashboard.dc.html" },
+  { label: "Mon abonnement", icon: "card", href: "Facturation.dc.html" },
+  { label: "Parrainage", icon: "gift", href: "Parrainage.dc.html", current: true },
+  { label: "Réglages", icon: "settings", href: "Facturation.dc.html" }
+];
+
+const LEARN = [
+  { label: "Nouveautés", icon: "megaphone", href: "#", external: false },
+  { label: "Buildstore University", icon: "book", href: "https://www.buildstore.app/learn", external: true },
+  { label: "Documentation", icon: "lifebuoy", href: "https://support.buildstore.app/", external: true },
+  { label: "Experts Buildstore", icon: "users", href: "https://contra.com/buildstore", external: true },
+  { label: "Rejoindre le Discord", icon: "message", href: "https://discord.gg/E7K6VADQJM", external: true },
+  { label: "Faire un retour", icon: "sparkle", href: "https://feedback.buildstore.app/", external: true }
+];
+
+function IA(p) {
+  const m = (typeof window !== "undefined" && window.__IA) || {};
+  return m[p] || p;
+}
+
+class Component extends DCLogic {
+  _assetGlobals = ["__IA"];
+
+  _assetsReady() {
+    if (typeof window === "undefined") return true;
+    return this._assetGlobals.every(k => !!window[k]);
+  }
+
+  // les tables d'images arrivent en différé dans un fichier autonome :
+  // on redessine dès qu'elles sont là
+  _ensureAssets() {
+    if (this._assetsOk || this._assetPoll) return;
+    if (this._assetsReady()) { this._assetsOk = true; return; }
+    this._assetPoll = setInterval(() => {
+      if (!this._assetsReady()) return;
+      clearInterval(this._assetPoll);
+      this._assetPoll = null;
+      this._assetsOk = true;
+      this.forceUpdate();
+    }, 120);
+    this._assetStop = setTimeout(() => {
+      if (this._assetPoll) { clearInterval(this._assetPoll); this._assetPoll = null; }
+    }, 15000);
+  }
+
+  state = {
+    chatOpen: false, chatInput: "", chatTyping: false, duckHover: false,
+    chatMsgs: [{ me: false, text: "Salut. Dis-moi ce que je peux faire pour toi — ton lien, tes gains, tes filleuls.", duck: "05-curieux" }], filter: "Tous", copied: false, toast: null, collapsed: false, menu: null, learnOpen: false, demo: null };
+
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._c); }
+
+  flash(text) {
+    clearTimeout(this._t);
+    this.setState({ toast: text });
+    this._t = setTimeout(() => this.setState({ toast: null }), 2400);
+  }
+
+  chatReply(text) {
+    this.setState({ chatTyping: true });
+    clearTimeout(this._ct);
+    this._ct = setTimeout(() => this.setState(st => ({
+      chatTyping: false,
+      chatMsgs: st.chatMsgs.concat([{ me: false, text, duck: "07-idee" }])
+    })), 900);
+  }
+
+  chatSend(raw) {
+    const v = (raw || this.state.chatInput || "").trim();
+    if (!v) return;
+    this.setState(st => ({ chatMsgs: st.chatMsgs.concat([{ me: true, text: v }]), chatInput: "" }));
+    const t = v.toLowerCase();
+    let a = "Noté. Je peux t'expliquer le barème, les versements et le partage de ton lien.";
+    if (t.includes("payé") || t.includes("versement") || t.includes("paie")) a = "Le versement part le 5 du mois suivant, dès 25 € cumulés. Directement sur ton moyen de paiement.";
+    else if (t.includes("lien") || t.includes("partag")) a = "Copie ton lien en haut de la page. Il n'expire pas, et les clics sont comptés dès aujourd'hui.";
+    else if (t.includes("combien") || t.includes("rapport") || t.includes("gain")) a = "20 % de l'abonnement de ton filleul pendant douze mois. Sur un plan Pro, ça fait environ 240 $ par filleul.";
+    else if (t.includes("membre") || t.includes("invit") || t.includes("équipe")) a = "Va dans Espace › Membres, puis Inviter un membre. Tu choisis Owner, Editor ou Viewer au moment de l'envoi.";
+    else if (t.includes("shopify") || t.includes("intégr") || t.includes("connect")) a = "Shopify et Klaviyo sont déjà reliés. Dix-sept autres attendent dans Intégrations — laquelle il te faut ?";
+    else if (t.includes("domaine")) a = "Ajoute ton domaine dans Projet › Général, puis fais pointer le DNS. Ça se propage en 24 h au plus.";
+    else if (t.includes("crédit")) a = "Les crédits offerts se rechargent chaque mois et partent en premier. Les crédits achetés n'expirent jamais.";
+    else if (t.includes("merci")) a = "Avec plaisir. Appelle-moi dès que quelque chose te paraît de travers.";
+    this.chatReply(a);
+  }
+
+  renderVals() {
+
+    this._ensureAssets();
+    const s = this.state;
+    const link = this.props.link ?? "buildstore.app/r/acai";
+    const hasRefs = s.demo != null ? s.demo : (this.props.hasReferrals ?? false);
+    const rows = ALL.filter(r => s.filter === "Tous" || (s.filter === "Actifs" ? r.status === "Actif" : r.status !== "Actif"));
+
+    const active = ALL.filter(r => r.status === "Actif").length;
+
+    return {
+      chatOpen: !!s.chatOpen,
+      chatClosed: !s.chatOpen,
+      openChat: () => this.setState({ chatOpen: true, duckHover: false }),
+      hoverDuck: () => this.setState({ duckHover: true }),
+      leaveDuck: () => this.setState({ duckHover: false }),
+      duckIdle: s.duckHover ? "none" : "block",
+      duckHappy: s.duckHover ? "block" : "none",
+      duckScale: s.duckHover ? "1.08" : "1",
+      sayText: "Hey !",
+      sayOpa: s.duckHover ? "1" : "0.92",
+      sayY: s.duckHover ? "-2px" : "0px",
+      closeChat: () => this.setState({ chatOpen: false }),
+      chatRef: (el) => {
+        if (!el) return;
+        if (this._cn !== s.chatMsgs.length + (s.chatTyping ? 0.5 : 0)) {
+          this._cn = s.chatMsgs.length + (s.chatTyping ? 0.5 : 0);
+          requestAnimationFrame(() => { if (el) el.scrollTop = el.scrollHeight; });
+        }
+      },
+      chatTyping: !!s.chatTyping,
+      headIdle: s.chatTyping ? "none" : "block",
+      headThink: s.chatTyping ? "block" : "none",
+      chatMsgs: s.chatMsgs.map(m => ({
+        text: m.text,
+        isDuck: !m.me,
+        just: m.me ? "flex-end" : "flex-start",
+        bg: m.me ? "#000" : "#fff",
+        fg: m.me ? "#fff" : "#000",
+        bd: m.me ? "none" : "0.5px solid rgba(82,82,82,0.22)",
+        avatar: m.me ? null : React.createElement("img", {
+          src: IA("assets/mascots-web/" + (m.duck || "05-curieux") + ".png"),
+          alt: "", style: { width: 24, height: 24, objectFit: "contain", display: "block" }
+        })
+      })),
+      chatChipsDisp: s.chatMsgs.length <= 1 ? "flex" : "none",
+      chatChips: ["Comment je suis payé ?", "Partager mon lien", "Combien ça rapporte ?"].map(label => ({
+        label, onPick: () => this.chatSend(label)
+      })),
+      chatInput: s.chatInput,
+      onChatInput: (e) => this.setState({ chatInput: e.target.value }),
+      onChatKey: (e) => { if (e.key === "Enter") { e.preventDefault(); this.chatSend(); } },
+      sendChat: () => this.chatSend(),
+      chatSendBg: (s.chatInput || "").trim() ? "#000" : "rgba(82,82,82,0.14)",
+      chatSendFg: (s.chatInput || "").trim() ? "#fff" : "#737373",
+      // --- état vide / rempli ---
+      emptyDisp: hasRefs ? "none" : "flex",
+      statsDisp: hasRefs ? "grid" : "none",
+      tableDisp: hasRefs ? "flex" : "none",
+
+      // --- barre latérale ---
+      expanded: !s.collapsed,
+      collapsed: !!s.collapsed,
+      toggleCollapse: () => this.setState({ collapsed: !s.collapsed, menu: null }),
+      anyOpen: !!s.menu,
+      closeAll: () => this.setState({ menu: null }),
+      workspaceOpen: s.menu === "workspace",
+      userOpen: s.menu === "user",
+      toggleWorkspace: () => this.setState({ menu: s.menu === "workspace" ? null : "workspace" }),
+      toggleUser: () => this.setState({ menu: s.menu === "user" ? null : "user" }),
+      showReferralCard: false,
+      learnOpen: !!s.learnOpen,
+      toggleLearn: () => this.setState({ learnOpen: !s.learnOpen }),
+      learnChevron: svg(s.learnOpen ? P.chevronDown : P.chevronRight, { stroke: "#75736C" }),
+      navItems: NAV.map(n => ({
+        label: n.label,
+        icon: svg(P[n.icon], { size: 16, stroke: "#141310" }),
+        active: !!n.current,
+        inactive: !n.current,
+        onClick: () => { if (n.href) window.location.href = n.href; }
+      })),
+      learnItems: LEARN.map(l => ({
+        label: l.label,
+        href: l.href,
+        external: l.external,
+        icon: svg(P[l.icon], { size: 16, stroke: "#4A463F" })
+      })),
+
+      link: link,
+      copyLabel: s.copied ? "Lien copié" : "Copier le lien",
+      copyLink: () => {
+        if (navigator.clipboard) navigator.clipboard.writeText("https://" + link).catch(() => {});
+        clearTimeout(this._c);
+        this.setState({ copied: true });
+        this._c = setTimeout(() => this.setState({ copied: false }), 1800);
+        this.flash("Lien copié dans le presse-papiers");
+      },
+
+      clicksLabel: "412 clics · 6 inscriptions",
+      stats: [
+        { label: "Revenus du mois", value: "58,40 €", delta: "+12,60 € vs mois dernier", deltaColor: "#1F7A4D" },
+        { label: "Depuis le début", value: "504,60 €", delta: "sur 18 mois", deltaColor: "#75736C" },
+        { label: "Espaces actifs", value: String(active), delta: "1 en essai", deltaColor: "#75736C" },
+        { label: "Taux de conversion", value: "1,5 %", delta: "6 sur 412 clics", deltaColor: "#75736C" }
+      ],
+
+      channels: [
+        { label: "E-mail", icon: icon(["M22 7 13.03 12.7a1.94 1.94 0 0 1-2.06 0L2 7", "M2 6h20v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"]), onPick: () => this.flash("Brouillon d'e-mail ouvert") },
+        { label: "Discord", icon: icon(["M8 12h.01", "M16 12h.01", "M4 7c4-1.5 12-1.5 16 0l2 10c-3 2-6 3-6 3l-1-2H9l-1 2s-3-1-6-3z"]), onPick: () => this.flash("Message prêt pour Discord") },
+        { label: "Afficher le code QR", icon: icon(["M3 3h7v7H3z", "M14 3h7v7h-7z", "M3 14h7v7H3z", "M14 14h3v3h-3z", "M20 20h1v1h-1z"]), onPick: () => this.flash("Code QR généré") }
+      ],
+
+      filters: ["Tous", "Actifs", "Autres"].map(label => ({
+        label,
+        onPick: () => this.setState({ filter: label }),
+        bg: s.filter === label ? "#F1F0EC" : "transparent",
+        fg: s.filter === label ? "#141310" : "#75736C",
+        fw: s.filter === label ? 600 : 400
+      })),
+
+      countLabel: rows.length + (rows.length > 1 ? " espaces" : " espace"),
+      rows: rows.map((r, i) => {
+        const b = BADGE[r.status] || BADGE["En attente"];
+        const a = AVATARS[i % AVATARS.length];
+        return {
+          name: r.name, plan: r.plan, date: r.date, status: r.status, earned: r.earned,
+          initials: initials(r.name),
+          avatarBg: a.bg, avatarFg: a.fg,
+          badgeBg: b.bg, badgeFg: b.fg, dot: b.dot
+        };
+      }),
+      isEmpty: rows.length === 0,
+      emptyHint: "Aucun espace dans « " + s.filter + " » pour l'instant.",
+
+      nextPayout: "5 septembre · 58,40 €",
+      pending: "5,80 €",
+
+      steps: STEPS.map(st => ({
+        n: st.n, title: st.title, body: st.body,
+        thumb: React.createElement("img", {
+          src: IA(st.img), alt: "",
+          style: { position: "relative", height: 70, width: "auto", objectFit: "contain", display: "block" }
+        })
+      })),
+      terms: TERMS,
+
+      toastOn: !!s.toast,
+      toastText: s.toast || ""
+    };
+  }
+}
+
+
+</script>
+
+
+<script type="module" src="/hydrate/parrainage.js"></script>
+</body></html>

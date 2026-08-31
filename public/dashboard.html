@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="e17ab685-9f38-4eb5-b760-bf4c4636655f"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("9f0de8e2-1457-4c49-990e-288ab90f0864") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("9ef61085-463b-4d63-a879-7c20ac072299") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("b66e64ed-47fc-455a-954f-db137f230c22") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("9f0de8e2-1457-4c49-990e-288ab90f0864") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("9ef61085-463b-4d63-a879-7c20ac072299") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("b66e64ed-47fc-455a-954f-db137f230c22") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* greek */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("9f0de8e2-1457-4c49-990e-288ab90f0864") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("9ef61085-463b-4d63-a879-7c20ac072299") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Syne';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("b66e64ed-47fc-455a-954f-db137f230c22") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+  html, body { height: 100%; overflow: hidden; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #141310; background: #fff; }
+  a { color: #141310; text-decoration: none; }
+  a:hover { color: #4A463F; }
+  input { font-family: inherit; }
+  input::placeholder { color: #75736C; font-weight: 400; }
+  @keyframes om-pvscroll { 0% { transform: translateY(0); } 96%, 100% { transform: translateY(-46%); } }
+  @keyframes om-scrim { 0% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes om-dot { 0%, 100% { opacity: .3; transform: translateY(0) } 50% { opacity: 1; transform: translateY(-2px) } }
+  @keyframes om-sbin { from { opacity: 0; transform: translateX(-10px) } to { opacity: 1; transform: none } }
+  @keyframes om-sbnarrow { from { opacity: 0; transform: translateX(8px) } to { opacity: 1; transform: none } }
+</style>
+<script src="10f7e5ce-fd22-4918-b573-10341c020331"></script>
+<script src="d9f91604-c339-4374-8b85-7f06b596e911"></script>
+</helmet>
+
+<div style="width: 100%; height: 100vh; display: flex; background: #fff; overflow: hidden; font-size: 14px; position: relative;">
+
+  <sc-if value="{{ previewOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; left: {{ pvX }}; top: {{ pvY }}; width: 204px; z-index: 301; background: #fff; border: 1px solid #E6E5E0; border-radius: 18px; box-shadow: 0 16px 40px rgba(20,19,16,0.22); overflow: hidden; display: flex; flex-direction: column;">
+      <div style="padding: 11px 14px 10px; display: flex; flex-direction: column; gap: 3px;">
+        <span style="font: 700 14px/17px Syne, sans-serif; letter-spacing: -0.015em; color: #141310;">{{ pvTitle }}</span>
+        <span style="font-size: 11px; line-height: 15px; color: #75736C; text-wrap: pretty;">{{ pvDesc }}</span>
+      </div>
+      <div style="height: 152px; margin: 0 8px 8px; border-radius: 12px; overflow: hidden; background: #F4F3EF; position: relative; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 16px), transparent 100%);">
+        <div style="position: absolute; left: 0; right: 0; top: 0; padding: 10px; display: flex; flex-direction: column; gap: 6px; animation: om-pvscroll 6.5s cubic-bezier(.42,0,.58,1) infinite alternate;">
+
+          <div style="display: {{ pvProduct }}; flex-direction: column; gap: 6px;">
+            <div style="height: 96px; border-radius: 5px; background: #E6E5E0;"></div>
+            <div style="display: flex; gap: 5px;">
+              <div style="width: 26px; height: 26px; border-radius: 4px; background: #EDEBE5;"></div>
+              <div style="width: 26px; height: 26px; border-radius: 4px; background: #EDEBE5;"></div>
+              <div style="width: 26px; height: 26px; border-radius: 4px; background: #EDEBE5;"></div>
+            </div>
+            <div style="width: 74%; height: 11px; border-radius: 3px; background: #D8D5CE;"></div>
+            <div style="width: 34%; height: 14px; border-radius: 3px; background: #FBC531;"></div>
+            <div style="height: 26px; border-radius: 6px; background: #141310;"></div>
+            <div style="width: 100%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="width: 92%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="height: 34px; border-radius: 5px; background: #EFEEE9;"></div>
+          </div>
+
+          <div style="display: {{ pvHome }}; flex-direction: column; gap: 6px;">
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <div style="width: 34px; height: 8px; border-radius: 3px; background: #D8D5CE;"></div>
+              <div style="flex: 1;"></div>
+              <div style="width: 18px; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+              <div style="width: 18px; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            </div>
+            <div style="height: 82px; border-radius: 5px; background: #E6E5E0;"></div>
+            <div style="width: 52%; height: 10px; border-radius: 3px; background: #D8D5CE;"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+              <div style="height: 52px; border-radius: 5px; background: #EFEEE9;"></div>
+              <div style="height: 52px; border-radius: 5px; background: #EFEEE9;"></div>
+              <div style="height: 52px; border-radius: 5px; background: #EFEEE9;"></div>
+              <div style="height: 52px; border-radius: 5px; background: #EFEEE9;"></div>
+            </div>
+            <div style="height: 30px; border-radius: 5px; background: #FBC531;"></div>
+          </div>
+
+          <div style="display: {{ pvLanding }}; flex-direction: column; gap: 6px;">
+            <div style="width: 88%; height: 15px; border-radius: 3px; background: #D8D5CE;"></div>
+            <div style="width: 66%; height: 15px; border-radius: 3px; background: #D8D5CE;"></div>
+            <div style="width: 100%; height: 7px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="height: 28px; border-radius: 6px; background: #141310;"></div>
+            <div style="height: 78px; border-radius: 5px; background: #E6E5E0;"></div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <div style="width: 16px; height: 16px; border-radius: 50%; background: #FBC531;"></div>
+              <div style="flex: 1; height: 7px; border-radius: 3px; background: #EDEBE5;"></div>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <div style="width: 16px; height: 16px; border-radius: 50%; background: #FBC531;"></div>
+              <div style="flex: 1; height: 7px; border-radius: 3px; background: #EDEBE5;"></div>
+            </div>
+            <div style="height: 28px; border-radius: 6px; background: #141310;"></div>
+          </div>
+
+          <div style="display: {{ pvAdverto }}; flex-direction: column; gap: 6px;">
+            <div style="width: 42%; height: 7px; border-radius: 3px; background: #FBC531;"></div>
+            <div style="width: 94%; height: 13px; border-radius: 3px; background: #D8D5CE;"></div>
+            <div style="width: 70%; height: 13px; border-radius: 3px; background: #D8D5CE;"></div>
+            <div style="width: 38%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="height: 62px; border-radius: 5px; background: #E6E5E0;"></div>
+            <div style="width: 100%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="width: 97%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="width: 88%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="margin-top: 4px; padding: 8px; border-radius: 6px; border: 1px solid #E6E5E0; background: #fff; display: flex; flex-direction: column; gap: 6px;">
+              <div style="height: 30px; border-radius: 4px; background: #EFEEE9;"></div>
+              <div style="height: 22px; border-radius: 5px; background: #141310;"></div>
+            </div>
+          </div>
+
+          <div style="display: {{ pvBlog }}; flex-direction: column; gap: 6px;">
+            <div style="width: 92%; height: 13px; border-radius: 3px; background: #D8D5CE;"></div>
+            <div style="width: 58%; height: 13px; border-radius: 3px; background: #D8D5CE;"></div>
+            <div style="display: flex; gap: 5px; align-items: center;">
+              <div style="width: 14px; height: 14px; border-radius: 50%; background: #EDEBE5;"></div>
+              <div style="width: 52px; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            </div>
+            <div style="height: 58px; border-radius: 5px; background: #E6E5E0;"></div>
+            <div style="width: 100%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="width: 95%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="width: 72%; height: 6px; border-radius: 3px; background: #EDEBE5;"></div>
+            <div style="display: flex; gap: 5px; margin-top: 4px;">
+              <div style="width: 44px; height: 15px; border-radius: 999px; background: #EFEEE9;"></div>
+              <div style="width: 36px; height: 15px; border-radius: 999px; background: #EFEEE9;"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ coachOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; left: {{ holeX }}; top: {{ holeY }}; width: {{ holeW }}; height: {{ holeH }}; border-radius: 15px; box-shadow: 0 0 0 3px #FBC531, 0 0 0 9999px rgba(20,19,16,0.92); pointer-events: none; z-index: 200; transition: left .42s cubic-bezier(.32,.72,0,1), top .42s cubic-bezier(.32,.72,0,1), width .42s cubic-bezier(.32,.72,0,1), height .42s cubic-bezier(.32,.72,0,1); animation: om-scrim .4s ease both;"></div>
+
+    <div style="position: fixed; left: {{ tipX }}; top: {{ tipY }}; width: 430px; max-width: calc(100vw - 40px); z-index: 300; background: #FFFFFF; border: 1px solid #E6E5E0; border-radius: 16px; box-shadow: 0 22px 60px rgba(0,0,0,0.42); padding: 18px 20px 18px 16px; box-sizing: border-box; display: flex; align-items: center; gap: 14px; transition: left .42s cubic-bezier(.32,.72,0,1), top .42s cubic-bezier(.32,.72,0,1); animation: om-scrim .3s ease both;">
+      <span style="position: relative; height: 76px; width: 74px; flex: none; display: flex; align-items: center; justify-content: center;">
+        <span style="position: absolute; left: 50%; top: 64%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: radial-gradient(circle at 42% 38%, #FFE79A 0%, #FBC531 44%, rgba(251,197,49,0) 74%); opacity: 0.5; display: block;"></span>
+        <img src="212155e5-8c84-41fd-9ab4-ae4d3d31f4fe" alt="" style="position: relative; height: 74px; width: auto; object-fit: contain; display: {{ tutD0 }};">
+        <img src="d7250cca-a0b5-4efb-a44e-450e7d5f0adc" alt="" style="position: relative; height: 74px; width: auto; object-fit: contain; display: {{ tutD1 }};">
+      </span>
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 5px;">
+        <span style="font: 700 18px/23px Syne, sans-serif; letter-spacing: -0.02em; color: #141310; white-space: nowrap;">{{ tutTitle }}</span>
+        <div style="display: flex; align-items: center; gap: 8px; padding-top: 4px;">
+          <span style="flex: 1;"></span>
+          <span sc-camel-on-click="{{ tutSkip }}" style="font-size: 13px; color: #75736C; cursor: pointer; white-space: nowrap;" style-hover="color: #141310;">Passer</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 10px; padding: 11px 18px; border-radius: 11px; background: #141310; color: #fff; font-size: 14px; box-shadow: 0 12px 32px rgba(20,19,16,0.28); white-space: nowrap; animation: om-scrim .2s ease both;">
+      <span style="width: 7px; height: 7px; border-radius: 50%; background: #FBC531; flex: none; display: block;"></span>
+      <span>{{ toastText }}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ anyOpen }}" hint-placeholder-val="{{ false }}">
+    <div sc-camel-on-click="{{ closeAll }}" style="position: absolute; inset: 0; z-index: 40;"></div>
+  </sc-if>
+
+  <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+  <div style="width: 256px; flex-shrink: 0; padding: 12px; box-sizing: border-box; position: relative; animation: om-sbin .3s cubic-bezier(.32,.72,0,1) both;">
+    <div style="height: 100%; display: flex; flex-direction: column; background: #fff; border: 1px solid #E6E5E0; border-radius: 10px; box-shadow: 0 1px 2px rgba(20,19,16,0.05); position: relative;">
+
+      <div style="padding: 12px 12px 0; display: flex; flex-direction: column; position: relative; z-index: 50;">
+        <div style="padding-bottom: 8px; position: relative;">
+          <div sc-camel-on-click="{{ toggleWorkspace }}" style="display: flex; align-items: flex-start; gap: 8px; width: 100%; height: 48px; padding: 6px; box-sizing: border-box; border-radius: 4px; cursor: pointer;" style-hover="background: #FAFAF8;">
+            <div style="display: flex; gap: 8px; align-items: center; height: 100%; min-width: 0; flex: 1;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; background: #F1F0EC; border: 1px solid #E6E5E0; border-radius: 8px; box-shadow: 0 1px 1px rgba(20,19,16,0.04);">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"></path><path d="m8 6 2-2"></path><path d="m18 16 2-2"></path><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg>
+              </span>
+              <div style="display: grid; min-width: 0; text-align: left;">
+                <span style="font: 700 17px/20px Syne, sans-serif; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ACAI</span>
+                <span style="font-size: 12px; line-height: 16px; color: #4A463F; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Espace ACAI</span>
+              </div>
+            </div>
+            <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 8px; flex-shrink: 0;"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+          </div>
+
+          <sc-if value="{{ workspaceOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; top: calc(100% + 2px); left: 0; width: 100%; z-index: 60; background: #fff; border: 1px solid #E6E5E0; border-radius: 8px; box-shadow: 0 8px 24px #EDEBE5, 0 1px 2px rgba(20,19,16,0.09); padding: 4px; display: flex; flex-direction: column; gap: 2px;">
+              <div style="padding: 6px 8px 2px; font: 500 10px/16px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; color: #9C9890; text-transform: uppercase; letter-spacing: 0.08em;">Espaces</div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; background: #F1F0EC;">
+                <span style="display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; background: #fff; border: 1px solid #E6E5E0; border-radius: 6px;">
+                  <svg width="11" height="11" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"></path><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+                </span>
+                <span style="flex: 1; font-size: 14px; font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ACAI</span>
+                <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+              <div style="height: 0.5px; background: #E6E5E0; margin: 2px 0;"></div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                <span>Créer un espace</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <span>Réglages de l'espace</span>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+        <div style="height: 0.5px; width: 100%; background: #E6E5E0;"></div>
+      </div>
+
+      <div sc-camel-on-click="{{ toggleCollapse }}" style="position: absolute; top: 73px; right: -12px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #E6E5E0; border-radius: 6px; box-shadow: 0 1px 2px rgba(82,82,82,0.08); cursor: pointer; z-index: 55;" style-hover="background: #FAFAF8;">
+        <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"></path><path d="m18 17-5-5 5-5"></path></svg>
+      </div>
+
+      <div style="flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 8px; padding-top: 8px; overflow-y: auto; overflow-x: hidden;">
+        <div style="padding: 0 12px 12px;">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+
+            <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="4">
+              <sc-if value="{{ item.active }}" hint-placeholder-val="{{ false }}">
+                <div sc-camel-on-click="{{ item.onClick }}" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; font-weight: 500; color: #141310; background: #F1F0EC; cursor: pointer;">
+                  <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ item.icon }}</div>
+                  <span>{{ item.label }}</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ item.inactive }}" hint-placeholder-val="{{ true }}">
+                <div sc-camel-on-click="{{ item.onClick }}" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; font-weight: 400; color: #141310; cursor: pointer;" style-hover="background: #FAFAF8;">
+                  <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ item.icon }}</div>
+                  <span>{{ item.label }}</span>
+                </div>
+              </sc-if>
+            </sc-for>
+
+            <div>
+              <div sc-camel-on-click="{{ toggleLearn }}" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 6px 8px; box-sizing: border-box; border-radius: 4px; font-size: 14px; font-weight: 400; color: #141310; cursor: pointer;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="18" x="3" y="3" rx="1"></rect><path d="M7 3v18"></path><path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"></path></svg>
+                <span style="flex: 1;">En savoir plus</span>
+                <div style="width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">{{ learnChevron }}</div>
+              </div>
+
+              <sc-if value="{{ learnOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-left: 14px; padding-left: 10px; margin-top: 8px; border-left: 1px solid #E6E5E0; display: flex; flex-direction: column; gap: 8px;">
+                  <sc-for list="{{ learnItems }}" as="sub" hint-placeholder-count="6">
+                    <a href="{{ sub.href }}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 6px; height: 28px; padding: 4px 8px; box-sizing: border-box; border-radius: 6px; font-size: 14px; color: #141310; min-width: 0;" style-hover="background: #FAFAF8; color: #141310;">
+                      <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ sub.icon }}</div>
+                      <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ sub.label }}</span>
+                      <sc-if value="{{ sub.external }}" hint-placeholder-val="{{ true }}">
+                        <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#75736C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                      </sc-if>
+                    </a>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+          </div>
+        </div>
+
+        <sc-if value="{{ showReferralCard }}" hint-placeholder-val="{{ true }}">
+          <div style="padding: 0 12px; margin-top: auto;">
+            <div style="position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; border: 1px solid #E6E5E0; background: #fff;">
+              <img src="4142bc6f-2ac1-4732-91c1-f8d4ee08c596" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block;">
+              <img src="f4f8c91d-df1f-41e6-ae52-7247d5681171" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; display: block;">
+              <div style="position: absolute; top: 0; left: 0; right: 0; padding-top: 12px; text-align: center;">
+                <span style="font: 700 15px/20px Syne, sans-serif; letter-spacing: -0.015em; color: #141310;">Gagne en parrainant</span>
+              </div>
+
+              <div style="position: absolute; top: 24%; left: -3.5%; width: 88%; height: 14%; display: flex; align-items: center; justify-content: space-between; border-radius: 8px; background: rgba(255,255,255,0.5); border: 3px solid rgba(255,255,255,0.5); backdrop-filter: blur(1px); padding: 4px 8px; box-sizing: border-box;">
+                <div style="display: flex; align-items: center; gap: 4px; padding-left: 4px;">
+                  <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                  <span style="font-size: 11px; font-weight: 500;">Tes liens</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 2px;">
+                  <svg width="10" height="10" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.1 12 6"></path><path d="m5.1 8-2.9-.8"></path><path d="m6 12-1.9 2"></path><path d="M7.2 2.2 8 5.1"></path><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"></path></svg>
+                  <span style="font-size: 10px; line-height: 16px; color: #4A463F;">0 clic</span>
+                </div>
+              </div>
+
+              <div style="position: absolute; top: 45.5%; left: 14%; right: 6%; height: 24%; display: flex; align-items: center; gap: 8px; border-radius: 8px; background: rgba(255,255,255,0.5); border: 4px solid rgba(255,255,255,0.5); backdrop-filter: blur(1px); padding: 8px; box-sizing: border-box;">
+                <img src="00ec8e6a-ee23-4169-868d-229666c211d7" alt="" style="width: 25px; height: 28px; flex-shrink: 0; display: block;">
+                <div style="display: flex; flex-direction: column;">
+                  <span style="font-size: 10px; line-height: 14px; color: #4A463F; white-space: nowrap;">Revenus du mois</span>
+                  <span style="font-size: 14px; line-height: 20px; font-weight: 600; color: #141310;">0,00 €</span>
+                </div>
+              </div>
+
+              <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 12px;">
+                <a href="buildstore-parrainage.html" style="display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; height: 24px; background: #141310; color: #fff; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; text-decoration: none; box-sizing: border-box; box-shadow: 0 1px 1px rgba(0,0,0,0.06);" style-hover="background: #2E2A24;">
+                  <span>Partager et gagner</span>
+                  <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="padding: 12px; display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 50;">
+        <div style="position: relative;">
+          <div sc-camel-on-click="{{ toggleUser }}" style="display: flex; align-items: flex-start; gap: 8px; width: 100%; height: 48px; padding: 6px; box-sizing: border-box; border-radius: 4px; cursor: pointer;" style-hover="background: #FAFAF8;">
+            <div style="display: flex; gap: 8px; align-items: center; height: 100%; min-width: 0; flex: 1;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; background: #F1F0EC; border: 1px solid #E6E5E0; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 1px rgba(20,19,16,0.04);">
+                <span style="font-family: 'PP Editorial New', Georgia, serif; font-style: italic; font-size: 20px; color: #141310;">A</span>
+              </span>
+              <div style="display: grid; min-width: 0; text-align: left;">
+                <span style="font-size: 14px; line-height: 20px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Amir Ben Ettaleb</span>
+                <span style="font-size: 12px; line-height: 16px; color: #4A463F; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">amir.benettaleb35@gmail.com</span>
+              </div>
+            </div>
+            <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 8px; flex-shrink: 0;"><path d="m7 15 5 5 5-5"></path><path d="m7 9 5-5 5 5"></path></svg>
+          </div>
+
+          <sc-if value="{{ userOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position: absolute; bottom: calc(100% + 4px); left: 0; width: 100%; z-index: 60; background: #fff; border: 1px solid #E6E5E0; border-radius: 8px; box-shadow: 0 8px 24px #EDEBE5, 0 1px 2px rgba(20,19,16,0.09); padding: 4px; display: flex; flex-direction: column; gap: 2px;">
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Réglages du compte</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"></rect><path d="M2 10h20"></path></svg>
+                <span>Facturation</span>
+              </div>
+              <div style="height: 0.5px; background: #E6E5E0; margin: 2px 0;"></div>
+              <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px; color: #e70044;" style-hover="background: #fef0f4;">
+                <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
+                <span>Se déconnecter</span>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ collapsed }}" hint-placeholder-val="{{ false }}">
+    <div style="animation: om-sbnarrow .3s cubic-bezier(.32,.72,0,1) both; width: 82px; flex-shrink: 0; padding: 12px; box-sizing: border-box; position: relative;">
+      <div style="height: 100%; display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid #E6E5E0; border-radius: 10px; box-shadow: 0 1px 2px rgba(20,19,16,0.05); position: relative; padding: 12px 0;">
+        <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; background: #F1F0EC; border: 1px solid #E6E5E0; border-radius: 8px;">
+          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 7 8.7 2.7a2.41 2.41 0 0 0-3.4 0L2.7 5.3a2.41 2.41 0 0 0 0 3.4L7 13"></path><path d="m17 11 4.3 4.3c.94.94.94 2.46 0 3.4l-2.6 2.6c-.94.94-2.46.94-3.4 0L11 17"></path><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+        </span>
+        <div style="height: 0.5px; width: 100%; background: #E6E5E0; margin: 12px 0;"></div>
+        <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+          <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="4">
+            <sc-if value="{{ item.active }}" hint-placeholder-val="{{ false }}">
+              <div sc-camel-on-click="{{ item.onClick }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #F1F0EC; color: #141310; cursor: pointer;">{{ item.icon }}</div>
+            </sc-if>
+            <sc-if value="{{ item.inactive }}" hint-placeholder-val="{{ true }}">
+              <div sc-camel-on-click="{{ item.onClick }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; color: #141310; cursor: pointer;" style-hover="background: #FAFAF8;">{{ item.icon }}</div>
+            </sc-if>
+          </sc-for>
+        </div>
+        <div style="margin-top: auto;">
+          <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #F1F0EC; border: 1px solid #E6E5E0; border-radius: 8px; cursor: pointer;">
+            <span style="font-family: 'PP Editorial New', Georgia, serif; font-style: italic; font-size: 20px; color: #141310;">A</span>
+          </span>
+        </div>
+        <div sc-camel-on-click="{{ toggleCollapse }}" style="position: absolute; top: 73px; right: -12px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #E6E5E0; border-radius: 6px; box-shadow: 0 1px 2px rgba(82,82,82,0.08); cursor: pointer; z-index: 55;" style-hover="background: #FAFAF8;">
+          <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 12px 12px 12px 0; box-sizing: border-box;">
+    <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid #E6E5E0; border-radius: 10px; box-shadow: 0 1px 2px rgba(20,19,16,0.05); overflow: hidden;">
+      <div style="display: flex; flex-direction: column; width: 100%; max-width: 1440px; height: 100%; min-height: 0; padding: 24px 24px 0; box-sizing: border-box;">
+
+        <div style="display: flex; flex-direction: column; gap: 16px; flex-shrink: 0;">
+
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;">
+            <span style="font: 700 28px/32px Syne, sans-serif; letter-spacing: -0.03em; color: #141310;">Pages</span>
+            <div style="display: flex; gap: 12px; align-items: center; position: relative; z-index: 50;">
+              <div ref="{{ ctaRef }}" sc-camel-on-click="{{ onNewPage }}" style="display: flex; position: relative;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 4px; height: 32px; min-width: 80px; padding: 6px 8.5px; box-sizing: border-box; background: #141310; color: #fff; font-size: 14px; font-weight: 500; border-radius: 6px 0 0 6px; cursor: pointer; white-space: nowrap; box-shadow: 0 1px 1px rgba(0,0,0,0.06);" style-hover="background: #2E2A24;">
+                  <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                  <span>Nouvelle page</span>
+                </div>
+                <div style="width: 30px; height: 32px; display: flex; align-items: center; justify-content: center; background: #141310; color: #fff; border-radius: 0 6px 6px 0; border-left: 0.5px solid rgba(255,255,255,0.2); cursor: pointer; box-shadow: 0 1px 1px rgba(0,0,0,0.06);" style-hover="background: #2E2A24;">
+                  <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                </div>
+
+                <sc-if value="{{ newPageOpen }}" hint-placeholder-val="{{ false }}">
+                  <div ref="{{ menuRef }}" style="position: absolute; top: calc(100% + 4px); right: 0; width: 246px; z-index: 60; background: #fff; border: 1px solid #E6E5E0; border-radius: 10px; box-shadow: 0 8px 24px #EDEBE5, 0 1px 2px rgba(20,19,16,0.09); padding: 4px; display: flex; flex-direction: column; gap: 1px;">
+                    <span style="padding: 7px 8px 3px; font: 500 9px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #9C9890;">Vendre</span>
+                    <sc-for list="{{ sellItems }}" as="opt" hint-placeholder-count="3">
+                      <div sc-camel-on-click="{{ opt.onClick }}" sc-camel-on-mouse-enter="{{ opt.onInfo }}" sc-camel-on-mouse-leave="{{ clearInfo }}" style="display: flex; align-items: center; gap: 9px; height: 34px; padding: 0 8px; border-radius: 6px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                        <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ opt.icon }}</div>
+                        <span style="flex: 1; min-width: 0; white-space: nowrap;">{{ opt.label }}</span>
+                      </div>
+                    </sc-for>
+                    <span style="padding: 7px 8px 3px; font: 500 9px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #9C9890;">Écrire</span>
+                    <sc-for list="{{ writeItems }}" as="opt" hint-placeholder-count="2">
+                      <div sc-camel-on-click="{{ opt.onClick }}" sc-camel-on-mouse-enter="{{ opt.onInfo }}" sc-camel-on-mouse-leave="{{ clearInfo }}" style="display: flex; align-items: center; gap: 9px; height: 34px; padding: 0 8px; border-radius: 6px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                        <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ opt.icon }}</div>
+                        <span style="flex: 1; min-width: 0; white-space: nowrap;">{{ opt.label }}</span>
+                      </div>
+                    </sc-for>
+                    <span style="padding: 7px 8px 3px; font: 500 9px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #9C9890;">Repartir de zéro</span>
+                    <sc-for list="{{ blankItems }}" as="opt" hint-placeholder-count="1">
+                      <div sc-camel-on-click="{{ opt.onClick }}" sc-camel-on-mouse-enter="{{ opt.onInfo }}" sc-camel-on-mouse-leave="{{ clearInfo }}" style="display: flex; align-items: center; gap: 9px; height: 34px; padding: 0 8px; border-radius: 6px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                        <div style="width: 16px; height: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ opt.icon }}</div>
+                        <span style="flex: 1; min-width: 0; white-space: nowrap;">{{ opt.label }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+
+          <sc-if value="{{ showAnnouncement }}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; justify-content: space-between; background: #FFFFFF; border: 1px solid #E6E5E0; border-radius: 8px; padding: 16px;">
+              <div style="display: flex; max-height: 96px; width: 100%; gap: 10px;">
+                <span style="position: relative; height: 96px; width: 104px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <span style="position: absolute; left: 50%; top: 62%; width: 78px; height: 78px; margin: -39px 0 0 -39px; border-radius: 50%; background: radial-gradient(circle at 42% 38%, #FFE79A 0%, #FBC531 44%, rgba(251,197,49,0) 74%); opacity: 0.45; display: block;"></span>
+                  <img src="44a58af8-b37e-4514-914e-8f516ba99fad" alt="" style="position: relative; height: 82px; width: auto; object-fit: contain; display: {{ ann0 }};">
+                  <img src="440e00c9-40fe-4de6-b161-ac5ee5fd728f" alt="" style="position: relative; height: 82px; width: auto; object-fit: contain; display: {{ ann1 }};">
+                  <img src="212155e5-8c84-41fd-9ab4-ae4d3d31f4fe" alt="" style="position: relative; height: 82px; width: auto; object-fit: contain; display: {{ ann2 }};">
+                </span>
+                <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 0;">
+                  <p style="margin: 0 0 5px; font: 700 17px/22px Syne, sans-serif; letter-spacing: -0.02em; color: #141310;">{{ annTitle }}</p>
+                  <p style="margin: 0 0 8px; font-size: 14px; line-height: 20px; color: #141310; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ annBody }}</p>
+                  <div style="font-size: 15px; line-height: 20px; font-weight: 600; color: #141310; cursor: pointer; text-decoration: underline; text-decoration-color: #FBC531; text-decoration-thickness: 3px; text-underline-offset: 4px;" style-hover="color: #4A463F;">{{ annLink }}</div>
+                </div>
+              </div>
+              <div style="margin-left: 16px; display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; gap: 8px;">
+                <div style="display: flex; gap: 4px;">
+                  <div sc-camel-on-click="{{ annPrev }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer;" style-hover="background: #F1F0EC;">
+                    <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+                  </div>
+                  <div sc-camel-on-click="{{ annNext }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer;" style-hover="background: #F1F0EC;">
+                    <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+                  </div>
+                </div>
+                <span style="font: 400 10px/16px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif; color: #9C9890; letter-spacing: 0.12em; white-space: nowrap;">{{ annCount }}</span>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="height: 0.5px; width: 100%; background: #E6E5E0;"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 24px; padding: 24px 0; flex: 1; min-height: 0;">
+
+          <div style="display: flex; align-items: center; gap: 8px; height: 32px; flex-shrink: 0; width: 100%; padding: 0 8px; box-sizing: border-box; background: #fff; border: 1px solid #D8D5CE; border-radius: 6px;" style-focus="border-color: #141310;">
+            <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+            <input type="text" placeholder="Rechercher" value="{{ query }}" sc-camel-on-change="{{ onQuery }}" style="flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; font-size: 14px; line-height: 32px; color: #141310;">
+            <sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+              <div sc-camel-on-click="{{ clearQuery }}" style="width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; flex-shrink: 0;" style-hover="background: #F1F0EC;">
+                <svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="display: flex; align-items: flex-end; flex-wrap: wrap; gap: 2px; row-gap: 8px; flex-shrink: 0; position: relative; z-index: 45;">
+            <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="5">
+              <sc-if value="{{ chip.active }}" hint-placeholder-val="{{ false }}">
+                <div sc-camel-on-click="{{ chip.onClick }}" style="display: flex; flex-direction: column; align-items: stretch; cursor: pointer; flex: none;">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 29px; padding: 0 12px; box-sizing: border-box; color: #141310; font-size: 14px; font-weight: 600; white-space: nowrap;">
+                    <sc-if value="{{ chip.hasIcon }}" hint-placeholder-val="{{ true }}">
+                      <div style="width: 14px; height: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ chip.icon }}</div>
+                    </sc-if>
+                    <span>{{ chip.label }}</span>
+                  </div>
+                  <span style="height: 3px; border-radius: 999px; background: #FBC531; display: block;"></span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ chip.inactive }}" hint-placeholder-val="{{ true }}">
+                <div sc-camel-on-click="{{ chip.onClick }}" style="display: flex; flex-direction: column; align-items: stretch; cursor: pointer; flex: none;" style-hover="opacity: 1;">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 6px; height: 29px; padding: 0 12px; box-sizing: border-box; color: #75736C; font-size: 14px; white-space: nowrap;">
+                    <sc-if value="{{ chip.hasIcon }}" hint-placeholder-val="{{ true }}">
+                      <div style="width: 14px; height: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ chip.icon }}</div>
+                    </sc-if>
+                    <span>{{ chip.label }}</span>
+                  </div>
+                  <span style="height: 3px; border-radius: 999px; background: #EDEBE5; display: block;"></span>
+                </div>
+              </sc-if>
+            </sc-for>
+
+            <div style="display: flex; margin-left: auto; gap: 8px; padding-left: 12px; position: relative; flex: none;">
+              <div sc-camel-on-click="{{ toggleSort }}" style="display: flex; align-items: center; justify-content: center; gap: 4px; height: 32px; min-width: 80px; padding: 6px 8.5px; box-sizing: border-box; background: #fff; border: 1px solid #D8D5CE; border-radius: 6px; font-size: 14px; font-weight: 500; color: #141310; cursor: pointer; white-space: nowrap; box-shadow: 0 1px 1px rgba(20,19,16,0.05);" style-hover="background: #FAFAF8;">
+                <div style="width: 14px; height: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ sortArrow }}</div>
+                <span>{{ sortBy }}</span>
+                <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+              </div>
+
+              <sc-if value="{{ sortOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position: absolute; top: calc(100% + 4px); right: 0; width: 200px; z-index: 60; background: #fff; border: 1px solid #E6E5E0; border-radius: 8px; box-shadow: 0 8px 24px #EDEBE5, 0 1px 2px rgba(20,19,16,0.09); padding: 4px; display: flex; flex-direction: column; gap: 2px;">
+                  <sc-for list="{{ sortOptions }}" as="opt" hint-placeholder-count="3">
+                    <div sc-camel-on-click="{{ opt.onClick }}" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                      <span style="flex: 1;">{{ opt.label }}</span>
+                      <sc-if value="{{ opt.selected }}" hint-placeholder-val="{{ false }}">
+                        <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="#141310" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                  <div style="height: 0.5px; background: #E6E5E0; margin: 2px 0;"></div>
+                  <div sc-camel-on-click="{{ toggleDirection }}" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                    <div style="width: 14px; height: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">{{ sortArrow }}</div>
+                    <span>{{ directionLabel }}</span>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; flex: 1; min-height: 0; border: 1px solid #E6E5E0; border-radius: 8px; overflow: hidden;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); height: 36px; background: #FCF9EE; border-bottom: 1px solid #E6E5E0; flex-shrink: 0;">
+              <div sc-camel-on-click="{{ sortByName }}" style="display: flex; align-items: center; gap: 4px; padding: 0 16px; font-size: 10px; line-height: 16px; font-weight: 500; color: #4A463F; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer;">Nom</div>
+              <div sc-camel-on-click="{{ sortByEdited }}" style="display: flex; align-items: center; gap: 4px; padding: 0 16px; font-size: 10px; line-height: 16px; font-weight: 500; color: #4A463F; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer;">Modifié le</div>
+              <div sc-camel-on-click="{{ sortByType }}" style="display: flex; align-items: center; gap: 4px; padding: 0 16px; font-size: 10px; line-height: 16px; font-weight: 500; color: #4A463F; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer;">Type</div>
+              <div></div>
+            </div>
+
+            <div style="flex: 1; min-height: 0; overflow-y: auto;">
+              <sc-for list="{{ rows }}" as="row" hint-placeholder-count="2">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); height: 56px; border-bottom: 1px solid #E6E5E0; cursor: pointer;" style-hover="background: #FAFAF8;">
+                  <div style="display: flex; align-items: center; gap: 8px; padding: 0 16px; min-width: 0;">
+                    <sc-if value="{{ row.published }}" hint-placeholder-val="{{ true }}">
+                      <div style="width: 10px; height: 10px; border-radius: 999px; background: #2FA36B; flex-shrink: 0;"></div>
+                    </sc-if>
+                    <sc-if value="{{ row.notRenaming }}" hint-placeholder-val="{{ true }}">
+                      <div sc-camel-on-click="{{ row.onOpen }}" style="font-size: 14px; font-weight: 500; color: #141310; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ row.name }}</div>
+                    </sc-if>
+                    <sc-if value="{{ row.renaming }}" hint-placeholder-val="{{ false }}">
+                      <input type="text" value="{{ renameValue }}" sc-camel-on-change="{{ onRename }}" sc-camel-on-key-down="{{ onRenameKey }}" sc-camel-on-blur="{{ commitRename }}" style="width: 100%; min-width: 0; height: 28px; padding: 0 8px; box-sizing: border-box; border: 1px solid #FBC531; border-radius: 6px; background: #fff; font-size: 14px; font-weight: 500; color: #141310; outline: none;">
+                    </sc-if>
+                  </div>
+                  <div style="display: flex; align-items: center; padding: 0 16px; font-size: 14px; color: #141310; white-space: nowrap;">{{ row.edited }}</div>
+                  <div style="display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 14px; color: #141310; white-space: nowrap;">
+                    <div style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 6px; flex-shrink: 0;">{{ row.typeChip }}</div>
+                    <span>{{ row.type }}</span>
+                  </div>
+                  <div style="display: flex; align-items: center; justify-content: flex-end; padding: 0 16px; position: relative;">
+                    <div sc-camel-on-click="{{ row.onMenu }}" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer;" style-hover="background: #F1F0EC;">
+                      <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                    </div>
+                    <sc-if value="{{ row.menuOpen }}" hint-placeholder-val="{{ false }}">
+                      <div style="position: absolute; top: calc(50% + 14px); right: 16px; width: 200px; z-index: 60; background: #fff; border: 1px solid #E6E5E0; border-radius: 8px; box-shadow: 0 8px 24px #EDEBE5, 0 1px 2px rgba(20,19,16,0.09); padding: 4px; display: flex; flex-direction: column; gap: 2px; text-align: left;">
+                        <div sc-camel-on-click="{{ row.onOpen }}" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                          <span>Ouvrir dans l'éditeur</span>
+                        </div>
+                        <div sc-camel-on-click="{{ row.onDuplicate }}" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
+                          <span>Dupliquer</span>
+                        </div>
+                        <div sc-camel-on-click="{{ row.onRename }}" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path><path d="m15 5 4 4"></path></svg>
+                          <span>Renommer</span>
+                        </div>
+                        <div sc-camel-on-click="{{ row.onCopy }}" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px;" style-hover="background: #FAFAF8;">
+                          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#4A463F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                          <span>Copier le lien</span>
+                        </div>
+                        <div style="height: 0.5px; background: #E6E5E0; margin: 2px 0;"></div>
+                        <div sc-camel-on-click="{{ row.onDelete }}" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border-radius: 4px; cursor: pointer; font-size: 14px; color: #e70044;" style-hover="background: #fef0f4;">
+                          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                          <span>Supprimer</span>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+
+              <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 64px 24px;">
+                  <svg width="24" height="24" sc-camel-view-box="0 0 24 24" fill="none" stroke="#9C9890" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                  <span style="font-size: 14px; font-weight: 500; color: #141310;">No results</span>
+                  <span style="font-size: 12px; color: #75736C;">{{ emptyHint }}</span>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  <sc-if value="{{ chatClosed }}" hint-placeholder-val="{{ true }}">
+    <div sc-camel-on-click="{{ openChat }}" sc-camel-on-mouse-enter="{{ hoverDuck }}" sc-camel-on-mouse-leave="{{ leaveDuck }}" title="Canardo" style="position: fixed; right: 24px; bottom: 24px; z-index: 340; cursor: pointer; transform: scale({{ duckScale }}); transition: transform .22s cubic-bezier(.32,.72,0,1);">
+      <div style="position: relative; display: flex; align-items: center; gap: 10px; height: 62px; padding: 0 20px 0 9px; box-sizing: border-box; border-radius: 31px 31px 8px 31px; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); box-shadow: 0 10px 30px rgba(0,0,0,0.16);">
+        <span style="position: relative; width: 46px; height: 46px; flex: none; display: flex; align-items: center; justify-content: center;">
+          <img src="d7250cca-a0b5-4efb-a44e-450e7d5f0adc" alt="" style="position: absolute; width: 44px; height: 44px; object-fit: contain; display: {{ duckIdle }};">
+          <img src="9d6a5bd5-5d4a-4a0a-a66a-e1dfccf5d334" alt="" style="position: absolute; width: 44px; height: 44px; object-fit: contain; display: {{ duckHappy }};">
+        </span>
+        <span style="font-size: 15px; font-weight: 600; color: #000; white-space: nowrap;">{{ sayText }}</span>
+        <span style="position: absolute; right: 2px; bottom: -5px; width: 14px; height: 14px; background: #fff; border-right: 0.5px solid rgba(82,82,82,0.22); border-bottom: 0.5px solid rgba(82,82,82,0.22); border-radius: 0 0 4px 0; transform: rotate(20deg); display: block;"></span>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ chatOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; right: 24px; bottom: 24px; z-index: 350; width: 380px; max-width: calc(100vw - 48px); height: 520px; max-height: calc(100vh - 48px); background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 18px; box-shadow: 0 24px 64px rgba(0,0,0,0.26); display: flex; flex-direction: column; overflow: hidden;">
+
+      <div style="display: flex; align-items: center; gap: 10px; padding: 14px 14px 13px; border-bottom: 0.5px solid rgba(82,82,82,0.22); flex: none;">
+        <span style="position: relative; width: 34px; height: 34px; flex: none; display: flex; align-items: center; justify-content: center;">
+          <img src="d7250cca-a0b5-4efb-a44e-450e7d5f0adc" alt="" style="position: absolute; width: 32px; height: 32px; object-fit: contain; display: {{ headIdle }};">
+          <img src="212155e5-8c84-41fd-9ab4-ae4d3d31f4fe" alt="" style="position: absolute; width: 32px; height: 32px; object-fit: contain; display: {{ headThink }};">
+        </span>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <span style="font-size: 14px; font-weight: 600; color: #000;">Canardo</span>
+          <span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #737373;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #059669; display: block;"></span>
+            Répond tout de suite
+          </span>
+        </div>
+        <div sc-camel-on-click="{{ closeChat }}" title="Fermer" style="width: 28px; height: 28px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 7px; color: #737373; cursor: pointer;" style-hover="background: #fafafa; color: #000;">
+          <svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </div>
+      </div>
+
+      <div ref="{{ chatRef }}" class="no-sb" style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 12px;">
+        <sc-for list="{{ chatMsgs }}" as="m" hint-placeholder-count="1">
+          <div style="display: flex; align-items: flex-end; gap: 8px; justify-content: {{ m.just }};">
+            <div style="max-width: 78%; padding: 10px 13px; box-sizing: border-box; border-radius: 14px; background: {{ m.bg }}; color: {{ m.fg }}; border: {{ m.bd }}; font-size: 14px; line-height: 20px; text-wrap: pretty;">{{ m.text }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ chatTyping }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; align-items: flex-end; gap: 8px;">
+            <span style="width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center;">
+              <img src="212155e5-8c84-41fd-9ab4-ae4d3d31f4fe" alt="" style="width: 24px; height: 24px; object-fit: contain; display: block;">
+            </span>
+            <div style="display: flex; align-items: center; gap: 4px; padding: 12px 14px; border-radius: 14px; background: #fff; border: 0.5px solid rgba(82,82,82,0.22);">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s infinite;"></span>
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s .16s infinite;"></span>
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: #a3a3a3; display: block; animation: om-dot 1s .32s infinite;"></span>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="display: {{ chatChipsDisp }}; gap: 6px; flex-wrap: wrap; padding: 0 14px 12px; flex: none;">
+        <sc-for list="{{ chatChips }}" as="c" hint-placeholder-count="3">
+          <div sc-camel-on-click="{{ c.onPick }}" style="height: 30px; padding: 0 11px; box-sizing: border-box; display: flex; align-items: center; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 999px; background: #fff; font-size: 13px; color: #404040; cursor: pointer; white-space: nowrap;" style-hover="background: #fafafa; color: #000;">{{ c.label }}</div>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-top: 0.5px solid rgba(82,82,82,0.22); background: #fafafa; flex: none;">
+        <input type="text" value="{{ chatInput }}" sc-camel-on-change="{{ onChatInput }}" sc-camel-on-key-down="{{ onChatKey }}" placeholder="Écris un message…" style="flex: 1; min-width: 0; height: 36px; padding: 0 12px; box-sizing: border-box; background: #fff; border: 0.5px solid rgba(82,82,82,0.22); border-radius: 10px; font-size: 14px; color: #000; outline: none;" style-focus="border-color: #000;">
+        <div sc-camel-on-click="{{ sendChat }}" style="width: 36px; height: 36px; flex: none; border-radius: 10px; background: {{ chatSendBg }}; color: {{ chatSendFg }}; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>
+        </div>
+      </div>
+
+    </div>
+  </sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;newAccount&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;État&quot;},&quot;showReferralCard&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Barre latérale&quot;}}">
+const ICON = {
+  gallery: [["M7 2h10"], ["M5 6h14"], null],
+};
+
+function svg(paths, opts) {
+  const o = opts || {};
+  return React.createElement("svg", {
+    width: o.size || 16, height: o.size || 16, viewBox: "0 0 24 24", fill: "none",
+    stroke: o.stroke || "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round",
+    style: { flexShrink: 0 }
+  }, paths.map((p, i) =>
+    p.tag === "rect" ? React.createElement("rect", { key: i, ...p.attrs })
+    : p.tag === "circle" ? React.createElement("circle", { key: i, ...p.attrs })
+    : React.createElement("path", { key: i, d: p })
+  ));
+}
+
+const P = {
+  pages: ["M7 2h10", "M5 6h14", { tag: "rect", attrs: { width: 18, height: 12, x: 3, y: 10, rx: 2 } }],
+  card: [{ tag: "rect", attrs: { width: 20, height: 14, x: 2, y: 5, rx: 2 } }, "M2 10h20"],
+  abtest: ["M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2", "M6.453 15h11.094", "M8.5 2h7"],
+  settings: ["M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z", { tag: "circle", attrs: { cx: 12, cy: 12, r: 3 } }],
+  file: ["M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", "M14 2v4a2 2 0 0 0 2 2h4"],
+  bag: ["M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z", "M3 6h18", "M16 10a4 4 0 0 1-8 0"],
+  section: [{ tag: "rect", attrs: { width: 10, height: 6, x: 7, y: 9, rx: 2 } }, "M22 20H2", "M22 4H2"],
+  news: ["M15 18h-5", "M18 14h-8", "M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2", { tag: "rect", attrs: { width: 8, height: 4, x: 10, y: 6, rx: 1 } }],
+  layers: ["M12 2 2 7l10 5 10-5-10-5Z", "m2 17 10 5 10-5", "m2 12 10 5 10-5"],
+  arrowDown: ["M12 5v14", "m19 12-7 7-7-7"],
+  arrowUp: ["M12 19V5", "m5 12 7-7 7 7"],
+  gift: [{ tag: "rect", attrs: { width: 20, height: 5, x: 2, y: 7, rx: 1 } }, "M12 22V7", "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8", "M7.5 7a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7", "M16.5 7a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7"],
+  chevronRight: ["m9 18 6-6-6-6"],
+  chevronDown: ["m6 9 6 6 6-6"],
+  sparkle: ["M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"],
+  book: [{ tag: "rect", attrs: { width: 8, height: 18, x: 3, y: 3, rx: 1 } }, "M7 3v18", "M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"],
+  lifebuoy: [{ tag: "circle", attrs: { cx: 12, cy: 12, r: 10 } }, { tag: "circle", attrs: { cx: 12, cy: 12, r: 4 } }, "m4.93 4.93 4.24 4.24", "m14.83 9.17 4.24-4.24", "m14.83 14.83 4.24 4.24", "m9.17 14.83-4.24 4.24"],
+  users: ["M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", { tag: "circle", attrs: { cx: 9, cy: 7, r: 4 } }, "M22 21v-2a4 4 0 0 0-3-3.87", "M16 3.13a4 4 0 0 1 0 7.75"],
+  message: ["M7.9 20A9 9 0 1 0 4 16.1L2 22Z"],
+  megaphone: ["m3 11 18-5v12L3 14v-3z", "M11.6 16.8a3 3 0 1 1-5.8-1.6"]
+};
+
+const ANNOUNCEMENTS = [
+  { title: "Créer une boutique en parlant",
+    body: "Décris ce que tu vends, le canard monte la boutique et tu corriges une phrase à la fois.",
+    link: "Par où commencer" },
+  { title: "Les tests A/B sortent de bêta",
+    body: "Deux versions d'une page s'affrontent, le canard désigne la gagnante en trois jours.",
+    link: "Lire les notes" },
+  { title: "Le parrainage paie au mois",
+    body: "Chaque espace que tu amènes rapporte douze mois, tes liens déjà partagés compris.",
+    link: "Voir les conditions" }
+];
+
+const TUTORIAL = [
+  { duck: 0, title: "Commence par créer une page" },
+  { duck: 1, title: "Choisis le type de page" }
+];
+
+const TYPES = {
+  "product": { bg: "#FDF2CF", fg: "#8A6A10", icon: "bag",       fr: "Page produit" },
+  "landing": { bg: "#EAEFF6", fg: "#3D4A66", icon: "megaphone", fr: "Landing page" },
+  "home":    { bg: "#F1F0EC", fg: "#4A463F", icon: "file",      fr: "Page d'accueil" },
+  "adverto": { bg: "#FCEDEF", fg: "#B0505C", icon: "news",      fr: "Advertorial" },
+  "blog":    { bg: "#EDEFEA", fg: "#4A5C3D", icon: "book",      fr: "Article de blog" },
+  "blank":   { bg: "#F1F0EC", fg: "#75736C", icon: "layers",    fr: "Page vierge" }
+};
+
+const ALL_ROWS = [
+  { name: "Brûlerie Sud", edited: "il y a 2 heures", editedAt: 0.08, type: "home", published: true },
+  { name: "Coffret trois parfums", edited: "hier", editedAt: 1, type: "product", published: true },
+  { name: "Cure trois mois — offre", edited: "il y a 3 jours", editedAt: 3, type: "landing", published: true },
+  { name: "Pourquoi le lin lavé", edited: "il y a 1 semaine", editedAt: 7, type: "adverto", published: true },
+  { name: "Notes d'atelier", edited: "il y a 2 semaines", editedAt: 14, type: "blog", published: false },
+  { name: "Sans titre", edited: "il y a 5 mois", editedAt: 150, type: "blank", published: false }
+];
+
+function IA(p) {
+  const m = (typeof window !== "undefined" && window.__IA) || {};
+  return m[p] || p;
+}
+
+class Component extends DCLogic {
+  _assetGlobals = ["__IA"];
+
+  _assetsReady() {
+    if (typeof window === "undefined") return true;
+    return this._assetGlobals.every(k => !!window[k]);
+  }
+
+  // les tables d'images arrivent en différé dans un fichier autonome :
+  // on redessine dès qu'elles sont là
+  _ensureAssets() {
+    if (this._assetsOk || this._assetPoll) return;
+    if (this._assetsReady()) { this._assetsOk = true; return; }
+    this._assetPoll = setInterval(() => {
+      if (!this._assetsReady()) return;
+      clearInterval(this._assetPoll);
+      this._assetPoll = null;
+      this._assetsOk = true;
+      this.forceUpdate();
+    }, 120);
+    this._assetStop = setTimeout(() => {
+      if (this._assetPoll) { clearInterval(this._assetPoll); this._assetPoll = null; }
+    }, 15000);
+  }
+
+  state = {
+    chatOpen: false, chatInput: "", chatTyping: false, duckHover: false,
+    chatMsgs: [{ me: false, text: "Salut. Dis-moi ce que je peux faire pour toi — créer une page, publier, retrouver un brouillon.", duck: "05-curieux" }], data: ALL_ROWS.slice(), renaming: null, renameDraft: "", toast: null, menu: null, learnOpen: false, collapsed: false, query: "", filter: "Tout", nav: "Pages", sortBy: "Modifié récemment", desc: true, announcement: null, rowMenu: null, preview: null, tut: 0, tutDone: false, ann: 0 };
+
+  ctaRef = (el) => { this.ctaEl = el; this.queueMeasure(); };
+  menuRef = (el) => { this.menuEl = el; this.queueMeasure(); };
+
+  componentDidMount() {
+    this.queueMeasure();
+    this._onResize = () => this.queueMeasure();
+    window.addEventListener("resize", this._onResize);
+  }
+  componentDidUpdate() { this.queueMeasure(); }
+  componentWillUnmount() {
+    clearInterval(this._assetPoll);
+    clearTimeout(this._assetStop);
+    window.removeEventListener("resize", this._onResize);
+    cancelAnimationFrame(this._raf);
+  }
+  queueMeasure() {
+    cancelAnimationFrame(this._raf);
+    this._raf = requestAnimationFrame(() => this.measure());
+  }
+  measure() {
+    if (this.menuEl && this.menuEl.getBoundingClientRect) {
+      const m = this.menuEl.getBoundingClientRect();
+      const c = this.state.menuRect;
+      if (m.width && (!c || Math.abs(c.x - m.left) > 0.6 || Math.abs(c.y - m.top) > 0.6 || Math.abs(c.w - m.width) > 0.6)) {
+        this.setState({ menuRect: { x: m.left, y: m.top, w: m.width, h: m.height } });
+      }
+    }
+    const el = this.state.tut === 1 ? (this.menuEl || this.ctaEl) : this.ctaEl;
+    if (!el || !el.getBoundingClientRect) return;
+    const r = el.getBoundingClientRect();
+    if (!r.width && !r.height) return;
+    const next = { x: r.left, y: r.top, w: r.width, h: r.height };
+    const c = this.state.rect;
+    if (c && Math.abs(c.x - next.x) < 0.6 && Math.abs(c.y - next.y) < 0.6 && Math.abs(c.w - next.w) < 0.6 && Math.abs(c.h - next.h) < 0.6) return;
+    this.setState({ rect: next });
+  }
+
+  set(patch) { this.setState(patch); }
+
+  flash() {
+    clearTimeout(this._toast);
+    this._toast = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+  closeAll = () => this.setState({ menu: null, rowMenu: null, preview: null });
+  toggle(name) { this.setState(s => ({ menu: s.menu === name ? null : name, rowMenu: null, preview: null })); }
+
+  chatReply(text) {
+    this.setState({ chatTyping: true });
+    clearTimeout(this._ct);
+    this._ct = setTimeout(() => this.setState(st => ({
+      chatTyping: false,
+      chatMsgs: st.chatMsgs.concat([{ me: false, text, duck: "07-idee" }])
+    })), 900);
+  }
+
+  chatSend(raw) {
+    const v = (raw || this.state.chatInput || "").trim();
+    if (!v) return;
+    this.setState(st => ({ chatMsgs: st.chatMsgs.concat([{ me: true, text: v }]), chatInput: "" }));
+    const t = v.toLowerCase();
+    let a = "Noté. Je peux t'aider à créer une page, publier, ou retrouver quelque chose — dis-moi quoi.";
+    if (t.includes("créer") || t.includes("page") || t.includes("nouvelle")) a = "Clique sur Nouvelle page en haut à droite, puis choisis le type. Je rédige la suite depuis ta description.";
+    else if (t.includes("publi") || t.includes("ligne")) a = "Ouvre la page dans l'éditeur, puis Publier en haut à droite. Rien ne part en ligne avant ton feu vert.";
+    else if (t.includes("brouillon") || t.includes("retrouv") || t.includes("cherch")) a = "Les brouillons portent un point gris dans la liste. Tape leur nom dans la recherche pour les isoler.";
+    else if (t.includes("membre") || t.includes("invit") || t.includes("équipe")) a = "Va dans Espace › Membres, puis Inviter un membre. Tu choisis Owner, Editor ou Viewer au moment de l'envoi.";
+    else if (t.includes("shopify") || t.includes("intégr") || t.includes("connect")) a = "Les intégrations sont dans Réglages › Intégrations. Shopify se relie en deux clics.";
+    else if (t.includes("domaine")) a = "Ajoute ton domaine dans Projet › Général, puis fais pointer le DNS. Ça se propage en 24 h au plus.";
+    else if (t.includes("crédit")) a = "Les crédits offerts se rechargent chaque mois et partent en premier. Les crédits achetés n'expirent jamais.";
+    else if (t.includes("merci")) a = "Avec plaisir. Appelle-moi dès que quelque chose te paraît de travers.";
+    this.chatReply(a);
+  }
+
+  renderVals() {
+
+    this._ensureAssets();
+    const s = this.state;
+    const showAnnouncement = (s.announcement === null ? (this.props.showAnnouncement ?? true) : s.announcement);
+
+    const navDefs = [
+      { label: "Pages", icon: "pages" },
+      { label: "Mon abonnement", icon: "card", href: "Facturation.dc.html" },
+      { label: "Parrainage", icon: "gift", href: "Parrainage.dc.html" },
+      { label: "Réglages", icon: "settings", href: "Facturation.dc.html"  }
+    ];
+    const navItems = navDefs.map(n => ({
+      label: n.label,
+      icon: svg(P[n.icon]),
+      active: s.nav === n.label,
+      inactive: s.nav !== n.label,
+      onClick: () => { if (n.href) { window.location.href = n.href; return; } this.setState({ nav: n.label, menu: null, rowMenu: null }); }
+    }));
+
+    const learnItems = [
+      { label: "Nouveautés", icon: svg(P.megaphone), href: "#", external: false },
+      { label: "Buildstore University", icon: svg(P.book), href: "https://www.buildstore.app/learn", external: true },
+      { label: "Documentation", icon: svg(P.lifebuoy), href: "https://support.buildstore.app/", external: true },
+      { label: "Experts Buildstore", icon: svg(P.users), href: "https://contra.com/buildstore", external: true },
+      { label: "Rejoindre le Discord", icon: svg(P.message), href: "https://discord.gg/E7K6VADQJM", external: true },
+      { label: "Faire un retour", icon: svg(P.sparkle), href: "https://feedback.buildstore.app/?utm_source=dashboard", external: true }
+    ];
+
+    const mkItems = (defs) => defs.map(it => ({
+      label: it.label,
+      icon: it.icon,
+      onInfo: () => this.setState({ preview: it.key }),
+      onClick: () => {
+        this.setState({ menu: null, preview: null, tutDone: true });
+        window.location.href = "buildstore-editeur.html";
+      }
+    }));
+    const sellItems = mkItems([
+      { key: "product", label: "Page produit", icon: svg(P.bag) },
+      { key: "landing", label: "Landing page", icon: svg(P.megaphone) },
+      { key: "home", label: "Page d'accueil", icon: svg(P.file) }
+    ]);
+    const writeItems = mkItems([
+      { key: "adverto", label: "Advertorial", icon: svg(P.news) },
+      { key: "blog", label: "Article de blog", icon: svg(P.book) }
+    ]);
+    const blankItems = mkItems([
+      { key: null, label: "Page vierge", icon: svg(P.layers) }
+    ]);
+    const PV = {
+      product: { title: "Page produit", desc: "Une fiche : visuels, prix, variantes, bouton d'achat." },
+      landing: { title: "Landing page", desc: "Une seule offre, aucune navigation. Pour le trafic payant." },
+      home:    { title: "Page d'accueil", desc: "La vitrine : univers de marque et accès aux collections." },
+      adverto: { title: "Advertorial", desc: "Une publicité écrite comme un article. L'objectif reste la vente." },
+      blog:    { title: "Article de blog", desc: "Du contenu éditorial, pour le référencement et la marque." }
+    };
+    const pvKey = s.preview;
+    const pv = PV[pvKey] || PV.product;
+
+    const chipDefs = [
+      { label: "Tout", type: null, icon: null },
+      { label: "Produit", type: "product", icon: "bag" },
+      { label: "Landing", type: "landing", icon: "megaphone" },
+      { label: "Accueil", type: "home", icon: "file" },
+      { label: "Advertorial", type: "adverto", icon: "news" },
+      { label: "Blog", type: "blog", icon: "book" }
+    ];
+    const chips = chipDefs.map(c => ({
+      label: c.label,
+      icon: c.icon ? svg(P[c.icon], { size: 14 }) : null,
+      hasIcon: !!c.icon,
+      active: s.filter === c.label,
+      inactive: s.filter !== c.label,
+      onClick: () => this.setState({ filter: c.label, menu: null, rowMenu: null })
+    }));
+
+    const q = s.query.trim().toLowerCase();
+    const activeChip = chipDefs.find(c => c.label === s.filter);
+    let rows = s.data
+      .filter(r => !activeChip || !activeChip.type || r.type === activeChip.type)
+      .filter(r => !q || r.name.toLowerCase().includes(q) || r.type.toLowerCase().includes(q));
+
+    const dir = s.desc ? 1 : -1;
+    if (s.sortBy === "Name") rows = [...rows].sort((a, b) => a.name.localeCompare(b.name) * -dir);
+    else if (s.sortBy === "Type") rows = [...rows].sort((a, b) => a.type.localeCompare(b.type) * -dir);
+    else rows = [...rows].sort((a, b) => (a.editedAt - b.editedAt) * dir);
+
+    const rowVals = rows.map((r, i) => {
+      const t = TYPES[r.type] || TYPES.blank;
+      return {
+        name: r.name, edited: r.edited, type: (TYPES[r.type] || TYPES.blank).fr, published: r.published,
+        typeChip: React.createElement("div",
+          { style: { width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, background: t.bg } },
+          svg(P[t.icon], { size: 12, stroke: t.fg })),
+        menuOpen: s.rowMenu === r.name,
+        onMenu: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState(st => ({ rowMenu: st.rowMenu === r.name ? null : r.name, menu: null })); },
+
+        notRenaming: s.renaming !== r.name,
+        renaming: s.renaming === r.name,
+
+        onOpen: () => { window.location.href = "buildstore-editeur.html"; },
+
+        onRename: (e) => { if (e && e.stopPropagation) e.stopPropagation();
+          this.setState({ renaming: r.name, renameDraft: r.name, rowMenu: null }); },
+
+        onDuplicate: (e) => { if (e && e.stopPropagation) e.stopPropagation();
+          this.setState(st => {
+            const base = r.name + " (copie)";
+            let name = base, n = 2;
+            while (st.data.some(x => x.name === name)) { name = base + " " + n; n++; }
+            const at = st.data.findIndex(x => x.name === r.name);
+            const copy = Object.assign({}, r, { name, edited: "à l'instant", editedAt: 0, published: false });
+            const data = st.data.slice();
+            data.splice(at + 1, 0, copy);
+            return { data, rowMenu: null, toast: "« " + r.name + " » dupliqué" };
+          });
+          this.flash(); },
+
+        onCopy: (e) => { if (e && e.stopPropagation) e.stopPropagation();
+          const slug = r.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          const url = "https://acai.buildstore.app/" + slug;
+          if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
+          this.setState({ rowMenu: null, toast: "Lien copié · /" + slug });
+          this.flash(); },
+
+        onDelete: (e) => { if (e && e.stopPropagation) e.stopPropagation();
+          this.setState(st => ({
+            data: st.data.filter(x => x.name !== r.name),
+            rowMenu: null,
+            toast: "« " + r.name + " » supprimé"
+          }));
+          this.flash(); }
+      };
+    });
+
+    const newAccount = this.props.newAccount ?? false;
+    const onboarding = newAccount && !s.tutDone;
+    const tut = TUTORIAL[Math.min(s.tut, TUTORIAL.length - 1)];
+    const r = s.rect, pad = 10;
+    const coachOn = onboarding && !!r;
+    const hx = r ? r.x - pad : 0, hy = r ? r.y - pad : 0;
+    const hw = r ? r.w + pad * 2 : 0, hh = r ? r.h + pad * 2 : 0;
+    const tipW = 430, tipH = 152;
+    const vpW = typeof window !== "undefined" ? window.innerWidth : 1440;
+    const vpH = typeof window !== "undefined" ? window.innerHeight : 900;
+    let tipLeft = 0, tipTop = 0;
+    if (r) {
+      const below = hy + hh + 22;
+      if (below + tipH <= vpH - 16) {
+        tipLeft = Math.max(16, Math.min(hx + hw - tipW, vpW - tipW - 16));
+        tipTop = below;
+      } else {
+        tipLeft = Math.max(16, hx - tipW - 20);
+        tipTop = Math.max(16, Math.min(hy, vpH - tipH - 16));
+      }
+    }
+
+    const sortOptions = ["Modifié récemment", "Date de création", "Nom", "Type"].map(o => ({
+      label: o, selected: s.sortBy === o,
+      onClick: () => this.setState({ sortBy: o, menu: null })
+    }));
+
+    return {
+      expanded: !s.collapsed,
+      collapsed: s.collapsed,
+      toggleCollapse: () => this.setState({ collapsed: !s.collapsed, menu: null, rowMenu: null }),
+
+      renameValue: s.renameDraft,
+      onRename: (e) => this.setState({ renameDraft: e.target.value }),
+      onRenameKey: (e) => {
+        if (e.key === "Enter") { e.preventDefault(); e.target.blur(); }
+        if (e.key === "Escape") this.setState({ renaming: null, renameDraft: "" });
+      },
+      commitRename: () => this.setState(st => {
+        const v = (st.renameDraft || "").trim();
+        if (!v || !st.renaming) return { renaming: null, renameDraft: "" };
+        return {
+          data: st.data.map(x => x.name === st.renaming ? Object.assign({}, x, { name: v, edited: "à l'instant", editedAt: 0 }) : x),
+          renaming: null, renameDraft: ""
+        };
+      }),
+
+      toastOn: !!s.toast,
+      toastText: s.toast || "",
+
+      anyOpen: !!s.menu || !!s.rowMenu,
+      closeAll: this.closeAll,
+      workspaceOpen: s.menu === "workspace",
+      userOpen: s.menu === "user",
+      newPageOpen: s.menu === "newPage",
+      sortOpen: s.menu === "sort",
+      toggleWorkspace: () => this.toggle("workspace"),
+      toggleUser: () => this.toggle("user"),
+      toggleNewPage: () => this.toggle("newPage"),
+      toggleSort: () => this.toggle("sort"),
+
+      learnOpen: s.learnOpen,
+      toggleLearn: () => this.setState({ learnOpen: !s.learnOpen }),
+      learnChevron: svg(s.learnOpen ? P.chevronDown : P.chevronRight, { stroke: "#75736C" }),
+      learnItems,
+
+      chatOpen: !!s.chatOpen,
+      chatClosed: !s.chatOpen,
+      openChat: () => this.setState({ chatOpen: true, duckHover: false }),
+      hoverDuck: () => this.setState({ duckHover: true }),
+      leaveDuck: () => this.setState({ duckHover: false }),
+      duckIdle: s.duckHover ? "none" : "block",
+      duckHappy: s.duckHover ? "block" : "none",
+      duckScale: s.duckHover ? "1.08" : "1",
+      sayText: "Hey !",
+      sayOpa: s.duckHover ? "1" : "0.92",
+      sayY: s.duckHover ? "-2px" : "0px",
+      closeChat: () => this.setState({ chatOpen: false }),
+      chatRef: (el) => {
+        if (!el) return;
+        if (this._cn !== s.chatMsgs.length + (s.chatTyping ? 0.5 : 0)) {
+          this._cn = s.chatMsgs.length + (s.chatTyping ? 0.5 : 0);
+          requestAnimationFrame(() => { if (el) el.scrollTop = el.scrollHeight; });
+        }
+      },
+      chatTyping: !!s.chatTyping,
+      headIdle: s.chatTyping ? "none" : "block",
+      headThink: s.chatTyping ? "block" : "none",
+      chatMsgs: s.chatMsgs.map(m => ({
+        text: m.text,
+        isDuck: !m.me,
+        just: m.me ? "flex-end" : "flex-start",
+        bg: m.me ? "#000" : "#fff",
+        fg: m.me ? "#fff" : "#000",
+        bd: m.me ? "none" : "0.5px solid rgba(82,82,82,0.22)",
+        avatar: m.me ? null : React.createElement("img", {
+          src: IA("assets/mascots-web/" + (m.duck || "05-curieux") + ".png"),
+          alt: "", style: { width: 24, height: 24, objectFit: "contain", display: "block" }
+        })
+      })),
+      chatChipsDisp: s.chatMsgs.length <= 1 ? "flex" : "none",
+      chatChips: ["Créer une page produit", "Comment je publie ?", "Retrouver un brouillon"].map(label => ({
+        label, onPick: () => this.chatSend(label)
+      })),
+      chatInput: s.chatInput,
+      onChatInput: (e) => this.setState({ chatInput: e.target.value }),
+      onChatKey: (e) => { if (e.key === "Enter") { e.preventDefault(); this.chatSend(); } },
+      sendChat: () => this.chatSend(),
+      chatSendBg: (s.chatInput || "").trim() ? "#000" : "rgba(82,82,82,0.14)",
+      chatSendFg: (s.chatInput || "").trim() ? "#fff" : "#737373",
+
+      navItems, sellItems, writeItems, blankItems, chips,
+      ctaRef: this.ctaRef,
+      annTitle: ANNOUNCEMENTS[s.ann % ANNOUNCEMENTS.length].title,
+      annBody: ANNOUNCEMENTS[s.ann % ANNOUNCEMENTS.length].body,
+      annLink: ANNOUNCEMENTS[s.ann % ANNOUNCEMENTS.length].link,
+      annCount: (s.ann % ANNOUNCEMENTS.length) + 1 + " / " + ANNOUNCEMENTS.length,
+      ann0: (s.ann % ANNOUNCEMENTS.length) === 0 ? "block" : "none",
+      ann1: (s.ann % ANNOUNCEMENTS.length) === 1 ? "block" : "none",
+      ann2: (s.ann % ANNOUNCEMENTS.length) === 2 ? "block" : "none",
+      annPrev: () => this.setState(st => ({ ann: (st.ann - 1 + ANNOUNCEMENTS.length) % ANNOUNCEMENTS.length })),
+      annNext: () => this.setState(st => ({ ann: (st.ann + 1) % ANNOUNCEMENTS.length })),
+      menuRef: this.menuRef,
+      coachOn, holeX: hx + "px", holeY: hy + "px", holeW: hw + "px", holeH: hh + "px",
+      tipX: tipLeft + "px", tipY: tipTop + "px",
+      tutTitle: tut.title,
+      tutD0: tut.duck === 0 ? "block" : "none",
+      tutD1: tut.duck === 1 ? "block" : "none",
+      onNewPage: () => this.setState(st => ({
+        menu: st.menu === "newPage" ? null : "newPage",
+        rowMenu: null, preview: null,
+        tut: (onboarding && st.tut === 0) ? 1 : st.tut
+      })),
+      tutSkip: () => this.setState({ tutDone: true }),
+      previewOn: !!pvKey && !!s.menuRect,
+      clearInfo: () => this.setState({ preview: null }),
+      pvTitle: pv.title,
+      pvDesc: pv.desc,
+      pvProduct: pvKey === "product" ? "flex" : "none",
+      pvHome: pvKey === "home" ? "flex" : "none",
+      pvLanding: pvKey === "landing" ? "flex" : "none",
+      pvAdverto: pvKey === "adverto" ? "flex" : "none",
+      pvBlog: pvKey === "blog" ? "flex" : "none",
+      pvX: (() => { const m = s.menuRect; if (!m) return "0px";
+        const left = m.x - 204 - 12; return (left < 16 ? m.x + m.w + 12 : left) + "px"; })(),
+      pvY: (() => { const m = s.menuRect; if (!m) return "0px";
+        const vh = typeof window !== "undefined" ? window.innerHeight : 900;
+        return Math.max(16, Math.min(m.y, vh - 250)) + "px"; })(),
+      rows: rowVals,
+      isEmpty: rowVals.length === 0,
+      emptyHint: q ? "Rien ne correspond à « " + s.query + " »." : "Aucun élément dans « " + s.filter + " » pour l'instant.",
+
+      query: s.query,
+      hasQuery: s.query.length > 0,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      clearQuery: () => this.setState({ query: "" }),
+
+      sortBy: s.sortBy,
+      sortOptions,
+      sortArrow: svg(s.desc ? P.arrowDown : P.arrowUp, { size: 14 }),
+      directionLabel: s.desc ? "Décroissant" : "Croissant",
+      toggleDirection: () => this.setState({ desc: !s.desc }),
+      sortByName: () => this.setState({ sortBy: "Name", desc: s.sortBy === "Name" ? !s.desc : true }),
+      sortByEdited: () => this.setState({ sortBy: "Last Modified", desc: s.sortBy === "Last Modified" ? !s.desc : true }),
+      sortByType: () => this.setState({ sortBy: "Type", desc: s.sortBy === "Type" ? !s.desc : true }),
+
+      showAnnouncement,
+      dismissAnnouncement: () => this.setState({ announcement: false }),
+      showReferralCard: this.props.showReferralCard ?? true
+    };
+  }
+}
+</script>
+
+
+<script type="module" src="/hydrate/dashboard.js"></script>
+</body></html>
