@@ -58,6 +58,10 @@ export class MemoryStore implements Store {
     return this.workspaces.get(id) ?? null;
   }
 
+  async getWorkspaceBySlug(slug: string): Promise<Workspace | null> {
+    return [...this.workspaces.values()].find((ws) => ws.slug === slug) ?? null;
+  }
+
   async assertMember(userId: string, workspaceId: string): Promise<Membership> {
     const membership = this.memberships.find(
       (m) => m.userId === userId && m.workspaceId === workspaceId,

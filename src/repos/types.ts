@@ -4,6 +4,7 @@ export interface Store {
   createWorkspace(input: { name: string; ownerUserId: string }): Promise<Workspace>;
   listWorkspaces(userId: string): Promise<Workspace[]>;
   getWorkspace(id: string): Promise<Workspace | null>;
+  getWorkspaceBySlug(slug: string): Promise<Workspace | null>;
   assertMember(userId: string, workspaceId: string): Promise<Membership>;
   listPages(workspaceId: string): Promise<Page[]>;
   getPage(id: string): Promise<Page | null>;

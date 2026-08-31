@@ -107,6 +107,25 @@ export class PostgresStore implements Store {
     };
   }
 
+  async getWorkspaceBySlug(slug: string): Promise<Workspace | null> {
+    const rows = await this.sql<
+      { id: string; name: string; slug: string; ownerUserId: string; createdAt: Date | string }[]
+    >`
+      select id, name, slug, owner_user_id as "ownerUserId", created_at as "createdAt"
+      from workspaces
+      where slug = ${slug}
+    `;
+    const row = rows[0];
+    if (!row) return null;
+    return {
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      ownerUserId: row.ownerUserId,
+      createdAt: iso(row.createdAt),
+    };
+  }
+
   async assertMember(userId: string, workspaceId: string): Promise<Membership> {
     const rows = await this.sql<{ userId: string; workspaceId: string; role: WorkspaceRole }[]>`
       select user_id as "userId", workspace_id as "workspaceId", role

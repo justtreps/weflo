@@ -6,6 +6,7 @@ import type { Store } from "../repos/types";
 import { authRoutes } from "./auth";
 import { meRoutes } from "./me";
 import { pagesRoutes } from "./pages";
+import { storefrontRoutes } from "./storefront";
 
 export type AppDeps = {
   store: Store;
@@ -58,6 +59,7 @@ export function createApp(deps: AppDeps) {
   app.route("/api", authRoutes(deps));
   app.route("/api", meRoutes(deps));
   app.route("/api", pagesRoutes(deps));
+  app.route("/", storefrontRoutes(deps));
 
   return app;
 }
