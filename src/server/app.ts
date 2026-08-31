@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join, normalize, sep } from "node:path";
 import type { AppSession } from "../types";
 import type { Store } from "../repos/types";
+import { pagesRoutes } from "./pages";
 
 export type AppDeps = {
   store: Store;
@@ -50,6 +51,8 @@ export function createApp(deps: AppDeps) {
       return c.body("Not found", 404);
     }
   });
+
+  app.route("/api", pagesRoutes(deps));
 
   return app;
 }

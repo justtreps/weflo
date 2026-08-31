@@ -1,0 +1,129 @@
+import { Hono } from "hono";
+import { initialDocument } from "../lib/catalog";
+import type { Store } from "../repos/types";
+import type { Page, PageStatus, PageType, User } from "../types";
+import type { AppDeps } from "./app";
+
+const PAGE_TYPES: PageType[] = ["sell", "write", "blank"];
+const PAGE_STATUSES: PageStatus[] = ["draft", "published_hosted", "published_shopify"];
+
+export async function requireUser(deps: AppDeps, req: Request): Promise<User | null> {
+  return deps.session(req);
+}
+
+export async function ensureWorkspace(store: Store, ownerUserId: string) {
+  const existing = await store.listWorkspaces(ownerUserId);
+  if (existing.length > 0) return existing[0];
+  return store.createWorkspace({ name: "Espace", ownerUserId });
+}
+
+function slugify(value: string): string {
+  const slug = value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "page";
+}
+
+async function uniqueSlug(store: Store, workspaceId: string, base: string): Promise<string> {
+  const taken = new Set((await store.listPages(workspaceId)).map((p) => p.slug));
+  if (!taken.has(base)) return base;
+  let n = 2;
+  while (taken.has(`${base}-${n}`)) n += 1;
+  return `${base}-${n}`;
+}
+
+function isPageType(value: unknown): value is PageType {
+  return typeof value === "string" && PAGE_TYPES.includes(value as PageType);
+}
+
+function isPageStatus(value: unknown): value is PageStatus {
+  return typeof value === "string" && PAGE_STATUSES.includes(value as PageStatus);
+}
+
+async function loadOwnedPage(deps: AppDeps, userId: string, id: string) {
+  const page = await deps.store.getPage(id);
+  if (!page) return { error: "not found" as const, status: 404 as const };
+  await deps.store.assertMember(userId, page.workspaceId);
+  return { page };
+}
+
+export function pagesRoutes(deps: AppDeps) {
+  const app = new Hono();
+
+  app.get("/pages", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const workspace = await ensureWorkspace(deps.store, user.id);
+    const workspaces = await deps.store.listWorkspaces(user.id);
+    const pages = await deps.store.listPages(workspace.id);
+    return c.json({ workspace, pages, workspaces });
+  });
+
+  app.post("/pages", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const body = await c.req.json<{ type?: unknown; name?: unknown }>().catch(() => ({}));
+    if (!isPageType(body.type)) return c.json({ error: "invalid type" }, 400);
+    const name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Page";
+    const workspace = await ensureWorkspace(deps.store, user.id);
+    const slug = await uniqueSlug(deps.store, workspace.id, slugify(name));
+    const page = await deps.store.createPage({
+      workspaceId: workspace.id,
+      name,
+      slug,
+      type: body.type,
+      status: "draft",
+      document: initialDocument(name, body.type),
+    });
+    return c.json(page, 201);
+  });
+
+  app.patch("/pages/:id", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
+    if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    const body = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+    const patch: Partial<Pick<Page, "name" | "slug" | "status" | "document">> = {};
+    if (typeof body.name === "string") patch.name = body.name;
+    if (typeof body.slug === "string") patch.slug = slugify(body.slug);
+    if (isPageStatus(body.status)) patch.status = body.status;
+    if (body.document && typeof body.document === "object") {
+      patch.document = body.document as Page["document"];
+    }
+    const updated = await deps.store.updatePage(loaded.page.id, patch);
+    return c.json(updated);
+  });
+
+  app.post("/pages/:id/duplicate", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
+    if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    const name = `${loaded.page.name} copy`;
+    const slug = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify(name));
+    const copy = await deps.store.createPage({
+      workspaceId: loaded.page.workspaceId,
+      name,
+      slug,
+      type: loaded.page.type,
+      status: "draft",
+      document: loaded.page.document,
+    });
+    return c.json(copy, 201);
+  });
+
+  app.delete("/pages/:id", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
+    if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    await deps.store.deletePage(loaded.page.id);
+    return c.body(null, 204);
+  });
+
+  return app;
+}
