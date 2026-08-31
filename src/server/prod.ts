@@ -1,8 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import { createSessionResolver } from "../lib/session";
 import { MemoryStore } from "../repos/memory";
+import { PostgresStore } from "../repos/postgres";
+import type { Store } from "../repos/types";
 import type { AuthPort } from "../types";
 import type { AppDeps } from "./app";
+
+function createStore(): Store {
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  return databaseUrl ? new PostgresStore(databaseUrl) : new MemoryStore();
+}
 
 function createSupabaseAuth(url: string, anonKey: string): AuthPort {
   const supabase = createClient(url, anonKey);
@@ -54,13 +61,15 @@ export function prodDeps(): AppDeps {
   const url = process.env.SUPABASE_URL;
   const anonKey = process.env.SUPABASE_ANON_KEY;
 
+  const store = createStore();
+
   if (!url || !anonKey) {
-    return { store: new MemoryStore(), session: async () => null };
+    return { store, session: async () => null };
   }
 
   const supabase = createClient(url, anonKey);
   return {
-    store: new MemoryStore(),
+    store,
     session: createSessionResolver({
       getUser: async (token) => {
         const { data } = await supabase.auth.getUser(token);
