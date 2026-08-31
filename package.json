@@ -1,0 +1,25 @@
+{
+  "name": "weflo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "tsx watch src/dev-server.ts",
+    "extract": "node scripts/extract-mockups.mjs",
+    "build:hydrate": "esbuild src/hydrate/connexion.ts src/hydrate/dashboard.ts src/hydrate/editeur.ts src/hydrate/facturation.ts src/hydrate/parrainage.ts src/hydrate/session-guard.ts --bundle --outdir=public/hydrate --format=esm"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.0",
+    "@supabase/supabase-js": "^2.57.0",
+    "@whop/sdk": "^0.0.20",
+    "hono": "^4.9.0",
+    "openai": "^5.12.0",
+    "postgres": "^3.4.7"
+  }
+}
