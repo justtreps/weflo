@@ -16,6 +16,23 @@ describe("stripShopifyOauth", () => {
     expect(out).not.toMatch(/Shopify/i);
     expect(out).toMatch(/Google/);
   });
+
+  it("removes Shopify oauth div block, keeps Google oauth div", () => {
+    const html = `<div sc-camel-on-click="{{ oauth }}" style="cursor: pointer;">
+            <img src="shopify-icon" alt="">
+            <span>{{ oauthLabel }} avec Shopify</span>
+          </div>
+          <div sc-camel-on-click="{{ oauth }}" style="cursor: pointer;">
+            <img src="google-icon" alt="">
+            <span>{{ oauthLabel }} avec Google</span>
+          </div>
+          <script>const PROOFS = [{ text: "Ton catalogue Shopify relié en deux clics." }];</script>`;
+    const out = stripShopifyOauth(html);
+    expect(out).not.toContain("{{ oauthLabel }} avec Shopify");
+    expect(out).not.toMatch(/<div[^>]*sc-camel-on-click[^>]*>[\s\S]*?avec Shopify[\s\S]*?<\/div>/i);
+    expect(out).toContain("{{ oauthLabel }} avec Google");
+    expect(out).toContain("catalogue Shopify");
+  });
 });
 
 describe("injectHydrate", () => {

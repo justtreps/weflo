@@ -9,7 +9,8 @@ export function extractTemplate(html) {
 export function stripShopifyOauth(html) {
   return html
     .replace(/<button[^>]*>[\s\S]*?Shopify[\s\S]*?<\/button>/gi, "")
-    .replace(/<a[^>]*>[\s\S]*?Shopify[\s\S]*?<\/a>/gi, "");
+    .replace(/<a[^>]*>[\s\S]*?Shopify[\s\S]*?<\/a>/gi, "")
+    .replace(/<div[^>]*sc-camel-on-click[^>]*>[\s\S]*?Shopify[\s\S]*?<\/div>/gi, "");
 }
 
 export function injectHydrate(html, src) {
