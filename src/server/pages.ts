@@ -135,6 +135,32 @@ export function pagesRoutes(deps: AppDeps) {
     return c.body(null, 204);
   });
 
+  app.post("/pages/:id/publish", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
+    if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    const workspace = await deps.store.getWorkspace(loaded.page.workspaceId);
+    if (!workspace) return c.json({ error: "not found" }, 404);
+    const updated = await deps.store.updatePage(loaded.page.id, { status: "published_hosted" });
+    const previewUrl = `/s/${workspace.slug}/${updated.slug}`;
+    const shopify = await deps.store.getShopify(workspace.id);
+    if (!shopify || shopify.status !== "connected") {
+      return c.json({
+        status: "published_hosted",
+        shopify: "skipped",
+        previewUrl,
+        message: "Page publiée sur l'aperçu hébergé.",
+      });
+    }
+    return c.json({
+      status: "published_hosted",
+      shopify: "connected",
+      previewUrl,
+      message: "Page publiée.",
+    });
+  });
+
   app.post("/pages/:id/canardo", async (c) => {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);

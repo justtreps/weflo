@@ -1,0 +1,34 @@
+import { describe, it, expect } from "vitest";
+import { createApp } from "../src/server/app";
+import { MemoryStore } from "../src/repos/memory";
+import { initialDocument } from "../src/lib/catalog";
+
+describe("POST /api/pages/:id/publish when Shopify not connected", () => {
+  it("sets published_hosted and skips Shopify", async () => {
+    const store = new MemoryStore();
+    const ws = await store.createWorkspace({ name: "ACAI", ownerUserId: "u1" });
+    const page = await store.createPage({
+      workspaceId: ws.id,
+      name: "Home",
+      slug: "home",
+      type: "sell",
+      status: "draft",
+      document: initialDocument("Home", "sell"),
+    });
+    const app = createApp({
+      store,
+      session: async () => ({ id: "u1", email: "a@b.c" }),
+    });
+
+    const res = await app.request(`/api/pages/${page.id}/publish`, { method: "POST" });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe("published_hosted");
+    expect(body.shopify).toBe("skipped");
+    expect(body.previewUrl).toMatch(/\/s\//);
+    expect(body.previewUrl).toBe(`/s/${ws.slug}/home`);
+
+    const updated = await store.getPage(page.id);
+    expect(updated!.status).toBe("published_hosted");
+  });
+});

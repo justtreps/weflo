@@ -150,6 +150,31 @@ function fillPanelFromDocument(doc: PageDocument) {
   if (blockName && typeof titled?.settings.title === "string") blockName.value = titled.settings.title;
 }
 
+function showPublishToast(previewUrl: string) {
+  const toastIf = document.querySelector<HTMLElement>('sc-if[value="{{ publishDoneOpen }}"]');
+  if (!toastIf) return;
+  const urlSpan = toastIf.querySelector<HTMLElement>('span[style*="color:#75736C"]');
+  const display = previewUrl.startsWith("http")
+    ? previewUrl.replace(/^https?:\/\//, "")
+    : `${location.host}${previewUrl}`;
+  if (urlSpan) urlSpan.textContent = display;
+  toastIf.style.display = "block";
+  window.setTimeout(() => {
+    toastIf.style.display = "none";
+  }, 5000);
+}
+
+function setPublishButtonState(published: boolean, publishing = false) {
+  const btn = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onPublish }}"]');
+  if (!btn) return;
+  const label = btn.querySelector("span:last-child");
+  if (label) {
+    label.textContent = publishing ? "Publication…" : published ? "Publiée" : "Publier";
+  }
+  btn.style.background = published && !publishing ? "#2FA36B" : "#141310";
+  btn.style.cursor = publishing ? "wait" : "pointer";
+}
+
 function noop(e: Event) {
   e.preventDefault();
   e.stopPropagation();
@@ -302,6 +327,47 @@ export async function hydrateEditeur() {
     },
     true,
   );
+
+  const publishBtn = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onPublish }}"]');
+  let publishing = false;
+  const publishPage = async () => {
+    if (publishing) return;
+    publishing = true;
+    setPublishButtonState(current.status !== "draft", true);
+    try {
+      await save();
+      const res = await fetch(`/api/pages/${current.id}/publish`, { method: "POST" });
+      if (res.status === 401) {
+        location.assign("/connexion");
+        return;
+      }
+      if (!res.ok) {
+        setPublishButtonState(current.status !== "draft");
+        return;
+      }
+      const body = (await res.json()) as {
+        status: string;
+        previewUrl: string;
+        message?: string;
+      };
+      current = { ...current, status: body.status as Page["status"] };
+      setPublishButtonState(true);
+      showPublishToast(body.previewUrl);
+      if (body.message) appendConversation(body.message, false);
+    } finally {
+      publishing = false;
+    }
+  };
+  publishBtn?.addEventListener(
+    "click",
+    (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      void publishPage();
+    },
+    true,
+  );
+  if (current.status !== "draft") setPublishButtonState(true);
 }
 
 void hydrateEditeur();
