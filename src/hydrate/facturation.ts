@@ -5,6 +5,13 @@ type ShopifyPublic = {
   shopDomain: string | null;
 };
 
+type BillingPublic = {
+  plan: { status: "none" | "active" | "inactive"; planId: string | null };
+  credits: { monthlyRemaining: number; purchasedRemaining: number };
+  manageUrl: string | null;
+  catalog: { starter: string | null; pro: string | null; credits: string | null };
+};
+
 function shopBar(): HTMLElement | null {
   return document.querySelector<HTMLElement>('[sc-camel-on-click="{{ toggleShop }}"]')?.parentElement ?? null;
 }
@@ -106,9 +113,95 @@ function paintDomain(bar: HTMLElement, status: ShopifyPublic["status"], shopDoma
   host.append(domain, token);
 }
 
+function spanByText(text: string): HTMLElement | undefined {
+  return [...document.querySelectorAll("span")].find((el) => el.textContent?.trim() === text) as
+    | HTMLElement
+    | undefined;
+}
+
+function clickableFor(label: string): HTMLElement | undefined {
+  const span = spanByText(label);
+  return (span?.parentElement as HTMLElement | undefined) ?? span;
+}
+
+async function startCheckout(workspaceId: string, kind: "subscription" | "credits", planId: string) {
+  const res = await fetch("/api/billing/checkout", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ workspaceId, kind, planId }),
+  });
+  const body = (await res.json().catch(() => ({}))) as { url?: string };
+  if (body.url) location.assign(body.url);
+}
+
+function bindCheckout(label: string, workspaceId: string, kind: "subscription" | "credits", planId: string | null) {
+  if (!planId) return;
+  const el = clickableFor(label);
+  if (!el) return;
+  el.addEventListener(
+    "click",
+    async (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      await startCheckout(workspaceId, kind, planId);
+    },
+    true,
+  );
+}
+
+function paintBilling(billing: BillingPublic) {
+  const tokens: Record<string, string> = {
+    "{{ planName }}": billing.plan.status === "active" ? "Pro" : "Free",
+    "{{ credits }}": String(billing.credits.monthlyRemaining),
+  };
+  for (const el of document.querySelectorAll("span")) {
+    const key = el.textContent?.trim() ?? "";
+    if (key in tokens) el.textContent = tokens[key];
+  }
+
+  const addCredits = spanByText("Add Credits");
+  const purchased = addCredits?.parentElement?.previousElementSibling;
+  if (purchased && purchased.tagName === "SPAN") {
+    purchased.textContent = String(billing.credits.purchasedRemaining);
+  }
+
+  for (const el of document.querySelectorAll<HTMLElement>("[style*='managePayDisp']")) {
+    el.style.display = billing.manageUrl ? "flex" : "none";
+  }
+
+  const manage = clickableFor("Manage Payments");
+  if (manage) {
+    manage.addEventListener(
+      "click",
+      (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (billing.manageUrl) window.open(billing.manageUrl, "_blank", "noopener");
+      },
+      true,
+    );
+  }
+}
+
 export async function hydrateFacturation() {
   const me = await guardSession();
   if (!me) return;
+
+  let billing: BillingPublic | null = null;
+  try {
+    const res = await fetch("/api/billing");
+    if (res.ok) billing = (await res.json()) as BillingPublic;
+  } catch {
+    /* keep default */
+  }
+  if (billing) {
+    paintBilling(billing);
+    bindCheckout("Add Credits", me.workspace.id, "credits", billing.catalog.credits);
+    bindCheckout("Choose a plan", me.workspace.id, "subscription", billing.catalog.starter);
+    bindCheckout("Upgrade", me.workspace.id, "subscription", billing.catalog.pro);
+    bindCheckout("Upgrade to Pro", me.workspace.id, "subscription", billing.catalog.pro);
+    bindCheckout("Update to Annual", me.workspace.id, "subscription", billing.catalog.starter);
+  }
 
   const bar = shopBar();
   const cta = ctaBox();

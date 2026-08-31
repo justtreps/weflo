@@ -7,30 +7,47 @@ import { MemoryStore } from "../repos/memory";
 import { PostgresStore } from "../repos/postgres";
 import type { Store } from "../repos/types";
 import { createShopifyPort } from "../lib/shopify";
+import { createWhopPort } from "../lib/whop";
 import type { AuthPort, LlmPort } from "../types";
 import type { AppDeps } from "./app";
 
-function loadDotEnv() {
+function parseDotEnvFile(filename: string): Record<string, string> {
   try {
-    const text = readFileSync(join(process.cwd(), ".env"), "utf8");
+    const text = readFileSync(join(process.cwd(), filename), "utf8").replace(/^\uFEFF/, "");
+    const out: Record<string, string> = {};
     for (const line of text.split(/\r?\n/)) {
       const trimmed = line.trim();
       if (!trimmed || trimmed.startsWith("#")) continue;
-      const eq = trimmed.indexOf("=");
+      const cleaned = trimmed.replace(/^export\s+/, "");
+      const eq = cleaned.indexOf("=");
       if (eq < 0) continue;
-      const key = trimmed.slice(0, eq).trim();
-      if (process.env[key] !== undefined) continue;
-      let val = trimmed.slice(eq + 1).trim();
+      const key = cleaned.slice(0, eq).trim();
+      let val = cleaned.slice(eq + 1).trim();
       if (
         (val.startsWith('"') && val.endsWith('"')) ||
         (val.startsWith("'") && val.endsWith("'"))
       ) {
         val = val.slice(1, -1);
       }
-      process.env[key] = val;
+      out[key] = val;
     }
+    return out;
   } catch {
-    /* no .env file */
+    return {};
+  }
+}
+
+function loadDotEnv() {
+  const primary = parseDotEnvFile(".env");
+  const development = parseDotEnvFile(".env.development");
+  const merged = { ...primary };
+  for (const [key, val] of Object.entries(development)) {
+    if (!merged[key]) merged[key] = val;
+  }
+  for (const [key, val] of Object.entries(merged)) {
+    const existing = process.env[key];
+    if (existing !== undefined && existing !== "") continue;
+    process.env[key] = val;
   }
 }
 
@@ -107,11 +124,13 @@ export function prodDeps(): AppDeps {
   const anonKey = process.env.SUPABASE_ANON_KEY;
   const llm = createLlm();
   const shopify = shopifyDeps();
+  const publicAppUrl = process.env.PUBLIC_APP_URL?.replace(/\/$/, "") || undefined;
+  const whop = createWhopPort();
 
   const store = createStore();
 
   if (!url || !anonKey) {
-    return { store, session: async () => null, llm, ...shopify };
+    return { store, session: async () => null, llm, publicAppUrl, whop, ...shopify };
   }
 
   const supabase = createClient(url, anonKey);
@@ -127,6 +146,8 @@ export function prodDeps(): AppDeps {
     }),
     auth: createSupabaseAuth(url, anonKey),
     llm,
+    publicAppUrl,
+    whop,
     ...shopify,
   };
 }

@@ -79,3 +79,16 @@ export type ShopifyPort = {
   }): Promise<{ themeId: string; productId: string }>;
   rollback(input: { shop: string; token: string; themeId?: string; productId?: string }): Promise<void>;
 };
+
+export type WhopPort = {
+  createCheckout(input: {
+    planId: string;
+    redirectUrl: string;
+    metadata: { workspace_id: string; user_id: string; kind: "subscription" | "credits" };
+    affiliateCode?: string;
+    promoCode?: string;
+  }): Promise<{ purchaseUrl: string }>;
+  verifyWebhook(rawBody: string, headers: Headers): { type: string; data: Record<string, unknown> };
+  createAffiliate?(input: { email: string; workspaceId: string }): Promise<{ affiliateId: string }>;
+  affiliateStats?(affiliateId: string): Promise<{ earningsUsd: string; referrals: number; clicks: number }>;
+};
