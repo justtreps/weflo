@@ -4,6 +4,7 @@ import { join, normalize, sep } from "node:path";
 import type { AppSession, AuthPort } from "../types";
 import type { Store } from "../repos/types";
 import { authRoutes } from "./auth";
+import { meRoutes } from "./me";
 import { pagesRoutes } from "./pages";
 
 export type AppDeps = {
@@ -55,6 +56,7 @@ export function createApp(deps: AppDeps) {
   });
 
   app.route("/api", authRoutes(deps));
+  app.route("/api", meRoutes(deps));
   app.route("/api", pagesRoutes(deps));
 
   return app;
