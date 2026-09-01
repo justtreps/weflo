@@ -62,6 +62,40 @@ export class MemoryStore implements Store {
     return [...this.workspaces.values()].find((ws) => ws.slug === slug) ?? null;
   }
 
+  async updateWorkspace(id: string, patch: { name: string }): Promise<Workspace> {
+    const ws = this.workspaces.get(id);
+    if (!ws) throw new Error("workspace not found");
+    const updated = { ...ws, name: patch.name };
+    this.workspaces.set(id, updated);
+    return updated;
+  }
+
+  async deleteWorkspace(id: string): Promise<void> {
+    this.workspaces.delete(id);
+    this.memberships = this.memberships.filter((m) => m.workspaceId !== id);
+    for (const page of [...this.pages.values()]) {
+      if (page.workspaceId === id) this.pages.delete(page.id);
+    }
+    this.credits.delete(id);
+    this.shopify.delete(id);
+    this.whop.delete(id);
+    this.attributions.delete(id);
+    for (const [key, row] of [...this.attributions.entries()]) {
+      if (row.referrerWorkspaceId === id) this.attributions.delete(key);
+    }
+  }
+
+  async addMembership(input: Membership): Promise<void> {
+    const exists = this.memberships.some(
+      (m) => m.userId === input.userId && m.workspaceId === input.workspaceId,
+    );
+    if (!exists) this.memberships.push(input);
+  }
+
+  async removeMembershipsForUser(userId: string): Promise<void> {
+    this.memberships = this.memberships.filter((m) => m.userId !== userId);
+  }
+
   async assertMember(userId: string, workspaceId: string): Promise<Membership> {
     const membership = this.memberships.find(
       (m) => m.userId === userId && m.workspaceId === workspaceId,

@@ -134,6 +134,7 @@ export function prodDeps(): AppDeps {
   }
 
   const supabase = createClient(url, anonKey);
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   return {
     store,
     session: createSessionResolver({
@@ -148,6 +149,13 @@ export function prodDeps(): AppDeps {
     llm,
     publicAppUrl,
     whop,
+    deleteUser: serviceKey
+      ? async (userId) => {
+          const admin = createClient(url, serviceKey);
+          const { error } = await admin.auth.admin.deleteUser(userId);
+          if (error) throw error;
+        }
+      : undefined,
     ...shopify,
   };
 }

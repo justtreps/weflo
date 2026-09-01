@@ -5,6 +5,10 @@ export interface Store {
   listWorkspaces(userId: string): Promise<Workspace[]>;
   getWorkspace(id: string): Promise<Workspace | null>;
   getWorkspaceBySlug(slug: string): Promise<Workspace | null>;
+  updateWorkspace(id: string, patch: { name: string }): Promise<Workspace>;
+  deleteWorkspace(id: string): Promise<void>;
+  addMembership(input: Membership): Promise<void>;
+  removeMembershipsForUser(userId: string): Promise<void>;
   assertMember(userId: string, workspaceId: string): Promise<Membership>;
   listPages(workspaceId: string): Promise<Page[]>;
   getPage(id: string): Promise<Page | null>;

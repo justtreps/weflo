@@ -124,6 +124,12 @@ function clickableFor(label: string): HTMLElement | undefined {
   return (span?.parentElement as HTMLElement | undefined) ?? span;
 }
 
+function actionButton(label: string): HTMLElement | undefined {
+  return [...document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ act }}"]')].find(
+    (el) => (el.querySelector("span")?.textContent ?? el.textContent)?.trim() === label,
+  );
+}
+
 async function startCheckout(workspaceId: string, kind: "subscription" | "credits", planId: string) {
   const res = await fetch("/api/billing/checkout", {
     method: "POST",
@@ -147,6 +153,93 @@ function bindCheckout(label: string, workspaceId: string, kind: "subscription" |
     },
     true,
   );
+}
+
+function bindIf(
+  el: HTMLElement | null | undefined,
+  handler: (e: Event) => void | Promise<void>,
+) {
+  if (!el) return;
+  el.addEventListener(
+    "click",
+    (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      void handler(e);
+    },
+    true,
+  );
+}
+
+function workspaceNameInput(): HTMLInputElement | null {
+  return document.querySelector<HTMLInputElement>('[sc-camel-on-change="{{ onWsName }}"]');
+}
+
+function workspaceNameSave(): HTMLElement | null {
+  const input = workspaceNameInput();
+  return input?.parentElement?.querySelector<HTMLElement>('[sc-camel-on-click="{{ save }}"]') ?? null;
+}
+
+function inviteMailInput(): HTMLInputElement | null {
+  return document.querySelector<HTMLInputElement>('[sc-camel-on-change="{{ onInviteMail }}"]');
+}
+
+function selectedInviteRole(): string {
+  const picked = [...document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ r.onPick }}"]')].find((el) => {
+    const bg = el.style.background;
+    return bg && bg !== "transparent" && bg !== "";
+  });
+  const label = picked?.querySelector("span")?.textContent?.trim();
+  if (label === "Owner") return "owner";
+  if (label === "Viewer") return "viewer";
+  if (label === "Editor" || label === "Member") return "member";
+  return "member";
+}
+
+async function bindSettings(workspaceId: string, workspaceName: string) {
+  const nameInput = workspaceNameInput();
+  if (nameInput && !nameInput.dataset.wefloBound) {
+    nameInput.dataset.wefloBound = "1";
+    if (!nameInput.value || nameInput.value.includes("{{")) nameInput.value = workspaceName;
+  }
+  bindIf(workspaceNameSave(), async () => {
+    const name = workspaceNameInput()?.value.trim() ?? "";
+    if (!name) return;
+    await fetch("/api/workspace", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+  });
+
+  bindIf(actionButton("Delete Workspace"), async () => {
+    if (!window.confirm("Supprimer cet espace ? Cette action est irréversible.")) return;
+    const res = await fetch("/api/workspace", { method: "DELETE" });
+    if (res.ok || res.status === 204) location.assign("/dashboard");
+  });
+
+  bindIf(actionButton("Delete my account"), async () => {
+    if (!window.confirm("Supprimer votre compte ? Cette action est irréversible.")) return;
+    const res = await fetch("/api/me", { method: "DELETE" });
+    if (res.ok || res.status === 204) location.assign("/connexion");
+  });
+
+  bindIf(clickableFor("Invite member"), () => {
+    const modal = document.querySelector<HTMLElement>('sc-if[value="{{ inviteOpen }}"]');
+    if (modal) modal.style.display = "block";
+  });
+
+  bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ invite }}"]'), async () => {
+    const email = inviteMailInput()?.value.trim() ?? "";
+    if (!email) return;
+    await fetch("/api/workspace/members", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, role: selectedInviteRole(), workspaceId }),
+    });
+    const modal = document.querySelector<HTMLElement>('sc-if[value="{{ inviteOpen }}"]');
+    if (modal) modal.style.display = "none";
+  });
 }
 
 function paintBilling(billing: BillingPublic) {
@@ -202,6 +295,8 @@ export async function hydrateFacturation() {
     bindCheckout("Upgrade to Pro", me.workspace.id, "subscription", billing.catalog.pro);
     bindCheckout("Update to Annual", me.workspace.id, "subscription", billing.catalog.starter);
   }
+
+  await bindSettings(me.workspace.id, me.workspace.name);
 
   const bar = shopBar();
   const cta = ctaBox();

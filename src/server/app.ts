@@ -8,6 +8,7 @@ import { billingRoutes } from "./billing";
 import { meRoutes } from "./me";
 import { pagesRoutes } from "./pages";
 import { referralApiRoutes, referralPublicRoutes } from "./referral";
+import { settingsRoutes } from "./settings";
 import { shopifyRoutes } from "./shopify";
 import { storefrontRoutes } from "./storefront";
 
@@ -22,6 +23,8 @@ export type AppDeps = {
   encryptionKey?: string;
   whop?: WhopPort;
   publicAppUrl?: string;
+  inviteEmail?: (input: { email: string; workspaceId: string; role: string }) => Promise<void>;
+  deleteUser?: (userId: string) => Promise<void>;
 };
 
 const htmlRoutes: Record<string, string> = {
@@ -68,6 +71,7 @@ export function createApp(deps: AppDeps) {
 
   app.route("/api", authRoutes(deps));
   app.route("/api", meRoutes(deps));
+  app.route("/api", settingsRoutes(deps));
   app.route("/api", pagesRoutes(deps));
   app.route("/api", shopifyRoutes(deps));
   app.route("/api", billingRoutes(deps));

@@ -127,6 +127,43 @@ export class PostgresStore implements Store {
     };
   }
 
+  async updateWorkspace(id: string, patch: { name: string }): Promise<Workspace> {
+    const rows = await this.sql<
+      { id: string; name: string; slug: string; ownerUserId: string; createdAt: Date | string }[]
+    >`
+      update workspaces
+      set name = ${patch.name}
+      where id = ${id}
+      returning id, name, slug, owner_user_id as "ownerUserId", created_at as "createdAt"
+    `;
+    const row = rows[0];
+    if (!row) throw new Error("workspace not found");
+    return {
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      ownerUserId: row.ownerUserId,
+      createdAt: iso(row.createdAt),
+    };
+  }
+
+  async deleteWorkspace(id: string): Promise<void> {
+    await this.sql`delete from referral_attributions where referrer_workspace_id = ${id}`;
+    await this.sql`delete from workspaces where id = ${id}`;
+  }
+
+  async addMembership(input: Membership): Promise<void> {
+    await this.sql`
+      insert into memberships (user_id, workspace_id, role)
+      values (${input.userId}, ${input.workspaceId}, ${input.role})
+      on conflict (user_id, workspace_id) do update set role = excluded.role
+    `;
+  }
+
+  async removeMembershipsForUser(userId: string): Promise<void> {
+    await this.sql`delete from memberships where user_id = ${userId}`;
+  }
+
   async assertMember(userId: string, workspaceId: string): Promise<Membership> {
     const rows = await this.sql<{ userId: string; workspaceId: string; role: WorkspaceRole }[]>`
       select user_id as "userId", workspace_id as "workspaceId", role
