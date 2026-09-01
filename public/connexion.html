@@ -137,13 +137,13 @@
           <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
             <label style="display: flex; flex-direction: column; gap: 6px;">
               <span style="font-size: 13px; font-weight: 500; color: #141310;">Nom</span>
-              <input type="text" name="name" value="{{ name }}" sc-camel-on-change="{{ onName }}" placeholder="Amir Ben Ettaleb" style="height: 42px; padding: 0 13px; box-sizing: border-box; border: 1px solid #D8D5CE; border-radius: 11px; background: #fff; font-size: 15px; color: #141310; outline: none;" style-focus="border-color: #FBC531;">
+              <input type="text" value="{{ name }}" sc-camel-on-change="{{ onName }}" placeholder="Amir Ben Ettaleb" style="height: 42px; padding: 0 13px; box-sizing: border-box; border: 1px solid #D8D5CE; border-radius: 11px; background: #fff; font-size: 15px; color: #141310; outline: none;" style-focus="border-color: #FBC531;">
             </label>
           </sc-if>
 
           <label style="display: flex; flex-direction: column; gap: 6px;">
             <span style="font-size: 13px; font-weight: 500; color: #141310;">Adresse e-mail</span>
-            <input type="email" name="email" value="{{ email }}" sc-camel-on-change="{{ onEmail }}" sc-camel-on-key-down="{{ onKey }}" placeholder="amir@acai.studio" style="height: 42px; padding: 0 13px; box-sizing: border-box; border: 1px solid {{ emailBorder }}; border-radius: 11px; background: #fff; font-size: 15px; color: #141310; outline: none;" style-focus="border-color: #FBC531;">
+            <input type="email" value="{{ email }}" sc-camel-on-change="{{ onEmail }}" sc-camel-on-key-down="{{ onKey }}" placeholder="amir@acai.studio" style="height: 42px; padding: 0 13px; box-sizing: border-box; border: 1px solid {{ emailBorder }}; border-radius: 11px; background: #fff; font-size: 15px; color: #141310; outline: none;" style-focus="border-color: #FBC531;">
           </label>
 
           <label style="display: flex; flex-direction: column; gap: 6px;">
@@ -152,7 +152,7 @@
               <span style="flex: 1;"></span>
               <span sc-camel-on-click="{{ toggleReveal }}" style="font-size: 13px; color: #75736C; cursor: pointer; white-space: nowrap;" style-hover="color: #141310;">{{ revealLabel }}</span>
             </div>
-            <input type="password" name="password" value="{{ password }}" sc-camel-on-change="{{ onPassword }}" sc-camel-on-key-down="{{ onKey }}" placeholder="{{ pwdPlaceholder }}" style="height: 42px; padding: 0 13px; box-sizing: border-box; border: 1px solid #D8D5CE; border-radius: 11px; background: #fff; font-size: 15px; color: #141310; outline: none;" style-focus="border-color: #FBC531;">
+            <input type="{{ pwdType }}" value="{{ password }}" sc-camel-on-change="{{ onPassword }}" sc-camel-on-key-down="{{ onKey }}" placeholder="{{ pwdPlaceholder }}" style="height: 42px; padding: 0 13px; box-sizing: border-box; border: 1px solid #D8D5CE; border-radius: 11px; background: #fff; font-size: 15px; color: #141310; outline: none;" style-focus="border-color: #FBC531;">
             <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
               <div style="display: flex; align-items: center; gap: 8px; padding-top: 2px;">
                 <span style="position: relative; flex: 1; height: 4px; border-radius: 999px; background: #EDEBE5; overflow: hidden; display: block;">
@@ -177,8 +177,6 @@
           </sc-if>
 
         </div>
-
-        <p data-auth-error hidden style="margin: 0; width: 100%; font-size: 13px; color: #B42318; text-align: center;"></p>
 
         <div sc-camel-on-click="{{ submit }}" style="display: flex; align-items: center; justify-content: center; gap: 9px; height: 46px; width: 100%; box-sizing: border-box; border-radius: 12px; background: {{ ctaBg }}; color: {{ ctaFg }}; font-size: 15px; font-weight: 600; cursor: {{ ctaCursor }}; transition: background .22s ease;">
           <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}">
