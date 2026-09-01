@@ -40,6 +40,8 @@ export type CreditLedger = {
   purchasedRemaining: number;
 };
 
+export type AffiliateStats = { earningsUsd: string; referrals: number; clicks: number };
+
 export type WhopLink = {
   workspaceId: string;
   membershipId: string | null;
@@ -47,6 +49,7 @@ export type WhopLink = {
   status: "none" | "active" | "inactive";
   manageUrl: string | null;
   affiliateId: string | null;
+  lastAffiliateStats?: AffiliateStats | null;
 };
 
 export type ReferralAttribution = {

@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { applyWhopEvent, checkoutRedirectUrl } from "../lib/whop";
+import { promoFromReferralCookie } from "./referral";
 import { ensureWorkspace, requireUser } from "./pages";
 import type { AppDeps } from "./app";
 
@@ -62,10 +63,13 @@ export function billingRoutes(deps: AppDeps) {
     const redirectUrl = checkoutRedirectUrl(deps.publicAppUrl);
     if (!redirectUrl) return c.json({ error: "invalid" }, 400);
 
+    const referral = promoFromReferralCookie(c);
     const { purchaseUrl } = await deps.whop.createCheckout({
       planId,
       redirectUrl,
       metadata: { workspace_id: workspaceId, user_id: user.id, kind },
+      affiliateCode: referral.affiliateCode,
+      promoCode: referral.promoCode,
     });
     return c.json({ url: purchaseUrl });
   });

@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-import { ensureWorkspace, requireUser } from "./pages";
 import type { AppDeps } from "./app";
+import { ensureWorkspace, requireUser } from "./pages";
+import { maybeClaimFromCookie } from "./referral";
 
 export function meRoutes(deps: AppDeps) {
   const app = new Hono();
@@ -8,7 +9,11 @@ export function meRoutes(deps: AppDeps) {
   app.get("/me", async (c) => {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);
-    const workspace = await ensureWorkspace(deps.store, user.id);
+    const workspace = await ensureWorkspace(deps.store, user.id, {
+      whop: deps.whop,
+      email: user.email,
+    });
+    await maybeClaimFromCookie(deps, c.req.raw, workspace.id);
     return c.json({ ...user, workspace });
   });
 

@@ -45,8 +45,11 @@ create table if not exists whop_links (
   plan_id text,
   status text not null,
   manage_url text,
-  affiliate_id text
+  affiliate_id text,
+  last_affiliate_stats jsonb
 );
+
+alter table whop_links add column if not exists last_affiliate_stats jsonb;
 
 create table if not exists referral_attributions (
   referee_workspace_id text primary key references workspaces(id) on delete cascade,

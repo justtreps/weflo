@@ -5,6 +5,10 @@ import type { WhopLink, WhopPort } from "../types";
 
 export type WhopEvent = { type: string; data: Record<string, unknown> };
 
+export function assertReferralAllowed(referrerWs: string, refereeWs: string): void {
+  if (referrerWs === refereeWs) throw new Error("self-referral");
+}
+
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -65,6 +69,7 @@ export async function applyWhopEvent(store: Store, event: WhopEvent): Promise<vo
       status: "active",
       manageUrl: manageUrlOf(data) ?? prev.manageUrl,
       affiliateId: prev.affiliateId,
+      lastAffiliateStats: prev.lastAffiliateStats,
     });
     return;
   }

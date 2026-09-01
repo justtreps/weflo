@@ -1,5 +1,6 @@
 import postgres from "postgres";
 import type {
+  AffiliateStats,
   CreditLedger,
   Membership,
   Page,
@@ -299,30 +300,36 @@ export class PostgresStore implements Store {
              plan_id as "planId",
              status,
              manage_url as "manageUrl",
-             affiliate_id as "affiliateId"
+             affiliate_id as "affiliateId",
+             last_affiliate_stats as "lastAffiliateStats"
       from whop_links
       where workspace_id = ${workspaceId}
     `;
-    return rows[0] ?? null;
+    const row = rows[0];
+    if (!row) return null;
+    return { ...row, lastAffiliateStats: row.lastAffiliateStats ?? null };
   }
 
   async saveWhop(link: WhopLink): Promise<void> {
+    const stats = link.lastAffiliateStats ? this.sql.json(link.lastAffiliateStats) : null;
     await this.sql`
-      insert into whop_links (workspace_id, membership_id, plan_id, status, manage_url, affiliate_id)
+      insert into whop_links (workspace_id, membership_id, plan_id, status, manage_url, affiliate_id, last_affiliate_stats)
       values (
         ${link.workspaceId},
         ${link.membershipId},
         ${link.planId},
         ${link.status},
         ${link.manageUrl},
-        ${link.affiliateId}
+        ${link.affiliateId},
+        ${stats}
       )
       on conflict (workspace_id) do update set
         membership_id = excluded.membership_id,
         plan_id = excluded.plan_id,
         status = excluded.status,
         manage_url = excluded.manage_url,
-        affiliate_id = excluded.affiliate_id
+        affiliate_id = excluded.affiliate_id,
+        last_affiliate_stats = excluded.last_affiliate_stats
     `;
   }
 
@@ -388,6 +395,7 @@ type WhopRow = {
   status: WhopLink["status"];
   manageUrl: string | null;
   affiliateId: string | null;
+  lastAffiliateStats: AffiliateStats | null;
 };
 
 function mapPage(row: PageRow): Page {

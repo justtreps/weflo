@@ -4,7 +4,7 @@ import { initialDocument } from "../lib/catalog";
 import { spendCredits, totalCredits } from "../lib/credits";
 import { resolveShopifyToken } from "../lib/shopify";
 import type { Store } from "../repos/types";
-import type { Page, PageStatus, PageType, User } from "../types";
+import type { Page, PageStatus, PageType, User, WhopPort } from "../types";
 import type { AppDeps } from "./app";
 
 const PAGE_TYPES: PageType[] = ["sell", "write", "blank"];
@@ -14,10 +14,35 @@ export async function requireUser(deps: AppDeps, req: Request): Promise<User | n
   return deps.session(req);
 }
 
-export async function ensureWorkspace(store: Store, ownerUserId: string) {
+export async function ensureWorkspace(
+  store: Store,
+  ownerUserId: string,
+  opts?: { whop?: WhopPort; email?: string },
+) {
   const existing = await store.listWorkspaces(ownerUserId);
   if (existing.length > 0) return existing[0];
-  return store.createWorkspace({ name: "Espace", ownerUserId });
+  const ws = await store.createWorkspace({ name: "Espace", ownerUserId });
+  if (opts?.whop?.createAffiliate) {
+    try {
+      const { affiliateId } = await opts.whop.createAffiliate({
+        email: opts.email ?? "",
+        workspaceId: ws.id,
+      });
+      const prev = await store.getWhop(ws.id);
+      await store.saveWhop({
+        workspaceId: ws.id,
+        membershipId: prev?.membershipId ?? null,
+        planId: prev?.planId ?? null,
+        status: prev?.status ?? "none",
+        manageUrl: prev?.manageUrl ?? null,
+        affiliateId,
+        lastAffiliateStats: prev?.lastAffiliateStats,
+      });
+    } catch {
+      /* workspace stays usable without an affiliate id */
+    }
+  }
+  return ws;
 }
 
 function slugify(value: string): string {

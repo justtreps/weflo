@@ -7,6 +7,7 @@ import { authRoutes } from "./auth";
 import { billingRoutes } from "./billing";
 import { meRoutes } from "./me";
 import { pagesRoutes } from "./pages";
+import { referralApiRoutes, referralPublicRoutes } from "./referral";
 import { shopifyRoutes } from "./shopify";
 import { storefrontRoutes } from "./storefront";
 
@@ -70,6 +71,8 @@ export function createApp(deps: AppDeps) {
   app.route("/api", pagesRoutes(deps));
   app.route("/api", shopifyRoutes(deps));
   app.route("/api", billingRoutes(deps));
+  app.route("/api", referralApiRoutes(deps));
+  app.route("/", referralPublicRoutes(deps));
   app.route("/", storefrontRoutes(deps));
 
   return app;
