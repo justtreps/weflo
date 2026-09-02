@@ -6,6 +6,7 @@
     "test": "vitest run",
     "dev": "tsx watch src/dev-server.ts",
     "extract": "node scripts/extract-mockups.mjs",
+    "previews:sections": "tsx scripts/generate-section-previews.mjs",
     "build:hydrate": "esbuild src/hydrate/accueil.ts src/hydrate/connexion.ts src/hydrate/dashboard.ts src/hydrate/creations.ts src/hydrate/studio.ts src/hydrate/boutique.ts src/hydrate/editeur.ts src/hydrate/start.ts src/hydrate/creer.ts src/hydrate/facturation.ts src/hydrate/parrainage.ts src/hydrate/session-guard.ts src/hydrate/maquette-dashboard.ts --bundle --outdir=public/hydrate --format=esm",
     "build:vercel": "esbuild src/index.ts --bundle --platform=node --format=esm --external:hono --outfile=index.js",
     "build:api": "esbuild src/server/vercel-handler.ts --bundle --platform=node --format=esm --outfile=api/index.js && esbuild src/server/vercel-handler.ts --bundle --platform=node --format=esm --outfile=api/[...path].js",
@@ -14,6 +15,7 @@
   "devDependencies": {
     "@types/node": "^26.4.0",
     "esbuild": "^0.25.0",
+    "playwright": "^1.62.1",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"

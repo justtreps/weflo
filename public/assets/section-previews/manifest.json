@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-02T23:01:21.320Z",
+  "entries": [
+    {
+      "path": "/assets/section-previews/productHero/beauty-editorial-aurea-serum-desktop.webp",
+      "hash": "df043cf1b7c074ad",
+      "width": 1440,
+      "height": 984,
+      "bytes": 29944
+    },
+    {
+      "path": "/assets/section-previews/productHero/beauty-editorial-aurea-serum-mobile.webp",
+      "hash": "750cb38d2f10e68f",
+      "width": 390,
+      "height": 536,
+      "bytes": 15868
+    },
+    {
+      "path": "/assets/section-previews/productHero/object-editorial-halo-lamp-desktop.webp",
+      "hash": "6e02d2ed9b902777",
+      "width": 1440,
+      "height": 1075,
+      "bytes": 25370
+    },
+    {
+      "path": "/assets/section-previews/productHero/object-editorial-halo-lamp-mobile.webp",
+      "hash": "3b0292bc7238adcc",
+      "width": 390,
+      "height": 575,
+      "bytes": 16296
+    },
+    {
+      "path": "/assets/section-previews/productMain/conversion-split-halo-lamp-desktop.webp",
+      "hash": "0bb9f58a4bdb5841",
+      "width": 1440,
+      "height": 1129,
+      "bytes": 39344
+    },
+    {
+      "path": "/assets/section-previews/productMain/conversion-split-halo-lamp-mobile.webp",
+      "hash": "cd2d2c7d52942d66",
+      "width": 390,
+      "height": 1379,
+      "bytes": 29594
+    },
+    {
+      "path": "/assets/section-previews/productMain/bundle-led-aurea-serum-desktop.webp",
+      "hash": "0d5952de13517e9b",
+      "width": 1440,
+      "height": 1047,
+      "bytes": 44142
+    },
+    {
+      "path": "/assets/section-previews/productMain/bundle-led-aurea-serum-mobile.webp",
+      "hash": "43e6a54850ca3013",
+      "width": 390,
+      "height": 1343,
+      "bytes": 31912
+    },
+    {
+      "path": "/assets/section-previews/benefits/ritual-cards-aurea-serum-desktop.webp",
+      "hash": "73b96a1a24917263",
+      "width": 1440,
+      "height": 865,
+      "bytes": 31860
+    },
+    {
+      "path": "/assets/section-previews/benefits/ritual-cards-aurea-serum-mobile.webp",
+      "hash": "d6a8bafcd116ed4a",
+      "width": 390,
+      "height": 1025,
+      "bytes": 26288
+    },
+    {
+      "path": "/assets/section-previews/benefits/technical-grid-halo-lamp-desktop.webp",
+      "hash": "e54d858bea6de669",
+      "width": 1440,
+      "height": 792,
+      "bytes": 34272
+    },
+    {
+      "path": "/assets/section-previews/benefits/technical-grid-halo-lamp-mobile.webp",
+      "hash": "363e42957dcc83a0",
+      "width": 390,
+      "height": 886,
+      "bytes": 26578
+    },
+    {
+      "path": "/assets/section-previews/testimonials/editorial-stories-noma-bag-desktop.webp",
+      "hash": "3d30da42aaa17a14",
+      "width": 1440,
+      "height": 1230,
+      "bytes": 83920
+    },
+    {
+      "path": "/assets/section-previews/testimonials/editorial-stories-noma-bag-mobile.webp",
+      "hash": "6d90b4ad37e631d0",
+      "width": 390,
+      "height": 1935,
+      "bytes": 77842
+    },
+    {
+      "path": "/assets/section-previews/testimonials/ugc-grid-halo-lamp-desktop.webp",
+      "hash": "e0ae5c49d98c5163",
+      "width": 1440,
+      "height": 1079,
+      "bytes": 52690
+    },
+    {
+      "path": "/assets/section-previews/testimonials/ugc-grid-halo-lamp-mobile.webp",
+      "hash": "3b8418547af11119",
+      "width": 390,
+      "height": 1699,
+      "bytes": 43802
+    },
+    {
+      "path": "/assets/section-previews/bundle/routine-set-aurea-serum-desktop.webp",
+      "hash": "aacc60d45c00898f",
+      "width": 1440,
+      "height": 815,
+      "bytes": 23482
+    },
+    {
+      "path": "/assets/section-previews/bundle/routine-set-aurea-serum-mobile.webp",
+      "hash": "13d38697e99b8eed",
+      "width": 390,
+      "height": 622,
+      "bytes": 16552
+    },
+    {
+      "path": "/assets/section-previews/bundle/quantity-break-pulse-recovery-desktop.webp",
+      "hash": "d53e8c5da5de0077",
+      "width": 1440,
+      "height": 667,
+      "bytes": 23096
+    },
+    {
+      "path": "/assets/section-previews/bundle/quantity-break-pulse-recovery-mobile.webp",
+      "hash": "3b95bfc6f81445a2",
+      "width": 390,
+      "height": 620,
+      "bytes": 18902
+    },
+    {
+      "path": "/assets/section-previews/faq/editorial-accordion-brume-coffee-desktop.webp",
+      "hash": "9bfc820b338dbec6",
+      "width": 1440,
+      "height": 766,
+      "bytes": 29382
+    },
+    {
+      "path": "/assets/section-previews/faq/editorial-accordion-brume-coffee-mobile.webp",
+      "hash": "396a610b273a1dce",
+      "width": 390,
+      "height": 522,
+      "bytes": 20300
+    },
+    {
+      "path": "/assets/section-previews/faq/support-columns-halo-lamp-desktop.webp",
+      "hash": "9534ad58d1bdbb2d",
+      "width": 1440,
+      "height": 771,
+      "bytes": 28036
+    },
+    {
+      "path": "/assets/section-previews/faq/support-columns-halo-lamp-mobile.webp",
+      "hash": "ab52c9e5196009f8",
+      "width": 390,
+      "height": 841,
+      "bytes": 19794
+    }
+  ]
+}
