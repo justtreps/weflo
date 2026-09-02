@@ -48,7 +48,7 @@ export function editorShellMarkup(state: EditorState): string {
     <aside class="weflo-editor__sidebar" data-editor-sidebar><header><strong>${LABELS[state.activePanel]}</strong><button type="button" data-editor-collapse-left aria-label="Fermer le panneau">×</button></header><div data-editor-sidebar-content>${editorPanelMarkup(state)}</div></aside>
     <main class="weflo-editor__stage" data-editor-canvas><div class="weflo-editor__viewport" data-editor-viewport data-breakpoint="${state.breakpoint}"></div></main>
     <aside class="weflo-editor__inspector" data-editor-inspector><header><strong>Réglages</strong><button type="button" data-editor-collapse-right aria-label="Fermer les réglages">×</button></header><div data-editor-inspector-content>${inspectorMarkup(state)}</div></aside>
-    <section class="weflo-editor__canardo" data-editor-canardo><span aria-hidden="true">🐥</span><input aria-label="Demander à Canardo" placeholder="Décris la section ou la modification…"><button type="button" aria-label="Envoyer à Canardo">↑</button></section>
+    <section class="weflo-editor__canardo" data-editor-canardo><span aria-hidden="true">🐥</span><input aria-label="Demander à Canardo" placeholder="Décris la section ou la modification…"><button type="button" data-canardo-send aria-label="Envoyer à Canardo">↑</button></section>
   </div>`;
 }
 

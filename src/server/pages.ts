@@ -9,6 +9,12 @@ import type { Store } from "../repos/types";
 import { PageVersionConflictError } from "../repos/types";
 import type { Page, PageStatus, PageType, User, WhopPort } from "../types";
 import type { AppDeps } from "./app";
+import type { EditorDocument } from "../editor/document";
+import { buildCanardoContext } from "../canardo/context";
+import { planCanardoLocally } from "../canardo/local-planner";
+import { applyCanardoOperations } from "../canardo/apply";
+import { validateCanardoResponse } from "../canardo/validate";
+import type { CanardoResponse } from "../canardo/protocol";
 
 const PAGE_TYPES: PageType[] = ["sell", "write", "blank"];
 const PAGE_STATUSES: PageStatus[] = ["draft", "published_hosted", "published_shopify"];
@@ -245,7 +251,7 @@ export function pagesRoutes(deps: AppDeps) {
     if (!user) return c.json({ error: "unauthorized" }, 401);
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
-    const body: { prompt?: unknown } = await c.req.json<{ prompt?: unknown }>().catch(() => ({}));
+    const body: { prompt?: unknown; selectedId?: unknown; confirm?: unknown; response?: unknown } = await c.req.json().catch(() => ({}));
     const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     if (!prompt) {
       return c.json({ error: "prompt", message: "Décris la page ou la modification souhaitée." }, 400);
@@ -258,6 +264,33 @@ export function pagesRoutes(deps: AppDeps) {
     const ledger = await deps.store.getCredits(loaded.page.workspaceId);
     if (totalCredits(ledger) === 0) {
       return c.json({ error: "credits", message: "Tu n’as plus assez de crédits Canardo.", cta: "Add Credits" }, 402);
+    }
+    const possibleEditor = loaded.page.document as unknown as Partial<EditorDocument>;
+    if (possibleEditor.version === 2 && Array.isArray(possibleEditor.pages)) {
+      const editorDocument = possibleEditor as EditorDocument;
+      const selectedId = typeof body.selectedId === "string" ? body.selectedId : null;
+      let proposal: unknown = body.confirm === true && body.response ? body.response : null;
+      if (!proposal) {
+        try {
+          proposal = deps.llm?.completeEditor
+            ? await deps.llm.completeEditor({ prompt, context: buildCanardoContext(editorDocument, selectedId, { connected: false }) })
+            : planCanardoLocally(prompt, editorDocument, selectedId);
+        } catch {
+          return c.json({ error: "generation", message: "Canardo n’a pas pu terminer la génération. Ta page est conservée." }, 502);
+        }
+      }
+      const validation = validateCanardoResponse(proposal, editorDocument);
+      if (!validation.ok) return c.json({ error: "invalid_operations", message: "La proposition Canardo n’est pas sûre.", details: validation.errors }, 400);
+      const response = validation.value as CanardoResponse;
+      const consequential = response.commands.length > 5 || response.commands.some((command) => command.type === "removeSection" || (command.type === "insertSection" && command.section.type === "customCode") || (command.type === "updateSetting" && /product|collection|shopify/i.test(command.key)));
+      const applied = applyCanardoOperations(editorDocument, response);
+      if (consequential && body.confirm !== true) return c.json({ message: response.message, summary: response.summary, commands: response.commands, document: applied.document, requiresConfirmation: true });
+      const cost = /\b(image|photo|visuel)\b/i.test(prompt) ? 3 : 1;
+      let nextLedger;
+      try { nextLedger = spendCredits(ledger, cost); } catch { return c.json({ error: "credits", cta: "Add Credits" }, 402); }
+      const page = await deps.store.updatePage(loaded.page.id, { document: applied.document as never });
+      await deps.store.saveCredits(nextLedger);
+      return c.json({ message: response.message, summary: response.summary, commands: response.commands, document: page.document, credits: nextLedger, requiresConfirmation: false });
     }
     if (!deps.llm) {
       return c.json({ error: "unavailable", message: "Canardo n’est pas configuré sur cet environnement." }, 503);

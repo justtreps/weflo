@@ -87,6 +87,7 @@ export type AuthPort = {
 
 export type LlmPort = {
   complete(input: { prompt: string; document: PageDocument }): Promise<{ message: string; document: PageDocument }>;
+  completeEditor?(input: { prompt: string; context: unknown }): Promise<unknown>;
 };
 
 export type ShopifyPort = {

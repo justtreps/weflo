@@ -3,6 +3,7 @@ import { createEditorAutosave, AutosaveConflictError } from "../editor/ui/autosa
 import { mountEditorShell } from "../editor/ui/shell";
 import { createEditorStore, type EditorState } from "../editor/ui/store";
 import { renderPublishPaywall } from "./publish-access";
+import { mountCanardo } from "../editor/ui/canardo";
 
 export type VisualEditorPage = {
   id: string;
@@ -66,6 +67,7 @@ export async function hydrateVisualEditor(pageId: string): Promise<void> {
   root.id = "weflo-editor-root";
   document.body.appendChild(root);
   mountEditorShell(root, store);
+  mountCanardo(root, store, page.id);
 
   const autosave = createEditorAutosave({
     store,
