@@ -1,4 +1,5 @@
 import type { EditorBreakpoint, EditorDocument } from "../document";
+import { applyCommand, type EditorCommand } from "../commands";
 
 export type EditorPanel = "structure" | "add" | "layers" | "pages" | "media" | "commerce";
 export type EditorSaveStatus = "modified" | "saving" | "saved" | "error" | "conflict";
@@ -18,6 +19,7 @@ export type EditorState = {
 export type EditorStore = {
   getState(): EditorState;
   setState(patch: Partial<EditorState> | ((state: EditorState) => Partial<EditorState>)): EditorState;
+  dispatch(command: EditorCommand): EditorState;
   subscribe(listener: (state: EditorState) => void): () => void;
 };
 
@@ -32,10 +34,14 @@ export function createEditorStore(initial: EditorState): EditorStore {
       listeners.forEach((listener) => listener(state));
       return state;
     },
+    dispatch(command) {
+      state = { ...state, document: applyCommand(state.document, command), saveStatus: "modified" };
+      listeners.forEach((listener) => listener(state));
+      return state;
+    },
     subscribe(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
   };
 }
-
