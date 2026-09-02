@@ -1,0 +1,6 @@
+<section class="weflo-custom-code" data-wf-custom-id="{{ section.id }}">
+  {{ section.settings.html }}
+  <style>{{ section.settings.css }}</style>
+  <script>{{ section.settings.js }}</script>
+</section>
+{% schema %}{"name":"Weflo code personnalisé","settings":[{"type":"html","id":"html","label":"HTML"},{"type":"textarea","id":"css","label":"CSS"},{"type":"textarea","id":"js","label":"JavaScript local"}],"presets":[{"name":"Weflo code personnalisé"}]}{% endschema %}

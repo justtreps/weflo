@@ -1,4 +1,11 @@
 import "./brand-media";
 import "./commerce";
 import "./conversion";
+import { registerSection } from "./registry";
+import { spacerSection } from "./spacer";
+import { dividerSection } from "./divider";
+import { customCodeSection } from "./custom-code";
+registerSection(spacerSection);
+registerSection(dividerSection);
+registerSection(customCodeSection);
 export { getSectionDefinition, listSectionDefinitions } from "./registry";
