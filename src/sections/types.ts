@@ -23,6 +23,7 @@ export type SectionDefinition = {
   defaults: Record<string, SettingValue>;
   settings: InspectorControl[];
   blocks: BlockDefinition[];
+  previewVariants?: string[];
   renderWeb(context: SectionRenderContext): string;
   renderLiquid(section?: EditorSection): string;
 };

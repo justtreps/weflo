@@ -1,4 +1,5 @@
 import type { SectionDefinition } from "./types";
+import { previewManifest } from "../section-preview/manifests";
 
 const definitions = new Map<string, SectionDefinition>();
 
@@ -8,6 +9,7 @@ function assertComplete(definition: SectionDefinition): void {
   if (!definition.category) throw new Error(`Section ${definition.type} category is required`);
   if (!definition.defaults || !Array.isArray(definition.settings) || !Array.isArray(definition.blocks)) throw new Error(`Section ${definition.type} schema is incomplete`);
   if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
+  for (const variant of definition.previewVariants ?? []) previewManifest(definition.type, variant);
 }
 
 export function registerSection(definition: SectionDefinition): SectionDefinition {
