@@ -32,4 +32,13 @@ describe("store recipes", () => {
     expect(types.some((type) => ["reviews", "testimonials"].includes(type))).toBe(true);
     expect(types).not.toContain("countdown");
   });
+
+  it("keeps a complete premium conversion sequence for technical and luxury products", () => {
+    for (const product of [source("Montre connectée GPS", "Performance sportive et données techniques"), source("Sac à main en cuir", "Accessoire de mode premium fabriqué en cuir")]) {
+      const types = recipe(product).sections.map((item) => item.type);
+      expect(types).toEqual(expect.arrayContaining(["productHero", "gallery", "productMain", "benefits", "bundle", "guarantees", "faq", "cta"]));
+      expect(types.indexOf("productMain")).toBeLessThan(6);
+      expect(types.length).toBeGreaterThanOrEqual(12);
+    }
+  });
 });

@@ -28,4 +28,10 @@ describe("onboarding store compiler", () => {
     const document = buildStoreDocument({ product: { ...product, reviews: [], rating: null, reviewCount: null }, language: "en", brandName: "LumiWall", modelId: "proteo", personas: strategy.personas, angles: strategy.angles, brandKit });
     expect(JSON.stringify(document)).not.toMatch(/verified buyer|avis vérifié/i);
   });
+
+  it("does not repeat the supplier description across the whole storefront", () => {
+    const document = buildStoreDocument({ product, language: "fr", brandName: "LumiWall", modelId: "proteo", personas: strategy.personas, angles: strategy.angles, brandKit });
+    const repeats = document.pages[0].sections.filter((section) => section.settings.text === product.description);
+    expect(repeats.length).toBeLessThanOrEqual(2);
+  });
 });

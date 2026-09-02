@@ -29,4 +29,13 @@ describe("Shopify theme output validation", () => {
     const result = validateThemeOutput([file("templates/page.weflo-shop.json", JSON.stringify({ sections: { hero: { type: "weflo-missing" } }, order: ["hero"] }))]);
     expect(result.errors.join(" ")).toMatch(/introuvable/i);
   });
+
+  it("rejects empty templates and order entries that do not exist", () => {
+    const result = validateThemeOutput([
+      file("sections/weflo-hero.liquid", liquid),
+      file("templates/page.weflo-shop.json", JSON.stringify({ sections: { hero: { type: "weflo-hero" } }, order: ["missing"] })),
+    ]);
+    expect(result.errors.join(" ")).toMatch(/ordre|missing/i);
+    expect(validateThemeOutput([file("templates/page.weflo-empty.json", JSON.stringify({ sections: {}, order: [] }))]).ok).toBe(false);
+  });
 });

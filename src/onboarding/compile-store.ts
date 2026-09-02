@@ -95,13 +95,13 @@ export function buildStoreDocument(input: BuildStoreInput): EditorDocument {
     ]],
     ["productHero", { title: product.title, subtitle: product.vendor || strings.heroEyebrow, text: product.description, price, compare_at_price: compareAt, image: heroImage, image_alt: product.title, cta_label: strings.buy, cta_link: "#product" }],
     ["gallery", { title: strings.gallery, text: "" }, product.images.map((url, index) => item(`gallery-image-${index + 1}`, `${product.title} — ${index + 1}`, "", { image: url, image_alt: `${product.title} ${index + 1}` }))],
-    ["productMain", { title: strings.product, text: product.description, price, compare_at_price: compareAt, image: heroImage, cta_label: strings.buy, product_handle: slugify(product.title) }, product.variants.map((variant, index) => ({ id: `variant-${index + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } }))],
+    ["productMain", { title: strings.product, text: selectedAngles[0]?.description ?? strings.heroEyebrow, price, compare_at_price: compareAt, image: heroImage, cta_label: strings.buy, product_handle: slugify(product.title) }, product.variants.map((variant, index) => ({ id: `variant-${index + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } }))],
     ["bundle", { title: strings.bundle, text: product.title, price, cta_label: strings.buy, cta_link: "#product" }, [
       item("bundle-single", strings.single, "", { price }),
       item("bundle-duo", strings.duo, "", { price: product.price === null ? "" : money(product.price * 1.8, product.currency) }),
       item("bundle-family", strings.family, "", { price: product.price === null ? "" : money(product.price * 2.55, product.currency) }),
     ]],
-    ["benefits", { title: strings.benefits, text: product.description }, selectedAngles.slice(0, 4).map((angle, index) => item(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
+    ["benefits", { title: strings.benefits, text: selectedAngles.map((angle) => angle.title).slice(0, 3).join(" · ") || strings.detail }, selectedAngles.slice(0, 4).map((angle, index) => item(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
     ["imageText", { title: strings.detail, subtitle: selectedPersonas[0]?.title ?? "", text: selectedPersonas[0]?.insight ?? product.description, image: product.images[1] ?? heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
   ];
 
@@ -115,7 +115,7 @@ export function buildStoreDocument(input: BuildStoreInput): EditorDocument {
     ["shipping", { title: strings.shipping, text: "" }, strings.shippingItems.map(([title, text], index) => item(`shipping-${index + 1}`, title, text))],
     ["guarantees", { title: strings.guarantee, text: "" }, selectedAngles.slice(0, 3).map((angle, index) => item(`guarantee-${index + 1}`, angle.title, angle.description))],
     ["faq", { title: strings.faq, text: "" }, strings.faqItems.map(([title, text], index) => item(`faq-${index + 1}`, title, text))],
-    ["cta", { title: strings.cta, text: product.description, cta_label: strings.buy, cta_link: "#product" }],
+    ["cta", { title: strings.cta, text: selectedPersonas[0]?.insight ?? strings.footer, cta_label: strings.buy, cta_link: "#product" }],
     ["footer", { title: input.brandName, text: strings.footer, cta_label: "" }, [item("footer-shop", strings.shop, "", { label: strings.shop, link: "#product" })]],
   );
 

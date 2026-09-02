@@ -57,6 +57,10 @@ export function validateThemeOutput(files: CompiledThemeFile[]): ThemeValidation
       try {
         const value = JSON.parse(file.value) as ShopifyTemplate;
         templates.push({ key: file.key, value });
+        const sectionIds = Object.keys(value.sections ?? {});
+        if (sectionIds.length === 0) errors.push(`Le modèle ${file.key} ne contient aucune section.`);
+        if (!Array.isArray(value.order) || value.order.length === 0) errors.push(`L’ordre du modèle ${file.key} est vide.`);
+        else for (const entry of value.order) if (typeof entry !== "string" || !sectionIds.includes(entry)) errors.push(`L’entrée ${String(entry)} de l’ordre du modèle ${file.key} est introuvable.`);
       } catch {
         errors.push(`Le JSON du modèle ${file.key} est invalide.`);
       }
