@@ -13,6 +13,7 @@ import type { AppDeps } from "./app";
 import { createOpenAiOnboarding } from "../onboarding/openai-analysis";
 import { createNativeProductFetchPort } from "../import/product-extractor";
 import { createOpenAiImageEdit } from "../media/image-edit";
+import { createFalImageStudio } from "../studio/fal";
 
 function parseDotEnvFile(filename: string): Record<string, string> {
   try {
@@ -134,9 +135,11 @@ export function prodDeps(): AppDeps {
   const productFetch = createNativeProductFetchPort();
   const onboardingAi = openaiApiKey() ? createOpenAiOnboarding(openaiApiKey() as string) : undefined;
   const imageEdit = openaiApiKey() ? createOpenAiImageEdit(openaiApiKey() as string) : undefined;
+  const falKey = process.env.FAL_KEY?.trim();
+  const imageStudio = falKey ? createFalImageStudio(falKey) : undefined;
 
   if (!url || !anonKey) {
-    return { store, session: async () => null, llm, onboardingAi, imageEdit, productFetch, publicAppUrl, whop, ...shopify };
+    return { store, session: async () => null, llm, onboardingAi, imageEdit, imageStudio, productFetch, publicAppUrl, whop, ...shopify };
   }
 
   const supabase = createClient(url, anonKey);
@@ -155,6 +158,7 @@ export function prodDeps(): AppDeps {
     llm,
     onboardingAi,
     imageEdit,
+    imageStudio,
     productFetch,
     publicAppUrl,
     whop,

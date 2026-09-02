@@ -16,6 +16,8 @@ import type { OnboardingAiPort } from "../onboarding/analyser";
 import { onboardingRoutes } from "./onboarding";
 import type { ImageEditPort } from "../media/image-edit";
 import { imageRoutes } from "./images";
+import type { ImageStudioPort } from "../studio/types";
+import { studioRoutes } from "./studio";
 
 export type { ShopifyPort, WhopPort };
 
@@ -35,6 +37,7 @@ export type AppDeps = {
   onboardingImportTimeoutMs?: number;
   onboardingAiTimeoutMs?: number;
   imageEdit?: ImageEditPort;
+  imageStudio?: ImageStudioPort;
 };
 
 function assetType(name: string): string {
@@ -117,6 +120,7 @@ export function createApp(deps: AppDeps) {
   app.route("/api", authRoutes(deps));
   app.route("/api", onboardingRoutes(deps));
   app.route("/api", imageRoutes(deps));
+  app.route("/api", studioRoutes(deps));
   app.route("/api", meRoutes(deps));
   app.route("/api", settingsRoutes(deps));
   app.route("/api", pagesRoutes(deps));

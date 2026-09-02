@@ -9,6 +9,7 @@ import type {
   Workspace,
 } from "../types";
 import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
+import type { ImageGeneration } from "../studio/types";
 import { PageVersionConflictError, type Store } from "./types";
 
 function randomId(prefix: string): string {
@@ -35,6 +36,7 @@ export class MemoryStore implements Store {
   private attributions = new Map<string, ReferralAttribution>();
   private users = new Map<string, User>();
   private onboardingDrafts = new Map<string, OnboardingDraft>();
+  private imageGenerations = new Map<string, ImageGeneration>();
 
   async createWorkspace(input: { name: string; ownerUserId: string }): Promise<Workspace> {
     const ws: Workspace = {
@@ -234,5 +236,13 @@ export class MemoryStore implements Store {
     if (draft.claimTokenHash !== claimTokenHash) throw new Error("invalid claim token");
     if (draft.claimedPageId) return structuredClone(draft);
     return this.updateOnboardingDraft(id, { status: "claimed", claimedUserId: userId, claimedPageId: pageId });
+  }
+
+  async listImageGenerations(workspaceId: string): Promise<ImageGeneration[]> {
+    return [...this.imageGenerations.values()].filter((row) => row.workspaceId === workspaceId).sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map((row) => structuredClone(row));
+  }
+
+  async saveImageGeneration(generation: ImageGeneration): Promise<void> {
+    this.imageGenerations.set(generation.id, structuredClone(generation));
   }
 }

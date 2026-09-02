@@ -1,5 +1,6 @@
 import type { CreditLedger, Membership, Page, ReferralAttribution, ShopifyConnection, User, WhopLink, Workspace } from "../types";
 import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
+import type { ImageGeneration } from "../studio/types";
 
 export class PageVersionConflictError extends Error {
   constructor() {
@@ -41,4 +42,6 @@ export interface Store {
   getOnboardingDraft(id: string): Promise<OnboardingDraft | null>;
   updateOnboardingDraft(id: string, patch: OnboardingDraftPatch): Promise<OnboardingDraft>;
   claimOnboardingDraft(id: string, claimTokenHash: string, userId: string, pageId: string): Promise<OnboardingDraft>;
+  listImageGenerations(workspaceId: string): Promise<ImageGeneration[]>;
+  saveImageGeneration(generation: ImageGeneration): Promise<void>;
 }

@@ -17,6 +17,7 @@ import type {
 } from "../types";
 import { PageVersionConflictError, type Store } from "./types";
 import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
+import type { ImageGeneration } from "../studio/types";
 
 function randomId(prefix: string): string {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`;
@@ -45,6 +46,7 @@ const ONBOARDING_WORKSPACE_SLUG = "weflo-system-onboarding";
 
 export class PostgresStore implements Store {
   private sql: postgres.Sql;
+  private imageGenerationsReady: Promise<void> | null = null;
 
   constructor(url: string) {
     this.sql = postgres(url, { prepare: false });
@@ -423,6 +425,27 @@ export class PostgresStore implements Store {
     return null;
   }
 
+  private ensureImageGenerations(): Promise<void> {
+    if (!this.imageGenerationsReady) this.imageGenerationsReady = (async () => {
+      await this.sql`
+        create table if not exists image_generations (
+          id text primary key,
+          workspace_id text not null,
+          user_id text not null,
+          model text not null,
+          prompt text not null,
+          aspect_ratio text not null,
+          reference_url text,
+          images jsonb not null,
+          status text not null,
+          created_at timestamptz not null
+        )
+      `;
+      await this.sql`create index if not exists image_generations_workspace_created_idx on image_generations (workspace_id, created_at desc)`;
+    })();
+    return this.imageGenerationsReady;
+  }
+
   private async ensureOnboardingWorkspace(): Promise<void> {
     await this.sql`
       insert into workspaces (id, name, slug, owner_user_id, created_at)
@@ -472,6 +495,27 @@ export class PostgresStore implements Store {
     if (draft.claimedPageId) return draft;
     return this.updateOnboardingDraft(id, { status: "claimed", claimedUserId: userId, claimedPageId: pageId });
   }
+
+  async listImageGenerations(workspaceId: string): Promise<ImageGeneration[]> {
+    await this.ensureImageGenerations();
+    const rows = await this.sql<ImageGenerationRow[]>`
+      select id, workspace_id as "workspaceId", user_id as "userId", model, prompt,
+             aspect_ratio as "aspectRatio", reference_url as "referenceUrl", images, status,
+             created_at as "createdAt"
+      from image_generations where workspace_id = ${workspaceId}
+      order by created_at desc limit 100
+    `;
+    return rows.map((row) => ({ ...row, createdAt: iso(row.createdAt) }));
+  }
+
+  async saveImageGeneration(generation: ImageGeneration): Promise<void> {
+    await this.ensureImageGenerations();
+    await this.sql`
+      insert into image_generations (id, workspace_id, user_id, model, prompt, aspect_ratio, reference_url, images, status, created_at)
+      values (${generation.id}, ${generation.workspaceId}, ${generation.userId}, ${generation.model}, ${generation.prompt}, ${generation.aspectRatio}, ${generation.referenceUrl}, ${this.sql.json(generation.images as never)}, ${generation.status}, ${generation.createdAt})
+      on conflict (id) do nothing
+    `;
+  }
 }
 
 type PageRow = {
@@ -501,6 +545,8 @@ type WhopRow = {
   affiliateId: string | null;
   lastAffiliateStats: AffiliateStats | null;
 };
+
+type ImageGenerationRow = Omit<ImageGeneration, "createdAt"> & { createdAt: Date | string };
 
 function mapPage(row: PageRow): Page {
   const stored = row.document as PageDocument & { __wefloDocumentVersion?: unknown };
