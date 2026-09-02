@@ -34,4 +34,13 @@ describe("Shopify document compiler", () => {
     expect(keys).not.toContain("templates/index.json");
     expect(keys).not.toContain("templates/product.json");
   });
+
+  it("ships responsive premium commerce styles with the generated theme", () => {
+    const files = compileShopifyPage(buildModelDocument("proteo", "Shop"), { resource: "product" });
+    const css = files.find((file) => file.key.startsWith("assets/weflo-"))!.value;
+    expect(css).toContain(".wf-product__gallery");
+    expect(css).toContain(".wf-product__sticky");
+    expect(css).toContain("@media(max-width:749px)");
+    expect(css).toContain("prefers-reduced-motion");
+  });
 });

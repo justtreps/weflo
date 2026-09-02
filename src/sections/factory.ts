@@ -25,6 +25,7 @@ function web(layout: SectionLayout, section: EditorSection, pageName: string): s
   const title = value(section, "title", pageName);
   const subtitle = value(section, "subtitle");
   const copy = value(section, "text");
+  const variant = value(section, "variant", "default");
   const heading = edit(layout === "hero" || layout === "productHero" || layout === "videoHero" ? "h1" : "h2", "title", title);
   const intro = `${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}`;
   if (layout === "navigation") return `<nav class="wf-section wf-navigation" aria-label="Navigation principale"><a class="wf-navigation__brand" href="/">${escapeHtml(title)}</a><div>${section.blocks.map((block) => `<a href="${safeLink(block.settings.link)}">${escapeHtml(blockValue(block, "label", "Lien"))}</a>`).join("")}</div>${button(section)}</nav>`;
@@ -48,7 +49,9 @@ function web(layout: SectionLayout, section: EditorSection, pageName: string): s
   if (layout === "footer") return `<footer class="wf-section wf-footer"><div>${heading}${copy ? `<p>${escapeHtml(copy)}</p>` : ""}</div><nav aria-label="Pied de page">${renderBlocks(section.blocks, "div")}</nav></footer>`;
   if (layout === "spacer") return `<div class="wf-spacer" aria-hidden="true" style="height:${Number(section.settings.height) || 48}px"></div>`;
   if (layout === "divider") return `<hr class="wf-divider">`;
-  return `<div class="wf-section wf-cards">${intro}<div class="wf-section__grid">${renderBlocks(section.blocks)}</div>${button(section)}</div>`;
+  if (variant === "home-stories" || variant === "beauty-journal" || variant === "press-quotes") return `<section class="wf-section wf-cards wf-proof__stories" data-wf-variant="${escapeHtml(variant)}"><header>${intro}</header><div class="wf-proof__editorial-flow">${renderBlocks(section.blocks)}</div>${button(section)}</section>`;
+  if (variant === "results-wall" || variant === "measured-proof" || variant === "field-tests") return `<section class="wf-section wf-cards wf-proof__results" data-wf-variant="${escapeHtml(variant)}"><div class="wf-proof__score">${escapeHtml(value(section,"subtitle","5/5"))}</div><header>${heading}${copy ? edit("p","text",copy,"wf-section__copy") : ""}</header><div class="wf-section__grid">${renderBlocks(section.blocks)}</div>${button(section)}</section>`;
+  return `<div class="wf-section wf-cards" data-wf-variant="${escapeHtml(variant)}">${intro}<div class="wf-section__grid">${renderBlocks(section.blocks)}</div>${button(section)}</div>`;
 }
 
 export function createSectionDefinition(type: string, name: string, category: SectionCategory, layout: SectionLayout, extraDefaults: Record<string, SettingValue> = {}, extraSettings: InspectorControl[] = [], blocks: BlockDefinition[] = [itemBlock]): SectionDefinition {
@@ -58,6 +61,6 @@ export function createSectionDefinition(type: string, name: string, category: Se
     settings: [...common, ...cta, ...(layout === "hero" || layout === "productHero" || layout === "imageText" || layout === "videoHero" ? media : []), ...extraSettings],
     blocks,
     renderWeb: ({ section, pageName }) => web(layout, section, pageName),
-    renderLiquid: () => `<section class="wf-section wf-${escapeHtml(type)}"><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div>{% for block in section.blocks %}<article {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p></article>{% endfor %}</section>`,
+    renderLiquid: (section?: EditorSection) => { const variant = section ? value(section,"variant","default") : "default"; return `<section class="wf-section wf-${escapeHtml(type)} wf-${escapeHtml(type)}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div>{% for block in section.blocks %}<article {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p></article>{% endfor %}</section>`; },
   };
 }

@@ -37,6 +37,7 @@ export function renderKnownSection(section: EditorSection, pageName: string): st
   const price = text(section, "price");
   const cta = text(section, "cta", "cta_label", "button") || "Découvrir";
   const image = safeMedia(section.settings.image);
+  const variant = text(section, "variant") || "default";
   const media = image
     ? `<figure class="wf-v2-media"><img src="${image}" alt="${title}"></figure>`
     : `<div class="wf-v2-media wf-v2-media--empty" aria-label="Image à ajouter"></div>`;
@@ -48,7 +49,9 @@ export function renderKnownSection(section: EditorSection, pageName: string): st
     case "footer":
       return `<footer class="wf-v2-wrap wf-v2-footer"><strong>${title}</strong><span>Conçu avec Weflo</span>${blockMarkup}</footer>`;
     case "productHero":
-      return `<div class="wf-v2-wrap wf-v2-split">${media}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta}</a>${blockMarkup}</div></div>`;
+      return `<div class="wf-v2-wrap wf-v2-split wf-v2-hero--${variant}">${variant === "problem-solution" ? '<span class="wf-v2-problem-label">Le problème, résolu.</span>' : ""}${media}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta}</a>${blockMarkup}</div></div>`;
+    case "productMain":
+      return `<div class="wf-v2-wrap wf-v2-product wf-v2-product--${variant}"><div class="wf-v2-product__gallery">${media}<div class="wf-v2-product__thumbs"><button>Image 1</button><button>Image 2</button></div></div><div class="wf-v2-product__buy-box">${editable("h1", "title", title)}${editable("p", "text", body)}<div class="wf-v2-product__prices">${editable("strong", "price", price, "wf-v2-price")}<s data-wf-edit-key="compare_at_price">${text(section,"compare_at_price")}</s></div>${blockMarkup}<label>Quantité<input type="number" value="1" min="1"></label><div class="wf-v2-product__bundle">Solo · Duo · Pack</div><button class="wf-v2-button">${cta}</button><p>Paiement sécurisé · Commande suivie</p></div><div class="wf-v2-product__sticky"><span>${title}</span><strong>${price}</strong><button>${cta}</button></div></div>`;
     case "hero":
       return `<div class="wf-v2-wrap wf-v2-split"><div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}<a class="wf-v2-button" href="#start">${cta}</a>${blockMarkup}</div>${media}</div>`;
     case "bundle":
