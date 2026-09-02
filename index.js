@@ -29458,7 +29458,12 @@ function studioRoutes(deps) {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);
     const workspace = await ensureWorkspace(deps.store, user.id);
-    return c.json({ generations: await deps.store.listImageGenerations(workspace.id) });
+    try {
+      return c.json({ generations: await deps.store.listImageGenerations(workspace.id) });
+    } catch (error) {
+      console.error("studio history unavailable", error instanceof Error ? error.message : error);
+      return c.json({ generations: [] });
+    }
   });
   app2.post("/studio/generate", async (c) => {
     const user = await requireUser(deps, c.req.raw);
@@ -29473,7 +29478,11 @@ function studioRoutes(deps) {
     try {
       const result = await deps.imageStudio.generate({ model: body.model, prompt, aspectRatio: body.aspectRatio, numImages, referenceUrl });
       const row = { id: id(), workspaceId: workspace.id, userId: user.id, model: body.model, prompt, aspectRatio: body.aspectRatio, referenceUrl, images: result.images, status: "completed", createdAt: (/* @__PURE__ */ new Date()).toISOString() };
-      await deps.store.saveImageGeneration(row);
+      try {
+        await deps.store.saveImageGeneration(row);
+      } catch (error) {
+        console.error("studio history save unavailable", error instanceof Error ? error.message : error);
+      }
       return c.json(row, 201);
     } catch (error) {
       console.error("studio generation failed", error instanceof Error ? error.message : error);

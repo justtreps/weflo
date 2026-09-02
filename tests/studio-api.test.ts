@@ -32,4 +32,24 @@ describe("studio image API", () => {
     const payload = await history.json() as { generations: unknown[] };
     expect(payload.generations).toHaveLength(1);
   });
+
+  it("returns the Fal result even when generation history storage is unavailable", async () => {
+    const { app, store } = await setup({ generate: async () => ({ images: [{ url: "https://fal.media/recovered.webp" }] }) });
+    store.saveImageGeneration = async () => { throw new Error("permission denied for schema public"); };
+
+    const response = await app.request("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: "Une bouteille premium", model: "nano-banana-2", aspectRatio: "1:1", numImages: 1 }) });
+
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({ status: "completed", images: [{ url: "https://fal.media/recovered.webp" }] });
+  });
+
+  it("returns an empty history when its optional storage is unavailable", async () => {
+    const { app, store } = await setup();
+    store.listImageGenerations = async () => { throw new Error("permission denied for schema public"); };
+
+    const response = await app.request("/api/studio/generations");
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ generations: [] });
+  });
 });

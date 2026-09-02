@@ -26,7 +26,8 @@ function renderStudioView(input) {
   const latest = input.generations[0];
   const images = input.generations.flatMap((generation) => generation.images.map((image, index) => resultCard(generation, image.url, index))).join("");
   const history = input.generations.map((generation) => `<button data-history-id="${esc(generation.id)}"><span>${generation.images[0] ? `<img src="${esc(generation.images[0].url)}" alt="">` : "\u2726"}</span><span><strong>${esc(generation.prompt)}</strong><small>${esc(imageModels().find((item) => item.id === generation.model)?.label ?? generation.model)} \xB7 ${esc(generation.aspectRatio)}</small></span></button>`).join("");
-  const pending = input.pending ? Array.from({ length: input.pending.numImages }, (_, index) => `<article class="pending-image-frame" data-generation-pending style="aspect-ratio:${esc(input.pending.aspectRatio.replace(":", "/"))}"><div class="pending-image-glow"></div><div class="pending-image-spinner" aria-hidden="true"></div><div class="pending-image-copy"><span>G\xE9n\xE9ration en cours</span><strong>${esc(input.pending.prompt)}</strong><small>${esc(imageModels().find((item) => item.id === input.pending?.model)?.label ?? input.pending.model)} \xB7 image ${index + 1}/${input.pending.numImages}</small></div></article>`).join("") : "";
+  const active = input.pending;
+  const pending = active ? Array.from({ length: active.numImages }, (_, index) => `<article class="pending-image-frame" data-generation-pending style="aspect-ratio:${esc(active.aspectRatio.replace(":", "/"))}"><div class="pending-image-glow"></div><div class="pending-image-spinner" aria-hidden="true"></div><div class="pending-image-copy"><span>G\xE9n\xE9ration en cours</span><strong>${esc(active.prompt)}</strong><small>${esc(imageModels().find((item) => item.id === active.model)?.label ?? active.model)} \xB7 image ${index + 1}/${active.numImages}</small></div></article>`).join("") : "";
   const pendingHistory = input.pending ? `<button class="is-generating"><span class="mini-spinner"></span><span><strong>${esc(input.pending.prompt)}</strong><small>G\xE9n\xE9ration en cours\u2026</small></span></button>` : "";
   return `<div class="studio-shell"><aside class="studio-history"><a class="studio-brand" href="/dashboard">weflo<span>.</span></a><a class="back-link" href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><button class="new-session" data-new-session>\uFF0B Nouvelle cr\xE9ation</button><p class="side-title">HISTORIQUE</p><div data-studio-history>${pendingHistory}${history || (!input.pending ? `<p class="empty-history">Tes g\xE9n\xE9rations appara\xEEtront ici.</p>` : "")}</div><nav><a href="/creations">\u25A3 Mes cr\xE9ations</a><a href="/boutique">${shopifyLogo()} Ma boutique</a></nav></aside>
     <main class="studio-canvas"><header><div><p class="eyebrow">STUDIO IMAGES</p><h1>Imagine. G\xE9n\xE8re. Vends.</h1></div><span>${esc(input.workspaceName)}</span></header><section class="result-grid" data-result-grid>${pending}${images || (!input.pending ? `<div class="studio-empty"><span>\u2726</span><h2>Ton prochain visuel commence par une id\xE9e.</h2><p>D\xE9cris une sc\xE8ne, ajoute ton produit en r\xE9f\xE9rence et choisis le mod\xE8le adapt\xE9.</p><div><button data-prompt-example="Photo e-commerce premium du produit, lumi\xE8re naturelle et fond \xE9ditorial">Photo produit premium</button><button data-prompt-example="Publicit\xE9 Meta avec une accroche courte et lisible, produit parfaitement fid\xE8le">Static Meta avec texte</button><button data-prompt-example="Le produit dans une vraie sc\xE8ne de vie, composition cr\xE9dible et \xE9l\xE9gante">Lifestyle r\xE9aliste</button></div></div>` : "")}</section>
@@ -43,6 +44,25 @@ async function guardSession() {
   }
   if (!res.ok) return null;
   return await res.json();
+}
+
+// src/studio/browser-history.ts
+function isGeneration(value) {
+  if (!value || typeof value !== "object") return false;
+  const row = value;
+  return typeof row.id === "string" && typeof row.prompt === "string" && typeof row.createdAt === "string" && Array.isArray(row.images) && row.images.every((image) => image && typeof image.url === "string");
+}
+function readCachedGenerations(value) {
+  try {
+    const parsed = value ? JSON.parse(value) : [];
+    return Array.isArray(parsed) ? parsed.filter(isGeneration) : [];
+  } catch {
+    return [];
+  }
+}
+function mergeGenerations(primary, secondary) {
+  const seen = /* @__PURE__ */ new Set();
+  return [...primary, ...secondary].filter((generation) => !seen.has(generation.id) && Boolean(seen.add(generation.id))).slice(0, 100);
 }
 
 // src/hydrate/studio.ts
@@ -63,7 +83,10 @@ async function start() {
   if (!me) return;
   const root = document.querySelector("#studio-app");
   if (!root) return;
+  const cacheKey = `weflo-studio-history:${me.workspace.id}`;
+  const cached = readCachedGenerations(localStorage.getItem(cacheKey));
   let history = await api("/api/studio/generations").catch(() => ({ generations: [] }));
+  history.generations = mergeGenerations(cached, history.generations);
   let model = "nano-banana-2";
   let ratio = "1:1";
   let count = 1;
@@ -144,7 +167,8 @@ async function start() {
       root.querySelector("[data-generation-pending]")?.scrollIntoView({ behavior: "smooth", block: "center" });
       try {
         const generated = await api("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt, ...request }) });
-        history = { generations: [generated, ...history.generations] };
+        history = { generations: mergeGenerations([generated], history.generations) };
+        localStorage.setItem(cacheKey, JSON.stringify(history.generations));
         pending = null;
         render();
         root.querySelector(`[data-generation-id="${generated.id}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
