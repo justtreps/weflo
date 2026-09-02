@@ -38,4 +38,19 @@ describe("dashboard home view", () => {
     expect(html).not.toContain("Aperçu indisponible");
     expect(html).toContain("page-preview-fallback");
   });
+
+  it("exposes the complete workspace navigation and the real Shopify brand mark", () => {
+    const html = renderDashboardHome({
+      greeting: "Bonjour",
+      workspace: { id: "ws_1", name: "Studio", slug: "studio" },
+      totalProjects: 0,
+      projects: [],
+    });
+
+    expect(html).toContain('href="/creations"');
+    expect(html).toContain('href="/studio"');
+    expect(html).toContain('href="/boutique"');
+    expect(html).toContain('src="/assets/brands/shopify.svg"');
+    expect(html).toContain('alt="Shopify"');
+  });
 });
