@@ -1,5 +1,6 @@
 import type { EditorSection } from "../document";
 import { renderKnownSection } from "./render-section";
+import { getSectionDefinition } from "../../sections/index";
 
 export type SectionRenderer = (section: EditorSection, pageName: string) => string;
 
@@ -10,6 +11,6 @@ export function registerEditorSectionRenderer(type: string, renderer: SectionRen
 }
 
 export function rendererForSection(type: string): SectionRenderer {
-  return renderers.get(type) ?? renderKnownSection;
+  const definition = getSectionDefinition(type);
+  return renderers.get(type) ?? (definition ? (section, pageName) => definition.renderWeb({ section, pageName }) : renderKnownSection);
 }
-

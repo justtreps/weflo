@@ -6,6 +6,7 @@ import { mediaPanel } from "./panels/media";
 import { pagesPanel } from "./panels/pages";
 import { structurePanel } from "./panels/structure";
 import type { EditorPanel, EditorState, EditorStore } from "./store";
+import { getSectionDefinition } from "../../sections/index";
 
 export type PanelAction =
   | { action: "select" | "toggleHidden" | "toggleLocked"; sectionId: string }
@@ -31,16 +32,17 @@ export function editorPanelMarkup(state: EditorState): string {
 }
 
 function nextSection(state: EditorState, type: string): EditorSection {
+  const definition = getSectionDefinition(type);
   const used = new Set(state.document.pages.flatMap((page) => page.sections.map((section) => section.id)));
   let index = 1;
   while (used.has(`${type}-${index}`)) index += 1;
   return {
     id: `${type}-${index}`,
     type,
-    name: type === "reviews" ? "Témoignages" : type === "productHero" ? "Produit" : type,
+    name: definition?.name ?? type,
     hidden: false,
     locked: false,
-    settings: { title: type === "reviews" ? "Ils en parlent mieux que nous" : "Nouvelle section" },
+    settings: definition ? structuredClone(definition.defaults) : { title: "Nouvelle section" },
     style: {}, responsive: {}, blocks: [],
   };
 }

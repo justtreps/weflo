@@ -13,5 +13,6 @@ export const CANVAS_RUNTIME = `<style>.wf-canvas-toolbar{position:absolute;z-ind
   },true);
   document.querySelectorAll("[data-wf-section-id]").forEach(section=>{section.draggable=true;section.addEventListener("dragstart",()=>{dragging=section.dataset.wfSectionId});section.addEventListener("dragover",event=>event.preventDefault());section.addEventListener("drop",event=>{event.preventDefault();if(!dragging)return;const siblings=[...section.parentElement.querySelectorAll(":scope > [data-wf-section-id]")];post("canvas:move",{sectionId:dragging,toIndex:siblings.indexOf(section)});dragging=null})});
   document.addEventListener("dblclick",event=>{if(document.body.dataset.wfMode!=="edit")return;const editable=event.target.closest("[data-wf-edit-key]");if(!editable)return;editable.setAttribute("contenteditable","true");editable.focus()});
+  document.addEventListener("submit",event=>{if(document.body.dataset.wfMode==="edit")event.preventDefault()},true);
   document.addEventListener("focusout",event=>{const editable=event.target.closest?.("[data-wf-edit-key][contenteditable=\"true\"]");if(!editable)return;editable.removeAttribute("contenteditable");const section=editable.closest("[data-wf-section-id]");post("canvas:inline-edit",{sectionId:section.dataset.wfSectionId,key:editable.dataset.wfEditKey,value:editable.textContent||""})},true);
 })();</script>`;
