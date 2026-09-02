@@ -71,12 +71,14 @@ describe("Vercel Node handler", () => {
 describe("Vercel function entry", () => {
   it("exists before the Vercel build starts", () => {
     const entry = readFileSync("api/index.js", "utf8");
+    const catchAllEntry = readFileSync("api/[...path].js", "utf8");
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { scripts: Record<string, string> };
     const vercel = readFileSync("vercel.json", "utf8");
     expect(entry.length).toBeGreaterThan(100_000);
+    expect(catchAllEntry.length).toBeGreaterThan(100_000);
     expect(entry).toContain("vercel-handler");
-    expect(pkg.scripts["build:api"]).toContain("api/index.js");
-    expect(vercel).toContain('"source": "/api/:path*"');
-    expect(vercel).toContain("__weflo_scope=api");
+    expect(pkg.scripts["build:api"]).toContain("api/[...path].js");
+    expect(vercel).not.toContain('"source": "/api/:path*"');
+    expect(vercel).toContain('"destination": "/api/storefront/:path*"');
   });
 });

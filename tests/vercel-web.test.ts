@@ -3,6 +3,16 @@ import { Hono } from "hono";
 import { createVercelWebHandler } from "../src/server/vercel-web";
 
 describe("Vercel Web Handler", () => {
+  it("passes a native Vercel catch-all API request through unchanged", async () => {
+    const app = new Hono();
+    app.get("/api/auth/me", (c) => c.json({ path: c.req.path }));
+    const response = await createVercelWebHandler(app).fetch(
+      new Request("https://weflo.test/api/auth/me"),
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ path: "/api/auth/me" });
+  });
+
   it("restores a rewritten API path and preserves the remaining query", async () => {
     const app = new Hono();
     app.get("/api/auth/me", (c) => c.json({ path: c.req.path, next: c.req.query("next") }));
@@ -24,6 +34,15 @@ describe("Vercel Web Handler", () => {
     app.get("/s/:slug", (c) => c.text(c.req.path));
     const response = await createVercelWebHandler(app).fetch(
       new Request("https://weflo.test/api?__weflo_scope=s&path=lumivall"),
+    );
+    expect(await response.text()).toBe("/s/lumivall");
+  });
+
+  it("maps the storefront rewrite handled by the API catch-all", async () => {
+    const app = new Hono();
+    app.get("/s/:slug", (c) => c.text(c.req.path));
+    const response = await createVercelWebHandler(app).fetch(
+      new Request("https://weflo.test/api/storefront/lumivall"),
     );
     expect(await response.text()).toBe("/s/lumivall");
   });

@@ -2,6 +2,11 @@ import type { Hono } from "hono";
 
 export function restoreForwardedRequest(request: Request): Request {
   const url = new URL(request.url);
+  if (url.pathname === "/api/storefront" || url.pathname.startsWith("/api/storefront/")) {
+    url.pathname = `/s${url.pathname.slice("/api/storefront".length)}`;
+    return new Request(url, request);
+  }
+
   const scope = url.searchParams.get("__weflo_scope");
   const capturedPath = url.searchParams.get("path");
   if (scope !== null) {
