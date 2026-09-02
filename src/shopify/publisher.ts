@@ -2,6 +2,7 @@ import type { CompiledThemeFile } from "./compiler";
 import type { PublicationStrategy } from "./publication-plan";
 import type { PublicationRecord } from "./publication-record";
 import type { ShopifyTheme } from "./themes";
+import { validateThemeOutput } from "./validate-theme-output";
 
 export type ShopifyThemeTransport = {
   listThemes(): Promise<ShopifyTheme[]>;
@@ -16,6 +17,8 @@ export type ShopifyThemeTransport = {
 export type PublishToShopifyInput = { strategy: PublicationStrategy; themeId?: string; files: CompiledThemeFile[]; templateSuffix: string; transport: ShopifyThemeTransport; shopDomain?: string };
 
 export async function publishToShopify(input: PublishToShopifyInput): Promise<{ themeId: string; previewUrl: string; record: PublicationRecord }> {
+  const validation = validateThemeOutput(input.files);
+  if (!validation.ok) throw new Error(`Export Shopify invalide : ${validation.errors.join(" ")}`);
   const themes = await input.transport.listThemes();
   const active = themes.find((theme) => theme.role === "main");
   if ((input.strategy === "active" || input.strategy === "duplicate_active") && !active) throw new Error("Active Shopify theme not found");

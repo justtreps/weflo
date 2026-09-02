@@ -13,9 +13,17 @@ function fakeTransport(log: string[], failKey?: string): ShopifyThemeTransport {
     bindResource: async (_id, suffix) => { log.push(`bind:${suffix}`); return { resourceId: "page-1", previousTemplateSuffix: null }; },
   };
 }
-const files: CompiledThemeFile[] = [{ key: "sections/weflo-hero.liquid", value: "new", checksum: "a", operation: "upsert" }, { key: "assets/weflo.css", value: "css", checksum: "b", operation: "upsert" }];
+const validLiquid = `<section>new</section>{% schema %}{"name":"Hero","settings":[],"presets":[{"name":"Hero"}]}{% endschema %}`;
+const files: CompiledThemeFile[] = [{ key: "sections/weflo-hero.liquid", value: validLiquid, checksum: "a", operation: "upsert" }, { key: "assets/weflo.css", value: "css", checksum: "b", operation: "upsert" }];
 
 describe("Shopify theme publisher", () => {
+  it("validates every file before contacting Shopify", async () => {
+    const log: string[] = [];
+    const invalid = [{ ...files[0], key: "sections/hero.liquid" }];
+    await expect(publishToShopify({ strategy: "active", files: invalid, templateSuffix: "weflo-shop", transport: fakeTransport(log) })).rejects.toThrow(/invalide/i);
+    expect(log).toEqual([]);
+  });
+
   it.each([["active", "live"], ["duplicate_active", "copy"], ["new_weflo", "new"]] as const)("executes %s strategy", async (strategy, expectedTheme) => {
     const log: string[] = [];
     const result = await publishToShopify({ strategy, files, templateSuffix: "weflo-shop", transport: fakeTransport(log) });
