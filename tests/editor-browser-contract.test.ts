@@ -10,7 +10,7 @@ describe("visual editor browser contract", () => {
     expect(state.document.version).toBe(2);
     expect(state.pageId).toBe(document.pages[0].id);
     expect(state.breakpoint).toBe("desktop");
-    expect(state.activePanel).toBe("structure");
+    expect(state.activePanel).toBe("commerce");
   });
 
   it("saves the v2 document with its expected server version", () => {
