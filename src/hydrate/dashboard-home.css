@@ -1,0 +1,20 @@
+@import "./maquette-dashboard.css";
+body:has(#weflo-dashboard-home:not(:empty))>x-dc{display:none!important}
+#weflo-dashboard-home{min-height:100vh}
+#weflo-dashboard-home .project-preview{width:100%;padding:0;text-align:inherit;cursor:pointer}
+#weflo-dashboard-home .project-menu{position:relative}
+#weflo-dashboard-home .project-menu summary{list-style:none;cursor:pointer;padding:7px}
+#weflo-dashboard-home .project-menu summary::-webkit-details-marker{display:none}
+#weflo-dashboard-home .project-menu>div{position:absolute;z-index:4;right:0;top:30px;min-width:145px;padding:6px;background:white;border:1px solid var(--line);border-radius:11px;box-shadow:0 12px 35px rgba(20,19,16,.13)}
+#weflo-dashboard-home .project-menu button{display:block;width:100%;padding:8px 10px;text-align:left;border:0;border-radius:7px;background:white;font-size:12px}
+#weflo-dashboard-home .project-menu button:hover{background:var(--soft)}
+#weflo-dashboard-home .project-menu button.danger{color:#a6332a}
+#weflo-dashboard-home .page-preview-fallback{height:100%;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;background:linear-gradient(145deg,#1b1a17,#353126);color:white}
+#weflo-dashboard-home .page-preview-fallback span{font-size:10px;color:#cfcbc1}
+#weflo-dashboard-home .page-preview-fallback strong{font:600 clamp(24px,3vw,42px)/1 Syne,Inter,sans-serif;margin-top:8px;text-align:left}
+#weflo-dashboard-home .page-preview-fallback i{color:var(--yellow);font:700 18px Syne,sans-serif;margin-top:auto}
+#weflo-dashboard-home .empty-project{grid-column:1/-1;min-height:220px;border:1px dashed #aaa79f;border-radius:15px;background:white;display:grid;place-items:center;align-content:center;gap:7px;cursor:pointer}
+#weflo-dashboard-home .empty-project span{font-size:32px}.empty-project small{color:var(--muted)}
+#weflo-dashboard-home .section-heading>button{border:0;background:transparent;font-weight:700;cursor:pointer}
+#weflo-dashboard-home .pro-button{display:grid;place-items:center;text-decoration:none}
+@media(max-width:760px){#weflo-dashboard-home .project-menu>div{right:0}.dashboard-shell main{padding-bottom:70px}}

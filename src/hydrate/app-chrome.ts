@@ -1,6 +1,7 @@
 import type { MeProfile } from "./session-guard";
 
 const NAV_HREF: Record<string, string> = {
+  Accueil: "/dashboard",
   Pages: "/dashboard",
   "Mon abonnement": "/facturation",
   Facturation: "/facturation",
@@ -12,10 +13,10 @@ const NAV_HREF: Record<string, string> = {
   "Back to app": "/dashboard",
 };
 
-const NAV_LABELS = ["Pages", "Mon abonnement", "Parrainage", "Réglages"] as const;
+const NAV_LABELS = ["Accueil", "Mon abonnement", "Parrainage", "Réglages"] as const;
 
 const PATH_ACTIVE: Record<string, string[]> = {
-  "/dashboard": ["Pages"],
+  "/dashboard": ["Accueil"],
   "/parrainage": ["Parrainage"],
   "/facturation": ["Mon abonnement"],
 };

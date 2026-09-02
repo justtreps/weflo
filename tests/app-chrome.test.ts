@@ -11,6 +11,7 @@ import {
 
 describe("resolveNavHref", () => {
   it("maps sidebar labels to app routes", () => {
+    expect(resolveNavHref("Accueil")).toBe("/dashboard");
     expect(resolveNavHref("Pages")).toBe("/dashboard");
     expect(resolveNavHref("Mon abonnement")).toBe("/facturation");
     expect(resolveNavHref("Réglages")).toBe("/facturation");
@@ -95,7 +96,7 @@ describe("fillProfile", () => {
 
 describe("activeNavLabels", () => {
   it("maps routes to sidebar labels", () => {
-    expect(activeNavLabels("/dashboard")).toEqual(["Pages"]);
+    expect(activeNavLabels("/dashboard")).toEqual(["Accueil"]);
     expect(activeNavLabels("/parrainage")).toEqual(["Parrainage"]);
     expect(activeNavLabels("/facturation")).toEqual(["Mon abonnement"]);
   });
@@ -114,9 +115,9 @@ describe("paintActiveNav", () => {
     };
   }
 
-  it("shows Pages and hides Parrainage on /dashboard using labels", () => {
-    const pagesOn = navIf("Pages");
-    const pagesOff = navIf("Pages");
+  it("shows Accueil and hides Parrainage on /dashboard using labels", () => {
+    const pagesOn = navIf("Accueil");
+    const pagesOff = navIf("Accueil");
     const subOn = navIf("Mon abonnement");
     const subOff = navIf("Mon abonnement");
     const refOn = navIf("Parrainage");

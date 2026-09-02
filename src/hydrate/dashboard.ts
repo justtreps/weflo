@@ -3,6 +3,9 @@ import { filterPages, sortPages } from "../lib/page-filters";
 import { applyAppChrome, fillProfile, setScIf } from "./app-chrome";
 import { guardSession } from "./session-guard";
 import type { Page, PageType, Workspace } from "../types";
+import { dashboardHomeModel } from "../dashboard/home-model";
+import { renderDashboardHome } from "../dashboard/home-view";
+import "./dashboard-home.css";
 
 const TYPE_LABEL: Record<PageType, string> = {
   sell: "Page produit",
@@ -424,6 +427,52 @@ export async function hydrateDashboard() {
   let query = "";
   let sortBy: "edited" | "name" | "type" = "edited";
   let desc = true;
+  const home = document.querySelector<HTMLElement>("#weflo-dashboard-home");
+
+  const mountHome = () => {
+    if (!home) return;
+    home.innerHTML = renderDashboardHome(dashboardHomeModel({ pages, workspace: workspace as Workspace, userName: me.name }));
+    home.querySelector<HTMLFormElement>("[data-dashboard-prompt]")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const value = home.querySelector<HTMLTextAreaElement>("textarea")?.value.trim() ?? "";
+      location.assign(value ? `/start?source=${encodeURIComponent(value)}` : "/start");
+    });
+    for (const button of home.querySelectorAll<HTMLElement>("[data-dashboard-action]")) {
+      button.addEventListener("click", (event) => {
+        const action = button.dataset.dashboardAction;
+        if (action === "generate" && button.closest("form")) return;
+        event.preventDefault();
+        if (action === "generate" || action === "link") location.assign(action === "link" ? "/start?mode=link" : "/start");
+        if (action === "image") location.assign("/start?mode=image");
+        if (action === "shopify") location.assign("/facturation#shopify");
+        if (action === "blank") void createAndOpen("blank", "Page vierge");
+        if (action === "all") home.querySelector("#creations")?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+    for (const card of home.querySelectorAll<HTMLElement>("[data-project-id]")) {
+      const page = pages.find((item) => item.id === card.dataset.projectId);
+      if (!page) continue;
+      for (const button of card.querySelectorAll<HTMLElement>("[data-project-command]")) {
+        button.addEventListener("click", async (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const command = button.dataset.projectCommand;
+          if (command === "open") goEditor(page.id);
+          if (command === "duplicate") { await fetch(`/api/pages/${page.id}/duplicate`, { method: "POST" }); await reload(); }
+          if (command === "rename") {
+            const name = window.prompt("Nouveau nom", page.name)?.trim();
+            if (name) { await fetch(`/api/pages/${page.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) }); await reload(); }
+          }
+          if (command === "copy") {
+            const url = previewUrl(workspace, page);
+            try { await navigator.clipboard.writeText(url); } catch { window.prompt("Lien de prévisualisation", url); }
+            showToast("Lien copié");
+          }
+          if (command === "delete" && window.confirm(`Supprimer « ${page.name} » ?`)) { await fetch(`/api/pages/${page.id}`, { method: "DELETE" }); await reload(); }
+        });
+      }
+    }
+  };
   const groups = groupChips(document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ chip.onClick }}"]'));
   paintChip(groups, chip, setScIf);
 
@@ -447,6 +496,7 @@ export async function hydrateDashboard() {
     pages = data.pages;
     workspace = data.workspace;
     fillProfile({ ...me, workspace: data.workspace });
+    mountHome();
     paint();
   };
 
