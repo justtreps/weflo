@@ -13,6 +13,7 @@ import { shopifyRoutes } from "./shopify";
 import { storefrontRoutes } from "./storefront";
 import type { ProductFetchPort } from "../import/product-extractor";
 import type { OnboardingAiPort } from "../onboarding/analyser";
+import { onboardingRoutes } from "./onboarding";
 
 export type { ShopifyPort, WhopPort };
 
@@ -98,6 +99,7 @@ export function createApp(deps: AppDeps) {
   });
 
   app.route("/api", authRoutes(deps));
+  app.route("/api", onboardingRoutes(deps));
   app.route("/api", meRoutes(deps));
   app.route("/api", settingsRoutes(deps));
   app.route("/api", pagesRoutes(deps));
