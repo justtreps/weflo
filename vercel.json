@@ -5,8 +5,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/", "destination": "/api?__weflo_path=" },
-    { "source": "/api/(.*)", "destination": "/api?__weflo_path=api/$1" },
-    { "source": "/s/(.*)", "destination": "/api?__weflo_path=s/$1" }
+    { "source": "/", "destination": "/api?__weflo_scope=root" },
+    { "source": "/api/:path*", "destination": "/api?__weflo_scope=api" },
+    { "source": "/s/:path*", "destination": "/api?__weflo_scope=s" }
   ]
 }

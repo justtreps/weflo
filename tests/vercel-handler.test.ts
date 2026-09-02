@@ -76,6 +76,7 @@ describe("Vercel function entry", () => {
     expect(entry.length).toBeGreaterThan(100_000);
     expect(entry).toContain("vercel-handler");
     expect(pkg.scripts["build:api"]).toContain("api/index.js");
-    expect(vercel).toContain("__weflo_path=api/$1");
+    expect(vercel).toContain('"source": "/api/:path*"');
+    expect(vercel).toContain("__weflo_scope=api");
   });
 });

@@ -7,7 +7,7 @@ describe("Vercel Web Handler", () => {
     const app = new Hono();
     app.get("/api/auth/me", (c) => c.json({ path: c.req.path, next: c.req.query("next") }));
     const handler = createVercelWebHandler(app);
-    const response = await handler.fetch(new Request("https://weflo.test/api?__weflo_path=api%2Fauth%2Fme&next=dashboard"));
+    const response = await handler.fetch(new Request("https://weflo.test/api?__weflo_scope=api&path=auth%2Fme&next=dashboard"));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ path: "/api/auth/me", next: "dashboard" });
   });
@@ -15,7 +15,16 @@ describe("Vercel Web Handler", () => {
   it("restores the marketing root", async () => {
     const app = new Hono();
     app.get("/", (c) => c.text("landing"));
-    const response = await createVercelWebHandler(app).fetch(new Request("https://weflo.test/api?__weflo_path="));
+    const response = await createVercelWebHandler(app).fetch(new Request("https://weflo.test/api?__weflo_scope=root"));
     expect(await response.text()).toBe("landing");
+  });
+
+  it("restores a public storefront path", async () => {
+    const app = new Hono();
+    app.get("/s/:slug", (c) => c.text(c.req.path));
+    const response = await createVercelWebHandler(app).fetch(
+      new Request("https://weflo.test/api?__weflo_scope=s&path=lumivall"),
+    );
+    expect(await response.text()).toBe("/s/lumivall");
   });
 });

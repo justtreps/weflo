@@ -42517,6 +42517,19 @@ function prodDeps() {
 // src/server/vercel-web.ts
 function restoreForwardedRequest(request) {
   const url = new URL(request.url);
+  const scope = url.searchParams.get("__weflo_scope");
+  const capturedPath = url.searchParams.get("path");
+  if (scope !== null) {
+    url.searchParams.delete("__weflo_scope");
+    url.searchParams.delete("path");
+    if (scope === "root") {
+      url.pathname = "/";
+    } else {
+      const suffix = capturedPath?.replace(/^\/+/, "") ?? "";
+      url.pathname = suffix ? `/${scope}/${suffix}` : `/${scope}`;
+    }
+    return new Request(url, request);
+  }
   const forwardedPath = url.searchParams.get("__weflo_path");
   if (forwardedPath === null) return request;
   url.searchParams.delete("__weflo_path");
