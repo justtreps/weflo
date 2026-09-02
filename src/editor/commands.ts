@@ -5,6 +5,7 @@ export type EditorCommand =
   | { type: "moveSection"; sectionId: string; toPageId: string; toIndex: number }
   | { type: "updateSetting"; sectionId: string; key: string; value: SettingValue }
   | { type: "updateStyle"; sectionId: string; key: string; value: StyleValue }
+  | { type: "updateResponsiveStyle"; sectionId: string; breakpoint: "desktop" | "tablet" | "mobile"; key: string; value: StyleValue }
   | { type: "duplicateSection"; sectionId: string; newSectionId: string; index?: number }
   | { type: "removeSection"; sectionId: string }
   | { type: "toggleHidden"; sectionId: string }
@@ -84,6 +85,14 @@ export function applyCommand(document: EditorDocument, command: EditorCommand): 
       section.style[command.key] = command.value;
       break;
     }
+    case "updateResponsiveStyle": {
+      const { section } = editableSection(next, command.sectionId);
+      section.responsive[command.breakpoint] = {
+        ...(section.responsive[command.breakpoint] ?? {}),
+        [command.key]: command.value,
+      };
+      break;
+    }
     case "duplicateSection": {
       const from = editableSection(next, command.sectionId);
       if (sectionIds(next).has(command.newSectionId)) throw new EditorCommandError(`Duplicate section id: ${command.newSectionId}`);
@@ -141,4 +150,3 @@ export function applyCommand(document: EditorDocument, command: EditorCommand): 
 export function invertCommand(document: EditorDocument, _command: EditorCommand): EditorCommand {
   return { type: "restoreDocument", document: clone(document) };
 }
-
