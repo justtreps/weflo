@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { creationActionUrl, creationFormats, renderCreateWorkspace } from "../src/create/workspace";
+import { readFileSync } from "node:fs";
 
 describe("connected creation workspace", () => {
   it("routes dashboard imports to the connected workspace instead of public onboarding", () => {
@@ -19,5 +20,9 @@ describe("connected creation workspace", () => {
     }
     expect(html).toContain('data-create-format="advertorial"');
     expect(html).toContain('data-create-format="quiz"');
+  });
+
+  it("loads the connected workspace stylesheet", () => {
+    expect(readFileSync("public/creer.html", "utf8")).toContain('href="/hydrate/creer.css"');
   });
 });
