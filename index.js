@@ -2049,11 +2049,11 @@ var require_serializer = __commonJS({
         var _a4;
         return buffer2 instanceof ArrayBuffer || ((_a4 = buffer2 === null || buffer2 === void 0 ? void 0 : buffer2.constructor) === null || _a4 === void 0 ? void 0 : _a4.name) === "ArrayBuffer";
       }
-      _pick(obj, keys) {
+      _pick(obj, keys2) {
         if (!obj || typeof obj !== "object") {
           return {};
         }
-        return Object.fromEntries(Object.entries(obj).filter(([key]) => keys.includes(key)));
+        return Object.fromEntries(Object.entries(obj).filter(([key]) => keys2.includes(key)));
       }
     };
     exports.default = Serializer;
@@ -6770,16 +6770,16 @@ var require_helpers = __commonJS({
     }
     function appendFlowIdToRedirectTo(redirectTo, flowId) {
       const hashIndex = redirectTo.indexOf("#");
-      let base3 = hashIndex === -1 ? redirectTo : redirectTo.slice(0, hashIndex);
+      let base7 = hashIndex === -1 ? redirectTo : redirectTo.slice(0, hashIndex);
       const fragment2 = hashIndex === -1 ? "" : redirectTo.slice(hashIndex);
-      const queryIndex = base3.indexOf("?");
+      const queryIndex = base7.indexOf("?");
       if (queryIndex !== -1) {
-        const path3 = base3.slice(0, queryIndex);
-        const remaining = base3.slice(queryIndex + 1).split("&").filter((pair) => pair !== "" && pair !== constants_1.PKCE_FLOW_ID_PARAM && !pair.startsWith(`${constants_1.PKCE_FLOW_ID_PARAM}=`));
-        base3 = remaining.length > 0 ? `${path3}?${remaining.join("&")}` : path3;
+        const path3 = base7.slice(0, queryIndex);
+        const remaining = base7.slice(queryIndex + 1).split("&").filter((pair) => pair !== "" && pair !== constants_1.PKCE_FLOW_ID_PARAM && !pair.startsWith(`${constants_1.PKCE_FLOW_ID_PARAM}=`));
+        base7 = remaining.length > 0 ? `${path3}?${remaining.join("&")}` : path3;
       }
-      const separator = base3.includes("?") ? "&" : "?";
-      return `${base3}${separator}${constants_1.PKCE_FLOW_ID_PARAM}=${encodeURIComponent(flowId)}${fragment2}`;
+      const separator = base7.includes("?") ? "&" : "?";
+      return `${base7}${separator}${constants_1.PKCE_FLOW_ID_PARAM}=${encodeURIComponent(flowId)}${fragment2}`;
     }
     async function getCodeChallengeAndMethod(storage, storageKey, isPasswordRecovery = false, onEvictFlow) {
       const codeVerifier = generatePKCEVerifier();
@@ -15145,8 +15145,8 @@ function inner_stringify(object3, prefix, generateArrayPrefix, commaRoundTrip, a
   } else if (isArray(filter)) {
     obj_keys = filter;
   } else {
-    const keys = Object.keys(obj);
-    obj_keys = sort ? keys.sort(sort) : keys;
+    const keys2 = Object.keys(obj);
+    obj_keys = sort ? keys2.sort(sort) : keys2;
   }
   const encoded_prefix = encodeDotInKeys ? String(prefix).replace(/\./g, "%2E") : String(prefix);
   const adjusted_prefix = commaRoundTrip && isArray(obj) && obj.length === 1 ? encoded_prefix + "[]" : encoded_prefix;
@@ -15265,7 +15265,7 @@ function stringify(object3, opts = {}) {
     filter = options.filter;
     obj_keys = filter;
   }
-  const keys = [];
+  const keys2 = [];
   if (typeof obj !== "object" || obj === null) {
     return "";
   }
@@ -15283,7 +15283,7 @@ function stringify(object3, opts = {}) {
     if (options.skipNulls && obj[key] === null) {
       continue;
     }
-    push_to_array(keys, inner_stringify(
+    push_to_array(keys2, inner_stringify(
       obj[key],
       key,
       // @ts-expect-error
@@ -15305,7 +15305,7 @@ function stringify(object3, opts = {}) {
       sideChannel
     ));
   }
-  const joined = keys.join(options.delimiter);
+  const joined = keys2.join(options.delimiter);
   let prefix = options.addQueryPrefix === true ? "?" : "";
   if (options.charsetSentinel) {
     if (options.charset === "iso-8859-1") {
@@ -15514,8 +15514,8 @@ var AbstractPage = class {
   }
   async *[(_AbstractPage_client = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
     for await (const page of this.iterPages()) {
-      for (const item2 of page.getPaginatedItems()) {
-        yield item2;
+      for (const item3 of page.getPaginatedItems()) {
+        yield item3;
       }
     }
   }
@@ -15533,8 +15533,8 @@ var PagePromise = class extends APIPromise {
    */
   async *[Symbol.asyncIterator]() {
     const page = await this;
-    for await (const item2 of page) {
-      yield item2;
+    for await (const item3 of page) {
+      yield item3;
     }
   }
 };
@@ -19792,6 +19792,95 @@ function isEditorDocument(value2) {
   return candidate.version === 2 && Array.isArray(candidate.pages);
 }
 
+// src/section-preview/fixtures.ts
+var images = (ids) => ids.map((id2) => `https://images.unsplash.com/${id2}?auto=format&fit=crop&w=1600&q=88`);
+function fixture(input) {
+  const [background, surface, ink, accent] = input.colors;
+  return {
+    id: input.id,
+    archetypes: input.archetypes,
+    brand: {
+      name: input.name,
+      palette: input.colors,
+      headingFont: input.fonts[0],
+      bodyFont: input.fonts[1],
+      schemes: [{ name: "Clair", background, text: ink, accent }, { name: "Surface", background: surface, text: ink, accent }]
+    },
+    theme: { background, surface, ink, muted: `${ink}A8`, accent, display: input.fonts[0].includes("Playfair") || input.fonts[0].includes("Libre") ? "serif" : "sans", radius: "soft" },
+    product: {
+      sourceUrl: `https://demo.weflo.app/${input.id}`,
+      title: input.title,
+      description: input.description,
+      vendor: input.name,
+      currency: input.currency ?? "EUR",
+      price: input.price,
+      compareAtPrice: input.compareAtPrice,
+      images: images(input.images),
+      rating: 4.8,
+      reviewCount: 327,
+      variants: [{ id: "classic", title: "Classique", price: input.price }, { id: "duo", title: "Duo", price: Math.round(input.price * 1.72) }],
+      reviews: []
+    },
+    previewOnly: {
+      benefits: input.benefits.map((text5, index) => ({ title: ["Pens\xE9 avec pr\xE9cision", "Simple au quotidien", "Une qualit\xE9 durable"][index] ?? `B\xE9n\xE9fice ${index + 1}`, text: text5 })),
+      reviews: [
+        { author: "Lina M.", title: "Encore mieux qu\u2019esp\xE9r\xE9", text: `Une exp\xE9rience ${input.name} tr\xE8s soign\xE9e, du produit \xE0 la livraison.`, rating: 5 },
+        { author: "Camille R.", title: "Beau et vraiment utile", text: "Tout est clair, simple et la qualit\xE9 se remarque imm\xE9diatement.", rating: 5 },
+        { author: "Noa B.", title: "Je recommande", text: "Une belle d\xE9couverte que j\u2019utilise maintenant chaque semaine.", rating: 5 }
+      ],
+      faqs: input.faqs.map((question, index) => ({ question, answer: ["Oui, tout a \xE9t\xE9 con\xE7u pour une prise en main imm\xE9diate.", "La commande est suivie et pr\xE9par\xE9e sous 48 heures.", "Tu disposes de trente jours pour changer d\u2019avis."][index] ?? "Notre \xE9quipe te r\xE9pond rapidement." })),
+      bundles: [{ title: "L\u2019essentiel", quantity: 1, price: `${input.price} \u20AC` }, { title: "Le duo", quantity: 2, price: `${Math.round(input.price * 1.72)} \u20AC`, badge: "Le plus choisi" }, { title: "La routine", quantity: 3, price: `${Math.round(input.price * 2.28)} \u20AC`, badge: "Meilleure valeur" }]
+    }
+  };
+}
+var SECTION_PREVIEW_FIXTURES = [
+  fixture({ id: "aurea-serum", archetypes: ["beauty", "wellness"], name: "Aur\xE9a", title: "S\xE9rum \xC9clat 03", description: "Un concentr\xE9 lumineux qui hydrate, apaise et r\xE9v\xE8le l\u2019\xE9clat naturel de la peau.", price: 48, compareAtPrice: 62, colors: ["#F3ECE7", "#FFFDFC", "#261B17", "#C87557"], fonts: ["Playfair Display", "Inter"], images: ["photo-1620916566398-39f1143ab7be", "photo-1556228578-8c89e6adf883", "photo-1598440947619-2c35fc9aa908"], benefits: ["Une formule courte aux actifs essentiels.", "Une texture l\xE9g\xE8re pens\xE9e pour chaque matin.", "Un flacon durable et une routine sans complication."], faqs: ["Convient-il aux peaux sensibles ?", "Quand appliquer le s\xE9rum ?", "Puis-je l\u2019essayer sans risque ?"] }),
+  fixture({ id: "halo-lamp", archetypes: ["home", "gadget", "design"], name: "Halo", title: "Lampe murale Halo One", description: "Une lumi\xE8re chaude, magn\xE9tique et sans fil qui se place exactement o\xF9 tu en as besoin.", price: 59, compareAtPrice: 79, colors: ["#EDE9E1", "#FFFEFA", "#171713", "#D4A72C"], fonts: ["Manrope", "Inter"], images: ["photo-1507473885765-e6ed057f782c", "photo-1540932239986-30128078f3c5", "photo-1513506003901-1e6a229e2d15"], benefits: ["Installation sans c\xE2ble ni per\xE7age.", "Orientation magn\xE9tique en un geste.", "Lumi\xE8re chaude rechargeable et apaisante."], faqs: ["La fixation tient-elle durablement ?", "Quelle est l\u2019autonomie ?", "Comment la recharger ?"] }),
+  fixture({ id: "noma-bag", archetypes: ["fashion"], name: "Noma", title: "Sac Week-end N\xB02", description: "Un sac souple et structur\xE9, con\xE7u pour voyager l\xE9ger sans renoncer aux beaux d\xE9tails.", price: 189, compareAtPrice: 229, colors: ["#EEE9E0", "#FBF8F1", "#211B16", "#8A5638"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1553062407-98eeb64c6a62", "photo-1548036328-c9fa89d128fa", "photo-1594223274512-ad4803739b7c"], benefits: ["Une ouverture large et des poches utiles.", "Une mati\xE8re r\xE9sistante qui se patine bien.", "Le bon format pour deux \xE0 quatre jours."], faqs: ["Passe-t-il en cabine ?", "Comment entretenir la mati\xE8re ?", "Est-il garanti ?"] }),
+  fixture({ id: "pulse-recovery", archetypes: ["sport", "wellness"], name: "Pulse", title: "Recovery Daily", description: "La formule quotidienne pens\xE9e pour mieux r\xE9cup\xE9rer et retrouver ton rythme d\xE8s le lendemain.", price: 39, compareAtPrice: 49, colors: ["#E9F0E7", "#FCFFF9", "#132016", "#79B96A"], fonts: ["Space Grotesk", "Inter"], images: ["photo-1593095948071-474c5cc2989d", "photo-1579722821273-0f6c1ddde163", "photo-1538805060514-97d9cc17730c"], benefits: ["Une dose simple apr\xE8s l\u2019effort.", "Des ingr\xE9dients clairement expliqu\xE9s.", "Un format pens\xE9 pour trente jours."], faqs: ["Quand prendre la formule ?", "Que contient-elle ?", "Convient-elle \xE0 tous les sports ?"] }),
+  fixture({ id: "brume-coffee", archetypes: ["food"], name: "Brume", title: "Assemblage Matin Calme", description: "Un caf\xE9 rond et pr\xE9cis, torr\xE9fi\xE9 en petite s\xE9rie pour une tasse douce chaque matin.", price: 16, compareAtPrice: 19, colors: ["#EFE3D3", "#FFF9EF", "#2B1B13", "#D56A35"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1447933601403-0c6688de566e", "photo-1495474472287-4d71bcdd2085", "photo-1512568400610-62da28bc8a13"], benefits: ["Des grains sourc\xE9s avec transparence.", "Une torr\xE9faction fra\xEEche chaque semaine.", "Un profil doux, chocolat\xE9 et \xE9quilibr\xE9."], faqs: ["Quelle mouture choisir ?", "Quand le caf\xE9 est-il torr\xE9fi\xE9 ?", "Comment le conserver ?"] }),
+  fixture({ id: "forma-table", archetypes: ["home", "design"], name: "Forma", title: "Service Ondes", description: "Des pi\xE8ces de table sculpturales et faciles \xE0 vivre, dessin\xE9es pour les repas de tous les jours.", price: 84, compareAtPrice: 104, colors: ["#E9E4DA", "#FAF8F3", "#1F211B", "#6C7B4B"], fonts: ["Playfair Display", "Inter"], images: ["photo-1610701596007-11502861dcfa", "photo-1578749556568-bc2c40e68b61", "photo-1612196808214-b8e1d6145a8c"], benefits: ["Des formes empilables et agr\xE9ables en main.", "Une finition mate r\xE9sistante au quotidien.", "Chaque pi\xE8ce poss\xE8de de l\xE9g\xE8res nuances."], faqs: ["Les pi\xE8ces passent-elles au lave-vaisselle ?", "Sont-elles fabriqu\xE9es \xE0 la main ?", "Puis-je compl\xE9ter le service plus tard ?"] })
+];
+function fixtureById(id2) {
+  const found = SECTION_PREVIEW_FIXTURES.find((item3) => item3.id === id2);
+  if (!found) throw new Error(`Unknown preview fixture: ${id2}`);
+  return found;
+}
+
+// src/section-preview/manifests.ts
+var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds) => {
+  const base7 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
+  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base7}-desktop.webp`, mobile: `${base7}-mobile.webp` }, previewVersion: 1 };
+};
+var SECTION_PREVIEW_MANIFESTS = [
+  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"]),
+  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"]),
+  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"], "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"]),
+  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
+  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
+  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"]),
+  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"]),
+  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"]),
+  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
+  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"]),
+  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"]),
+  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"])
+];
+var keys = /* @__PURE__ */ new Set();
+for (const manifest of SECTION_PREVIEW_MANIFESTS) {
+  const key = `${manifest.sectionType}:${manifest.variantId}`;
+  if (keys.has(key)) throw new Error(`Duplicate section preview manifest: ${key}`);
+  keys.add(key);
+  fixtureById(manifest.defaultFixtureId);
+  for (const id2 of manifest.compatibleFixtureIds) fixtureById(id2);
+  if (!manifest.compatibleFixtureIds.includes(manifest.defaultFixtureId)) throw new Error(`Default fixture is incompatible: ${key}`);
+}
+function previewManifest(sectionType, variantId) {
+  const found = SECTION_PREVIEW_MANIFESTS.find((item3) => item3.sectionType === sectionType && item3.variantId === variantId);
+  if (!found) throw new Error(`Unknown section preview manifest: ${sectionType}:${variantId}`);
+  return found;
+}
+
 // src/sections/registry.ts
 var definitions = /* @__PURE__ */ new Map();
 function assertComplete(definition) {
@@ -19800,6 +19889,7 @@ function assertComplete(definition) {
   if (!definition.category) throw new Error(`Section ${definition.type} category is required`);
   if (!definition.defaults || !Array.isArray(definition.settings) || !Array.isArray(definition.blocks)) throw new Error(`Section ${definition.type} schema is incomplete`);
   if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
+  for (const variant of definition.previewVariants ?? []) previewManifest(definition.type, variant);
 }
 function registerSection(definition) {
   assertComplete(definition);
@@ -19929,6 +20019,7 @@ var heroSection = createSectionDefinition("hero", "Hero de marque", "brand", "he
 var base = createSectionDefinition("productHero", "Hero produit", "commerce", "productHero", { price: "49,00 \u20AC", image: "", image_alt: "", variant: "ambient-editorial" });
 var productHeroSection = {
   ...base,
+  previewVariants: ["beauty-editorial", "object-editorial"],
   renderWeb: ({ section: section2, pageName }) => {
     const title = value(section2, "title", pageName);
     const subtitle = value(section2, "subtitle");
@@ -19937,10 +20028,11 @@ var productHeroSection = {
     const cta2 = value(section2, "cta_label", "Ajouter au panier");
     const media3 = image(section2, "image", value(section2, "image_alt", title), "wf-hero__image");
     const action = `<a class="wf-section__button" href="${safeLink(section2.settings.cta_link)}">${escapeHtml(cta2)}</a>`;
-    const variant = value(section2, "variant", "ambient-editorial");
+    const requested = value(section2, "variant", "ambient-editorial");
+    const variant = (/* @__PURE__ */ new Set(["ambient-editorial", "problem-solution", "clinical-evidence", "beauty-editorial", "object-editorial"])).has(requested) ? requested : "ambient-editorial";
     if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy"><span>Le probl\xE8me, r\xE9solu.</span>${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-hero__proof">\u2713 Simple \xE0 choisir \xB7 \u2713 Pens\xE9 pour le quotidien</div>${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media3}<figcaption>${escapeHtml(subtitle)}</figcaption></figure></section>`;
     if (variant === "clinical-evidence") return `<section class="wf-section wf-hero wf-hero__clinical" data-wf-variant="clinical-evidence"><div><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}<dl><div><dt>Usage</dt><dd>Clair</dd></div><div><dt>Choix</dt><dd>Guid\xE9</dd></div></dl>${action}</div><figure>${media3}</figure></section>`;
-    return `<section class="wf-section wf-hero wf-hero__atmosphere" data-wf-variant="${escapeHtml(variant)}"><figure>${media3}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
+    return `<section class="wf-section wf-hero wf-hero__atmosphere wf-product-hero--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><figure>${media3}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
   },
   renderLiquid: (section2) => {
     const variant = section2 ? value(section2, "variant", "ambient-editorial") : "ambient-editorial";
@@ -19969,13 +20061,15 @@ for (const definition of brandMediaSections) registerSection(definition);
 var base2 = createSectionDefinition("productMain", "Fiche produit", "commerce", "product", { cta_label: "Ajouter au panier", product_handle: "", variant: "calm-buy-box" }, [textControl("product_handle", "Produit Shopify", "text")]);
 var productMainSection = {
   ...base2,
+  previewVariants: ["conversion-split", "bundle-led"],
   renderWeb: ({ section: section2, pageName }) => {
     const title = value(section2, "title", pageName);
     const body = value(section2, "text");
     const price = value(section2, "price");
     const compare = value(section2, "compare_at_price");
     const cta2 = value(section2, "cta_label", "Ajouter au panier");
-    const variant = value(section2, "variant", "calm-buy-box");
+    const requested = value(section2, "variant", "calm-buy-box");
+    const variant = (/* @__PURE__ */ new Set(["calm-buy-box", "beauty-buy-box", "technical-buy-box", "luxury-buy-box", "tasting-buy-box", "conversion-split", "bundle-led"])).has(requested) ? requested : "calm-buy-box";
     const variants = section2.blocks.filter((block) => block.type === "variant");
     const options = variants.length ? variants.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
     return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section2, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box"><div class="wf-product__rating">\u2605\u2605\u2605\u2605\u2605 <span>Les avis import\xE9s apparaissent ici</span></div>${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><fieldset class="wf-product__bundle"><legend>Bundle & \xE9conomies</legend><label><input type="radio" name="properties[Offre]" value="Solo" checked> Solo</label><label><input type="radio" name="properties[Offre]" value="Duo"> Duo \u2014 meilleur choix</label></fieldset><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust">Paiement s\xE9curis\xE9 \xB7 Commande suivie \xB7 Assistance disponible</p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
@@ -19999,8 +20093,15 @@ var collectionGridSection = {
 };
 
 // src/sections/bundle.ts
+var base3 = createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" });
 var bundleSection = {
-  ...createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" }),
+  ...base3,
+  previewVariants: ["routine-set", "quantity-break"],
+  renderWeb: (context) => {
+    const requested = value(context.section, "variant", "routine-set");
+    const variant = (/* @__PURE__ */ new Set(["routine-set", "quantity-break"])).has(requested) ? requested : "routine-set";
+    return base3.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant)}"`);
+  },
   renderLiquid: () => `<section class="weflo-bundle"><h2>{{ section.settings.title | escape }}</h2><fieldset><legend>{{ section.settings.text }}</legend>{% for block in section.blocks %}<label {{ block.shopify_attributes }}><input type="checkbox" name="items[]" value="{{ block.settings.variant.id }}">{{ block.settings.title | escape }}</label>{% endfor %}</fieldset><button type="button">{{ section.settings.cta_label | escape }}</button></section>`
 };
 
@@ -20015,7 +20116,12 @@ var commerceSections = [productMainSection, productGridSection, collectionGridSe
 for (const definition of commerceSections) registerSection(definition);
 
 // src/sections/benefits.ts
-var benefitsSection = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var base4 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var benefitsSection = { ...base4, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "ritual-cards");
+  const variant = (/* @__PURE__ */ new Set(["ritual-cards", "technical-grid"])).has(requested) ? requested : "ritual-cards";
+  return base4.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
+} };
 
 // src/sections/steps.ts
 var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "cards");
@@ -20024,7 +20130,12 @@ var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "car
 var statsSection = createSectionDefinition("stats", "Chiffres cl\xE9s", "conversion", "cards");
 
 // src/sections/testimonials.ts
-var testimonialsSection = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var base5 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var testimonialsSection = { ...base5, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "editorial-stories");
+  const variant = (/* @__PURE__ */ new Set(["editorial-stories", "ugc-grid"])).has(requested) ? requested : "editorial-stories";
+  return base5.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
+} };
 
 // src/sections/reviews.ts
 var reviewsSection = createSectionDefinition("reviews", "Avis clients", "conversion", "cards");
@@ -20039,7 +20150,12 @@ var guaranteesSection = createSectionDefinition("guarantees", "Garanties", "conv
 var shippingSection = createSectionDefinition("shipping", "Livraison", "conversion", "cards");
 
 // src/sections/faq.ts
-var faqSection = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var base6 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var faqSection = { ...base6, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "editorial-accordion");
+  const variant = (/* @__PURE__ */ new Set(["editorial-accordion", "support-columns"])).has(requested) ? requested : "editorial-accordion";
+  return base6.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
+} };
 
 // src/sections/newsletter.ts
 var newsletterSection = createSectionDefinition("newsletter", "Newsletter", "conversion", "form");
@@ -20151,7 +20267,7 @@ function slug(value2) {
 }
 function setting(value2) {
   if (value2 === null || typeof value2 === "string" || typeof value2 === "number" || typeof value2 === "boolean") return value2;
-  if (Array.isArray(value2) && value2.every((item2) => item2 === null || ["string", "number", "boolean"].includes(typeof item2))) {
+  if (Array.isArray(value2) && value2.every((item3) => item3 === null || ["string", "number", "boolean"].includes(typeof item3))) {
     return value2;
   }
   return JSON.stringify(value2);
@@ -20839,8 +20955,8 @@ function inner_stringify2(object3, prefix, generateArrayPrefix, commaRoundTrip, 
   } else if (isArray2(filter)) {
     obj_keys = filter;
   } else {
-    const keys = Object.keys(obj);
-    obj_keys = sort ? keys.sort(sort) : keys;
+    const keys2 = Object.keys(obj);
+    obj_keys = sort ? keys2.sort(sort) : keys2;
   }
   const encoded_prefix = encodeDotInKeys ? String(prefix).replace(/\./g, "%2E") : String(prefix);
   const adjusted_prefix = commaRoundTrip && isArray2(obj) && obj.length === 1 ? encoded_prefix + "[]" : encoded_prefix;
@@ -20959,7 +21075,7 @@ function stringify2(object3, opts = {}) {
     filter = options.filter;
     obj_keys = filter;
   }
-  const keys = [];
+  const keys2 = [];
   if (typeof obj !== "object" || obj === null) {
     return "";
   }
@@ -20977,7 +21093,7 @@ function stringify2(object3, opts = {}) {
     if (options.skipNulls && obj[key] === null) {
       continue;
     }
-    push_to_array2(keys, inner_stringify2(
+    push_to_array2(keys2, inner_stringify2(
       obj[key],
       key,
       // @ts-expect-error
@@ -20999,7 +21115,7 @@ function stringify2(object3, opts = {}) {
       sideChannel
     ));
   }
-  const joined = keys.join(options.delimiter);
+  const joined = keys2.join(options.delimiter);
   let prefix = options.addQueryPrefix === true ? "?" : "";
   if (options.charsetSentinel) {
     if (options.charset === "iso-8859-1") {
@@ -21586,8 +21702,8 @@ var AbstractPage2 = class {
   }
   async *[(_AbstractPage_client2 = /* @__PURE__ */ new WeakMap(), Symbol.asyncIterator)]() {
     for await (const page of this.iterPages()) {
-      for (const item2 of page.getPaginatedItems()) {
-        yield item2;
+      for (const item3 of page.getPaginatedItems()) {
+        yield item3;
       }
     }
   }
@@ -21605,8 +21721,8 @@ var PagePromise2 = class extends APIPromise2 {
    */
   async *[Symbol.asyncIterator]() {
     const page = await this;
-    for await (const item2 of page) {
-      yield item2;
+    for await (const item3 of page) {
+      yield item3;
     }
   }
 };
@@ -25298,23 +25414,23 @@ function maybeParseResponse(response, params) {
     return {
       ...response,
       output_parsed: null,
-      output: response.output.map((item2) => {
-        if (item2.type === "function_call") {
+      output: response.output.map((item3) => {
+        if (item3.type === "function_call") {
           return {
-            ...item2,
+            ...item3,
             parsed_arguments: null
           };
         }
-        if (item2.type === "message") {
+        if (item3.type === "message") {
           return {
-            ...item2,
-            content: item2.content.map((content) => ({
+            ...item3,
+            content: item3.content.map((content) => ({
               ...content,
               parsed: null
             }))
           };
         } else {
-          return item2;
+          return item3;
         }
       })
     };
@@ -25322,15 +25438,15 @@ function maybeParseResponse(response, params) {
   return parseResponse(response, params);
 }
 function parseResponse(response, params) {
-  const output = response.output.map((item2) => {
-    if (item2.type === "function_call") {
+  const output = response.output.map((item3) => {
+    if (item3.type === "function_call") {
       return {
-        ...item2,
-        parsed_arguments: parseToolCall2(params, item2)
+        ...item3,
+        parsed_arguments: parseToolCall2(params, item3)
       };
     }
-    if (item2.type === "message") {
-      const content = item2.content.map((content2) => {
+    if (item3.type === "message") {
+      const content = item3.content.map((content2) => {
         if (content2.type === "output_text") {
           return {
             ...content2,
@@ -25340,11 +25456,11 @@ function parseResponse(response, params) {
         return content2;
       });
       return {
-        ...item2,
+        ...item3,
         content
       };
     }
-    return item2;
+    return item3;
   });
   const parsed = Object.assign({}, response, { output });
   if (!Object.getOwnPropertyDescriptor(response, "output_text")) {
@@ -25964,8 +26080,8 @@ var FileBatches = class extends APIResource2 {
     const fileIterator = files.values();
     const allFileIds = [...fileIds];
     async function processFiles(iterator) {
-      for (let item2 of iterator) {
-        const fileObj = await client.files.create({ file: item2, purpose: "assistants" }, options);
+      for (let item3 of iterator) {
+        const fileObj = await client.files.create({ file: item3, purpose: "assistants" }, options);
         allFileIds.push(fileObj.id);
       }
     }
@@ -27037,12 +27153,12 @@ function parseSchema(value2) {
 }
 function validateThemeOutput(files) {
   const errors = [];
-  const keys = /* @__PURE__ */ new Set();
+  const keys2 = /* @__PURE__ */ new Set();
   const templates = [];
   if (files.length === 0) errors.push("L\u2019export Shopify ne contient aucun fichier.");
   for (const file2 of files) {
-    if (keys.has(file2.key)) errors.push(`Le fichier ${file2.key} appara\xEEt en doublon.`);
-    keys.add(file2.key);
+    if (keys2.has(file2.key)) errors.push(`Le fichier ${file2.key} appara\xEEt en doublon.`);
+    keys2.add(file2.key);
     if (file2.key.startsWith("sections/") && !SECTION_KEY.test(file2.key)) {
       errors.push(`La section ${file2.key} n\u2019est pas dans l\u2019espace de noms Weflo.`);
     }
@@ -27080,7 +27196,7 @@ function validateThemeOutput(files) {
     for (const section2 of Object.values(template.value.sections ?? {})) {
       if (typeof section2?.type !== "string" || !section2.type.startsWith("weflo-")) continue;
       const expectedKey = `sections/${section2.type}.liquid`;
-      if (!keys.has(expectedKey)) errors.push(`La section ${expectedKey}, r\xE9f\xE9renc\xE9e par ${template.key}, est introuvable.`);
+      if (!keys2.has(expectedKey)) errors.push(`La section ${expectedKey}, r\xE9f\xE9renc\xE9e par ${template.key}, est introuvable.`);
     }
   }
   return { ok: errors.length === 0, errors };
@@ -27096,7 +27212,7 @@ async function publishToShopify(input) {
   let theme;
   if (input.strategy === "new_weflo") theme = await input.transport.createTheme("Weflo");
   else if (input.strategy === "duplicate_active") theme = await input.transport.duplicateTheme(active.id, `${active.name} \u2014 Weflo`);
-  else theme = themes.find((item2) => item2.id === (input.themeId ?? active.id)) ?? (() => {
+  else theme = themes.find((item3) => item3.id === (input.themeId ?? active.id)) ?? (() => {
     throw new Error("Selected Shopify theme not found");
   })();
   const now = /* @__PURE__ */ new Date();
@@ -27180,11 +27296,11 @@ function themeFiles(document2) {
   return shopifyThemeAssets(document2);
 }
 function productPayload(document2, pageName) {
-  const images = [];
+  const images2 = [];
   for (const section2 of document2.sections) {
     for (const value2 of Object.values(section2.settings)) {
-      if (typeof value2 === "string" && /^https?:\/\//.test(value2) && images.length < 5) {
-        images.push({ src: value2 });
+      if (typeof value2 === "string" && /^https?:\/\//.test(value2) && images2.length < 5) {
+        images2.push({ src: value2 });
       }
     }
   }
@@ -27195,7 +27311,7 @@ function productPayload(document2, pageName) {
       title: pageName,
       body_html: `<p>${document2.name}</p>`,
       status: "draft",
-      ...images.length ? { images } : {},
+      ...images2.length ? { images: images2 } : {},
       ...price ? { variants: [{ price }] } : {}
     }
   };
@@ -27337,7 +27453,7 @@ var PageVersionConflictError = class extends Error {
 
 // src/canardo/context.ts
 function buildCanardoContext(document2, selectedId, shopify) {
-  const page = document2.pages.find((item2) => item2.sections.some((section2) => section2.id === selectedId)) ?? document2.pages[0];
+  const page = document2.pages.find((item3) => item3.sections.some((section2) => section2.id === selectedId)) ?? document2.pages[0];
   const selected = page.sections.find((section2) => section2.id === selectedId) ?? null;
   return {
     page: { id: page.id, name: page.name, kind: document2.kind, sectionOrder: page.sections.map((section2) => ({ id: section2.id, type: section2.type, name: section2.name, locked: section2.locked })) },
@@ -27363,7 +27479,7 @@ function customSection(document2, kind) {
   return { id: id2, type: "customCode", name: kind === "accordion" ? "Accord\xE9on sur mesure" : "Calculateur sur mesure", hidden: false, locked: false, settings: { html, css, js }, style: {}, responsive: {}, blocks: [] };
 }
 function planCanardoLocally(prompt, document2, selectedId) {
-  const page = document2.pages.find((item2) => item2.sections.some((section2) => section2.id === selectedId)) ?? document2.pages[0];
+  const page = document2.pages.find((item3) => item3.sections.some((section2) => section2.id === selectedId)) ?? document2.pages[0];
   const lower = prompt.toLowerCase();
   if (/accord[ée]on/.test(lower) || /calculat(?:eur|rice)/.test(lower)) {
     const kind = /accord[ée]on/.test(lower) ? "accordion" : "calculator";
@@ -27521,7 +27637,7 @@ function nonEmptyString(value2) {
 }
 function settingValue(value2) {
   if (value2 === null || ["string", "number", "boolean"].includes(typeof value2)) return true;
-  return Array.isArray(value2) && value2.every((item2) => item2 === null || ["string", "number", "boolean"].includes(typeof item2));
+  return Array.isArray(value2) && value2.every((item3) => item3 === null || ["string", "number", "boolean"].includes(typeof item3));
 }
 function styleSettings(value2) {
   return object(value2) && Object.values(value2).every(settingValue);
@@ -27723,12 +27839,12 @@ function slugify(value2) {
   const slug2 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return slug2 || "page";
 }
-async function uniqueSlug(store, workspaceId, base3) {
+async function uniqueSlug(store, workspaceId, base7) {
   const taken = new Set((await store.listPages(workspaceId)).map((p) => p.slug));
-  if (!taken.has(base3)) return base3;
+  if (!taken.has(base7)) return base7;
   let n = 2;
-  while (taken.has(`${base3}-${n}`)) n += 1;
-  return `${base3}-${n}`;
+  while (taken.has(`${base7}-${n}`)) n += 1;
+  return `${base7}-${n}`;
 }
 function isPageType(value2) {
   return typeof value2 === "string" && PAGE_TYPES.includes(value2);
@@ -28391,8 +28507,8 @@ import { join as join2 } from "node:path";
 function escapeEditorHtml(value2) {
   return value2.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
-function text(section2, ...keys) {
-  for (const key of keys) {
+function text(section2, ...keys2) {
+  for (const key of keys2) {
     const value2 = section2.settings[key];
     if (typeof value2 === "string" && value2.trim()) return escapeEditorHtml(value2.trim());
   }
@@ -28492,10 +28608,11 @@ function renderEditorDocument(document2, options) {
   const radius = theme.radius === "none" ? "0px" : theme.radius === "round" ? "36px" : "18px";
   const headingFont = safeFont(document2.commerce?.brandKit.headingFont, themeFont(theme.display));
   const bodyFont = safeFont(document2.commerce?.brandKit.bodyFont, "Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif");
-  const scopedStyles = `body{font-family:${bodyFont}}.wf-section h1,.wf-section h2,.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${headingFont}}${page.sections.map(sectionStyles).join("")}`;
+  const scopedStyles = `body{font-family:${bodyFont}}.wf-section h1,.wf-section h2,.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${headingFont}}.wf-hero>*{min-width:0}.wf-hero figure{overflow:hidden}.wf-hero__image{display:block;width:100%;height:100%;min-height:560px;max-height:760px;object-fit:cover;border-radius:${radius}}.wf-product-hero--beauty-editorial{grid-template-columns:.88fr 1.12fr;background:color-mix(in srgb,${theme.accent} 12%,${theme.background});padding-inline:clamp(24px,5vw,72px)}.wf-product-hero--beauty-editorial figure{order:2}.wf-product-hero--object-editorial{grid-template-columns:1.2fr .8fr}.wf-product-hero--object-editorial figure{padding:7%;background:${theme.surface}}.wf-product{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(30px,6vw,80px);align-items:start}.wf-product__gallery{position:sticky;top:20px}.wf-product__image{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius}}.wf-product__buy-box{padding:clamp(24px,4vw,54px);background:${theme.surface};border-radius:${radius}}.wf-product--bundle-led .wf-product__buy-box{border:2px solid ${theme.ink}}.wf-benefits--ritual-cards .wf-section__grid{grid-template-columns:1.2fr 1fr 1fr}.wf-benefits--ritual-cards .wf-section__card:first-child{min-height:310px;background:${theme.accent}}.wf-benefits--technical-grid .wf-section__card{background:transparent;border-top:3px solid ${theme.ink}}.wf-testimonials--editorial-stories .wf-section__grid{grid-template-columns:1.35fr .85fr .85fr}.wf-testimonials--editorial-stories .wf-section__card:first-child{font-size:1.16em;background:${theme.ink};color:${theme.surface}}.wf-testimonials--ugc-grid .wf-section__card{padding:12px}.wf-testimonials--ugc-grid .wf-section__card img{aspect-ratio:4/3}.wf-bundle--routine-set{background:${theme.accent};border-radius:${radius};padding-inline:clamp(24px,5vw,64px)}.wf-bundle--quantity-break fieldset{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border:0;padding:0}.wf-bundle--quantity-break label{background:${theme.surface};border:1px solid color-mix(in srgb,${theme.ink} 20%,transparent);border-radius:${radius}}.wf-faq--editorial-accordion{max-width:900px}.wf-faq--support-columns{display:grid;grid-template-columns:.7fr 1.3fr;gap:60px}@media(max-width:700px){.wf-hero__image{min-height:390px}.wf-product,.wf-faq--support-columns{grid-template-columns:1fr}.wf-product__gallery{position:static}.wf-benefits--ritual-cards .wf-section__grid,.wf-testimonials--editorial-stories .wf-section__grid,.wf-bundle--quantity-break fieldset{grid-template-columns:1fr}}${page.sections.map(sectionStyles).join("")}`;
+  const productChromeStyles = `.wf-product__thumbs{display:flex;gap:8px;margin-top:12px}.wf-product__thumbs button{width:46px;min-height:46px;margin:0;padding:0;border-radius:14px;background:${theme.ink}}.wf-product__sticky{display:none}`;
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeEditorHtml(document2.name)}</title><style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:${theme.background};color:${theme.ink};font:15px/1.5 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}a{color:inherit}.wf-section{width:min(1180px,calc(100% - 56px));margin-inline:auto;padding-block:clamp(54px,8vw,112px)}.wf-section h1,.wf-section h2{max-width:900px;margin:.12em 0 .35em;font-family:${themeFont(theme.display)};font-size:clamp(42px,6.5vw,92px);font-weight:700;line-height:.94;letter-spacing:-.055em}.wf-section__eyebrow{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.15em}.wf-section__copy{max-width:650px;font-size:clamp(17px,2vw,22px);line-height:1.45}.wf-section__button,.wf-section button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:24px;padding:0 22px;border:0;border-radius:${radius};background:${theme.ink};color:${theme.surface};font-weight:800;text-decoration:none;cursor:pointer}.wf-section__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:38px}.wf-section__card{padding:24px;border:1px solid color-mix(in srgb,${theme.ink} 14%,transparent);border-radius:${radius};background:${theme.surface}}.wf-section__card img,.wf-section__image{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius}}.wf-media-empty{min-height:360px;background:linear-gradient(135deg,${theme.surface},color-mix(in srgb,${theme.accent} 70%,${theme.background}));border:1px dashed color-mix(in srgb,${theme.ink} 25%,transparent)}.wf-navigation{min-height:76px;padding-block:0;display:flex;align-items:center;justify-content:space-between;gap:24px}.wf-navigation>div{display:flex;gap:24px}.wf-navigation a{text-decoration:none}.wf-navigation__brand{font-weight:900;font-size:20px}.wf-navigation .wf-section__button{margin-top:0;min-height:40px}.wf-announcement{width:100%;padding:10px 28px;display:flex;justify-content:center;align-items:center;gap:18px;background:${theme.accent};text-align:center}.wf-announcement p{margin:0}.wf-announcement .wf-section__button{min-height:auto;margin:0;padding:0;background:transparent;color:inherit;text-decoration:underline}.wf-hero,.wf-image-text{min-height:680px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(32px,7vw,100px)}.wf-hero figure{margin:0}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{aspect-ratio:4/5;min-height:560px}.wf-video-hero{position:relative;width:100%;min-height:760px;padding:80px;display:grid;align-items:end;color:#fff;overflow:hidden}.wf-video-hero video,.wf-video-hero>.wf-section__image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62)}.wf-video-hero>div{position:relative;z-index:1}.wf-gallery .wf-section__grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-before-after__media{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:36px}.wf-product form{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin-top:28px}.wf-product label{display:grid;gap:6px}.wf-product input,.wf-product select,.wf-form input{min-height:48px;padding:0 12px;border:1px solid color-mix(in srgb,${theme.ink} 25%,transparent);border-radius:10px;background:${theme.background}}.wf-bundle fieldset,.wf-quiz fieldset{display:grid;gap:8px;margin-top:28px;padding:20px;border:1px solid color-mix(in srgb,${theme.ink} 18%,transparent);border-radius:${radius}}.wf-bundle label{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:12px}.wf-bundle__total{display:block;margin-top:18px;font-size:22px;font-weight:800}.wf-faq details{padding:20px 0;border-bottom:1px solid color-mix(in srgb,${theme.ink} 18%,transparent)}.wf-faq summary{font-size:20px;font-weight:700;cursor:pointer}.wf-form form{display:flex;gap:10px;margin-top:30px}.wf-form label{display:grid;gap:5px;flex:1;max-width:440px}.wf-cta{width:min(1180px,calc(100% - 56px));margin-block:56px;padding:clamp(38px,7vw,90px);border-radius:${radius};background:${theme.accent}}.wf-footer{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid color-mix(in srgb,${theme.ink} 18%,transparent)}.wf-v2-wrap{width:min(1180px,calc(100% - 56px));margin-inline:auto}.wf-v2-nav,.wf-v2-footer{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px}.wf-v2-nav>div{display:flex;gap:20px}.wf-v2-nav a{text-decoration:none}.wf-v2-split{min-height:620px;padding-block:52px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(28px,6vw,88px)}.wf-v2-media{margin:0;min-height:500px;background:${theme.surface};border-radius:${radius};overflow:hidden}.wf-v2-media img{display:block;width:100%;height:100%;min-height:500px;object-fit:cover}.wf-v2-media--empty{background:linear-gradient(145deg,${theme.surface},${theme.accent})}.wf-v2-kicker{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.14em}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${themeFont(theme.display)};font-size:clamp(42px,6vw,84px);line-height:.96;letter-spacing:-.045em;margin:.2em 0}.wf-v2-price{display:block;font-size:26px;margin-top:24px}.wf-v2-button{display:inline-flex;margin-top:22px;padding:14px 22px;border-radius:999px;background:${theme.ink};color:${theme.surface};font-weight:800;text-decoration:none}.wf-v2-content{padding-block:90px;border-top:1px solid color-mix(in srgb,${theme.ink} 16%,transparent)}.wf-v2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.wf-v2-grid article,.wf-v2-block{padding:22px;background:${theme.surface};border-radius:${radius}}.wf-v2-band{margin-block:56px;padding:44px;background:${theme.accent};border-radius:${radius};display:grid;grid-template-columns:1fr auto;gap:40px}.wf-v2-footer{border-top:1px solid ${theme.ink}}body[data-wf-mode="edit"] [data-wf-selected="true"]{outline:2px solid #315efb;outline-offset:-2px}body[data-wf-mode="edit"] [data-wf-hidden="true"]{opacity:.42}
-@media(max-width:700px){.wf-section{width:calc(100% - 28px);padding-block:54px}.wf-navigation>div{display:none}.wf-hero,.wf-image-text,.wf-footer{grid-template-columns:1fr;min-height:auto}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{min-height:390px}.wf-section__grid,.wf-gallery .wf-section__grid,.wf-before-after__media{grid-template-columns:1fr}.wf-video-hero{min-height:640px;padding:32px 20px}.wf-form form{display:grid}.wf-v2-wrap{width:calc(100% - 28px)}.wf-v2-nav>div{display:none}.wf-v2-split{grid-template-columns:1fr;min-height:auto;padding-block:24px}.wf-v2-media,.wf-v2-media img{min-height:390px}.wf-v2-grid{grid-template-columns:1fr}.wf-v2-band{grid-template-columns:1fr;padding:28px}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-size:48px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}${scopedStyles}</style></head><body data-wf-mode="${options.mode}" data-wf-breakpoint="${options.breakpoint}">${sections}</body></html>`;
+@media(max-width:700px){.wf-section{width:calc(100% - 28px);padding-block:54px}.wf-navigation>div{display:none}.wf-hero,.wf-image-text,.wf-footer{grid-template-columns:1fr;min-height:auto}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{min-height:390px}.wf-section__grid,.wf-gallery .wf-section__grid,.wf-before-after__media{grid-template-columns:1fr}.wf-video-hero{min-height:640px;padding:32px 20px}.wf-form form{display:grid}.wf-v2-wrap{width:calc(100% - 28px)}.wf-v2-nav>div{display:none}.wf-v2-split{grid-template-columns:1fr;min-height:auto;padding-block:24px}.wf-v2-media,.wf-v2-media img{min-height:390px}.wf-v2-grid{grid-template-columns:1fr}.wf-v2-band{grid-template-columns:1fr;padding:28px}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-size:48px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}${scopedStyles}${productChromeStyles}</style></head><body data-wf-mode="${options.mode}" data-wf-breakpoint="${options.breakpoint}">${sections}</body></html>`;
 }
 
 // src/lib/render-document.ts
@@ -28514,8 +28631,8 @@ function safeImage(value2) {
     return "";
   }
 }
-function text2(settings2, ...keys) {
-  for (const key of keys) {
+function text2(settings2, ...keys2) {
+  for (const key of keys2) {
     const value2 = settings2[key];
     if (typeof value2 === "string" && value2.trim()) return escapeHtml2(value2.trim());
   }
@@ -28685,19 +28802,19 @@ function number(value2) {
   const parsed = Number(value2);
   return Number.isFinite(parsed) ? parsed : null;
 }
-function resolveUrl(value2, base3) {
+function resolveUrl(value2, base7) {
   const raw = text3(value2);
   if (!raw) return null;
   try {
-    const url = new URL(raw, base3);
+    const url = new URL(raw, base7);
     return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
   } catch {
     return null;
   }
 }
 function productNode(value2) {
-  if (Array.isArray(value2)) for (const item2 of value2) {
-    const found = productNode(item2);
+  if (Array.isArray(value2)) for (const item3 of value2) {
+    const found = productNode(item3);
     if (found) return found;
   }
   if (!record(value2)) return null;
@@ -28735,7 +28852,7 @@ function extractProductFromHtml(html, sourceUrl) {
     return { id: text3(variant.sku) || `variant-${index + 1}`, title: text3(variant.name) || `Variant ${index + 1}`, price: number(variantOffer.price), ...image2 ? { image: image2 } : {} };
   }) : [];
   const imageCandidates = [...imageValues, ...variants.map((variant) => variant.image), meta(html, "og:image")];
-  const images = [...new Set(imageCandidates.map((value2) => resolveUrl(value2, sourceUrl)).filter((value2) => Boolean(value2)))];
+  const images2 = [...new Set(imageCandidates.map((value2) => resolveUrl(value2, sourceUrl)).filter((value2) => Boolean(value2)))];
   const reviews = node ? list(node.review).filter(record).map((review) => {
     const author = record(review.author) ? review.author.name : review.author;
     const rating = record(review.reviewRating) ? review.reviewRating.ratingValue : null;
@@ -28745,7 +28862,7 @@ function extractProductFromHtml(html, sourceUrl) {
   const description = text3(node?.description) || meta(html, "og:description") || meta(html, "description");
   const price = number(offers.price ?? meta(html, "product:price:amount"));
   const currency = text3(offers.priceCurrency) || meta(html, "product:price:currency");
-  if (!title || !images.length && price === null && !description) throw new Error("No usable product data was found.");
+  if (!title || !images2.length && price === null && !description) throw new Error("No usable product data was found.");
   return {
     sourceUrl,
     title,
@@ -28754,7 +28871,7 @@ function extractProductFromHtml(html, sourceUrl) {
     currency,
     price,
     compareAtPrice: number(node?.compareAtPrice),
-    images,
+    images: images2,
     variants,
     rating: number(aggregate.ratingValue),
     reviewCount: number(aggregate.reviewCount ?? aggregate.ratingCount),
@@ -28837,7 +28954,7 @@ async function importProduct(rawUrl, port) {
 
 // src/onboarding/product-truth.ts
 function sentences(value2) {
-  return value2.split(/(?<=[.!?])\s+/).map((item2) => item2.trim()).filter(Boolean).slice(0, 12);
+  return value2.split(/(?<=[.!?])\s+/).map((item3) => item3.trim()).filter(Boolean).slice(0, 12);
 }
 function buildProductTruthSheet(product) {
   const searchText = [product.title, product.description, product.vendor, ...product.variants.map((variant) => variant.title)].join(" ").toLowerCase();
@@ -28904,22 +29021,22 @@ function stem(product) {
   return words[0] || product.vendor || "Nova";
 }
 function fallbackOnboardingAnalysis(product, language) {
-  const base3 = stem(product);
+  const base7 = stem(product);
   const french = language.toLowerCase().startsWith("fr");
   const light = /lamp|light|lumi|éclair/i.test(`${product.title} ${product.description}`);
-  const names = light ? ["LumiWall", "AuraMount", "HaloBeam", "GlowMount", "Everlight", "Radiant Wall", "Beam & Base", "Zenith Glow"] : [`${base3} Studio`, `${base3} House`, `Maison ${base3}`, `${base3} & Co`, `${base3} Lab`, `The ${base3}`, `${base3} Daily`, `${base3} Works`];
+  const names = light ? ["LumiWall", "AuraMount", "HaloBeam", "GlowMount", "Everlight", "Radiant Wall", "Beam & Base", "Zenith Glow"] : [`${base7} Studio`, `${base7} House`, `Maison ${base7}`, `${base7} & Co`, `${base7} Lab`, `The ${base7}`, `${base7} Daily`, `${base7} Works`];
   const personas2 = [
     { title: french ? "Locataire qui veut am\xE9liorer son int\xE9rieur" : "Renter upgrading their space", insight: french ? `Veut profiter de ${product.title} sans installation compliqu\xE9e.` : `Wants ${product.title} without a complicated installation.`, icon: "\u{1F511}", tags: ["Problem-aware", "Researches first"] },
     { title: french ? "Passionn\xE9 de d\xE9coration" : "Design-conscious decorator", insight: french ? "Cherche une finition coh\xE9rente avec un int\xE9rieur soign\xE9." : "Looks for a finish that belongs in a considered interior.", icon: "\u2728", tags: ["Style-led", "Impulse buyer"] },
     { title: french ? "Acheteur pratique" : "Practical problem solver", insight: french ? "Privil\xE9gie un b\xE9n\xE9fice clair, imm\xE9diat et simple \xE0 utiliser." : "Prioritises a clear, immediate benefit and easy use.", icon: "\u26A1", tags: ["Solution-aware", "Direct"] },
     { title: french ? "Acheteur prudent" : "Careful comparison buyer", insight: french ? "A besoin de preuves, d\u2019avis et d\u2019une garantie rassurante." : "Needs proof, reviews and a reassuring guarantee.", icon: "\u{1F6E1}\uFE0F", tags: ["Trust-led", "Comparison shopper"] }
-  ].map((item2, index) => ({ id: `persona-${index + 1}`, ...item2, selected: index === 0 }));
+  ].map((item3, index) => ({ id: `persona-${index + 1}`, ...item3, selected: index === 0 }));
   const angles2 = [
     { title: french ? "Une marque digne de confiance" : "Buy from a trusted brand", description: french ? "Mets en avant la qualit\xE9, le service et les preuves clients." : "Lead with quality, service and customer evidence.", icon: "\u{1F6E1}\uFE0F", tags: ["Reassuring", "Social proof"] },
     { title: french ? "Une transformation visible" : "A visible transformation", description: french ? `Montre comment ${product.title} am\xE9liore concr\xE8tement le quotidien.` : `Show how ${product.title} materially improves everyday life.`, icon: "\u2728", tags: ["Transformation", "Benefit-led"] },
     { title: french ? "Simple d\xE8s la premi\xE8re utilisation" : "Easy from the first use", description: french ? "R\xE9duis la friction en expliquant l\u2019installation et l\u2019usage." : "Reduce friction by clarifying setup and everyday use.", icon: "\u26A1", tags: ["Practical", "Direct"] },
     { title: french ? "Une finition premium" : "A premium finish", description: french ? "Valorise le design, les mati\xE8res et la sensation de qualit\xE9." : "Emphasise design, materials and perceived quality.", icon: "\u25C6", tags: ["Premium", "Identity"] }
-  ].map((item2, index) => ({ id: `angle-${index + 1}`, ...item2, selected: index === 0 }));
+  ].map((item3, index) => ({ id: `angle-${index + 1}`, ...item3, selected: index === 0 }));
   const productTruth = buildProductTruthSheet(product);
   return { brandNames: names, personas: personas2, angles: angles2, productTruth, artDirection: selectArtDirection(productTruth) };
 }
@@ -29049,7 +29166,7 @@ function money(value2, currency) {
     return `${value2.toFixed(2)} ${currency}`;
   }
 }
-function item(id2, title, text5, extra = {}) {
+function item2(id2, title, text5, extra = {}) {
   return { id: id2, type: "item", settings: { title, text: text5, ...extra } };
 }
 function makeSection(type, index, settings2, blocks2 = []) {
@@ -29081,40 +29198,40 @@ function buildStoreDocument(input) {
   const sectionInputs = [
     ["announcement", { text: strings.announcement, cta_label: "" }],
     ["navigation", { title: input.brandName, cta_label: strings.cart, cta_link: "#product" }, [
-      item("navigation-shop", strings.shop, "", { label: strings.shop, link: "#product" }),
-      item("navigation-story", strings.story, "", { label: strings.story, link: "#story" })
+      item2("navigation-shop", strings.shop, "", { label: strings.shop, link: "#product" }),
+      item2("navigation-story", strings.story, "", { label: strings.story, link: "#story" })
     ]],
     ["productHero", { title: product.title, subtitle: product.vendor || strings.heroEyebrow, text: product.description, price, compare_at_price: compareAt, image: heroImage, image_alt: product.title, cta_label: strings.buy, cta_link: "#product" }],
-    ["gallery", { title: strings.gallery, text: "" }, product.images.map((url, index) => item(`gallery-image-${index + 1}`, `${product.title} \u2014 ${index + 1}`, "", { image: url, image_alt: `${product.title} ${index + 1}` }))],
+    ["gallery", { title: strings.gallery, text: "" }, product.images.map((url, index) => item2(`gallery-image-${index + 1}`, `${product.title} \u2014 ${index + 1}`, "", { image: url, image_alt: `${product.title} ${index + 1}` }))],
     ["productMain", { title: strings.product, text: selectedAngles[0]?.description ?? strings.heroEyebrow, price, compare_at_price: compareAt, image: heroImage, cta_label: strings.buy, product_handle: slugify2(product.title) }, product.variants.map((variant, index) => ({ id: `variant-${index + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } }))],
     ["bundle", { title: strings.bundle, text: product.title, price, cta_label: strings.buy, cta_link: "#product" }, [
-      item("bundle-single", strings.single, "", { price }),
-      item("bundle-duo", strings.duo, "", { price: product.price === null ? "" : money(product.price * 1.8, product.currency) }),
-      item("bundle-family", strings.family, "", { price: product.price === null ? "" : money(product.price * 2.55, product.currency) })
+      item2("bundle-single", strings.single, "", { price }),
+      item2("bundle-duo", strings.duo, "", { price: product.price === null ? "" : money(product.price * 1.8, product.currency) }),
+      item2("bundle-family", strings.family, "", { price: product.price === null ? "" : money(product.price * 2.55, product.currency) })
     ]],
-    ["benefits", { title: strings.benefits, text: selectedAngles.map((angle) => angle.title).slice(0, 3).join(" \xB7 ") || strings.detail }, selectedAngles.slice(0, 4).map((angle, index) => item(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
+    ["benefits", { title: strings.benefits, text: selectedAngles.map((angle) => angle.title).slice(0, 3).join(" \xB7 ") || strings.detail }, selectedAngles.slice(0, 4).map((angle, index) => item2(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
     ["imageText", { title: strings.detail, subtitle: selectedPersonas[0]?.title ?? "", text: selectedPersonas[0]?.insight ?? product.description, image: product.images[1] ?? heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
     ["hero", { title: selectedAngles[0]?.title ?? product.title, subtitle: product.vendor || strings.heroEyebrow, text: selectedAngles[0]?.description ?? product.description, image: heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
-    ["comparison", { title: "Pourquoi cette solution change la donne", text: product.description }, selectedAngles.slice(0, 4).map((angle, index) => item(`comparison-${index + 1}`, angle.title, angle.description))],
+    ["comparison", { title: "Pourquoi cette solution change la donne", text: product.description }, selectedAngles.slice(0, 4).map((angle, index) => item2(`comparison-${index + 1}`, angle.title, angle.description))],
     ["richText", { title: `L\u2019histoire derri\xE8re ${product.title}`, text: `${product.description}
 
 ${selectedPersonas[0]?.insight ?? "Une r\xE9ponse pens\xE9e pour un besoin concret, expliqu\xE9e simplement."}` }],
-    ["press", { title: "Vu, analys\xE9 et recommand\xE9", text: "Les points qui distinguent vraiment cette offre." }, selectedAngles.slice(0, 3).map((angle, index) => item(`press-${index + 1}`, angle.title, angle.description))],
-    ["quiz", { title: "Trouvons la bonne option pour vous", text: "R\xE9pondez \xE0 quelques questions pour obtenir une recommandation." }, selectedPersonas.slice(0, 4).map((persona, index) => item(`quiz-${index + 1}`, persona.title, persona.insight))],
+    ["press", { title: "Vu, analys\xE9 et recommand\xE9", text: "Les points qui distinguent vraiment cette offre." }, selectedAngles.slice(0, 3).map((angle, index) => item2(`press-${index + 1}`, angle.title, angle.description))],
+    ["quiz", { title: "Trouvons la bonne option pour vous", text: "R\xE9pondez \xE0 quelques questions pour obtenir une recommandation." }, selectedPersonas.slice(0, 4).map((persona, index) => item2(`quiz-${index + 1}`, persona.title, persona.insight))],
     ["form", { title: "Recevez votre recommandation", text: "Indiquez votre e-mail pour d\xE9couvrir le r\xE9sultat.", cta_label: "Voir ma recommandation" }],
-    ["collectionGrid", { title: `D\xE9couvrir ${input.brandName}`, text: "Les essentiels de la marque, r\xE9unis au m\xEAme endroit." }, product.images.slice(0, 6).map((url, index) => item(`collection-${index + 1}`, `${product.title} ${index + 1}`, product.description, { image: url }))],
+    ["collectionGrid", { title: `D\xE9couvrir ${input.brandName}`, text: "Les essentiels de la marque, r\xE9unis au m\xEAme endroit." }, product.images.slice(0, 6).map((url, index) => item2(`collection-${index + 1}`, `${product.title} ${index + 1}`, product.description, { image: url }))],
     ["newsletter", { title: "Restez au courant", text: "Nouveaut\xE9s, conseils et offres de la marque.", cta_label: "S\u2019inscrire" }]
   ];
-  sectionInputs.push(["testimonials", { title: strings.inspiration, subtitle: "", text: "" }, selectedPersonas.slice(0, 3).map((persona, index) => item(`persona-proof-${index + 1}`, persona.title, persona.insight, { tags: persona.tags }))]);
+  sectionInputs.push(["testimonials", { title: strings.inspiration, subtitle: "", text: "" }, selectedPersonas.slice(0, 3).map((persona, index) => item2(`persona-proof-${index + 1}`, persona.title, persona.insight, { tags: persona.tags }))]);
   if (product.reviews.length) {
-    sectionInputs.push(["reviews", { title: strings.reviews, subtitle: product.rating ? `${product.rating}/5` : "", text: strings.reviewsIntro }, product.reviews.slice(0, 8).map((review, index) => item(`review-${index + 1}`, review.title || review.author, review.text, { author: review.author, rating: review.rating, image: review.image ?? "" }))]);
+    sectionInputs.push(["reviews", { title: strings.reviews, subtitle: product.rating ? `${product.rating}/5` : "", text: strings.reviewsIntro }, product.reviews.slice(0, 8).map((review, index) => item2(`review-${index + 1}`, review.title || review.author, review.text, { author: review.author, rating: review.rating, image: review.image ?? "" }))]);
   }
   sectionInputs.push(
-    ["shipping", { title: strings.shipping, text: "" }, strings.shippingItems.map(([title, text5], index) => item(`shipping-${index + 1}`, title, text5))],
-    ["guarantees", { title: strings.guarantee, text: "" }, selectedAngles.slice(0, 3).map((angle, index) => item(`guarantee-${index + 1}`, angle.title, angle.description))],
-    ["faq", { title: strings.faq, text: "" }, strings.faqItems.map(([title, text5], index) => item(`faq-${index + 1}`, title, text5))],
+    ["shipping", { title: strings.shipping, text: "" }, strings.shippingItems.map(([title, text5], index) => item2(`shipping-${index + 1}`, title, text5))],
+    ["guarantees", { title: strings.guarantee, text: "" }, selectedAngles.slice(0, 3).map((angle, index) => item2(`guarantee-${index + 1}`, angle.title, angle.description))],
+    ["faq", { title: strings.faq, text: "" }, strings.faqItems.map(([title, text5], index) => item2(`faq-${index + 1}`, title, text5))],
     ["cta", { title: strings.cta, text: selectedPersonas[0]?.insight ?? strings.footer, cta_label: strings.buy, cta_link: "#product" }],
-    ["footer", { title: input.brandName, text: strings.footer, cta_label: "" }, [item("footer-shop", strings.shop, "", { label: strings.shop, link: "#product" })]]
+    ["footer", { title: input.brandName, text: strings.footer, cta_label: "" }, [item2("footer-shop", strings.shop, "", { label: strings.shop, link: "#product" })]]
   );
   const proof = product.reviews.length ? "reviews" : "testimonials";
   const requestedTypes = sectionTypesForCreation(input.creationFormat ?? "store", artDirection.id, proof);
@@ -29263,12 +29380,12 @@ function slugify3(value2) {
   return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "store";
 }
 async function uniqueSlug2(deps, workspaceId, name) {
-  const base3 = slugify3(name);
+  const base7 = slugify3(name);
   const used = new Set((await deps.store.listPages(workspaceId)).map((page) => page.slug));
-  if (!used.has(base3)) return base3;
+  if (!used.has(base7)) return base7;
   let index = 2;
-  while (used.has(`${base3}-${index}`)) index += 1;
-  return `${base3}-${index}`;
+  while (used.has(`${base7}-${index}`)) index += 1;
+  return `${base7}-${index}`;
 }
 function onboardingRoutes(deps) {
   const app2 = new Hono9();
@@ -34035,11 +34152,11 @@ var isPlainObject = (value2) => {
   const prototype = Object.getPrototypeOf(value2);
   return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in value2) && !(Symbol.iterator in value2);
 };
-var recursiveToCamel = (item2) => {
-  if (Array.isArray(item2)) return item2.map((el) => recursiveToCamel(el));
-  else if (typeof item2 === "function" || item2 !== Object(item2)) return item2;
+var recursiveToCamel = (item3) => {
+  if (Array.isArray(item3)) return item3.map((el) => recursiveToCamel(el));
+  else if (typeof item3 === "function" || item3 !== Object(item3)) return item3;
   const result = {};
-  Object.entries(item2).forEach(([key, value2]) => {
+  Object.entries(item3).forEach(([key, value2]) => {
     const newKey = key.replace(/([-_][a-z])/gi, (c) => c.toUpperCase().replace(/[-_]/g, ""));
     result[newKey] = recursiveToCamel(value2);
   });
@@ -40222,24 +40339,24 @@ function tags(value2) {
 }
 function personas(value2) {
   if (!Array.isArray(value2)) return [];
-  return value2.filter((item2) => Boolean(item2) && typeof item2 === "object" && !Array.isArray(item2)).slice(0, 4).map((item2, index) => ({
-    id: clean(item2.id, 40) || `persona-${index + 1}`,
-    title: clean(item2.title, 80) || `Customer ${index + 1}`,
-    insight: clean(item2.insight, 260),
-    icon: clean(item2.icon, 8) || "\u25CF",
-    tags: tags(item2.tags),
-    selected: item2.selected === true
+  return value2.filter((item3) => Boolean(item3) && typeof item3 === "object" && !Array.isArray(item3)).slice(0, 4).map((item3, index) => ({
+    id: clean(item3.id, 40) || `persona-${index + 1}`,
+    title: clean(item3.title, 80) || `Customer ${index + 1}`,
+    insight: clean(item3.insight, 260),
+    icon: clean(item3.icon, 8) || "\u25CF",
+    tags: tags(item3.tags),
+    selected: item3.selected === true
   }));
 }
 function angles(value2) {
   if (!Array.isArray(value2)) return [];
-  return value2.filter((item2) => Boolean(item2) && typeof item2 === "object" && !Array.isArray(item2)).slice(0, 4).map((item2, index) => ({
-    id: clean(item2.id, 40) || `angle-${index + 1}`,
-    title: clean(item2.title, 80) || `Angle ${index + 1}`,
-    description: clean(item2.description, 260),
-    icon: clean(item2.icon, 8) || "\u25CF",
-    tags: tags(item2.tags),
-    selected: item2.selected === true
+  return value2.filter((item3) => Boolean(item3) && typeof item3 === "object" && !Array.isArray(item3)).slice(0, 4).map((item3, index) => ({
+    id: clean(item3.id, 40) || `angle-${index + 1}`,
+    title: clean(item3.title, 80) || `Angle ${index + 1}`,
+    description: clean(item3.description, 260),
+    icon: clean(item3.icon, 8) || "\u25CF",
+    tags: tags(item3.tags),
+    selected: item3.selected === true
   }));
 }
 function validateOnboardingAnalysis(value2, product) {
@@ -40353,9 +40470,9 @@ function createFalImageStudio(key, fetcher = fetch) {
         return Array.isArray(payload.images) ? payload.images : payload.image ? [payload.image] : [];
       };
       const batches = await Promise.all(Array.from({ length: model.id === "flux-2-flex" ? input.numImages : 1 }, requestOnce));
-      const images = batches.flat();
-      if (!images.length || images.some((image2) => typeof image2?.url !== "string")) throw new Error("Fal returned no image");
-      return { images };
+      const images2 = batches.flat();
+      if (!images2.length || images2.some((image2) => typeof image2?.url !== "string")) throw new Error("Fal returned no image");
+      return { images: images2 };
     } finally {
       clearTimeout(timer2);
     }

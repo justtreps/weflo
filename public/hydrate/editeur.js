@@ -231,6 +231,166 @@ function createEditorAutosave(options) {
   };
 }
 
+// src/section-preview/fixtures.ts
+var images = (ids) => ids.map((id2) => `https://images.unsplash.com/${id2}?auto=format&fit=crop&w=1600&q=88`);
+function fixture(input) {
+  const [background, surface, ink, accent] = input.colors;
+  return {
+    id: input.id,
+    archetypes: input.archetypes,
+    brand: {
+      name: input.name,
+      palette: input.colors,
+      headingFont: input.fonts[0],
+      bodyFont: input.fonts[1],
+      schemes: [{ name: "Clair", background, text: ink, accent }, { name: "Surface", background: surface, text: ink, accent }]
+    },
+    theme: { background, surface, ink, muted: `${ink}A8`, accent, display: input.fonts[0].includes("Playfair") || input.fonts[0].includes("Libre") ? "serif" : "sans", radius: "soft" },
+    product: {
+      sourceUrl: `https://demo.weflo.app/${input.id}`,
+      title: input.title,
+      description: input.description,
+      vendor: input.name,
+      currency: input.currency ?? "EUR",
+      price: input.price,
+      compareAtPrice: input.compareAtPrice,
+      images: images(input.images),
+      rating: 4.8,
+      reviewCount: 327,
+      variants: [{ id: "classic", title: "Classique", price: input.price }, { id: "duo", title: "Duo", price: Math.round(input.price * 1.72) }],
+      reviews: []
+    },
+    previewOnly: {
+      benefits: input.benefits.map((text3, index) => ({ title: ["Pens\xE9 avec pr\xE9cision", "Simple au quotidien", "Une qualit\xE9 durable"][index] ?? `B\xE9n\xE9fice ${index + 1}`, text: text3 })),
+      reviews: [
+        { author: "Lina M.", title: "Encore mieux qu\u2019esp\xE9r\xE9", text: `Une exp\xE9rience ${input.name} tr\xE8s soign\xE9e, du produit \xE0 la livraison.`, rating: 5 },
+        { author: "Camille R.", title: "Beau et vraiment utile", text: "Tout est clair, simple et la qualit\xE9 se remarque imm\xE9diatement.", rating: 5 },
+        { author: "Noa B.", title: "Je recommande", text: "Une belle d\xE9couverte que j\u2019utilise maintenant chaque semaine.", rating: 5 }
+      ],
+      faqs: input.faqs.map((question, index) => ({ question, answer: ["Oui, tout a \xE9t\xE9 con\xE7u pour une prise en main imm\xE9diate.", "La commande est suivie et pr\xE9par\xE9e sous 48 heures.", "Tu disposes de trente jours pour changer d\u2019avis."][index] ?? "Notre \xE9quipe te r\xE9pond rapidement." })),
+      bundles: [{ title: "L\u2019essentiel", quantity: 1, price: `${input.price} \u20AC` }, { title: "Le duo", quantity: 2, price: `${Math.round(input.price * 1.72)} \u20AC`, badge: "Le plus choisi" }, { title: "La routine", quantity: 3, price: `${Math.round(input.price * 2.28)} \u20AC`, badge: "Meilleure valeur" }]
+    }
+  };
+}
+var SECTION_PREVIEW_FIXTURES = [
+  fixture({ id: "aurea-serum", archetypes: ["beauty", "wellness"], name: "Aur\xE9a", title: "S\xE9rum \xC9clat 03", description: "Un concentr\xE9 lumineux qui hydrate, apaise et r\xE9v\xE8le l\u2019\xE9clat naturel de la peau.", price: 48, compareAtPrice: 62, colors: ["#F3ECE7", "#FFFDFC", "#261B17", "#C87557"], fonts: ["Playfair Display", "Inter"], images: ["photo-1620916566398-39f1143ab7be", "photo-1556228578-8c89e6adf883", "photo-1598440947619-2c35fc9aa908"], benefits: ["Une formule courte aux actifs essentiels.", "Une texture l\xE9g\xE8re pens\xE9e pour chaque matin.", "Un flacon durable et une routine sans complication."], faqs: ["Convient-il aux peaux sensibles ?", "Quand appliquer le s\xE9rum ?", "Puis-je l\u2019essayer sans risque ?"] }),
+  fixture({ id: "halo-lamp", archetypes: ["home", "gadget", "design"], name: "Halo", title: "Lampe murale Halo One", description: "Une lumi\xE8re chaude, magn\xE9tique et sans fil qui se place exactement o\xF9 tu en as besoin.", price: 59, compareAtPrice: 79, colors: ["#EDE9E1", "#FFFEFA", "#171713", "#D4A72C"], fonts: ["Manrope", "Inter"], images: ["photo-1507473885765-e6ed057f782c", "photo-1540932239986-30128078f3c5", "photo-1513506003901-1e6a229e2d15"], benefits: ["Installation sans c\xE2ble ni per\xE7age.", "Orientation magn\xE9tique en un geste.", "Lumi\xE8re chaude rechargeable et apaisante."], faqs: ["La fixation tient-elle durablement ?", "Quelle est l\u2019autonomie ?", "Comment la recharger ?"] }),
+  fixture({ id: "noma-bag", archetypes: ["fashion"], name: "Noma", title: "Sac Week-end N\xB02", description: "Un sac souple et structur\xE9, con\xE7u pour voyager l\xE9ger sans renoncer aux beaux d\xE9tails.", price: 189, compareAtPrice: 229, colors: ["#EEE9E0", "#FBF8F1", "#211B16", "#8A5638"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1553062407-98eeb64c6a62", "photo-1548036328-c9fa89d128fa", "photo-1594223274512-ad4803739b7c"], benefits: ["Une ouverture large et des poches utiles.", "Une mati\xE8re r\xE9sistante qui se patine bien.", "Le bon format pour deux \xE0 quatre jours."], faqs: ["Passe-t-il en cabine ?", "Comment entretenir la mati\xE8re ?", "Est-il garanti ?"] }),
+  fixture({ id: "pulse-recovery", archetypes: ["sport", "wellness"], name: "Pulse", title: "Recovery Daily", description: "La formule quotidienne pens\xE9e pour mieux r\xE9cup\xE9rer et retrouver ton rythme d\xE8s le lendemain.", price: 39, compareAtPrice: 49, colors: ["#E9F0E7", "#FCFFF9", "#132016", "#79B96A"], fonts: ["Space Grotesk", "Inter"], images: ["photo-1593095948071-474c5cc2989d", "photo-1579722821273-0f6c1ddde163", "photo-1538805060514-97d9cc17730c"], benefits: ["Une dose simple apr\xE8s l\u2019effort.", "Des ingr\xE9dients clairement expliqu\xE9s.", "Un format pens\xE9 pour trente jours."], faqs: ["Quand prendre la formule ?", "Que contient-elle ?", "Convient-elle \xE0 tous les sports ?"] }),
+  fixture({ id: "brume-coffee", archetypes: ["food"], name: "Brume", title: "Assemblage Matin Calme", description: "Un caf\xE9 rond et pr\xE9cis, torr\xE9fi\xE9 en petite s\xE9rie pour une tasse douce chaque matin.", price: 16, compareAtPrice: 19, colors: ["#EFE3D3", "#FFF9EF", "#2B1B13", "#D56A35"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1447933601403-0c6688de566e", "photo-1495474472287-4d71bcdd2085", "photo-1512568400610-62da28bc8a13"], benefits: ["Des grains sourc\xE9s avec transparence.", "Une torr\xE9faction fra\xEEche chaque semaine.", "Un profil doux, chocolat\xE9 et \xE9quilibr\xE9."], faqs: ["Quelle mouture choisir ?", "Quand le caf\xE9 est-il torr\xE9fi\xE9 ?", "Comment le conserver ?"] }),
+  fixture({ id: "forma-table", archetypes: ["home", "design"], name: "Forma", title: "Service Ondes", description: "Des pi\xE8ces de table sculpturales et faciles \xE0 vivre, dessin\xE9es pour les repas de tous les jours.", price: 84, compareAtPrice: 104, colors: ["#E9E4DA", "#FAF8F3", "#1F211B", "#6C7B4B"], fonts: ["Playfair Display", "Inter"], images: ["photo-1610701596007-11502861dcfa", "photo-1578749556568-bc2c40e68b61", "photo-1612196808214-b8e1d6145a8c"], benefits: ["Des formes empilables et agr\xE9ables en main.", "Une finition mate r\xE9sistante au quotidien.", "Chaque pi\xE8ce poss\xE8de de l\xE9g\xE8res nuances."], faqs: ["Les pi\xE8ces passent-elles au lave-vaisselle ?", "Sont-elles fabriqu\xE9es \xE0 la main ?", "Puis-je compl\xE9ter le service plus tard ?"] })
+];
+function fixtureById(id2) {
+  const found = SECTION_PREVIEW_FIXTURES.find((item2) => item2.id === id2);
+  if (!found) throw new Error(`Unknown preview fixture: ${id2}`);
+  return found;
+}
+
+// src/section-preview/manifests.ts
+var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds) => {
+  const base7 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
+  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base7}-desktop.webp`, mobile: `${base7}-mobile.webp` }, previewVersion: 1 };
+};
+var SECTION_PREVIEW_MANIFESTS = [
+  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"]),
+  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"]),
+  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"], "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"]),
+  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
+  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
+  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"]),
+  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"]),
+  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"]),
+  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
+  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"]),
+  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"]),
+  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"])
+];
+var keys = /* @__PURE__ */ new Set();
+for (const manifest of SECTION_PREVIEW_MANIFESTS) {
+  const key = `${manifest.sectionType}:${manifest.variantId}`;
+  if (keys.has(key)) throw new Error(`Duplicate section preview manifest: ${key}`);
+  keys.add(key);
+  fixtureById(manifest.defaultFixtureId);
+  for (const id2 of manifest.compatibleFixtureIds) fixtureById(id2);
+  if (!manifest.compatibleFixtureIds.includes(manifest.defaultFixtureId)) throw new Error(`Default fixture is incompatible: ${key}`);
+}
+function previewManifest(sectionType, variantId) {
+  const found = SECTION_PREVIEW_MANIFESTS.find((item2) => item2.sectionType === sectionType && item2.variantId === variantId);
+  if (!found) throw new Error(`Unknown section preview manifest: ${sectionType}:${variantId}`);
+  return found;
+}
+function previewManifestsForCategory(category) {
+  return category ? SECTION_PREVIEW_MANIFESTS.filter((item2) => item2.category === category) : [...SECTION_PREVIEW_MANIFESTS];
+}
+
+// src/editor/ui/section-catalog.ts
+function escape(value2) {
+  return value2.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+function sectionCatalogMarkup(input) {
+  return previewManifestsForCategory(input.category).map((manifest) => {
+    const key = `${manifest.sectionType}:${manifest.variantId}`;
+    return `<article class="section-catalog-card" data-section-variant="${escape(key)}">
+      <button type="button" class="section-catalog-media" data-section-preview-open="${escape(key)}" aria-label="Voir ${escape(manifest.title)} en grand">
+        <img src="${escape(manifest.preview[input.viewport])}" data-preview-desktop="${escape(manifest.preview.desktop)}" data-preview-mobile="${escape(manifest.preview.mobile)}" alt="Aper\xE7u ${escape(manifest.title)}" loading="lazy">
+        <span>Voir en grand \u2197</span>
+      </button>
+      <div class="section-catalog-copy"><small>${escape(manifest.conversionGoal)}</small><strong>${escape(manifest.title)}</strong><em>${manifest.supportedArchetypes.map(escape).join(" \xB7 ")}</em></div>
+      <button type="button" class="section-catalog-add" data-section-variant-insert="${escape(key)}">+ Ajouter</button>
+    </article>`;
+  }).join("");
+}
+function sectionCatalogShellMarkup() {
+  const categories = [{ id: "", label: "Tout" }, { id: "hero", label: "Hero" }, { id: "product", label: "Produit" }, { id: "benefits", label: "B\xE9n\xE9fices" }, { id: "proof", label: "Avis" }, { id: "offer", label: "Offres" }, { id: "faq", label: "FAQ" }];
+  return `<div class="section-catalog" data-section-catalog data-catalog-category="" data-catalog-viewport="desktop">
+    <div class="section-catalog-head"><div><strong>Sections premium</strong><small>Construites comme de vraies sections Shopify.</small></div><div class="section-catalog-viewports"><button type="button" data-catalog-viewport="desktop" aria-pressed="true">Bureau</button><button type="button" data-catalog-viewport="mobile" aria-pressed="false">Mobile</button></div></div>
+    <div class="section-catalog-filters">${categories.map((item2) => `<button type="button" data-catalog-filter="${item2.id}" aria-pressed="${item2.id === ""}">${item2.label}</button>`).join("")}</div>
+    <div class="section-catalog-grid" data-section-catalog-grid>${sectionCatalogMarkup({ viewport: "desktop" })}</div>
+  </div>`;
+}
+
+// src/editor/ui/panels/add-section.ts
+function addSectionPanel() {
+  return `<section data-panel="add"><p class="editor-panel-help">Choisis une vraie composition, teste-la avec un produit fictif puis adapte-la \xE0 ta marque.</p>${sectionCatalogShellMarkup()}</section>`;
+}
+
+// src/editor/ui/panels/commerce.ts
+function commercePanel(state) {
+  const product = state.document.commerce?.sourceProduct;
+  const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
+  const groups = [["Produit", ["productHero", "gallery", "productMain"]], ["Offres group\xE9es", ["bundle", "cta"]], ["Client cible", ["benefits", "reviews", "testimonials"]], ["Angle marketing", ["imageText", "comparison", "guarantees"]]];
+  return `<section data-panel="commerce">${product ? `<div class="editor-product-card">${product.images[0] ? `<img src="${product.images[0]}" alt="">` : ""}<div><strong>${product.title}</strong><small>${product.vendor}</small></div></div>` : ""}<p class="editor-panel-help">Sections e-commerce cr\xE9\xE9es \xE0 partir de ton produit et de ta strat\xE9gie.</p><div class="editor-commerce-groups">${groups.map(([label, types]) => {
+    const section2 = page.sections.find((item2) => types.includes(item2.type));
+    return `<button type="button" data-panel-action="${section2 ? "select" : "insert"}" ${section2 ? `data-section-id="${section2.id}"` : `data-section-type="${types[0]}"`}><span><b>${label}</b><small>${section2 ? section2.name : "Ajouter \xE0 la page"}</small></span><i>\u203A</i></button>`;
+  }).join("")}</div><a class="editor-shopify-link" href="/dashboard#shopify">Connexion et publication Shopify \u2192</a></section>`;
+}
+
+// src/editor/ui/panels/layers.ts
+function layersPanel(state) {
+  const kit = state.document.commerce?.brandKit;
+  const fonts = ["Inter", "DM Sans", "Manrope", "Space Grotesk", "Playfair Display", "Libre Baskerville"];
+  const fontSelect = (key, value2) => `<select data-theme-key="${key}">${fonts.map((font) => `<option value="${font}"${font === value2 ? " selected" : ""}>${font}</option>`).join("")}</select>`;
+  const colorLabels = { background: "Arri\xE8re-plan", surface: "Surface", ink: "Texte", accent: "Accent" };
+  return `<section data-panel="layers"><p class="editor-panel-help">L\u2019identit\xE9 globale de ta marque. Les changements s\u2019appliquent \xE0 toutes les sections.</p><div class="editor-brand-preview"><small>IDENTIT\xC9 DE MARQUE</small><strong>${state.document.name}</strong><span style="font-family:${kit?.headingFont ?? "Inter"}">Aa</span></div><h3 class="editor-panel-heading">Couleurs</h3><div class="editor-theme-colors">${["background", "surface", "ink", "accent"].map((key) => `<label><input type="color" data-theme-key="${key}" value="${state.document.theme[key]}"><small>${colorLabels[key]}</small></label>`).join("")}</div><h3 class="editor-panel-heading">Typographie</h3><label class="editor-theme-field"><small>Titres</small>${fontSelect("headingFont", kit?.headingFont ?? "Inter")}</label><label class="editor-theme-field"><small>Texte</small>${fontSelect("bodyFont", kit?.bodyFont ?? "Inter")}</label></section>`;
+}
+
+// src/editor/ui/panels/media.ts
+function mediaPanel(state) {
+  return `<section data-panel="media"><button type="button" class="editor-panel-primary" data-panel-action="uploadMedia">Importer un m\xE9dia</button><div class="editor-media-grid">${state.document.assets.length ? state.document.assets.map((asset) => `<button type="button" data-panel-action="pickMedia" data-asset-id="${asset.id}"><img src="${asset.url}" alt="${asset.alt ?? ""}"></button>`).join("") : "<p>Aucun m\xE9dia. Importe une image ou une vid\xE9o.</p>"}</div></section>`;
+}
+
+// src/editor/ui/panels/pages.ts
+function pagesPanel(state) {
+  return `<section data-panel="pages"><button type="button" class="editor-panel-primary" data-panel-action="addPage">Ajouter une page</button>${state.document.pages.map((page) => `<button type="button" class="editor-panel-row" data-panel-action="selectPage" data-page-id="${page.id}" aria-pressed="${page.id === state.pageId}"><span>${page.name}</span><small>/${page.slug}</small></button>`).join("")}</section>`;
+}
+
+// src/editor/ui/panels/structure.ts
+function structurePanel(state) {
+  const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
+  const rows = page.sections.map((section2, index) => `<button type="button" class="editor-panel-row" data-panel-action="select" data-section-id="${section2.id}" aria-pressed="${state.selectedId === section2.id}"><i>${String(index + 1).padStart(2, "0")}</i><span>${section2.name}</span><small>${section2.hidden ? "Masqu\xE9e" : "Modifier"}</small></button>`).join("");
+  return `<section data-panel="structure"><p class="editor-panel-help">S\xE9lectionne, modifie et r\xE9organise chaque section r\xE9elle de la boutique.</p><div class="editor-panel-list">${rows}</div></section>`;
+}
+
 // src/sections/registry.ts
 var definitions = /* @__PURE__ */ new Map();
 function assertComplete(definition) {
@@ -239,6 +399,7 @@ function assertComplete(definition) {
   if (!definition.category) throw new Error(`Section ${definition.type} category is required`);
   if (!definition.defaults || !Array.isArray(definition.settings) || !Array.isArray(definition.blocks)) throw new Error(`Section ${definition.type} schema is incomplete`);
   if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
+  for (const variant of definition.previewVariants ?? []) previewManifest(definition.type, variant);
 }
 function registerSection(definition) {
   assertComplete(definition);
@@ -248,9 +409,6 @@ function registerSection(definition) {
 }
 function getSectionDefinition(type) {
   return definitions.get(type);
-}
-function listSectionDefinitions() {
-  return [...definitions.values()];
 }
 
 // src/sections/shared.ts
@@ -278,8 +436,8 @@ function image(section2, key = "image", alt = "", className = "wf-section__image
   const url = safeMediaUrl(section2.settings[key]);
   return url ? `<img class="${escapeHtml(className)}" src="${url}" alt="${escapeHtml(alt)}" loading="lazy" data-wf-media-key="${escapeHtml(key)}">` : `<div class="${escapeHtml(className)} wf-media-empty" data-wf-media-key="${escapeHtml(key)}" role="img" aria-label="Ajouter une image"></div>`;
 }
-function blockValue(block2, key, fallback = "") {
-  const current = block2.settings[key];
+function blockValue(block3, key, fallback = "") {
+  const current = block3.settings[key];
   return typeof current === "string" || typeof current === "number" ? String(current) : fallback;
 }
 var textControl = (key, label, type = "text") => ({ key, label, type, scope: "settings" });
@@ -294,9 +452,9 @@ var cta = [textControl("cta_label", "Libell\xE9 du bouton"), textControl("cta_li
 var media = [textControl("image", "Image", "image"), textControl("image_alt", "Texte alternatif")];
 var itemBlock = { type: "item", name: "\xC9l\xE9ment", defaults: { title: "Nouvel \xE9l\xE9ment", text: "D\xE9cris cet \xE9l\xE9ment." }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("image", "Image", "image"), textControl("link", "Lien", "link")] };
 function renderBlocks(blocks2, tag = "article") {
-  return blocks2.map((block2) => {
-    const rating = Number(block2.settings.rating);
-    return `<${tag} class="wf-section__card" data-wf-block-id="${escapeHtml(block2.id)}">${block2.settings.image ? `<img src="${safeMediaUrl(block2.settings.image)}" alt="${escapeHtml(blockValue(block2, "image_alt", blockValue(block2, "title")))}">` : ""}${Number.isFinite(rating) && rating > 0 ? `<span role="img" aria-label="${rating} \xE9toiles sur 5">${"\u2605".repeat(Math.min(5, rating))}</span>` : ""}<h3>${escapeHtml(blockValue(block2, "title", blockValue(block2, "label", "\xC9l\xE9ment")))}</h3><p>${escapeHtml(blockValue(block2, "text"))}</p>${block2.settings.link ? `<a href="${safeLink(block2.settings.link)}">${escapeHtml(blockValue(block2, "label", "D\xE9couvrir"))}</a>` : ""}</${tag}>`;
+  return blocks2.map((block3) => {
+    const rating = Number(block3.settings.rating);
+    return `<${tag} class="wf-section__card" data-wf-block-id="${escapeHtml(block3.id)}">${block3.settings.image ? `<img src="${safeMediaUrl(block3.settings.image)}" alt="${escapeHtml(blockValue(block3, "image_alt", blockValue(block3, "title")))}">` : ""}${Number.isFinite(rating) && rating > 0 ? `<span role="img" aria-label="${rating} \xE9toiles sur 5">${"\u2605".repeat(Math.min(5, rating))}</span>` : ""}<h3>${escapeHtml(blockValue(block3, "title", blockValue(block3, "label", "\xC9l\xE9ment")))}</h3><p>${escapeHtml(blockValue(block3, "text"))}</p>${block3.settings.link ? `<a href="${safeLink(block3.settings.link)}">${escapeHtml(blockValue(block3, "label", "D\xE9couvrir"))}</a>` : ""}</${tag}>`;
   }).join("");
 }
 function button(section2) {
@@ -310,7 +468,7 @@ function web(layout, section2, pageName) {
   const variant = value(section2, "variant", "default");
   const heading = edit(layout === "hero" || layout === "productHero" || layout === "videoHero" ? "h1" : "h2", "title", title);
   const intro = `${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}`;
-  if (layout === "navigation") return `<nav class="wf-section wf-navigation" aria-label="Navigation principale"><a class="wf-navigation__brand" href="/">${escapeHtml(title)}</a><div>${section2.blocks.map((block2) => `<a href="${safeLink(block2.settings.link)}">${escapeHtml(blockValue(block2, "label", "Lien"))}</a>`).join("")}</div>${button(section2)}</nav>`;
+  if (layout === "navigation") return `<nav class="wf-section wf-navigation" aria-label="Navigation principale"><a class="wf-navigation__brand" href="/">${escapeHtml(title)}</a><div>${section2.blocks.map((block3) => `<a href="${safeLink(block3.settings.link)}">${escapeHtml(blockValue(block3, "label", "Lien"))}</a>`).join("")}</div>${button(section2)}</nav>`;
   if (layout === "announcement") return `<aside class="wf-section wf-announcement">${edit("p", "text", copy || title)}${button(section2)}</aside>`;
   if (layout === "hero" || layout === "productHero") return `<div class="wf-section wf-hero wf-hero--${layout}"><div class="wf-hero__content">${intro}${layout === "productHero" ? `<strong class="wf-section__price">${escapeHtml(value(section2, "price", "49,00 \u20AC"))}</strong>` : ""}${button(section2)}</div><figure>${image(section2, "image", value(section2, "image_alt", title))}</figure></div>`;
   if (layout === "videoHero") {
@@ -321,14 +479,14 @@ function web(layout, section2, pageName) {
   if (layout === "imageText") return `<div class="wf-section wf-image-text">${image(section2, "image", value(section2, "image_alt", title))}<div>${intro}${button(section2)}</div></div>`;
   if (layout === "beforeAfter") return `<div class="wf-section wf-before-after">${intro}<div class="wf-before-after__media">${image(section2, "before_image", value(section2, "before_alt", "Avant"))}${image(section2, "after_image", value(section2, "after_alt", "Apr\xE8s"))}</div></div>`;
   if (layout === "product") {
-    const variants = section2.blocks.filter((block2) => block2.type === "variant");
-    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks.filter((block2) => block2.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants.length ? variants.map((block2) => `<option value="${escapeHtml(blockValue(block2, "variant_id", block2.id))}">${escapeHtml(blockValue(block2, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form></div>`;
+    const variants = section2.blocks.filter((block3) => block3.type === "variant");
+    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks.filter((block3) => block3.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants.length ? variants.map((block3) => `<option value="${escapeHtml(blockValue(block3, "variant_id", block3.id))}">${escapeHtml(blockValue(block3, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form></div>`;
   }
-  if (layout === "bundle") return `<div class="wf-section wf-bundle">${intro}<fieldset><legend>Compose ton bundle</legend>${section2.blocks.map((block2) => `<label><input type="checkbox" name="bundle" value="${escapeHtml(block2.id)}"><span>${escapeHtml(blockValue(block2, "title"))}</span><strong>${escapeHtml(blockValue(block2, "price"))}</strong></label>`).join("")}</fieldset><output class="wf-bundle__total" aria-live="polite">${escapeHtml(value(section2, "price", "Total calcul\xE9 dans le panier"))}</output>${button(section2)}</div>`;
+  if (layout === "bundle") return `<div class="wf-section wf-bundle">${intro}<fieldset><legend>Compose ton bundle</legend>${section2.blocks.map((block3) => `<label><input type="checkbox" name="bundle" value="${escapeHtml(block3.id)}"><span>${escapeHtml(blockValue(block3, "title"))}</span><strong>${escapeHtml(blockValue(block3, "price"))}</strong></label>`).join("")}</fieldset><output class="wf-bundle__total" aria-live="polite">${escapeHtml(value(section2, "price", "Total calcul\xE9 dans le panier"))}</output>${button(section2)}</div>`;
   if (layout === "comparison") return `<div class="wf-section wf-comparison">${intro}<div role="table">${renderBlocks(section2.blocks, "div")}</div></div>`;
-  if (layout === "faq") return `<div class="wf-section wf-faq">${intro}${section2.blocks.map((block2) => `<details><summary>${escapeHtml(blockValue(block2, "title", "Question"))}</summary><p>${escapeHtml(blockValue(block2, "text"))}</p></details>`).join("")}</div>`;
+  if (layout === "faq") return `<div class="wf-section wf-faq">${intro}${section2.blocks.map((block3) => `<details><summary>${escapeHtml(blockValue(block3, "title", "Question"))}</summary><p>${escapeHtml(blockValue(block3, "text"))}</p></details>`).join("")}</div>`;
   if (layout === "form") return `<div class="wf-section wf-form">${intro}<form><label>Email<input type="email" name="email" autocomplete="email" required></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Envoyer"))}</button></form></div>`;
-  if (layout === "quiz") return `<div class="wf-section wf-quiz">${intro}<form>${section2.blocks.map((block2, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block2, "title", `\xC9tape ${index + 1}`))}</legend><label><input type="radio" name="step-${index}" value="yes"> ${escapeHtml(blockValue(block2, "text", "Oui"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form></div>`;
+  if (layout === "quiz") return `<div class="wf-section wf-quiz">${intro}<form>${section2.blocks.map((block3, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block3, "title", `\xC9tape ${index + 1}`))}</legend><label><input type="radio" name="step-${index}" value="yes"> ${escapeHtml(blockValue(block3, "text", "Oui"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form></div>`;
   if (layout === "cta") return `<div class="wf-section wf-cta">${intro}${button(section2)}</div>`;
   if (layout === "richText") return `<article class="wf-section wf-rich-text">${intro}${renderBlocks(section2.blocks)}</article>`;
   if (layout === "footer") return `<footer class="wf-section wf-footer"><div>${heading}${copy ? `<p>${escapeHtml(copy)}</p>` : ""}</div><nav aria-label="Pied de page">${renderBlocks(section2.blocks, "div")}</nav></footer>`;
@@ -368,6 +526,7 @@ var heroSection = createSectionDefinition("hero", "Hero de marque", "brand", "he
 var base = createSectionDefinition("productHero", "Hero produit", "commerce", "productHero", { price: "49,00 \u20AC", image: "", image_alt: "", variant: "ambient-editorial" });
 var productHeroSection = {
   ...base,
+  previewVariants: ["beauty-editorial", "object-editorial"],
   renderWeb: ({ section: section2, pageName }) => {
     const title = value(section2, "title", pageName);
     const subtitle = value(section2, "subtitle");
@@ -376,10 +535,11 @@ var productHeroSection = {
     const cta2 = value(section2, "cta_label", "Ajouter au panier");
     const media3 = image(section2, "image", value(section2, "image_alt", title), "wf-hero__image");
     const action = `<a class="wf-section__button" href="${safeLink(section2.settings.cta_link)}">${escapeHtml(cta2)}</a>`;
-    const variant = value(section2, "variant", "ambient-editorial");
+    const requested = value(section2, "variant", "ambient-editorial");
+    const variant = (/* @__PURE__ */ new Set(["ambient-editorial", "problem-solution", "clinical-evidence", "beauty-editorial", "object-editorial"])).has(requested) ? requested : "ambient-editorial";
     if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy"><span>Le probl\xE8me, r\xE9solu.</span>${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-hero__proof">\u2713 Simple \xE0 choisir \xB7 \u2713 Pens\xE9 pour le quotidien</div>${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media3}<figcaption>${escapeHtml(subtitle)}</figcaption></figure></section>`;
     if (variant === "clinical-evidence") return `<section class="wf-section wf-hero wf-hero__clinical" data-wf-variant="clinical-evidence"><div><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}<dl><div><dt>Usage</dt><dd>Clair</dd></div><div><dt>Choix</dt><dd>Guid\xE9</dd></div></dl>${action}</div><figure>${media3}</figure></section>`;
-    return `<section class="wf-section wf-hero wf-hero__atmosphere" data-wf-variant="${escapeHtml(variant)}"><figure>${media3}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
+    return `<section class="wf-section wf-hero wf-hero__atmosphere wf-product-hero--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><figure>${media3}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
   },
   renderLiquid: (section2) => {
     const variant = section2 ? value(section2, "variant", "ambient-editorial") : "ambient-editorial";
@@ -408,15 +568,17 @@ for (const definition of brandMediaSections) registerSection(definition);
 var base2 = createSectionDefinition("productMain", "Fiche produit", "commerce", "product", { cta_label: "Ajouter au panier", product_handle: "", variant: "calm-buy-box" }, [textControl("product_handle", "Produit Shopify", "text")]);
 var productMainSection = {
   ...base2,
+  previewVariants: ["conversion-split", "bundle-led"],
   renderWeb: ({ section: section2, pageName }) => {
     const title = value(section2, "title", pageName);
     const body = value(section2, "text");
     const price = value(section2, "price");
     const compare = value(section2, "compare_at_price");
     const cta2 = value(section2, "cta_label", "Ajouter au panier");
-    const variant = value(section2, "variant", "calm-buy-box");
-    const variants = section2.blocks.filter((block2) => block2.type === "variant");
-    const options = variants.length ? variants.map((block2) => `<option value="${escapeHtml(blockValue(block2, "variant_id", block2.id))}">${escapeHtml(blockValue(block2, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
+    const requested = value(section2, "variant", "calm-buy-box");
+    const variant = (/* @__PURE__ */ new Set(["calm-buy-box", "beauty-buy-box", "technical-buy-box", "luxury-buy-box", "tasting-buy-box", "conversion-split", "bundle-led"])).has(requested) ? requested : "calm-buy-box";
+    const variants = section2.blocks.filter((block3) => block3.type === "variant");
+    const options = variants.length ? variants.map((block3) => `<option value="${escapeHtml(blockValue(block3, "variant_id", block3.id))}">${escapeHtml(blockValue(block3, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
     return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section2, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box"><div class="wf-product__rating">\u2605\u2605\u2605\u2605\u2605 <span>Les avis import\xE9s apparaissent ici</span></div>${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><fieldset class="wf-product__bundle"><legend>Bundle & \xE9conomies</legend><label><input type="radio" name="properties[Offre]" value="Solo" checked> Solo</label><label><input type="radio" name="properties[Offre]" value="Duo"> Duo \u2014 meilleur choix</label></fieldset><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust">Paiement s\xE9curis\xE9 \xB7 Commande suivie \xB7 Assistance disponible</p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
   },
   renderLiquid: (section2) => {
@@ -438,8 +600,15 @@ var collectionGridSection = {
 };
 
 // src/sections/bundle.ts
+var base3 = createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" });
 var bundleSection = {
-  ...createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" }),
+  ...base3,
+  previewVariants: ["routine-set", "quantity-break"],
+  renderWeb: (context) => {
+    const requested = value(context.section, "variant", "routine-set");
+    const variant = (/* @__PURE__ */ new Set(["routine-set", "quantity-break"])).has(requested) ? requested : "routine-set";
+    return base3.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant)}"`);
+  },
   renderLiquid: () => `<section class="weflo-bundle"><h2>{{ section.settings.title | escape }}</h2><fieldset><legend>{{ section.settings.text }}</legend>{% for block in section.blocks %}<label {{ block.shopify_attributes }}><input type="checkbox" name="items[]" value="{{ block.settings.variant.id }}">{{ block.settings.title | escape }}</label>{% endfor %}</fieldset><button type="button">{{ section.settings.cta_label | escape }}</button></section>`
 };
 
@@ -454,7 +623,12 @@ var commerceSections = [productMainSection, productGridSection, collectionGridSe
 for (const definition of commerceSections) registerSection(definition);
 
 // src/sections/benefits.ts
-var benefitsSection = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var base4 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var benefitsSection = { ...base4, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "ritual-cards");
+  const variant = (/* @__PURE__ */ new Set(["ritual-cards", "technical-grid"])).has(requested) ? requested : "ritual-cards";
+  return base4.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
+} };
 
 // src/sections/steps.ts
 var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "cards");
@@ -463,7 +637,12 @@ var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "car
 var statsSection = createSectionDefinition("stats", "Chiffres cl\xE9s", "conversion", "cards");
 
 // src/sections/testimonials.ts
-var testimonialsSection = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var base5 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var testimonialsSection = { ...base5, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "editorial-stories");
+  const variant = (/* @__PURE__ */ new Set(["editorial-stories", "ugc-grid"])).has(requested) ? requested : "editorial-stories";
+  return base5.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
+} };
 
 // src/sections/reviews.ts
 var reviewsSection = createSectionDefinition("reviews", "Avis clients", "conversion", "cards");
@@ -478,7 +657,12 @@ var guaranteesSection = createSectionDefinition("guarantees", "Garanties", "conv
 var shippingSection = createSectionDefinition("shipping", "Livraison", "conversion", "cards");
 
 // src/sections/faq.ts
-var faqSection = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var base6 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var faqSection = { ...base6, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "editorial-accordion");
+  const variant = (/* @__PURE__ */ new Set(["editorial-accordion", "support-columns"])).has(requested) ? requested : "editorial-accordion";
+  return base6.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
+} };
 
 // src/sections/newsletter.ts
 var newsletterSection = createSectionDefinition("newsletter", "Newsletter", "conversion", "form");
@@ -550,299 +734,100 @@ registerSection(spacerSection);
 registerSection(dividerSection);
 registerSection(customCodeSection);
 
-// src/editor/ui/panels/add-section.ts
-function addSectionPanel() {
-  const groups = listSectionDefinitions().reduce((result, definition) => {
-    const entries = result.get(definition.category) ?? [];
-    entries.push(definition);
-    result.set(definition.category, entries);
-    return result;
-  }, /* @__PURE__ */ new Map());
-  const labels = { commerce: "Produit et offre", conversion: "Conversion", media: "Histoire et m\xE9dias", content: "Contenu", layout: "Mise en page" };
-  return `<section data-panel="add"><p class="editor-panel-help">Ajoute une section enti\xE8rement modifiable apr\xE8s la s\xE9lection actuelle.</p>${[...groups].map(([category, definitions2]) => `<h3 class="editor-panel-heading">${labels[category] ?? category}</h3><div class="editor-panel-grid">${definitions2.map((definition) => `<button type="button" data-panel-action="insert" data-section-type="${definition.type}"><i class="editor-section-thumb editor-section-thumb--${definition.type}"><span></span><span></span><span></span></i><b>${definition.name}</b><small>+ Ajouter la section</small></button>`).join("")}</div>`).join("")}</section>`;
-}
-
-// src/editor/ui/panels/commerce.ts
-function commercePanel(state) {
-  const product = state.document.commerce?.sourceProduct;
-  const page = state.document.pages.find((item) => item.id === state.pageId) ?? state.document.pages[0];
-  const groups = [["Produit", ["productHero", "gallery", "productMain"]], ["Offres group\xE9es", ["bundle", "cta"]], ["Client cible", ["benefits", "reviews", "testimonials"]], ["Angle marketing", ["imageText", "comparison", "guarantees"]]];
-  return `<section data-panel="commerce">${product ? `<div class="editor-product-card">${product.images[0] ? `<img src="${product.images[0]}" alt="">` : ""}<div><strong>${product.title}</strong><small>${product.vendor}</small></div></div>` : ""}<p class="editor-panel-help">Sections e-commerce cr\xE9\xE9es \xE0 partir de ton produit et de ta strat\xE9gie.</p><div class="editor-commerce-groups">${groups.map(([label, types]) => {
-    const section2 = page.sections.find((item) => types.includes(item.type));
-    return `<button type="button" data-panel-action="${section2 ? "select" : "insert"}" ${section2 ? `data-section-id="${section2.id}"` : `data-section-type="${types[0]}"`}><span><b>${label}</b><small>${section2 ? section2.name : "Ajouter \xE0 la page"}</small></span><i>\u203A</i></button>`;
-  }).join("")}</div><a class="editor-shopify-link" href="/dashboard#shopify">Connexion et publication Shopify \u2192</a></section>`;
-}
-
-// src/editor/ui/panels/layers.ts
-function layersPanel(state) {
-  const kit = state.document.commerce?.brandKit;
-  const fonts = ["Inter", "DM Sans", "Manrope", "Space Grotesk", "Playfair Display", "Libre Baskerville"];
-  const fontSelect = (key, value2) => `<select data-theme-key="${key}">${fonts.map((font) => `<option value="${font}"${font === value2 ? " selected" : ""}>${font}</option>`).join("")}</select>`;
-  const colorLabels = { background: "Arri\xE8re-plan", surface: "Surface", ink: "Texte", accent: "Accent" };
-  return `<section data-panel="layers"><p class="editor-panel-help">L\u2019identit\xE9 globale de ta marque. Les changements s\u2019appliquent \xE0 toutes les sections.</p><div class="editor-brand-preview"><small>IDENTIT\xC9 DE MARQUE</small><strong>${state.document.name}</strong><span style="font-family:${kit?.headingFont ?? "Inter"}">Aa</span></div><h3 class="editor-panel-heading">Couleurs</h3><div class="editor-theme-colors">${["background", "surface", "ink", "accent"].map((key) => `<label><input type="color" data-theme-key="${key}" value="${state.document.theme[key]}"><small>${colorLabels[key]}</small></label>`).join("")}</div><h3 class="editor-panel-heading">Typographie</h3><label class="editor-theme-field"><small>Titres</small>${fontSelect("headingFont", kit?.headingFont ?? "Inter")}</label><label class="editor-theme-field"><small>Texte</small>${fontSelect("bodyFont", kit?.bodyFont ?? "Inter")}</label></section>`;
-}
-
-// src/editor/ui/panels/media.ts
-function mediaPanel(state) {
-  return `<section data-panel="media"><button type="button" class="editor-panel-primary" data-panel-action="uploadMedia">Importer un m\xE9dia</button><div class="editor-media-grid">${state.document.assets.length ? state.document.assets.map((asset) => `<button type="button" data-panel-action="pickMedia" data-asset-id="${asset.id}"><img src="${asset.url}" alt="${asset.alt ?? ""}"></button>`).join("") : "<p>Aucun m\xE9dia. Importe une image ou une vid\xE9o.</p>"}</div></section>`;
-}
-
-// src/editor/ui/panels/pages.ts
-function pagesPanel(state) {
-  return `<section data-panel="pages"><button type="button" class="editor-panel-primary" data-panel-action="addPage">Ajouter une page</button>${state.document.pages.map((page) => `<button type="button" class="editor-panel-row" data-panel-action="selectPage" data-page-id="${page.id}" aria-pressed="${page.id === state.pageId}"><span>${page.name}</span><small>/${page.slug}</small></button>`).join("")}</section>`;
-}
-
-// src/editor/ui/panels/structure.ts
-function structurePanel(state) {
-  const page = state.document.pages.find((item) => item.id === state.pageId) ?? state.document.pages[0];
-  const rows = page.sections.map((section2, index) => `<button type="button" class="editor-panel-row" data-panel-action="select" data-section-id="${section2.id}" aria-pressed="${state.selectedId === section2.id}"><i>${String(index + 1).padStart(2, "0")}</i><span>${section2.name}</span><small>${section2.hidden ? "Masqu\xE9e" : "Modifier"}</small></button>`).join("");
-  return `<section data-panel="structure"><p class="editor-panel-help">S\xE9lectionne, modifie et r\xE9organise chaque section r\xE9elle de la boutique.</p><div class="editor-panel-list">${rows}</div></section>`;
-}
-
-// src/editor/ui/left-rail.ts
-function activateEditorPanel(store, panel) {
-  store.setState({ activePanel: panel, leftCollapsed: false });
-}
-function editorPanelMarkup(state) {
-  switch (state.activePanel) {
-    case "structure":
-      return structurePanel(state);
-    case "add":
-      return addSectionPanel();
-    case "layers":
-      return layersPanel(state);
-    case "pages":
-      return pagesPanel(state);
-    case "media":
-      return mediaPanel(state);
-    case "commerce":
-      return commercePanel(state);
-  }
-}
-function nextSection(state, type) {
+// src/section-preview/materialize.ts
+function requiredDefinition(type) {
   const definition = getSectionDefinition(type);
-  const used = new Set(state.document.pages.flatMap((page) => page.sections.map((section2) => section2.id)));
-  let index = 1;
-  while (used.has(`${type}-${index}`)) index += 1;
-  return {
-    id: `${type}-${index}`,
-    type,
-    name: definition?.name ?? type,
-    hidden: false,
-    locked: false,
-    settings: definition ? structuredClone(definition.defaults) : { title: "Nouvelle section" },
-    style: {},
-    responsive: {},
-    blocks: []
+  if (!definition) throw new Error(`Unknown section definition: ${type}`);
+  return definition;
+}
+function block(id2, type, settings2) {
+  return { id: id2, type, settings: settings2 };
+}
+function fixtureBlocks(type, fixture2, id2) {
+  if (type === "testimonials") return fixture2.previewOnly.reviews.map((review, index) => block(`${id2}-review-${index + 1}`, "testimonial", { ...review, image: fixture2.product.images[index % fixture2.product.images.length] }));
+  if (type === "benefits") return fixture2.previewOnly.benefits.map((benefit, index) => block(`${id2}-benefit-${index + 1}`, "benefit", benefit));
+  if (type === "faq") return fixture2.previewOnly.faqs.map((faq, index) => block(`${id2}-faq-${index + 1}`, "item", { title: faq.question, text: faq.answer }));
+  if (type === "bundle" || type === "productMain") return fixture2.previewOnly.bundles.map((offer, index) => block(`${id2}-offer-${index + 1}`, "offer", offer));
+  return fixture2.product.images.map((image2, index) => block(`${id2}-media-${index + 1}`, "media", { image: image2, title: `Vue ${index + 1}` }));
+}
+function previewSettings(type, fixture2, variantId) {
+  const settings2 = {
+    ...requiredDefinition(type).defaults,
+    variant: variantId,
+    previewFixtureId: fixture2.id,
+    previewOnly: true,
+    title: fixture2.product.title,
+    heading: fixture2.product.title,
+    text: fixture2.product.description,
+    body: fixture2.product.description,
+    subtitle: `La s\xE9lection ${fixture2.brand.name}`,
+    price: fixture2.product.price ?? 0,
+    compare_price: fixture2.product.compareAtPrice ?? 0,
+    image: fixture2.product.images[0],
+    image_alt: fixture2.product.title,
+    cta_label: "Ajouter au panier",
+    rating: fixture2.product.rating ?? 5,
+    review_count: fixture2.product.reviewCount ?? 0
   };
+  return settings2;
 }
-function runPanelAction(store, action) {
-  const state = store.getState();
-  if (action.action === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
-  if (action.action === "toggleHidden" || action.action === "toggleLocked") {
-    store.dispatch({ type: action.action, sectionId: action.sectionId });
-  }
-  if (action.action === "selectPage") store.setState({ pageId: action.pageId, selectedId: null });
-  if (action.action === "addPage") {
-    const name = action.name.trim() || "Nouvelle page";
-    const base3 = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
-    const slugs = new Set(state.document.pages.map((page2) => page2.slug));
-    let slug2 = base3;
-    let suffix = 2;
-    while (slugs.has(slug2)) slug2 = `${base3}-${suffix++}`;
-    const page = { id: `page-${slug2}`, name, slug: slug2, sections: [] };
-    store.setState({ document: { ...state.document, pages: [...state.document.pages, page] }, pageId: page.id, selectedId: null, saveStatus: "modified" });
-  }
-  if (action.action === "addAsset") {
-    store.setState({ document: { ...state.document, assets: [...state.document.assets.filter((asset) => asset.id !== action.asset.id), action.asset] }, saveStatus: "modified" });
-  }
-  if (action.action === "pickMedia") {
-    const asset = state.document.assets.find((item) => item.id === action.assetId);
-    if (asset && state.selectedId) store.dispatch({ type: "updateSetting", sectionId: state.selectedId, key: "image", value: asset.url });
-  }
-  if (action.action === "insert") {
-    const page = state.document.pages.find((item) => item.id === state.pageId) ?? state.document.pages[0];
-    const selectedIndex = page.sections.findIndex((section3) => section3.id === state.selectedId);
-    const section2 = nextSection(state, action.sectionType);
-    store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section: section2 });
-    store.setState({ selectedId: section2.id, activePanel: "structure", rightCollapsed: false });
-  }
+function makeSection(id2, type, settings2, blocks2) {
+  const definition = requiredDefinition(type);
+  return { id: id2, type, name: definition.name, hidden: false, locked: false, settings: settings2, style: {}, responsive: {}, blocks: blocks2 };
 }
-function bindLeftRail(root, store) {
-  const click = (event) => {
-    const target = event.target.closest("[data-editor-panel-button],[data-panel-action]");
-    if (!target) return;
-    const panel = target.dataset.editorPanelButton;
-    if (panel) return activateEditorPanel(store, panel);
-    const action = target.dataset.panelAction;
-    const sectionId = target.dataset.sectionId;
-    if ((action === "select" || action === "toggleHidden" || action === "toggleLocked") && sectionId) runPanelAction(store, { action, sectionId });
-    if (action === "insert" && target.dataset.sectionType) runPanelAction(store, { action, sectionType: target.dataset.sectionType });
-    if (action === "selectPage" && target.dataset.pageId) runPanelAction(store, { action, pageId: target.dataset.pageId });
-    if (action === "addPage") runPanelAction(store, { action, name: window.prompt("Nom de la page", "Nouvelle page") ?? "Nouvelle page" });
-    if (action === "pickMedia" && target.dataset.assetId) runPanelAction(store, { action, assetId: target.dataset.assetId });
-    if (action === "uploadMedia") {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*,video/*";
-      input.addEventListener("change", () => {
-        const file = input.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.addEventListener("load", () => {
-          if (typeof reader.result !== "string") return;
-          runPanelAction(store, { action: "addAsset", asset: { id: `asset-${Date.now()}`, type: file.type.startsWith("video/") ? "video" : "image", url: reader.result, alt: file.name } });
-        });
-        reader.readAsDataURL(file);
-      });
-      input.click();
+function sectionFromFixture(type, variantId, fixtureId, sectionId) {
+  const manifest = previewManifest(type, variantId);
+  if (!manifest.compatibleFixtureIds.includes(fixtureId)) throw new Error(`Fixture ${fixtureId} is incompatible with ${type}:${variantId}`);
+  const fixture2 = fixtureById(fixtureId);
+  return makeSection(sectionId, type, previewSettings(type, fixture2, variantId), fixtureBlocks(type, fixture2, sectionId));
+}
+function customerBlocks(type, document2, id2, missing) {
+  const product = document2.commerce?.sourceProduct;
+  if (type === "testimonials") {
+    if (!product?.reviews.length) {
+      missing.push("reviews");
+      return [];
     }
-  };
-  const change = (event) => {
-    const control = event.target.closest("[data-theme-key]");
-    if (!control) return;
-    const state = store.getState();
-    const key = control.dataset.themeKey;
-    if (key === "headingFont" || key === "bodyFont") {
-      if (!state.document.commerce) return;
-      const commerce = { ...state.document.commerce, brandKit: { ...state.document.commerce.brandKit, [key]: control.value } };
-      store.setState({ document: { ...state.document, commerce }, saveStatus: "modified" });
-    } else if (key && ["background", "surface", "ink", "accent"].includes(key)) {
-      store.setState({ document: { ...state.document, theme: { ...state.document.theme, [key]: control.value } }, saveStatus: "modified" });
-    }
-  };
-  root.addEventListener("click", click);
-  root.addEventListener("change", change);
-  return () => {
-    root.removeEventListener("click", click);
-    root.removeEventListener("change", change);
-  };
-}
-
-// src/editor/section-schema.ts
-var CONTENT = [
-  { key: "title", label: "Titre", type: "text", scope: "settings" },
-  { key: "subtitle", label: "Sous-titre", type: "text", scope: "settings" },
-  { key: "text", label: "Texte", type: "textarea", scope: "settings" },
-  { key: "image", label: "Image", type: "image", scope: "settings" },
-  { key: "cta_label", label: "Bouton", type: "text", scope: "settings" }
-];
-function inspectorGroupsForSection(type) {
-  const content = type === "customCode" ? [{ key: "html", label: "HTML", type: "code", scope: "settings" }, { key: "css", label: "CSS", type: "code", scope: "settings" }, { key: "js", label: "JavaScript", type: "code", scope: "settings" }] : CONTENT;
-  return [
-    { id: "content", label: "Contenu", controls: content },
-    { id: "style", label: "Style", controls: [{ key: "backgroundColor", label: "Arri\xE8re-plan", type: "color", scope: "style" }, { key: "color", label: "Texte", type: "color", scope: "style" }] },
-    { id: "layout", label: "Disposition", controls: [{ key: "paddingTop", label: "Espace sup\xE9rieur", type: "number", scope: "style" }, { key: "paddingBottom", label: "Espace inf\xE9rieur", type: "number", scope: "style" }, { key: "textAlign", label: "Alignement", type: "select", scope: "style", options: ["left", "center", "right"] }] },
-    { id: "responsive", label: "Responsive", controls: [{ key: "paddingTop", label: "Espace sur cet \xE9cran", type: "number", scope: "responsive" }] },
-    { id: "animation", label: "Animation", controls: [{ key: "animation", label: "Entr\xE9e", type: "select", scope: "style", options: ["none", "fade", "reveal"] }] }
-  ];
-}
-
-// src/editor/ui/controls.ts
-function escape(value2) {
-  return String(value2 ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-}
-function controlValue(section2, control, breakpoint) {
-  if (control.scope === "settings") return section2.settings[control.key];
-  if (control.scope === "responsive") return section2.responsive[breakpoint]?.[control.key];
-  return section2.style[control.key];
-}
-function inspectorControlMarkup(section2, control, breakpoint) {
-  const value2 = controlValue(section2, control, breakpoint);
-  const attrs = `data-inspector-control="${control.type}" data-inspector-scope="${control.scope}" data-inspector-key="${control.key}"`;
-  if (control.type === "textarea" || control.type === "code") return `<label class="editor-control"><span>${control.label}</span><textarea ${attrs} rows="${control.type === "code" ? 8 : 4}">${escape(value2)}</textarea></label>`;
-  const optionLabels = { left: "Gauche", center: "Centre", right: "Droite", none: "Aucune", fade: "Fondu", reveal: "R\xE9v\xE9lation" };
-  if (control.type === "select") return `<label class="editor-control"><span>${control.label}</span><select ${attrs}>${control.options?.map((option) => `<option value="${option}"${value2 === option ? " selected" : ""}>${optionLabels[option] ?? option}</option>`).join("")}</select></label>`;
-  if (control.type === "toggle") return `<label class="editor-control editor-control--toggle"><span>${control.label}</span><input type="checkbox" ${attrs}${value2 ? " checked" : ""}></label>`;
-  const inputType = control.type === "number" ? "number" : control.type === "color" ? "color" : "text";
-  return `<label class="editor-control"><span>${control.label}</span><input type="${inputType}" ${attrs} value="${escape(value2)}">${control.type === "image" && value2 ? `<button type="button" class="editor-image-ai" data-image-ai data-image-key="${control.key}">\u2726 Modifier avec l\u2019IA</button>` : ""}</label>`;
-}
-
-// src/editor/ui/inspector.ts
-function inspectorChangeFromControl(input) {
-  if (!["settings", "style", "responsive"].includes(input.scope) || !/^[a-z][a-z0-9_]*$/i.test(input.key)) return null;
-  const value2 = input.type === "number" ? Number(input.value) : input.type === "toggle" ? input.checked : input.value;
-  if (input.type === "number" && !Number.isFinite(value2)) return null;
-  return { scope: input.scope, key: input.key, value: value2, breakpoint: input.breakpoint };
-}
-function selectedSection(state) {
-  return state.document.pages.flatMap((page) => page.sections).find((section2) => section2.id === state.selectedId);
-}
-function inspectorMarkup(state) {
-  const section2 = selectedSection(state);
-  if (!section2) return `<div class="editor-inspector-empty"><strong>S\xE9lectionne une section</strong><p>Clique dans la page ou dans la structure pour modifier son contenu et son style.</p></div>`;
-  const groups = inspectorGroupsForSection(section2.type);
-  return `<div class="editor-inspector" data-inspector-section="${section2.id}"><div class="editor-inspector-tabs">${groups.map((group) => `<button type="button" data-inspector-tab="${group.id}">${group.label}</button>`).join("")}</div>${groups.map((group, index) => `<section data-inspector-group="${group.id}"${index ? " hidden" : ""}><h3>${group.label}</h3>${group.controls.map((control) => inspectorControlMarkup(section2, control, state.breakpoint)).join("")}</section>`).join("")}</div>`;
-}
-function applyInspectorValue(store, change) {
-  const sectionId = store.getState().selectedId;
-  if (!sectionId) return;
-  if (/color/i.test(change.key) && change.value !== null && (typeof change.value !== "string" || !/^#[0-9a-f]{6}$/i.test(change.value))) {
-    throw new Error("Couleur invalide");
+    return product.reviews.map((review, index) => block(`${id2}-review-${index + 1}`, "testimonial", { author: review.author, title: review.title, text: review.text, rating: review.rating ?? 5, ...review.image ? { image: review.image } : {} }));
   }
-  if (change.scope === "settings") store.dispatch({ type: "updateSetting", sectionId, key: change.key, value: change.value });
-  if (change.scope === "style") store.dispatch({ type: "updateStyle", sectionId, key: change.key, value: change.value });
-  if (change.scope === "responsive") store.dispatch({ type: "updateResponsiveStyle", sectionId, breakpoint: change.breakpoint ?? store.getState().breakpoint, key: change.key, value: change.value });
+  return [];
 }
-function bindInspector(root, store) {
-  const click = async (event) => {
-    const imageButton = event.target.closest("[data-image-ai]");
-    if (imageButton) {
-      const state = store.getState();
-      const section2 = selectedSection(state);
-      const key = imageButton.dataset.imageKey ?? "image";
-      const sourceUrl = section2?.settings[key];
-      if (!section2 || typeof sourceUrl !== "string" || !sourceUrl) return;
-      const prompt = window.prompt("D\xE9cris la nouvelle sc\xE8ne. Weflo conservera exactement le m\xEAme produit.", "Place exactement ce produit dans une sc\xE8ne premium avec une composition pens\xE9e pour la conversion");
-      if (!prompt) return;
-      imageButton.disabled = true;
-      imageButton.textContent = "G\xE9n\xE9ration\u2026";
-      try {
-        const response = await fetch("/api/images/edit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl, prompt }) });
-        const body = await response.json();
-        if (!response.ok || !body.url) throw new Error(body.message || "La g\xE9n\xE9ration de l\u2019image a \xE9chou\xE9.");
-        store.dispatch({ type: "updateSetting", sectionId: section2.id, key, value: body.url });
-        const latest = store.getState();
-        store.setState({ document: { ...latest.document, assets: [...latest.document.assets, { id: `ai-image-${Date.now()}`, type: "image", url: body.url, alt: `Image IA \u2014 ${section2.name}` }] }, saveStatus: "modified" });
-      } catch (error) {
-        window.alert(error instanceof Error ? error.message : "La g\xE9n\xE9ration de l\u2019image a \xE9chou\xE9.");
-      }
-      return;
-    }
-    const tab = event.target.closest("[data-inspector-tab]");
-    if (!tab) return;
-    const inspector = tab.closest("[data-inspector-section]");
-    inspector?.querySelectorAll("[data-inspector-group]").forEach((group) => {
-      group.hidden = group.dataset.inspectorGroup !== tab.dataset.inspectorTab;
-    });
-  };
-  const change = (event) => {
-    const control = event.target.closest("[data-inspector-control]");
-    if (!control) return;
-    const normalized = inspectorChangeFromControl({
-      scope: control.dataset.inspectorScope ?? "",
-      key: control.dataset.inspectorKey ?? "",
-      type: control.dataset.inspectorControl ?? "text",
-      value: control.value,
-      checked: control instanceof HTMLInputElement ? control.checked : false,
-      breakpoint: store.getState().breakpoint
-    });
-    if (normalized) applyInspectorValue(store, normalized);
-  };
-  root.addEventListener("click", click);
-  root.addEventListener("change", change);
-  return () => {
-    root.removeEventListener("click", click);
-    root.removeEventListener("change", change);
-  };
+function assertCustomerSafe(value2) {
+  const serialized = JSON.stringify(value2);
+  const names = SECTION_PREVIEW_FIXTURES.flatMap((fixture2) => [fixture2.id, fixture2.brand.name]);
+  if (/previewFixtureId|previewOnly/.test(serialized) || names.some((name) => serialized.includes(name))) throw new Error("Preview-only data cannot be inserted into a customer document");
+}
+function materializeSectionVariant(input) {
+  previewManifest(input.sectionType, input.variantId);
+  const definition = requiredDefinition(input.sectionType);
+  const product = input.document.commerce?.sourceProduct;
+  const settings2 = { ...definition.defaults, variant: input.variantId };
+  const missingFields = [];
+  if (product?.title) {
+    settings2.title = product.title;
+    settings2.heading = product.title;
+  } else missingFields.push("product.title");
+  if (product?.description) {
+    settings2.text = product.description;
+    settings2.body = product.description;
+  } else missingFields.push("product.description");
+  if (product?.images[0]) {
+    settings2.image = product.images[0];
+    settings2.image_alt = product.title;
+  } else missingFields.push("product.image");
+  if (product?.price !== null && product?.price !== void 0) settings2.price = product.price;
+  else missingFields.push("product.price");
+  const section2 = makeSection(input.sectionId, input.sectionType, settings2, customerBlocks(input.sectionType, input.document, input.sectionId, missingFields));
+  assertCustomerSafe(section2);
+  return { section: section2, missingFields };
 }
 
 // src/editor/render/render-section.ts
 function escapeEditorHtml(value2) {
   return value2.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
-function text(section2, ...keys) {
-  for (const key of keys) {
+function text(section2, ...keys2) {
+  for (const key of keys2) {
     const value2 = section2.settings[key];
     if (typeof value2 === "string" && value2.trim()) return escapeEditorHtml(value2.trim());
   }
@@ -854,9 +839,9 @@ function safeMedia(value2) {
   return "";
 }
 function blocks(section2) {
-  return section2.blocks.map((block2) => {
-    const label = typeof block2.settings.label === "string" ? block2.settings.label : typeof block2.settings.text === "string" ? block2.settings.text : block2.type;
-    return `<div class="wf-v2-block" data-wf-block-id="${escapeEditorHtml(block2.id)}">${escapeEditorHtml(label)}</div>`;
+  return section2.blocks.map((block3) => {
+    const label = typeof block3.settings.label === "string" ? block3.settings.label : typeof block3.settings.text === "string" ? block3.settings.text : block3.type;
+    return `<div class="wf-v2-block" data-wf-block-id="${escapeEditorHtml(block3.id)}">${escapeEditorHtml(label)}</div>`;
   }).join("");
 }
 function editable(tag, key, value2, className = "") {
@@ -942,10 +927,379 @@ function renderEditorDocument(document2, options) {
   const radius = theme.radius === "none" ? "0px" : theme.radius === "round" ? "36px" : "18px";
   const headingFont = safeFont(document2.commerce?.brandKit.headingFont, themeFont(theme.display));
   const bodyFont = safeFont(document2.commerce?.brandKit.bodyFont, "Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif");
-  const scopedStyles = `body{font-family:${bodyFont}}.wf-section h1,.wf-section h2,.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${headingFont}}${page.sections.map(sectionStyles).join("")}`;
+  const scopedStyles = `body{font-family:${bodyFont}}.wf-section h1,.wf-section h2,.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${headingFont}}.wf-hero>*{min-width:0}.wf-hero figure{overflow:hidden}.wf-hero__image{display:block;width:100%;height:100%;min-height:560px;max-height:760px;object-fit:cover;border-radius:${radius}}.wf-product-hero--beauty-editorial{grid-template-columns:.88fr 1.12fr;background:color-mix(in srgb,${theme.accent} 12%,${theme.background});padding-inline:clamp(24px,5vw,72px)}.wf-product-hero--beauty-editorial figure{order:2}.wf-product-hero--object-editorial{grid-template-columns:1.2fr .8fr}.wf-product-hero--object-editorial figure{padding:7%;background:${theme.surface}}.wf-product{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(30px,6vw,80px);align-items:start}.wf-product__gallery{position:sticky;top:20px}.wf-product__image{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius}}.wf-product__buy-box{padding:clamp(24px,4vw,54px);background:${theme.surface};border-radius:${radius}}.wf-product--bundle-led .wf-product__buy-box{border:2px solid ${theme.ink}}.wf-benefits--ritual-cards .wf-section__grid{grid-template-columns:1.2fr 1fr 1fr}.wf-benefits--ritual-cards .wf-section__card:first-child{min-height:310px;background:${theme.accent}}.wf-benefits--technical-grid .wf-section__card{background:transparent;border-top:3px solid ${theme.ink}}.wf-testimonials--editorial-stories .wf-section__grid{grid-template-columns:1.35fr .85fr .85fr}.wf-testimonials--editorial-stories .wf-section__card:first-child{font-size:1.16em;background:${theme.ink};color:${theme.surface}}.wf-testimonials--ugc-grid .wf-section__card{padding:12px}.wf-testimonials--ugc-grid .wf-section__card img{aspect-ratio:4/3}.wf-bundle--routine-set{background:${theme.accent};border-radius:${radius};padding-inline:clamp(24px,5vw,64px)}.wf-bundle--quantity-break fieldset{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border:0;padding:0}.wf-bundle--quantity-break label{background:${theme.surface};border:1px solid color-mix(in srgb,${theme.ink} 20%,transparent);border-radius:${radius}}.wf-faq--editorial-accordion{max-width:900px}.wf-faq--support-columns{display:grid;grid-template-columns:.7fr 1.3fr;gap:60px}@media(max-width:700px){.wf-hero__image{min-height:390px}.wf-product,.wf-faq--support-columns{grid-template-columns:1fr}.wf-product__gallery{position:static}.wf-benefits--ritual-cards .wf-section__grid,.wf-testimonials--editorial-stories .wf-section__grid,.wf-bundle--quantity-break fieldset{grid-template-columns:1fr}}${page.sections.map(sectionStyles).join("")}`;
+  const productChromeStyles = `.wf-product__thumbs{display:flex;gap:8px;margin-top:12px}.wf-product__thumbs button{width:46px;min-height:46px;margin:0;padding:0;border-radius:14px;background:${theme.ink}}.wf-product__sticky{display:none}`;
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeEditorHtml(document2.name)}</title><style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:${theme.background};color:${theme.ink};font:15px/1.5 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}a{color:inherit}.wf-section{width:min(1180px,calc(100% - 56px));margin-inline:auto;padding-block:clamp(54px,8vw,112px)}.wf-section h1,.wf-section h2{max-width:900px;margin:.12em 0 .35em;font-family:${themeFont(theme.display)};font-size:clamp(42px,6.5vw,92px);font-weight:700;line-height:.94;letter-spacing:-.055em}.wf-section__eyebrow{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.15em}.wf-section__copy{max-width:650px;font-size:clamp(17px,2vw,22px);line-height:1.45}.wf-section__button,.wf-section button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:24px;padding:0 22px;border:0;border-radius:${radius};background:${theme.ink};color:${theme.surface};font-weight:800;text-decoration:none;cursor:pointer}.wf-section__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:38px}.wf-section__card{padding:24px;border:1px solid color-mix(in srgb,${theme.ink} 14%,transparent);border-radius:${radius};background:${theme.surface}}.wf-section__card img,.wf-section__image{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius}}.wf-media-empty{min-height:360px;background:linear-gradient(135deg,${theme.surface},color-mix(in srgb,${theme.accent} 70%,${theme.background}));border:1px dashed color-mix(in srgb,${theme.ink} 25%,transparent)}.wf-navigation{min-height:76px;padding-block:0;display:flex;align-items:center;justify-content:space-between;gap:24px}.wf-navigation>div{display:flex;gap:24px}.wf-navigation a{text-decoration:none}.wf-navigation__brand{font-weight:900;font-size:20px}.wf-navigation .wf-section__button{margin-top:0;min-height:40px}.wf-announcement{width:100%;padding:10px 28px;display:flex;justify-content:center;align-items:center;gap:18px;background:${theme.accent};text-align:center}.wf-announcement p{margin:0}.wf-announcement .wf-section__button{min-height:auto;margin:0;padding:0;background:transparent;color:inherit;text-decoration:underline}.wf-hero,.wf-image-text{min-height:680px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(32px,7vw,100px)}.wf-hero figure{margin:0}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{aspect-ratio:4/5;min-height:560px}.wf-video-hero{position:relative;width:100%;min-height:760px;padding:80px;display:grid;align-items:end;color:#fff;overflow:hidden}.wf-video-hero video,.wf-video-hero>.wf-section__image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62)}.wf-video-hero>div{position:relative;z-index:1}.wf-gallery .wf-section__grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-before-after__media{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:36px}.wf-product form{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin-top:28px}.wf-product label{display:grid;gap:6px}.wf-product input,.wf-product select,.wf-form input{min-height:48px;padding:0 12px;border:1px solid color-mix(in srgb,${theme.ink} 25%,transparent);border-radius:10px;background:${theme.background}}.wf-bundle fieldset,.wf-quiz fieldset{display:grid;gap:8px;margin-top:28px;padding:20px;border:1px solid color-mix(in srgb,${theme.ink} 18%,transparent);border-radius:${radius}}.wf-bundle label{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:12px}.wf-bundle__total{display:block;margin-top:18px;font-size:22px;font-weight:800}.wf-faq details{padding:20px 0;border-bottom:1px solid color-mix(in srgb,${theme.ink} 18%,transparent)}.wf-faq summary{font-size:20px;font-weight:700;cursor:pointer}.wf-form form{display:flex;gap:10px;margin-top:30px}.wf-form label{display:grid;gap:5px;flex:1;max-width:440px}.wf-cta{width:min(1180px,calc(100% - 56px));margin-block:56px;padding:clamp(38px,7vw,90px);border-radius:${radius};background:${theme.accent}}.wf-footer{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid color-mix(in srgb,${theme.ink} 18%,transparent)}.wf-v2-wrap{width:min(1180px,calc(100% - 56px));margin-inline:auto}.wf-v2-nav,.wf-v2-footer{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px}.wf-v2-nav>div{display:flex;gap:20px}.wf-v2-nav a{text-decoration:none}.wf-v2-split{min-height:620px;padding-block:52px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(28px,6vw,88px)}.wf-v2-media{margin:0;min-height:500px;background:${theme.surface};border-radius:${radius};overflow:hidden}.wf-v2-media img{display:block;width:100%;height:100%;min-height:500px;object-fit:cover}.wf-v2-media--empty{background:linear-gradient(145deg,${theme.surface},${theme.accent})}.wf-v2-kicker{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.14em}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${themeFont(theme.display)};font-size:clamp(42px,6vw,84px);line-height:.96;letter-spacing:-.045em;margin:.2em 0}.wf-v2-price{display:block;font-size:26px;margin-top:24px}.wf-v2-button{display:inline-flex;margin-top:22px;padding:14px 22px;border-radius:999px;background:${theme.ink};color:${theme.surface};font-weight:800;text-decoration:none}.wf-v2-content{padding-block:90px;border-top:1px solid color-mix(in srgb,${theme.ink} 16%,transparent)}.wf-v2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.wf-v2-grid article,.wf-v2-block{padding:22px;background:${theme.surface};border-radius:${radius}}.wf-v2-band{margin-block:56px;padding:44px;background:${theme.accent};border-radius:${radius};display:grid;grid-template-columns:1fr auto;gap:40px}.wf-v2-footer{border-top:1px solid ${theme.ink}}body[data-wf-mode="edit"] [data-wf-selected="true"]{outline:2px solid #315efb;outline-offset:-2px}body[data-wf-mode="edit"] [data-wf-hidden="true"]{opacity:.42}
-@media(max-width:700px){.wf-section{width:calc(100% - 28px);padding-block:54px}.wf-navigation>div{display:none}.wf-hero,.wf-image-text,.wf-footer{grid-template-columns:1fr;min-height:auto}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{min-height:390px}.wf-section__grid,.wf-gallery .wf-section__grid,.wf-before-after__media{grid-template-columns:1fr}.wf-video-hero{min-height:640px;padding:32px 20px}.wf-form form{display:grid}.wf-v2-wrap{width:calc(100% - 28px)}.wf-v2-nav>div{display:none}.wf-v2-split{grid-template-columns:1fr;min-height:auto;padding-block:24px}.wf-v2-media,.wf-v2-media img{min-height:390px}.wf-v2-grid{grid-template-columns:1fr}.wf-v2-band{grid-template-columns:1fr;padding:28px}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-size:48px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}${scopedStyles}</style></head><body data-wf-mode="${options.mode}" data-wf-breakpoint="${options.breakpoint}">${sections}</body></html>`;
+@media(max-width:700px){.wf-section{width:calc(100% - 28px);padding-block:54px}.wf-navigation>div{display:none}.wf-hero,.wf-image-text,.wf-footer{grid-template-columns:1fr;min-height:auto}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{min-height:390px}.wf-section__grid,.wf-gallery .wf-section__grid,.wf-before-after__media{grid-template-columns:1fr}.wf-video-hero{min-height:640px;padding:32px 20px}.wf-form form{display:grid}.wf-v2-wrap{width:calc(100% - 28px)}.wf-v2-nav>div{display:none}.wf-v2-split{grid-template-columns:1fr;min-height:auto;padding-block:24px}.wf-v2-media,.wf-v2-media img{min-height:390px}.wf-v2-grid{grid-template-columns:1fr}.wf-v2-band{grid-template-columns:1fr;padding:28px}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-size:48px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}${scopedStyles}${productChromeStyles}</style></head><body data-wf-mode="${options.mode}" data-wf-breakpoint="${options.breakpoint}">${sections}</body></html>`;
+}
+
+// src/section-preview/document.ts
+function contextSection(type, id2, name, settings2) {
+  const definition = getSectionDefinition(type);
+  if (!definition) throw new Error(`Unknown context section: ${type}`);
+  return { id: id2, type, name, hidden: false, locked: false, settings: { ...definition.defaults, ...settings2, previewOnly: true }, style: {}, responsive: {}, blocks: [] };
+}
+function previewDocument(input) {
+  const fixture2 = fixtureById(input.fixtureId);
+  const focus = sectionFromFixture(input.sectionType, input.variantId, input.fixtureId, "preview-focus");
+  const sections = input.context ? [
+    contextSection("navigation", "preview-nav", "Navigation", { brand: fixture2.brand.name, cta_label: "Panier \xB7 0" }),
+    focus,
+    contextSection("cta", "preview-cta", "Appel \xE0 l\u2019action", { title: "Pr\xEAt \xE0 d\xE9couvrir ?", text: fixture2.product.description, cta_label: "D\xE9couvrir" })
+  ] : [focus];
+  return {
+    version: 2,
+    name: `Aper\xE7u ${fixture2.brand.name}`,
+    path: "/preview",
+    kind: "product",
+    modelId: "section-preview",
+    theme: fixture2.theme,
+    pages: [{ id: "preview-page", name: fixture2.brand.name, slug: "preview", sections }],
+    assets: fixture2.product.images.map((url, index) => ({ id: `preview-asset-${index + 1}`, type: "image", url, alt: fixture2.product.title })),
+    commerce: { sourceProduct: fixture2.product, personas: [], angles: [], brandKit: fixture2.brand, storefrontLanguage: "fr" }
+  };
+}
+function escapeAttribute(value2) {
+  return value2.replace(/[&"<>]/g, (char) => ({ "&": "&amp;", '"': "&quot;", "<": "&lt;", ">": "&gt;" })[char]);
+}
+function renderSectionPreview(input) {
+  const html = renderEditorDocument(previewDocument(input), { mode: "preview", breakpoint: input.viewport });
+  return html.replace("<body ", `<body data-section-preview="true" data-preview-fixture="${escapeAttribute(input.fixtureId)}" `);
+}
+
+// src/editor/ui/section-preview-dialog.ts
+function openSectionPreviewDialog(options) {
+  document.querySelector("[data-section-preview-dialog]")?.remove();
+  const manifest = previewManifest(options.sectionType, options.variantId);
+  let fixtureId = manifest.compatibleFixtureIds.includes(options.fixtureId) ? options.fixtureId : manifest.defaultFixtureId;
+  let viewport = "desktop";
+  let context = true;
+  const dialog = document.createElement("dialog");
+  dialog.className = "section-preview-dialog";
+  dialog.dataset.sectionPreviewDialog = "";
+  dialog.setAttribute("aria-modal", "true");
+  dialog.innerHTML = `<header><div><small>${manifest.conversionGoal}</small><strong>${manifest.title}</strong></div><div class="section-preview-actions"><button type="button" data-preview-viewport="desktop" aria-pressed="true">Bureau</button><button type="button" data-preview-viewport="mobile" aria-pressed="false">Mobile</button><label>Produit d\xE9mo<select data-preview-fixture>${manifest.compatibleFixtureIds.map((id2) => `<option value="${id2}"${id2 === fixtureId ? " selected" : ""}>${fixtureById(id2).brand.name} \xB7 ${fixtureById(id2).product.title}</option>`).join("")}</select></label><label class="section-preview-context"><input type="checkbox" data-preview-context checked> Avec contexte</label><button type="button" data-preview-close aria-label="Fermer">\xD7</button></div></header><div class="section-preview-stage" data-preview-stage><iframe title="Aper\xE7u interactif de ${manifest.title}"></iframe></div><footer><span>La section sera adapt\xE9e \xE0 ton produit et \xE0 ta marque.</span><button type="button" data-preview-insert>Ajouter cette section</button></footer>`;
+  const select = dialog.querySelector("[data-preview-fixture]");
+  const frame = dialog.querySelector("iframe");
+  const paint = () => {
+    frame.srcdoc = renderSectionPreview({ sectionType: options.sectionType, variantId: options.variantId, fixtureId, viewport, context });
+    dialog.dataset.viewport = viewport;
+  };
+  dialog.addEventListener("click", (event) => {
+    const target = event.target.closest("button");
+    if (!target) return;
+    if (target.matches("[data-preview-close]")) {
+      dialog.close();
+      return;
+    }
+    if (target.dataset.previewViewport) {
+      viewport = target.dataset.previewViewport;
+      dialog.querySelectorAll("[data-preview-viewport]").forEach((button2) => button2.setAttribute("aria-pressed", String(button2 === target)));
+      paint();
+    }
+    if (target.matches("[data-preview-insert]")) {
+      options.onInsert(options.sectionType, options.variantId);
+      dialog.close();
+    }
+  });
+  select.addEventListener("change", () => {
+    fixtureId = select.value;
+    paint();
+  });
+  dialog.querySelector("[data-preview-context]").addEventListener("change", (event) => {
+    context = event.target.checked;
+    paint();
+  });
+  dialog.addEventListener("close", () => {
+    dialog.remove();
+    options.trigger?.focus();
+  });
+  document.body.appendChild(dialog);
+  paint();
+  dialog.showModal();
+  return dialog;
+}
+
+// src/editor/ui/left-rail.ts
+function activateEditorPanel(store, panel) {
+  store.setState({ activePanel: panel, leftCollapsed: false });
+}
+function editorPanelMarkup(state) {
+  switch (state.activePanel) {
+    case "structure":
+      return structurePanel(state);
+    case "add":
+      return addSectionPanel();
+    case "layers":
+      return layersPanel(state);
+    case "pages":
+      return pagesPanel(state);
+    case "media":
+      return mediaPanel(state);
+    case "commerce":
+      return commercePanel(state);
+  }
+}
+function nextSection(state, type) {
+  const definition = getSectionDefinition(type);
+  const used = new Set(state.document.pages.flatMap((page) => page.sections.map((section2) => section2.id)));
+  let index = 1;
+  while (used.has(`${type}-${index}`)) index += 1;
+  return {
+    id: `${type}-${index}`,
+    type,
+    name: definition?.name ?? type,
+    hidden: false,
+    locked: false,
+    settings: definition ? structuredClone(definition.defaults) : { title: "Nouvelle section" },
+    style: {},
+    responsive: {},
+    blocks: []
+  };
+}
+function runPanelAction(store, action) {
+  const state = store.getState();
+  if (action.action === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+  if (action.action === "toggleHidden" || action.action === "toggleLocked") {
+    store.dispatch({ type: action.action, sectionId: action.sectionId });
+  }
+  if (action.action === "selectPage") store.setState({ pageId: action.pageId, selectedId: null });
+  if (action.action === "addPage") {
+    const name = action.name.trim() || "Nouvelle page";
+    const base7 = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
+    const slugs = new Set(state.document.pages.map((page2) => page2.slug));
+    let slug2 = base7;
+    let suffix = 2;
+    while (slugs.has(slug2)) slug2 = `${base7}-${suffix++}`;
+    const page = { id: `page-${slug2}`, name, slug: slug2, sections: [] };
+    store.setState({ document: { ...state.document, pages: [...state.document.pages, page] }, pageId: page.id, selectedId: null, saveStatus: "modified" });
+  }
+  if (action.action === "addAsset") {
+    store.setState({ document: { ...state.document, assets: [...state.document.assets.filter((asset) => asset.id !== action.asset.id), action.asset] }, saveStatus: "modified" });
+  }
+  if (action.action === "pickMedia") {
+    const asset = state.document.assets.find((item2) => item2.id === action.assetId);
+    if (asset && state.selectedId) store.dispatch({ type: "updateSetting", sectionId: state.selectedId, key: "image", value: asset.url });
+  }
+  if (action.action === "insert") {
+    const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
+    const selectedIndex = page.sections.findIndex((section3) => section3.id === state.selectedId);
+    const section2 = nextSection(state, action.sectionType);
+    store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section: section2 });
+    store.setState({ selectedId: section2.id, activePanel: "structure", rightCollapsed: false });
+  }
+  if (action.action === "insertVariant") {
+    const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
+    const selectedIndex = page.sections.findIndex((section2) => section2.id === state.selectedId);
+    const used = new Set(state.document.pages.flatMap((item2) => item2.sections.map((section2) => section2.id)));
+    let suffix = 1;
+    while (used.has(`${action.sectionType}-${suffix}`)) suffix += 1;
+    const result = materializeSectionVariant({ document: state.document, sectionType: action.sectionType, variantId: action.variantId, sectionId: `${action.sectionType}-${suffix}` });
+    store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section: result.section });
+    store.setState({ selectedId: result.section.id, activePanel: "structure", rightCollapsed: false });
+  }
+}
+function bindLeftRail(root, store) {
+  const click = (event) => {
+    const target = event.target.closest("[data-editor-panel-button],[data-panel-action],[data-section-preview-open],[data-section-variant-insert],[data-catalog-filter],[data-catalog-viewport]");
+    if (!target) return;
+    const variantInsert = target.dataset.sectionVariantInsert;
+    if (variantInsert) {
+      const [sectionType, variantId] = variantInsert.split(":");
+      if (sectionType && variantId) runPanelAction(store, { action: "insertVariant", sectionType, variantId });
+      return;
+    }
+    const previewOpen = target.dataset.sectionPreviewOpen;
+    if (previewOpen) {
+      const [sectionType, variantId] = previewOpen.split(":");
+      if (sectionType && variantId) openSectionPreviewDialog({ sectionType, variantId, fixtureId: "", trigger: target, onInsert: (type, variant) => runPanelAction(store, { action: "insertVariant", sectionType: type, variantId: variant }) });
+      return;
+    }
+    if (target.dataset.catalogViewport) {
+      const catalog = target.closest("[data-section-catalog]");
+      const viewport = target.dataset.catalogViewport;
+      if (!catalog) return;
+      catalog.dataset.catalogViewport = viewport;
+      catalog.querySelectorAll("[data-catalog-viewport]").forEach((button2) => button2.setAttribute("aria-pressed", String(button2 === target)));
+      catalog.querySelectorAll("img[data-preview-desktop]").forEach((image2) => {
+        image2.src = viewport === "mobile" ? image2.dataset.previewMobile ?? image2.src : image2.dataset.previewDesktop ?? image2.src;
+      });
+      return;
+    }
+    if (target.dataset.catalogFilter !== void 0) {
+      const catalog = target.closest("[data-section-catalog]");
+      if (!catalog) return;
+      const category = target.dataset.catalogFilter || void 0;
+      catalog.dataset.catalogCategory = category ?? "";
+      catalog.querySelectorAll("[data-catalog-filter]").forEach((button2) => button2.setAttribute("aria-pressed", String(button2 === target)));
+      const grid = catalog.querySelector("[data-section-catalog-grid]");
+      if (grid) grid.innerHTML = sectionCatalogMarkup({ category, viewport: catalog.dataset.catalogViewport || "desktop" });
+      return;
+    }
+    const panel = target.dataset.editorPanelButton;
+    if (panel) return activateEditorPanel(store, panel);
+    const action = target.dataset.panelAction;
+    const sectionId = target.dataset.sectionId;
+    if ((action === "select" || action === "toggleHidden" || action === "toggleLocked") && sectionId) runPanelAction(store, { action, sectionId });
+    if (action === "insert" && target.dataset.sectionType) runPanelAction(store, { action, sectionType: target.dataset.sectionType });
+    if (action === "selectPage" && target.dataset.pageId) runPanelAction(store, { action, pageId: target.dataset.pageId });
+    if (action === "addPage") runPanelAction(store, { action, name: window.prompt("Nom de la page", "Nouvelle page") ?? "Nouvelle page" });
+    if (action === "pickMedia" && target.dataset.assetId) runPanelAction(store, { action, assetId: target.dataset.assetId });
+    if (action === "uploadMedia") {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*,video/*";
+      input.addEventListener("change", () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+          if (typeof reader.result !== "string") return;
+          runPanelAction(store, { action: "addAsset", asset: { id: `asset-${Date.now()}`, type: file.type.startsWith("video/") ? "video" : "image", url: reader.result, alt: file.name } });
+        });
+        reader.readAsDataURL(file);
+      });
+      input.click();
+    }
+  };
+  const change = (event) => {
+    const control = event.target.closest("[data-theme-key]");
+    if (!control) return;
+    const state = store.getState();
+    const key = control.dataset.themeKey;
+    if (key === "headingFont" || key === "bodyFont") {
+      if (!state.document.commerce) return;
+      const commerce = { ...state.document.commerce, brandKit: { ...state.document.commerce.brandKit, [key]: control.value } };
+      store.setState({ document: { ...state.document, commerce }, saveStatus: "modified" });
+    } else if (key && ["background", "surface", "ink", "accent"].includes(key)) {
+      store.setState({ document: { ...state.document, theme: { ...state.document.theme, [key]: control.value } }, saveStatus: "modified" });
+    }
+  };
+  root.addEventListener("click", click);
+  root.addEventListener("change", change);
+  return () => {
+    root.removeEventListener("click", click);
+    root.removeEventListener("change", change);
+  };
+}
+
+// src/editor/section-schema.ts
+var CONTENT = [
+  { key: "title", label: "Titre", type: "text", scope: "settings" },
+  { key: "subtitle", label: "Sous-titre", type: "text", scope: "settings" },
+  { key: "text", label: "Texte", type: "textarea", scope: "settings" },
+  { key: "image", label: "Image", type: "image", scope: "settings" },
+  { key: "cta_label", label: "Bouton", type: "text", scope: "settings" }
+];
+function inspectorGroupsForSection(type) {
+  const content = type === "customCode" ? [{ key: "html", label: "HTML", type: "code", scope: "settings" }, { key: "css", label: "CSS", type: "code", scope: "settings" }, { key: "js", label: "JavaScript", type: "code", scope: "settings" }] : CONTENT;
+  return [
+    { id: "content", label: "Contenu", controls: content },
+    { id: "style", label: "Style", controls: [{ key: "backgroundColor", label: "Arri\xE8re-plan", type: "color", scope: "style" }, { key: "color", label: "Texte", type: "color", scope: "style" }] },
+    { id: "layout", label: "Disposition", controls: [{ key: "paddingTop", label: "Espace sup\xE9rieur", type: "number", scope: "style" }, { key: "paddingBottom", label: "Espace inf\xE9rieur", type: "number", scope: "style" }, { key: "textAlign", label: "Alignement", type: "select", scope: "style", options: ["left", "center", "right"] }] },
+    { id: "responsive", label: "Responsive", controls: [{ key: "paddingTop", label: "Espace sur cet \xE9cran", type: "number", scope: "responsive" }] },
+    { id: "animation", label: "Animation", controls: [{ key: "animation", label: "Entr\xE9e", type: "select", scope: "style", options: ["none", "fade", "reveal"] }] }
+  ];
+}
+
+// src/editor/ui/controls.ts
+function escape2(value2) {
+  return String(value2 ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+}
+function controlValue(section2, control, breakpoint) {
+  if (control.scope === "settings") return section2.settings[control.key];
+  if (control.scope === "responsive") return section2.responsive[breakpoint]?.[control.key];
+  return section2.style[control.key];
+}
+function inspectorControlMarkup(section2, control, breakpoint) {
+  const value2 = controlValue(section2, control, breakpoint);
+  const attrs = `data-inspector-control="${control.type}" data-inspector-scope="${control.scope}" data-inspector-key="${control.key}"`;
+  if (control.type === "textarea" || control.type === "code") return `<label class="editor-control"><span>${control.label}</span><textarea ${attrs} rows="${control.type === "code" ? 8 : 4}">${escape2(value2)}</textarea></label>`;
+  const optionLabels = { left: "Gauche", center: "Centre", right: "Droite", none: "Aucune", fade: "Fondu", reveal: "R\xE9v\xE9lation" };
+  if (control.type === "select") return `<label class="editor-control"><span>${control.label}</span><select ${attrs}>${control.options?.map((option) => `<option value="${option}"${value2 === option ? " selected" : ""}>${optionLabels[option] ?? option}</option>`).join("")}</select></label>`;
+  if (control.type === "toggle") return `<label class="editor-control editor-control--toggle"><span>${control.label}</span><input type="checkbox" ${attrs}${value2 ? " checked" : ""}></label>`;
+  const inputType = control.type === "number" ? "number" : control.type === "color" ? "color" : "text";
+  return `<label class="editor-control"><span>${control.label}</span><input type="${inputType}" ${attrs} value="${escape2(value2)}">${control.type === "image" && value2 ? `<button type="button" class="editor-image-ai" data-image-ai data-image-key="${control.key}">\u2726 Modifier avec l\u2019IA</button>` : ""}</label>`;
+}
+
+// src/editor/ui/inspector.ts
+function inspectorChangeFromControl(input) {
+  if (!["settings", "style", "responsive"].includes(input.scope) || !/^[a-z][a-z0-9_]*$/i.test(input.key)) return null;
+  const value2 = input.type === "number" ? Number(input.value) : input.type === "toggle" ? input.checked : input.value;
+  if (input.type === "number" && !Number.isFinite(value2)) return null;
+  return { scope: input.scope, key: input.key, value: value2, breakpoint: input.breakpoint };
+}
+function selectedSection(state) {
+  return state.document.pages.flatMap((page) => page.sections).find((section2) => section2.id === state.selectedId);
+}
+function inspectorMarkup(state) {
+  const section2 = selectedSection(state);
+  if (!section2) return `<div class="editor-inspector-empty"><strong>S\xE9lectionne une section</strong><p>Clique dans la page ou dans la structure pour modifier son contenu et son style.</p></div>`;
+  const groups = inspectorGroupsForSection(section2.type);
+  return `<div class="editor-inspector" data-inspector-section="${section2.id}"><div class="editor-inspector-tabs">${groups.map((group) => `<button type="button" data-inspector-tab="${group.id}">${group.label}</button>`).join("")}</div>${groups.map((group, index) => `<section data-inspector-group="${group.id}"${index ? " hidden" : ""}><h3>${group.label}</h3>${group.controls.map((control) => inspectorControlMarkup(section2, control, state.breakpoint)).join("")}</section>`).join("")}</div>`;
+}
+function applyInspectorValue(store, change) {
+  const sectionId = store.getState().selectedId;
+  if (!sectionId) return;
+  if (/color/i.test(change.key) && change.value !== null && (typeof change.value !== "string" || !/^#[0-9a-f]{6}$/i.test(change.value))) {
+    throw new Error("Couleur invalide");
+  }
+  if (change.scope === "settings") store.dispatch({ type: "updateSetting", sectionId, key: change.key, value: change.value });
+  if (change.scope === "style") store.dispatch({ type: "updateStyle", sectionId, key: change.key, value: change.value });
+  if (change.scope === "responsive") store.dispatch({ type: "updateResponsiveStyle", sectionId, breakpoint: change.breakpoint ?? store.getState().breakpoint, key: change.key, value: change.value });
+}
+function bindInspector(root, store) {
+  const click = async (event) => {
+    const imageButton = event.target.closest("[data-image-ai]");
+    if (imageButton) {
+      const state = store.getState();
+      const section2 = selectedSection(state);
+      const key = imageButton.dataset.imageKey ?? "image";
+      const sourceUrl = section2?.settings[key];
+      if (!section2 || typeof sourceUrl !== "string" || !sourceUrl) return;
+      const prompt = window.prompt("D\xE9cris la nouvelle sc\xE8ne. Weflo conservera exactement le m\xEAme produit.", "Place exactement ce produit dans une sc\xE8ne premium avec une composition pens\xE9e pour la conversion");
+      if (!prompt) return;
+      imageButton.disabled = true;
+      imageButton.textContent = "G\xE9n\xE9ration\u2026";
+      try {
+        const response = await fetch("/api/images/edit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl, prompt }) });
+        const body = await response.json();
+        if (!response.ok || !body.url) throw new Error(body.message || "La g\xE9n\xE9ration de l\u2019image a \xE9chou\xE9.");
+        store.dispatch({ type: "updateSetting", sectionId: section2.id, key, value: body.url });
+        const latest = store.getState();
+        store.setState({ document: { ...latest.document, assets: [...latest.document.assets, { id: `ai-image-${Date.now()}`, type: "image", url: body.url, alt: `Image IA \u2014 ${section2.name}` }] }, saveStatus: "modified" });
+      } catch (error) {
+        window.alert(error instanceof Error ? error.message : "La g\xE9n\xE9ration de l\u2019image a \xE9chou\xE9.");
+      }
+      return;
+    }
+    const tab = event.target.closest("[data-inspector-tab]");
+    if (!tab) return;
+    const inspector = tab.closest("[data-inspector-section]");
+    inspector?.querySelectorAll("[data-inspector-group]").forEach((group) => {
+      group.hidden = group.dataset.inspectorGroup !== tab.dataset.inspectorTab;
+    });
+  };
+  const change = (event) => {
+    const control = event.target.closest("[data-inspector-control]");
+    if (!control) return;
+    const normalized = inspectorChangeFromControl({
+      scope: control.dataset.inspectorScope ?? "",
+      key: control.dataset.inspectorKey ?? "",
+      type: control.dataset.inspectorControl ?? "text",
+      value: control.value,
+      checked: control instanceof HTMLInputElement ? control.checked : false,
+      breakpoint: store.getState().breakpoint
+    });
+    if (normalized) applyInspectorValue(store, normalized);
+  };
+  root.addEventListener("click", click);
+  root.addEventListener("change", change);
+  return () => {
+    root.removeEventListener("click", click);
+    root.removeEventListener("change", change);
+  };
 }
 
 // src/editor/ui/canvas-bridge.ts
@@ -1046,7 +1400,7 @@ function mountCanvas(container, store) {
     if (action.type === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
     if (action.type === "inlineEdit") store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: action.key, value: action.value });
     if (action.type === "imageEdit") {
-      const section2 = store.getState().document.pages.flatMap((page) => page.sections).find((item) => item.id === action.sectionId);
+      const section2 = store.getState().document.pages.flatMap((page) => page.sections).find((item2) => item2.id === action.sectionId);
       const sourceUrl = section2?.settings[action.key];
       const prompt = typeof sourceUrl === "string" ? window.prompt("D\xE9cris la nouvelle sc\xE8ne. Le produit restera exactement le m\xEAme.", "Place exactement ce produit dans une sc\xE8ne premium") : null;
       if (section2 && typeof sourceUrl === "string" && prompt) {
@@ -1200,7 +1554,7 @@ function sectionIds(document2) {
   return new Set(document2.pages.flatMap((page) => page.sections.map((section2) => section2.id)));
 }
 function blockIds(document2) {
-  return new Set(document2.pages.flatMap((page) => page.sections.flatMap((section2) => section2.blocks.map((block2) => block2.id))));
+  return new Set(document2.pages.flatMap((page) => page.sections.flatMap((section2) => section2.blocks.map((block3) => block3.id))));
 }
 function checkedIndex(index, length) {
   if (!Number.isInteger(index) || index < 0 || index > length) throw new EditorCommandError(`Invalid insertion index: ${index}`);
@@ -1255,7 +1609,7 @@ function applyCommand(document2, command) {
       const copy = clone(from.section);
       copy.id = command.newSectionId;
       copy.name = `${copy.name} copy`;
-      copy.blocks = copy.blocks.map((block2, index) => ({ ...block2, id: `${command.newSectionId}-block-${index + 1}` }));
+      copy.blocks = copy.blocks.map((block3, index) => ({ ...block3, id: `${command.newSectionId}-block-${index + 1}` }));
       const insertion = command.index ?? from.sectionIndex + 1;
       next.pages[from.pageIndex].sections.splice(checkedIndex(insertion, next.pages[from.pageIndex].sections.length), 0, copy);
       break;
@@ -1284,7 +1638,7 @@ function applyCommand(document2, command) {
     }
     case "moveBlock": {
       const { section: section2 } = editableSection(next, command.sectionId);
-      const from = section2.blocks.findIndex((block2) => block2.id === command.blockId);
+      const from = section2.blocks.findIndex((block3) => block3.id === command.blockId);
       if (from < 0) throw new EditorCommandError(`Block not found: ${command.blockId}`);
       const [moving] = section2.blocks.splice(from, 1);
       let target = command.toIndex;
@@ -1294,7 +1648,7 @@ function applyCommand(document2, command) {
     }
     case "removeBlock": {
       const { section: section2 } = editableSection(next, command.sectionId);
-      const index = section2.blocks.findIndex((block2) => block2.id === command.blockId);
+      const index = section2.blocks.findIndex((block3) => block3.id === command.blockId);
       if (index < 0) throw new EditorCommandError(`Block not found: ${command.blockId}`);
       section2.blocks.splice(index, 1);
       break;
@@ -1737,14 +2091,14 @@ function fillSettings(type, name, model) {
 function documentFromModel(modelId, pageName) {
   const model = PAGE_MODELS.find((m) => m.id === modelId) ?? PAGE_MODELS[0];
   const name = pageName.trim() || model.name;
-  const base3 = initialDocument(name, model.type);
+  const base7 = initialDocument(name, model.type);
   return {
-    ...base3,
+    ...base7,
     name,
     modelId: model.id,
     theme: { ...model.themeConfig },
     referencePreviews: { desktop: model.previewDesktop, mobile: model.previewMobile },
-    sections: base3.sections.map((section2) => ({
+    sections: base7.sections.map((section2) => ({
       ...section2,
       settings: fillSettings(section2.type, name, model)
     }))
@@ -1800,16 +2154,16 @@ var MODEL_SPECIALTY_BATCH_3 = {
 // src/models/model-manifest.ts
 var SPECIALTIES = { ...MODEL_SPECIALTY_BATCH_1, ...MODEL_SPECIALTY_BATCH_2, ...MODEL_SPECIALTY_BATCH_3 };
 var modelManifestIds = Object.keys(SPECIALTIES);
-function block(sectionId, index, title, text3, extra = {}) {
+function block2(sectionId, index, title, text3, extra = {}) {
   return { id: `${sectionId}-block-${index}`, type: "item", settings: { title, text: text3, ...extra } };
 }
 function blocksFor(type, id2, model) {
-  if (type === "navigation") return [block(id2, 1, "Boutique", "", { label: "Boutique", link: "#produit" }), block(id2, 2, "Notre histoire", "", { label: "Notre histoire", link: "#histoire" })];
+  if (type === "navigation") return [block2(id2, 1, "Boutique", "", { label: "Boutique", link: "#produit" }), block2(id2, 2, "Notre histoire", "", { label: "Notre histoire", link: "#histoire" })];
   if (type === "productMain") return [{ id: `${id2}-variant-1`, type: "variant", settings: { title: "Format signature", variant_id: "" } }];
-  if (type === "reviews" || type === "testimonials") return [block(id2, 1, "Camille", `\xAB ${model.brand} a d\xE9pass\xE9 mes attentes. \xBB`, { rating: 5 }), block(id2, 2, "Nicolas", "Simple, beau et vraiment bien pens\xE9.", { rating: 5 }), block(id2, 3, "In\xE8s", "Je recommande sans h\xE9siter.", { rating: 5 })];
-  if (type === "faq") return [block(id2, 1, "Quand vais-je recevoir ma commande ?", "Exp\xE9dition sous 48 h avec suivi."), block(id2, 2, "Puis-je changer d\u2019avis ?", "Oui, les retours sont possibles pendant 14 jours.")];
-  if (type === "gallery") return [block(id2, 1, "D\xE9tail", "Mati\xE8res et finitions", { image: model.image, image_alt: model.name }), block(id2, 2, "En situation", "Pens\xE9 pour le quotidien", { image: model.image, image_alt: model.name })];
-  return [block(id2, 1, "Con\xE7u avec intention", model.description), block(id2, 2, "Livr\xE9 simplement", "Suivi clair et assistance humaine."), block(id2, 3, "Adopt\xE9 durablement", "Une exp\xE9rience faite pour durer.")];
+  if (type === "reviews" || type === "testimonials") return [block2(id2, 1, "Camille", `\xAB ${model.brand} a d\xE9pass\xE9 mes attentes. \xBB`, { rating: 5 }), block2(id2, 2, "Nicolas", "Simple, beau et vraiment bien pens\xE9.", { rating: 5 }), block2(id2, 3, "In\xE8s", "Je recommande sans h\xE9siter.", { rating: 5 })];
+  if (type === "faq") return [block2(id2, 1, "Quand vais-je recevoir ma commande ?", "Exp\xE9dition sous 48 h avec suivi."), block2(id2, 2, "Puis-je changer d\u2019avis ?", "Oui, les retours sont possibles pendant 14 jours.")];
+  if (type === "gallery") return [block2(id2, 1, "D\xE9tail", "Mati\xE8res et finitions", { image: model.image, image_alt: model.name }), block2(id2, 2, "En situation", "Pens\xE9 pour le quotidien", { image: model.image, image_alt: model.name })];
+  return [block2(id2, 1, "Con\xE7u avec intention", model.description), block2(id2, 2, "Livr\xE9 simplement", "Suivi clair et assistance humaine."), block2(id2, 3, "Adopt\xE9 durablement", "Une exp\xE9rience faite pour durer.")];
 }
 function section(type, index, model, pageName) {
   const definition = getSectionDefinition(type);
@@ -1827,7 +2181,7 @@ function section(type, index, model, pageName) {
   return { id: id2, type, name: definition?.name ?? type, hidden: false, locked: false, settings: common2, style: {}, responsive: {}, blocks: blocksFor(type, id2, model) };
 }
 function buildModelDocument(modelId, pageName) {
-  const model = PAGE_MODELS.find((item) => item.id === modelId) ?? PAGE_MODELS[0];
+  const model = PAGE_MODELS.find((item2) => item2.id === modelId) ?? PAGE_MODELS[0];
   const name = pageName.trim() || model.name;
   const types = ["navigation", "announcement", "productHero", SPECIALTIES[model.id] ?? "benefits", "productMain", "reviews", "faq", "cta", "footer"];
   return {
@@ -1848,7 +2202,7 @@ function slug(value2) {
 }
 function setting(value2) {
   if (value2 === null || typeof value2 === "string" || typeof value2 === "number" || typeof value2 === "boolean") return value2;
-  if (Array.isArray(value2) && value2.every((item) => item === null || ["string", "number", "boolean"].includes(typeof item))) {
+  if (Array.isArray(value2) && value2.every((item2) => item2 === null || ["string", "number", "boolean"].includes(typeof item2))) {
     return value2;
   }
   return JSON.stringify(value2);
@@ -1859,9 +2213,9 @@ function settings(values) {
 function legacyBlocks(section2) {
   const value2 = section2.settings.blocks;
   if (!Array.isArray(value2)) return [];
-  return value2.flatMap((block2, index) => {
-    if (!block2 || typeof block2 !== "object" || Array.isArray(block2)) return [];
-    const raw = block2;
+  return value2.flatMap((block3, index) => {
+    if (!block3 || typeof block3 !== "object" || Array.isArray(block3)) return [];
+    const raw = block3;
     return [{
       id: typeof raw.id === "string" && raw.id ? raw.id : `${section2.id}-block-${index + 1}`,
       type: typeof raw.type === "string" && raw.type ? raw.type : "item",
@@ -1923,8 +2277,8 @@ function safeImage(value2) {
     return "";
   }
 }
-function text2(settings2, ...keys) {
-  for (const key of keys) {
+function text2(settings2, ...keys2) {
+  for (const key of keys2) {
     const value2 = settings2[key];
     if (typeof value2 === "string" && value2.trim()) return escapeHtml2(value2.trim());
   }
@@ -2043,19 +2397,19 @@ function galleryItems(theme) {
   return [blank, ...models];
 }
 function renderGalleryMarkup(items) {
-  return items.map((item) => {
-    const preview = item.id === "blank" ? `<iframe data-model-preview="blank" title="Aper\xE7u d\u2019une page vierge" tabindex="-1"></iframe>` : `<img class="model-card__capture" src="${escapeHtml3(item.previewDesktop ?? "")}" data-preview-desktop="${escapeHtml3(item.previewDesktop ?? "")}" data-preview-mobile="${escapeHtml3(item.previewMobile ?? "")}" alt="Aper\xE7u du mod\xE8le ${escapeHtml3(item.name)}">`;
+  return items.map((item2) => {
+    const preview = item2.id === "blank" ? `<iframe data-model-preview="blank" title="Aper\xE7u d\u2019une page vierge" tabindex="-1"></iframe>` : `<img class="model-card__capture" src="${escapeHtml3(item2.previewDesktop ?? "")}" data-preview-desktop="${escapeHtml3(item2.previewDesktop ?? "")}" data-preview-mobile="${escapeHtml3(item2.previewMobile ?? "")}" alt="Aper\xE7u du mod\xE8le ${escapeHtml3(item2.name)}">`;
     return `
-    <button class="model-card${item.id === "blank" ? " model-card--blank" : ""}" type="button" data-model-id="${escapeHtml3(item.id)}" aria-label="Choisir ${escapeHtml3(item.name)}">
+    <button class="model-card${item2.id === "blank" ? " model-card--blank" : ""}" type="button" data-model-id="${escapeHtml3(item2.id)}" aria-label="Choisir ${escapeHtml3(item2.name)}">
       <span class="model-card__preview">
         ${preview}
         <span class="model-card__action">Utiliser ce mod\xE8le <span aria-hidden="true">\u2197</span></span>
       </span>
       <span class="model-card__meta">
-        <span class="model-card__theme">${escapeHtml3(item.id === "blank" ? "Commencer de z\xE9ro" : item.theme)}</span>
-        <strong>${escapeHtml3(item.name)}</strong>
-        <span class="model-card__brand">${escapeHtml3(item.brand)}</span>
-        <span class="model-card__description">${escapeHtml3(item.description)}</span>
+        <span class="model-card__theme">${escapeHtml3(item2.id === "blank" ? "Commencer de z\xE9ro" : item2.theme)}</span>
+        <strong>${escapeHtml3(item2.name)}</strong>
+        <span class="model-card__brand">${escapeHtml3(item2.brand)}</span>
+        <span class="model-card__description">${escapeHtml3(item2.description)}</span>
       </span>
     </button>`;
   }).join("");
@@ -2184,7 +2538,7 @@ function mountEditorGallery(options) {
   filters.querySelectorAll("[data-gallery-theme]").forEach((button2) => {
     button2.addEventListener("click", () => {
       activeTheme = button2.dataset.galleryTheme ?? "Tout";
-      filters.querySelectorAll("[data-gallery-theme]").forEach((item) => item.setAttribute("aria-pressed", String(item === button2)));
+      filters.querySelectorAll("[data-gallery-theme]").forEach((item2) => item2.setAttribute("aria-pressed", String(item2 === button2)));
       renderGrid();
     });
   });
@@ -2193,7 +2547,7 @@ function mountEditorGallery(options) {
       const viewport = button2.dataset.galleryViewport ?? "desktop";
       gallery.dataset.viewport = viewport;
       paintViewport(viewport);
-      gallery.querySelectorAll("[data-gallery-viewport]").forEach((item) => item.setAttribute("aria-pressed", String(item === button2)));
+      gallery.querySelectorAll("[data-gallery-viewport]").forEach((item2) => item2.setAttribute("aria-pressed", String(item2 === button2)));
     });
   });
   renderGrid();
