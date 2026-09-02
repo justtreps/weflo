@@ -78,6 +78,7 @@ describe("Vercel Hono entry", () => {
     expect(ignore).toContain("api/**");
     expect(pkg.scripts.build).toBe("npm run build:hydrate");
     expect(vercel).toContain('"framework": "hono"');
+    expect(vercel).not.toContain('"buildCommand"');
     expect(vercel).not.toContain('"source": "/api/:path*"');
     expect(vercel).not.toContain('"outputDirectory"');
   });
