@@ -42541,7 +42541,13 @@ function requestUrl(incoming) {
   const forwardedProto = incoming.headers["x-forwarded-proto"];
   const protocol = (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) || "https";
   const host = incoming.headers.host || "localhost";
-  return `${protocol}://${host}${incoming.url || "/"}`;
+  const url = new URL(incoming.url || "/", `${protocol}://${host}`);
+  const forwardedPath = url.searchParams.get("__weflo_path");
+  if (forwardedPath !== null) {
+    url.searchParams.delete("__weflo_path");
+    url.pathname = forwardedPath ? `/${forwardedPath.replace(/^\/+/, "")}` : "/";
+  }
+  return url.toString();
 }
 async function writeResponse(response, outgoing) {
   outgoing.statusCode = response.status;

@@ -27,14 +27,33 @@ describe("Vercel Node handler", () => {
       await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
     }
   });
+
+  it("restores the public route forwarded through the catch-all function", async () => {
+    const app = new Hono();
+    app.get("/api/auth/me", (c) => c.json({ route: c.req.path }));
+    const server = createServer(createVercelNodeHandler(app));
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const address = server.address();
+    if (!address || typeof address === "string") throw new Error("missing test server address");
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${address.port}/api?__weflo_path=api%2Fauth%2Fme`);
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ route: "/api/auth/me" });
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
 });
 
 describe("Vercel function entry", () => {
   it("exists before the Vercel build starts", () => {
     const entry = readFileSync("api/index.js", "utf8");
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { scripts: Record<string, string> };
+    const vercel = readFileSync("vercel.json", "utf8");
     expect(entry.length).toBeGreaterThan(100_000);
     expect(entry).toContain("vercel-handler");
     expect(pkg.scripts["build:api"]).toContain("api/index.js");
+    expect(vercel).toContain("__weflo_path=api/$1");
   });
 });
