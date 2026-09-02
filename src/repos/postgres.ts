@@ -16,6 +16,7 @@ import type {
   WorkspaceRole,
 } from "../types";
 import { PageVersionConflictError, type Store } from "./types";
+import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
 
 function randomId(prefix: string): string {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`;
@@ -417,6 +418,45 @@ export class PostgresStore implements Store {
 
   async getUserProfile(_userId: string): Promise<User | null> {
     return null;
+  }
+
+  async createOnboardingDraft(input: CreateOnboardingDraftInput): Promise<OnboardingDraft> {
+    const now = new Date().toISOString();
+    const draft: OnboardingDraft = { ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now };
+    await this.sql`
+      insert into onboarding_drafts (id, claim_token_hash, status, payload, created_at, updated_at)
+      values (${draft.id}, ${draft.claimTokenHash}, ${draft.status}, ${this.sql.json(draft as never)}, ${draft.createdAt}, ${draft.updatedAt})
+    `;
+    return draft;
+  }
+
+  async getOnboardingDraft(id: string): Promise<OnboardingDraft | null> {
+    const rows = await this.sql<{ payload: OnboardingDraft }[]>`
+      select payload from onboarding_drafts where id = ${id}
+    `;
+    return rows[0]?.payload ? structuredClone(rows[0].payload) : null;
+  }
+
+  async updateOnboardingDraft(id: string, patch: OnboardingDraftPatch): Promise<OnboardingDraft> {
+    const draft = await this.getOnboardingDraft(id);
+    if (!draft) throw new Error("onboarding draft not found");
+    const updated: OnboardingDraft = { ...draft, ...structuredClone(patch), updatedAt: new Date().toISOString() };
+    const rows = await this.sql<{ id: string }[]>`
+      update onboarding_drafts
+      set status = ${updated.status}, payload = ${this.sql.json(updated as never)}, updated_at = ${updated.updatedAt}
+      where id = ${id}
+      returning id
+    `;
+    if (!rows.length) throw new Error("onboarding draft not found");
+    return updated;
+  }
+
+  async claimOnboardingDraft(id: string, claimTokenHash: string, userId: string, pageId: string): Promise<OnboardingDraft> {
+    const draft = await this.getOnboardingDraft(id);
+    if (!draft) throw new Error("onboarding draft not found");
+    if (draft.claimTokenHash !== claimTokenHash) throw new Error("invalid claim token");
+    if (draft.claimedPageId) return draft;
+    return this.updateOnboardingDraft(id, { status: "claimed", claimedUserId: userId, claimedPageId: pageId });
   }
 }
 

@@ -60,3 +60,13 @@ create table if not exists referral_attributions (
   promo_applied boolean not null,
   created_at timestamptz not null default now()
 );
+create table if not exists onboarding_drafts (
+  id text primary key,
+  claim_token_hash text not null,
+  status text not null,
+  payload jsonb not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists onboarding_drafts_status_idx on onboarding_drafts(status);

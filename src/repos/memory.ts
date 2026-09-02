@@ -8,6 +8,7 @@ import type {
   WhopLink,
   Workspace,
 } from "../types";
+import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
 import { PageVersionConflictError, type Store } from "./types";
 
 function randomId(prefix: string): string {
@@ -33,6 +34,7 @@ export class MemoryStore implements Store {
   private whop = new Map<string, WhopLink>();
   private attributions = new Map<string, ReferralAttribution>();
   private users = new Map<string, User>();
+  private onboardingDrafts = new Map<string, OnboardingDraft>();
 
   async createWorkspace(input: { name: string; ownerUserId: string }): Promise<Workspace> {
     const ws: Workspace = {
@@ -204,5 +206,33 @@ export class MemoryStore implements Store {
 
   async getUserProfile(userId: string): Promise<User | null> {
     return this.users.get(userId) ?? null;
+  }
+
+  async createOnboardingDraft(input: CreateOnboardingDraftInput): Promise<OnboardingDraft> {
+    const now = new Date().toISOString();
+    const draft: OnboardingDraft = { ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now };
+    this.onboardingDrafts.set(draft.id, draft);
+    return structuredClone(draft);
+  }
+
+  async getOnboardingDraft(id: string): Promise<OnboardingDraft | null> {
+    const draft = this.onboardingDrafts.get(id);
+    return draft ? structuredClone(draft) : null;
+  }
+
+  async updateOnboardingDraft(id: string, patch: OnboardingDraftPatch): Promise<OnboardingDraft> {
+    const draft = this.onboardingDrafts.get(id);
+    if (!draft) throw new Error("onboarding draft not found");
+    const updated = { ...draft, ...structuredClone(patch), updatedAt: new Date().toISOString() };
+    this.onboardingDrafts.set(id, updated);
+    return structuredClone(updated);
+  }
+
+  async claimOnboardingDraft(id: string, claimTokenHash: string, userId: string, pageId: string): Promise<OnboardingDraft> {
+    const draft = this.onboardingDrafts.get(id);
+    if (!draft) throw new Error("onboarding draft not found");
+    if (draft.claimTokenHash !== claimTokenHash) throw new Error("invalid claim token");
+    if (draft.claimedPageId) return structuredClone(draft);
+    return this.updateOnboardingDraft(id, { status: "claimed", claimedUserId: userId, claimedPageId: pageId });
   }
 }

@@ -1,4 +1,5 @@
 import type { CreditLedger, Membership, Page, ReferralAttribution, ShopifyConnection, User, WhopLink, Workspace } from "../types";
+import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
 
 export class PageVersionConflictError extends Error {
   constructor() {
@@ -36,4 +37,8 @@ export interface Store {
   getAttribution(refereeWorkspaceId: string): Promise<ReferralAttribution | null>;
   saveAttribution(row: ReferralAttribution): Promise<void>;
   getUserProfile(userId: string): Promise<User | null>;
+  createOnboardingDraft(input: CreateOnboardingDraftInput): Promise<OnboardingDraft>;
+  getOnboardingDraft(id: string): Promise<OnboardingDraft | null>;
+  updateOnboardingDraft(id: string, patch: OnboardingDraftPatch): Promise<OnboardingDraft>;
+  claimOnboardingDraft(id: string, claimTokenHash: string, userId: string, pageId: string): Promise<OnboardingDraft>;
 }
