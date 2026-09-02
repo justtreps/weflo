@@ -5098,9 +5098,9 @@ var require_RealtimeChannel = __commonJS({
       /** @internal */
       async _fetchWithTimeout(url, options, timeout) {
         const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
+        const id2 = setTimeout(() => controller.abort(), timeout);
         const response = await this.socket.fetch(url, Object.assign(Object.assign({}, options), { signal: controller.signal }));
-        clearTimeout(id);
+        clearTimeout(id2);
         return response;
       }
       /** @internal */
@@ -6716,11 +6716,11 @@ var require_helpers = __commonJS({
     var pkceFlowIndexKey = (storageKey) => `${storageKey}-flows-code-verifier`;
     async function getPKCEFlowIndex(storage, storageKey) {
       const index = await (0, exports.getItemAsync)(storage, pkceFlowIndexKey(storageKey));
-      return Array.isArray(index) ? index.filter((id) => validatePKCEFlowId(id) !== null) : [];
+      return Array.isArray(index) ? index.filter((id2) => validatePKCEFlowId(id2) !== null) : [];
     }
     async function storePKCEVerifier(storage, storageKey, flowId, verifier, onEvictFlow) {
       await (0, exports.setItemAsync)(storage, (0, exports.pkceVerifierSlotKey)(storageKey, flowId), verifier);
-      const index = (await getPKCEFlowIndex(storage, storageKey)).filter((id) => id !== flowId);
+      const index = (await getPKCEFlowIndex(storage, storageKey)).filter((id2) => id2 !== flowId);
       index.push(flowId);
       while (index.length > constants_1.PKCE_MAX_CONCURRENT_FLOWS) {
         const evicted = index.shift();
@@ -6748,7 +6748,7 @@ var require_helpers = __commonJS({
       const slotValue = await (0, exports.getItemAsync)(storage, slotKey);
       await (0, exports.removeItemAsync)(storage, slotKey);
       const index = await getPKCEFlowIndex(storage, storageKey);
-      const remaining = index.filter((id) => id !== flowId);
+      const remaining = index.filter((id2) => id2 !== flowId);
       if (remaining.length !== index.length) {
         if (remaining.length > 0) {
           await (0, exports.setItemAsync)(storage, pkceFlowIndexKey(storageKey), remaining);
@@ -7820,10 +7820,10 @@ var require_GoTrueAdminApi = __commonJS({
        * }
        * ```
        */
-      async deleteUser(id, shouldSoftDelete = false) {
-        (0, helpers_1.validateUUID)(id);
+      async deleteUser(id2, shouldSoftDelete = false) {
+        (0, helpers_1.validateUUID)(id2);
         try {
-          return await (0, fetch_1._request)(this.fetch, "DELETE", `${this.url}/admin/users/${id}`, {
+          return await (0, fetch_1._request)(this.fetch, "DELETE", `${this.url}/admin/users/${id2}`, {
             headers: this.headers,
             body: {
               should_soft_delete: shouldSoftDelete
@@ -12590,41 +12590,41 @@ var require_GoTrueClient = __commonJS({
        * ```
        */
       onAuthStateChange(callback) {
-        const id = (0, helpers_1.generateCallbackId)();
+        const id2 = (0, helpers_1.generateCallbackId)();
         const subscription = {
-          id,
+          id: id2,
           callback,
           unsubscribe: () => {
-            this._debug("#unsubscribe()", "state change callback with id removed", id);
-            this.stateChangeEmitters.delete(id);
+            this._debug("#unsubscribe()", "state change callback with id removed", id2);
+            this.stateChangeEmitters.delete(id2);
           }
         };
-        this._debug("#onAuthStateChange()", "registered callback with id", id);
-        this.stateChangeEmitters.set(id, subscription);
+        this._debug("#onAuthStateChange()", "registered callback with id", id2);
+        this.stateChangeEmitters.set(id2, subscription);
         (async () => {
           await this.initializePromise;
           if (this.lock != null) {
             await this._acquireLock(this.lockAcquireTimeout, async () => {
-              this._emitInitialSession(id);
+              this._emitInitialSession(id2);
             });
           } else {
-            await this._emitInitialSession(id);
+            await this._emitInitialSession(id2);
           }
         })();
         return { data: { subscription } };
       }
-      async _emitInitialSession(id) {
+      async _emitInitialSession(id2) {
         return await this._useSession(async (result) => {
           var _a4, _b;
           try {
             const { data: { session }, error } = result;
             if (error)
               throw error;
-            await ((_a4 = this.stateChangeEmitters.get(id)) === null || _a4 === void 0 ? void 0 : _a4.callback("INITIAL_SESSION", session));
-            this._debug("INITIAL_SESSION", "callback id", id, "session", session);
+            await ((_a4 = this.stateChangeEmitters.get(id2)) === null || _a4 === void 0 ? void 0 : _a4.callback("INITIAL_SESSION", session));
+            this._debug("INITIAL_SESSION", "callback id", id2, "session", session);
           } catch (err) {
-            await ((_b = this.stateChangeEmitters.get(id)) === null || _b === void 0 ? void 0 : _b.callback("INITIAL_SESSION", null));
-            this._debug("INITIAL_SESSION", "callback id", id, "error", err);
+            await ((_b = this.stateChangeEmitters.get(id2)) === null || _b === void 0 ? void 0 : _b.callback("INITIAL_SESSION", null));
+            this._debug("INITIAL_SESSION", "callback id", id2, "error", err);
             if ((0, errors_1.isAuthSessionMissingError)(err) || (0, errors_1.isAuthRetryableFetchError)(err) || (0, errors_1.isAuthApiError)(err) && (err.code === "refresh_token_not_found" || err.code === "refresh_token_already_used" || err.code === "session_expired")) {
               console.warn(err);
             } else {
@@ -14505,7 +14505,7 @@ var require_main3 = __commonJS({
 });
 
 // src/server/app.ts
-import { Hono as Hono11 } from "hono";
+import { Hono as Hono12 } from "hono";
 import { readFile } from "node:fs/promises";
 import { join as join3, normalize, sep as sep2 } from "node:path";
 
@@ -15770,8 +15770,8 @@ var AppBuilds = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/app_builds/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/app_builds/${id2}`, options);
   }
   /**
    * Lists app builds for an app
@@ -15807,8 +15807,8 @@ var AppBuilds = class extends APIResource {
    * );
    * ```
    */
-  promote(id, options) {
-    return this._client.post(path`/app_builds/${id}/promote`, options);
+  promote(id2, options) {
+    return this._client.post(path`/app_builds/${id2}/promote`, options);
   }
 };
 
@@ -15847,8 +15847,8 @@ var Apps = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/apps/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/apps/${id2}`, options);
   }
   /**
    * Update an existing App
@@ -15863,8 +15863,8 @@ var Apps = class extends APIResource {
    * const app = await client.apps.update('app_xxxxxxxxxxxxxx');
    * ```
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/apps/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/apps/${id2}`, { body, ...options });
   }
   /**
    * Fetches a list of apps
@@ -15892,8 +15892,8 @@ var AuthorizedUsers = class extends APIResource {
    * - `company:authorized_user:read`
    * - `member:email:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/authorized_users/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/authorized_users/${id2}`, options);
   }
   /**
    * Lists authorized users
@@ -15927,8 +15927,8 @@ var ChatChannels = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/chat_channels/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/chat_channels/${id2}`, options);
   }
   /**
    * Updates a chat channel
@@ -15942,8 +15942,8 @@ var ChatChannels = class extends APIResource {
    * const chatChannel = await client.chatChannels.update('id');
    * ```
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/chat_channels/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/chat_channels/${id2}`, { body, ...options });
   }
   /**
    * Lists chat channels inside a company
@@ -16001,8 +16001,8 @@ var CheckoutConfigurations = class extends APIResource {
    *
    * - `checkout_configuration:basic:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/checkout_configurations/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/checkout_configurations/${id2}`, options);
   }
   /**
    * Lists checkout configurations
@@ -16036,8 +16036,8 @@ var Companies = class extends APIResource {
    *
    * - `company:basic:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/companies/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/companies/${id2}`, options);
   }
   /**
    * Update an existing company. Either a regular company, platform company, or one
@@ -16048,8 +16048,8 @@ var Companies = class extends APIResource {
    * - `company:update`
    * - `company:basic:read`
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/companies/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/companies/${id2}`, { body, ...options });
   }
   /**
    * Lists companies the current user has access to
@@ -16096,8 +16096,8 @@ var CourseChapters = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/course_chapters/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/course_chapters/${id2}`, options);
   }
   /**
    * Updates a course chapter
@@ -16114,8 +16114,8 @@ var CourseChapters = class extends APIResource {
    * );
    * ```
    */
-  update(id, body, options) {
-    return this._client.patch(path`/course_chapters/${id}`, { body, ...options });
+  update(id2, body, options) {
+    return this._client.patch(path`/course_chapters/${id2}`, { body, ...options });
   }
   /**
    * Lists chapters for a course
@@ -16154,8 +16154,8 @@ var CourseChapters = class extends APIResource {
    * );
    * ```
    */
-  delete(id, options) {
-    return this._client.delete(path`/course_chapters/${id}`, options);
+  delete(id2, options) {
+    return this._client.delete(path`/course_chapters/${id2}`, options);
   }
 };
 
@@ -16169,8 +16169,8 @@ var CourseLessonInteractions = class extends APIResource {
    * - `courses:read`
    * - `course_analytics:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/course_lesson_interactions/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/course_lesson_interactions/${id2}`, options);
   }
   /**
    * Lists course lesson interactions
@@ -16219,8 +16219,8 @@ var CourseLessons = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/course_lessons/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/course_lessons/${id2}`, options);
   }
   /**
    * Updates a course lesson
@@ -16236,8 +16236,8 @@ var CourseLessons = class extends APIResource {
    * );
    * ```
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/course_lessons/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/course_lessons/${id2}`, { body, ...options });
   }
   /**
    * Lists lessons for a course or chapter
@@ -16274,8 +16274,8 @@ var CourseLessons = class extends APIResource {
    * );
    * ```
    */
-  delete(id, options) {
-    return this._client.delete(path`/course_lessons/${id}`, options);
+  delete(id2, options) {
+    return this._client.delete(path`/course_lessons/${id2}`, options);
   }
   /**
    * Marks a course lesson as completed
@@ -16329,8 +16329,8 @@ var CourseStudents = class extends APIResource {
    * - `courses:read`
    * - `course_analytics:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/course_students/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/course_students/${id2}`, options);
   }
   /**
    * Lists students for a course
@@ -16382,8 +16382,8 @@ var Courses = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/courses/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/courses/${id2}`, options);
   }
   /**
    * Updates a course
@@ -16399,8 +16399,8 @@ var Courses = class extends APIResource {
    * );
    * ```
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/courses/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/courses/${id2}`, { body, ...options });
   }
   /**
    * Lists courses for an experience or company
@@ -16434,8 +16434,8 @@ var Courses = class extends APIResource {
    * );
    * ```
    */
-  delete(id, options) {
-    return this._client.delete(path`/courses/${id}`, options);
+  delete(id2, options) {
+    return this._client.delete(path`/courses/${id2}`, options);
   }
 };
 
@@ -16455,8 +16455,8 @@ var Disputes = class extends APIResource {
    * - `member:basic:read`
    * - `member:phone:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/disputes/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/disputes/${id2}`, options);
   }
   /**
    * Lists disputes the current actor has access to
@@ -16487,8 +16487,8 @@ var Disputes = class extends APIResource {
    * - `member:basic:read`
    * - `member:phone:read`
    */
-  submitEvidence(id, options) {
-    return this._client.post(path`/disputes/${id}/submit_evidence`, options);
+  submitEvidence(id2, options) {
+    return this._client.post(path`/disputes/${id2}/submit_evidence`, options);
   }
   /**
    * Update a dispute with evidence data to attempt to win the dispute.
@@ -16504,8 +16504,8 @@ var Disputes = class extends APIResource {
    * - `member:basic:read`
    * - `member:phone:read`
    */
-  updateEvidence(id, body = {}, options) {
-    return this._client.post(path`/disputes/${id}/update_evidence`, { body, ...options });
+  updateEvidence(id2, body = {}, options) {
+    return this._client.post(path`/disputes/${id2}/update_evidence`, { body, ...options });
   }
 };
 
@@ -16519,8 +16519,8 @@ var Entries = class extends APIResource {
    * - `plan:waitlist:read`
    * - `member:email:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/entries/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/entries/${id2}`, options);
   }
   /**
    * Lists entries for a company
@@ -16540,8 +16540,8 @@ var Entries = class extends APIResource {
    *
    * - `plan:waitlist:manage`
    */
-  approve(id, options) {
-    return this._client.post(path`/entries/${id}/approve`, options);
+  approve(id2, options) {
+    return this._client.post(path`/entries/${id2}/approve`, options);
   }
   /**
    * Deny an entry
@@ -16552,8 +16552,8 @@ var Entries = class extends APIResource {
    * - `plan:basic:read`
    * - `member:email:read`
    */
-  deny(id, options) {
-    return this._client.post(path`/entries/${id}/deny`, options);
+  deny(id2, options) {
+    return this._client.post(path`/entries/${id2}/deny`, options);
   }
 };
 
@@ -16585,8 +16585,8 @@ var Experiences = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/experiences/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/experiences/${id2}`, options);
   }
   /**
    * Required permissions:
@@ -16600,8 +16600,8 @@ var Experiences = class extends APIResource {
    * );
    * ```
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/experiences/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/experiences/${id2}`, { body, ...options });
   }
   /**
    * Lists experiences for a company
@@ -16635,8 +16635,8 @@ var Experiences = class extends APIResource {
    * );
    * ```
    */
-  delete(id, options) {
-    return this._client.delete(path`/experiences/${id}`, options);
+  delete(id2, options) {
+    return this._client.delete(path`/experiences/${id2}`, options);
   }
   /**
    * Adds an experience to an product, making it accessible to the product's
@@ -16654,8 +16654,8 @@ var Experiences = class extends APIResource {
    * );
    * ```
    */
-  attach(id, body, options) {
-    return this._client.post(path`/experiences/${id}/attach`, { body, ...options });
+  attach(id2, body, options) {
+    return this._client.post(path`/experiences/${id2}/attach`, { body, ...options });
   }
   /**
    * Removes an experience from an product, making it inaccessible to the product's
@@ -16673,8 +16673,8 @@ var Experiences = class extends APIResource {
    * );
    * ```
    */
-  detach(id, body, options) {
-    return this._client.post(path`/experiences/${id}/detach`, { body, ...options });
+  detach(id2, body, options) {
+    return this._client.post(path`/experiences/${id2}/detach`, { body, ...options });
   }
   /**
    * Duplicates an existing experience. The name will be copied, unless provided. The
@@ -16695,8 +16695,8 @@ var Experiences = class extends APIResource {
    * );
    * ```
    */
-  duplicate(id, body = {}, options) {
-    return this._client.post(path`/experiences/${id}/duplicate`, { body, ...options });
+  duplicate(id2, body = {}, options) {
+    return this._client.post(path`/experiences/${id2}/duplicate`, { body, ...options });
   }
 };
 
@@ -16752,8 +16752,8 @@ var FeeMarkups = class extends APIResource {
    * const feeMarkup = await client.feeMarkups.delete('id');
    * ```
    */
-  delete(id, options) {
-    return this._client.delete(path`/fee_markups/${id}`, options);
+  delete(id2, options) {
+    return this._client.delete(path`/fee_markups/${id2}`, options);
   }
 };
 
@@ -16788,8 +16788,8 @@ var ForumPosts = class extends APIResource {
    * const forumPost = await client.forumPosts.retrieve('id');
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/forum_posts/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/forum_posts/${id2}`, options);
   }
   /**
    * Update an existing forum post
@@ -16799,8 +16799,8 @@ var ForumPosts = class extends APIResource {
    * const forumPost = await client.forumPosts.update('id');
    * ```
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/forum_posts/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/forum_posts/${id2}`, { body, ...options });
   }
   /**
    * Lists forum posts
@@ -16833,8 +16833,8 @@ var Forums = class extends APIResource {
    *
    * - `forum:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/forums/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/forums/${id2}`, options);
   }
   /**
    * Updates a forum
@@ -16843,8 +16843,8 @@ var Forums = class extends APIResource {
    *
    * - `forum:moderate`
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/forums/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/forums/${id2}`, { body, ...options });
   }
   /**
    * Lists forums inside a company
@@ -16891,8 +16891,8 @@ var Invoices = class extends APIResource {
    * - `invoice:basic:read`
    * - `plan:basic:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/invoices/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/invoices/${id2}`, options);
   }
   /**
    * Lists invoices
@@ -16912,8 +16912,8 @@ var Invoices = class extends APIResource {
    *
    * - `invoice:update`
    */
-  void(id, options) {
-    return this._client.post(path`/invoices/${id}/void`, options);
+  void(id2, options) {
+    return this._client.post(path`/invoices/${id2}/void`, options);
   }
 };
 
@@ -16927,8 +16927,8 @@ var LedgerAccounts = class extends APIResource {
    * - `company:balance:read`
    * - `payout:account:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/ledger_accounts/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/ledger_accounts/${id2}`, options);
   }
 };
 
@@ -16943,8 +16943,8 @@ var Members = class extends APIResource {
    * - `member:email:read`
    * - `member:phone:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/members/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/members/${id2}`, options);
   }
   /**
    * List the members of a company
@@ -16969,8 +16969,8 @@ var Memberships = class extends APIResource {
    *
    * - `member:basic:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/memberships/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/memberships/${id2}`, options);
   }
   /**
    * Update a membership
@@ -16980,8 +16980,8 @@ var Memberships = class extends APIResource {
    * - `member:manage`
    * - `member:basic:read`
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/memberships/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/memberships/${id2}`, { body, ...options });
   }
   /**
    * Lists memberships
@@ -17002,8 +17002,8 @@ var Memberships = class extends APIResource {
    * - `member:manage`
    * - `member:basic:read`
    */
-  cancel(id, body = {}, options) {
-    return this._client.post(path`/memberships/${id}/cancel`, { body, ...options });
+  cancel(id2, body = {}, options) {
+    return this._client.post(path`/memberships/${id2}/cancel`, { body, ...options });
   }
   /**
    * Pauses a membership's payments
@@ -17013,8 +17013,8 @@ var Memberships = class extends APIResource {
    * - `member:manage`
    * - `member:basic:read`
    */
-  pause(id, body = {}, options) {
-    return this._client.post(path`/memberships/${id}/pause`, { body, ...options });
+  pause(id2, body = {}, options) {
+    return this._client.post(path`/memberships/${id2}/pause`, { body, ...options });
   }
   /**
    * Resumes a membership's payments
@@ -17024,8 +17024,8 @@ var Memberships = class extends APIResource {
    * - `member:manage`
    * - `member:basic:read`
    */
-  resume(id, options) {
-    return this._client.post(path`/memberships/${id}/resume`, options);
+  resume(id2, options) {
+    return this._client.post(path`/memberships/${id2}/resume`, options);
   }
 };
 
@@ -17048,14 +17048,14 @@ var Messages = class extends APIResource {
    *
    * - `chat:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/messages/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/messages/${id2}`, options);
   }
   /**
    * Updates an existing message
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/messages/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/messages/${id2}`, { body, ...options });
   }
   /**
    * Lists messages inside a channel
@@ -17101,8 +17101,8 @@ var PaymentMethods = class extends APIResource {
    *
    * - `member:payment_methods:read`
    */
-  retrieve(id, query, options) {
-    return this._client.get(path`/payment_methods/${id}`, { query, ...options });
+  retrieve(id2, query, options) {
+    return this._client.get(path`/payment_methods/${id2}`, { query, ...options });
   }
   /**
    * A payment method is a stored representation of how a customer intends to pay,
@@ -17178,8 +17178,8 @@ var Payments = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/payments/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/payments/${id2}`, options);
   }
   /**
    * Lists payments
@@ -17224,8 +17224,8 @@ var Payments = class extends APIResource {
    * }
    * ```
    */
-  listFees(id, query = {}, options) {
-    return this._client.getAPIList(path`/payments/${id}/fees`, CursorPage, {
+  listFees(id2, query = {}, options) {
+    return this._client.getAPIList(path`/payments/${id2}/fees`, CursorPage, {
       query,
       ...options
     });
@@ -17250,8 +17250,8 @@ var Payments = class extends APIResource {
    * );
    * ```
    */
-  refund(id, body = {}, options) {
-    return this._client.post(path`/payments/${id}/refund`, { body, ...options });
+  refund(id2, body = {}, options) {
+    return this._client.post(path`/payments/${id2}/refund`, { body, ...options });
   }
   /**
    * Retries a payment
@@ -17273,8 +17273,8 @@ var Payments = class extends APIResource {
    * );
    * ```
    */
-  retry(id, options) {
-    return this._client.post(path`/payments/${id}/retry`, options);
+  retry(id2, options) {
+    return this._client.post(path`/payments/${id2}/retry`, options);
   }
   /**
    * Voids a payment
@@ -17296,8 +17296,8 @@ var Payments = class extends APIResource {
    * );
    * ```
    */
-  void(id, options) {
-    return this._client.post(path`/payments/${id}/void`, options);
+  void(id2, options) {
+    return this._client.post(path`/payments/${id2}/void`, options);
   }
 };
 
@@ -17354,8 +17354,8 @@ var Plans = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/plans/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/plans/${id2}`, options);
   }
   /**
    * Update an existing Plan
@@ -17373,8 +17373,8 @@ var Plans = class extends APIResource {
    * );
    * ```
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/plans/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/plans/${id2}`, { body, ...options });
   }
   /**
    * Lists plans for a company
@@ -17410,8 +17410,8 @@ var Plans = class extends APIResource {
    * );
    * ```
    */
-  delete(id, options) {
-    return this._client.delete(path`/plans/${id}`, options);
+  delete(id2, options) {
+    return this._client.delete(path`/plans/${id2}`, options);
   }
 };
 
@@ -17450,8 +17450,8 @@ var Products = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/products/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/products/${id2}`, options);
   }
   /**
    * Updates an existing Product
@@ -17468,8 +17468,8 @@ var Products = class extends APIResource {
    * );
    * ```
    */
-  update(id, body = {}, options) {
-    return this._client.patch(path`/products/${id}`, { body, ...options });
+  update(id2, body = {}, options) {
+    return this._client.patch(path`/products/${id2}`, { body, ...options });
   }
   /**
    * Lists products for a company
@@ -17505,8 +17505,8 @@ var Products = class extends APIResource {
    * );
    * ```
    */
-  delete(id, options) {
-    return this._client.delete(path`/products/${id}`, options);
+  delete(id2, options) {
+    return this._client.delete(path`/products/${id2}`, options);
   }
 };
 
@@ -17551,8 +17551,8 @@ var PromoCodes = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/promo_codes/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/promo_codes/${id2}`, options);
   }
   /**
    * Lists promo codes for a company
@@ -17589,8 +17589,8 @@ var PromoCodes = class extends APIResource {
    * );
    * ```
    */
-  delete(id, options) {
-    return this._client.delete(path`/promo_codes/${id}`, options);
+  delete(id2, options) {
+    return this._client.delete(path`/promo_codes/${id2}`, options);
   }
 };
 
@@ -17613,8 +17613,8 @@ var Reactions = class extends APIResource {
    *
    * - `chat:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/reactions/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/reactions/${id2}`, options);
   }
   /**
    * Lists reactions for a post or a message
@@ -17640,8 +17640,8 @@ var Refunds = class extends APIResource {
    * - `member:basic:read`
    * - `member:phone:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/refunds/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/refunds/${id2}`, options);
   }
   /**
    * Lists Refunds for a payment.
@@ -17660,8 +17660,8 @@ var Reviews = class extends APIResource {
   /**
    * Retrieve a review by its ID
    */
-  retrieve(id, options) {
-    return this._client.get(path`/reviews/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/reviews/${id2}`, options);
   }
   /**
    * List all reviews
@@ -17686,8 +17686,8 @@ var SetupIntents = class extends APIResource {
    * - `member:basic:read`
    * - `member:email:read`
    */
-  retrieve(id, options) {
-    return this._client.get(path`/setup_intents/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/setup_intents/${id2}`, options);
   }
   /**
    * A setup intent is an object used to securely collect and store a member’s
@@ -17747,8 +17747,8 @@ var Shipments = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/shipments/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/shipments/${id2}`, options);
   }
   /**
    * Lists shipments for a payment
@@ -17805,8 +17805,8 @@ var SupportChannels = class extends APIResource {
    *   await client.supportChannels.retrieve('id');
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/support_channels/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/support_channels/${id2}`, options);
   }
   /**
    * Lists chat channels inside a company
@@ -17869,8 +17869,8 @@ var Transfers = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/transfers/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/transfers/${id2}`, options);
   }
   /**
    * Lists transfers
@@ -17897,15 +17897,15 @@ var Users = class extends APIResource {
   /**
    * Retrieves a user by ID or username
    */
-  retrieve(id, options) {
-    return this._client.get(path`/users/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/users/${id2}`, options);
   }
   /**
    * Check if a user has access (and their access level) to a resource
    */
   checkAccess(resourceID, params, options) {
-    const { id } = params;
-    return this._client.get(path`/users/${id}/access/${resourceID}`, options);
+    const { id: id2 } = params;
+    return this._client.get(path`/users/${id2}/access/${resourceID}`, options);
   }
 };
 
@@ -17961,8 +17961,8 @@ var Withdrawals = class extends APIResource {
    * );
    * ```
    */
-  retrieve(id, options) {
-    return this._client.get(path`/withdrawals/${id}`, options);
+  retrieve(id2, options) {
+    return this._client.get(path`/withdrawals/${id2}`, options);
   }
   /**
    * Lists withdrawals
@@ -19531,8 +19531,8 @@ function planIdOf(data) {
 function manageUrlOf(data) {
   const explicit = asString(data.manage_url);
   if (explicit) return explicit;
-  const id = asString(data.id);
-  return id ? `https://whop.com/billing/manage/${id}` : null;
+  const id2 = asString(data.id);
+  return id2 ? `https://whop.com/billing/manage/${id2}` : null;
 }
 async function currentLink(store, workspaceId) {
   const existing = await store.getWhop(workspaceId);
@@ -19604,12 +19604,12 @@ function header(headers, name) {
   return headers.get(name) ?? headers.get(name.toLowerCase());
 }
 function verifyHmac(rawBody, headers, secret) {
-  const id = header(headers, "webhook-id");
+  const id2 = header(headers, "webhook-id");
   const timestamp = header(headers, "webhook-timestamp");
   const signature = header(headers, "webhook-signature");
-  if (!id || !timestamp || !signature) throw new Error("bad sig");
+  if (!id2 || !timestamp || !signature) throw new Error("bad sig");
   const key = secret.startsWith("whsec_") ? Buffer.from(secret.slice("whsec_".length), "base64") : Buffer.from(secret, "utf8");
-  const expected = createHmac("sha256", key).update(`${id}.${timestamp}.${rawBody}`).digest("base64");
+  const expected = createHmac("sha256", key).update(`${id2}.${timestamp}.${rawBody}`).digest("base64");
   const expectedBuf = Buffer.from(expected);
   const ok = signature.split(/\s+/).some((part) => {
     const hash = part.includes(",") ? part.slice(part.indexOf(",") + 1) : part;
@@ -19738,11 +19738,11 @@ var MODEL_IMAGES = {
 function previewSlug(value2) {
   return value2.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
-function pageModel(id, name, brand, theme, description, price, cta2) {
-  const imageId = MODEL_IMAGES[id] ?? MODEL_IMAGES.proteo;
+function pageModel(id2, name, brand, theme, description, price, cta2) {
+  const imageId = MODEL_IMAGES[id2] ?? MODEL_IMAGES.proteo;
   const preview = `/assets/editor-preview-${previewSlug(brand)}`;
   return {
-    id,
+    id: id2,
     name,
     brand,
     theme,
@@ -21640,15 +21640,15 @@ var CursorPage2 = class extends AbstractPage2 {
   }
   nextPageRequestOptions() {
     const data = this.getPaginatedItems();
-    const id = data[data.length - 1]?.id;
-    if (!id) {
+    const id2 = data[data.length - 1]?.id;
+    if (!id2) {
       return null;
     }
     return {
       ...this.options,
       query: {
         ...maybeObj2(this.options.query),
-        after: id
+        after: id2
       }
     };
   }
@@ -23011,11 +23011,11 @@ var ChatCompletionStream = class _ChatCompletionStream extends AbstractChatCompl
       if (tool_calls) {
         if (!choice.message.tool_calls)
           choice.message.tool_calls = [];
-        for (const { index: index2, id, type, function: fn, ...rest3 } of tool_calls) {
+        for (const { index: index2, id: id2, type, function: fn, ...rest3 } of tool_calls) {
           const tool_call = (_d = choice.message.tool_calls)[index2] ?? (_d[index2] = {});
           Object.assign(tool_call, rest3);
-          if (id)
-            tool_call.id = id;
+          if (id2)
+            tool_call.id = id2;
           if (type)
             tool_call.type = type;
           if (fn)
@@ -23088,10 +23088,10 @@ var ChatCompletionStream = class _ChatCompletionStream extends AbstractChatCompl
   }
 };
 function finalizeChatCompletion(snapshot, params) {
-  const { id, choices, created, model, system_fingerprint, ...rest } = snapshot;
+  const { id: id2, choices, created, model, system_fingerprint, ...rest } = snapshot;
   const completion = {
     ...rest,
-    id,
+    id: id2,
     choices: choices.map(({ message: message2, finish_reason, index, logprobs, ...choiceRest }) => {
       if (!finish_reason) {
         throw new OpenAIError(`missing finish_reason for choice ${index}`);
@@ -23134,9 +23134,9 @@ function finalizeChatCompletion(snapshot, params) {
             content,
             refusal: message2.refusal ?? null,
             tool_calls: tool_calls.map((tool_call, i) => {
-              const { function: fn, type, id: id2, ...toolRest } = tool_call;
+              const { function: fn, type, id: id3, ...toolRest } = tool_call;
               const { arguments: args, name, ...fnRest } = fn || {};
-              if (id2 == null) {
+              if (id3 == null) {
                 throw new OpenAIError(`missing choices[${index}].tool_calls[${i}].id
 ${str(snapshot)}`);
               }
@@ -23152,7 +23152,7 @@ ${str(snapshot)}`);
                 throw new OpenAIError(`missing choices[${index}].tool_calls[${i}].function.arguments
 ${str(snapshot)}`);
               }
-              return { ...toolRest, id: id2, type, function: { ...fnRest, name, arguments: args } };
+              return { ...toolRest, id: id3, type, function: { ...fnRest, name, arguments: args } };
             })
           }
         };
@@ -24904,16 +24904,16 @@ var Files2 = class extends APIResource2 {
   /**
    * Waits for the given file to be processed, default timeout is 30 mins.
    */
-  async waitForProcessing(id, { pollInterval = 5e3, maxWait = 30 * 60 * 1e3 } = {}) {
+  async waitForProcessing(id2, { pollInterval = 5e3, maxWait = 30 * 60 * 1e3 } = {}) {
     const TERMINAL_STATES = /* @__PURE__ */ new Set(["processed", "error", "deleted"]);
     const start = Date.now();
-    let file2 = await this.retrieve(id);
+    let file2 = await this.retrieve(id2);
     while (!file2.status || !TERMINAL_STATES.has(file2.status)) {
       await sleep2(pollInterval);
-      file2 = await this.retrieve(id);
+      file2 = await this.retrieve(id2);
       if (Date.now() - start > maxWait) {
         throw new APIConnectionTimeoutError2({
-          message: `Giving up on waiting for file ${id} to finish processing after ${maxWait} milliseconds.`
+          message: `Giving up on waiting for file ${id2} to finish processing after ${maxWait} milliseconds.`
         });
       }
     }
@@ -26941,10 +26941,10 @@ function documentToTemplateJson(doc, _kind) {
   for (const section2 of doc.sections) {
     const type = shopifySectionType(section2.type);
     if (!type) continue;
-    let id = sectionKey(type, section2.id);
-    if (sections[id]) id = sectionKey(type, `${section2.id}-${order.length}`);
-    sections[id] = { type, settings: sectionToShopifySettings(section2) };
-    order.push(id);
+    let id2 = sectionKey(type, section2.id);
+    if (sections[id2]) id2 = sectionKey(type, `${section2.id}-${order.length}`);
+    sections[id2] = { type, settings: sectionToShopifySettings(section2) };
+    order.push(id2);
   }
   if (order.length === 0) {
     sections.hero = {
@@ -27067,6 +27067,10 @@ function validateThemeOutput(files) {
       try {
         const value2 = JSON.parse(file2.value);
         templates.push({ key: file2.key, value: value2 });
+        const sectionIds2 = Object.keys(value2.sections ?? {});
+        if (sectionIds2.length === 0) errors.push(`Le mod\xE8le ${file2.key} ne contient aucune section.`);
+        if (!Array.isArray(value2.order) || value2.order.length === 0) errors.push(`L\u2019ordre du mod\xE8le ${file2.key} est vide.`);
+        else for (const entry of value2.order) if (typeof entry !== "string" || !sectionIds2.includes(entry)) errors.push(`L\u2019entr\xE9e ${String(entry)} de l\u2019ordre du mod\xE8le ${file2.key} est introuvable.`);
       } catch {
         errors.push(`Le JSON du mod\xE8le ${file2.key} est invalide.`);
       }
@@ -27352,11 +27356,11 @@ function uniqueId(document2, type) {
   return `${type}-${index}`;
 }
 function customSection(document2, kind) {
-  const id = uniqueId(document2, "customCode");
+  const id2 = uniqueId(document2, "customCode");
   const html = kind === "accordion" ? '<div class="accordion"><button type="button" aria-expanded="false">Afficher les d\xE9tails</button><div hidden>Ajoute ici ton contenu.</div></div>' : '<div class="calculator"><label>Quantit\xE9 <input type="number" min="1" value="1"></label><output>29 \u20AC</output></div>';
-  const css = `[data-wf-custom-id="${id}"] .${kind === "accordion" ? "accordion" : "calculator"}{padding:24px;border:1px solid #ddd;border-radius:16px}`;
+  const css = `[data-wf-custom-id="${id2}"] .${kind === "accordion" ? "accordion" : "calculator"}{padding:24px;border:1px solid #ddd;border-radius:16px}`;
   const js = kind === "accordion" ? 'const button=document.querySelector("button");const panel=document.querySelector("[hidden]");button.addEventListener("click",()=>{const open=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!open));panel.hidden=open})' : 'const input=document.querySelector("input");const output=document.querySelector("output");input.addEventListener("input",()=>{output.textContent=(Math.max(1,Number(input.value))*29)+" \u20AC"})';
-  return { id, type: "customCode", name: kind === "accordion" ? "Accord\xE9on sur mesure" : "Calculateur sur mesure", hidden: false, locked: false, settings: { html, css, js }, style: {}, responsive: {}, blocks: [] };
+  return { id: id2, type: "customCode", name: kind === "accordion" ? "Accord\xE9on sur mesure" : "Calculateur sur mesure", hidden: false, locked: false, settings: { html, css, js }, style: {}, responsive: {}, blocks: [] };
 }
 function planCanardoLocally(prompt, document2, selectedId) {
   const page = document2.pages.find((item2) => item2.sections.some((section2) => section2.id === selectedId)) ?? document2.pages[0];
@@ -27370,8 +27374,8 @@ function planCanardoLocally(prompt, document2, selectedId) {
   if (/ajout|cr[ée][ée]|nouvelle section|ins[èe]re/.test(lower)) {
     const type = typeAliases.find(([pattern]) => pattern.test(lower))?.[1] ?? "imageText";
     const definition = getSectionDefinition(type);
-    const id = uniqueId(document2, type);
-    const section2 = { id, type, name: definition.name, hidden: false, locked: false, settings: { ...definition.defaults, title: definition.name }, style: {}, responsive: {}, blocks: [] };
+    const id2 = uniqueId(document2, type);
+    const section2 = { id: id2, type, name: definition.name, hidden: false, locked: false, settings: { ...definition.defaults, title: definition.name }, style: {}, responsive: {}, blocks: [] };
     return { message: `La section ${definition.name} est pr\xEAte.`, summary: `Ajouter : ${definition.name}`, commands: [{ type: "insertSection", pageId: page.id, index: page.sections.length, section: section2 }] };
   }
   if (!selectedId) return { message: "S\xE9lectionne une section ou demande-moi d\u2019en ajouter une.", summary: "Aucune modification", commands: [] };
@@ -27550,21 +27554,21 @@ function validateSection(value2, errors, sectionIds2, blockIds2) {
     errors.push("Invalid editor section");
     return false;
   }
-  const id = value2.id;
-  if (sectionIds2.has(id)) errors.push(`Duplicate section id: ${id}`);
-  sectionIds2.add(id);
+  const id2 = value2.id;
+  if (sectionIds2.has(id2)) errors.push(`Duplicate section id: ${id2}`);
+  sectionIds2.add(id2);
   if (!nonEmptyString(value2.name) || typeof value2.hidden !== "boolean" || typeof value2.locked !== "boolean") {
-    errors.push(`Invalid section metadata: ${id}`);
+    errors.push(`Invalid section metadata: ${id2}`);
   }
-  if (!object(value2.settings)) errors.push(`Invalid section settings: ${id}`);
+  if (!object(value2.settings)) errors.push(`Invalid section settings: ${id2}`);
   else for (const [key, setting3] of Object.entries(value2.settings)) {
-    if (!settingValue(setting3)) errors.push(`Invalid setting value at ${id}.${key}`);
+    if (!settingValue(setting3)) errors.push(`Invalid setting value at ${id2}.${key}`);
   }
-  if (!styleSettings(value2.style)) errors.push(`Invalid style settings in section: ${id}`);
-  if (!responsiveSettings(value2.responsive)) errors.push(`Invalid responsive settings in section: ${id}`);
-  if (!Array.isArray(value2.blocks)) errors.push(`Invalid blocks in section: ${id}`);
+  if (!styleSettings(value2.style)) errors.push(`Invalid style settings in section: ${id2}`);
+  if (!responsiveSettings(value2.responsive)) errors.push(`Invalid responsive settings in section: ${id2}`);
+  if (!Array.isArray(value2.blocks)) errors.push(`Invalid blocks in section: ${id2}`);
   else value2.blocks.forEach((block) => validateBlock(block, errors, blockIds2));
-  if (unsafeCustomCode(value2)) errors.push(`Unsafe custom code in section: ${id}`);
+  if (unsafeCustomCode(value2)) errors.push(`Unsafe custom code in section: ${id2}`);
   return true;
 }
 function validatePage(value2, errors, pageIds, sectionIds2, blockIds2) {
@@ -27732,8 +27736,8 @@ function isPageType(value2) {
 function isPageStatus(value2) {
   return typeof value2 === "string" && PAGE_STATUSES.includes(value2);
 }
-async function loadOwnedPage(deps, userId, id) {
-  const page = await deps.store.getPage(id);
+async function loadOwnedPage(deps, userId, id2) {
+  const page = await deps.store.getPage(id2);
   if (!page) return { error: "not found", status: 404 };
   await deps.store.assertMember(userId, page.workspaceId);
   return { page };
@@ -28886,12 +28890,12 @@ var KEYWORDS = {
 };
 var PRIORITY = ["warm-home", "clinical-wellness", "editorial-beauty", "direct-response", "technical-performance", "premium-accessories", "food-craft", "playful-gifting"];
 function selectArtDirection(truth) {
-  const scored = PRIORITY.map((id, index) => ({ id, index, score: (truth.searchText.match(new RegExp(KEYWORDS[id].source, "gi")) ?? []).length }));
+  const scored = PRIORITY.map((id2, index) => ({ id: id2, index, score: (truth.searchText.match(new RegExp(KEYWORDS[id2].source, "gi")) ?? []).length }));
   scored.sort((a, b2) => b2.score - a.score || a.index - b2.index);
   return PROFILES[scored[0].score ? scored[0].id : "direct-response"];
 }
-function artDirectionById(id) {
-  return typeof id === "string" && id in PROFILES ? PROFILES[id] : null;
+function artDirectionById(id2) {
+  return typeof id2 === "string" && id2 in PROFILES ? PROFILES[id2] : null;
 }
 
 // src/onboarding/fallback-analysis.ts
@@ -28952,10 +28956,10 @@ function buildStoreRecipe(input) {
     "warm-home": [section("announcement", "quiet-trust", "Rassurer"), section("navigation", "editorial", "Installer la marque"), section("productHero", "ambient-editorial", "Projeter dans un int\xE9rieur"), section("gallery", "lifestyle-grid", "Montrer les ambiances"), section("productMain", "calm-buy-box", "Faciliter l\u2019achat"), section("imageText", "room-story", "Raconter l\u2019usage"), section("benefits", "material-cards", "Expliquer les b\xE9n\xE9fices"), section(proof, "home-stories", "Apporter la preuve"), section("bundle", "room-set", "Augmenter le panier"), section("shipping", "assurance-strip", "Rassurer sur la commande"), section("faq", "quiet-accordion", "Lever les objections"), section("cta", "editorial-close", "Conclure"), section("footer", "editorial", "Signer")],
     "editorial-beauty": [section("navigation", "minimal", "Installer la marque"), section("productHero", "beauty-split", "Cr\xE9er le d\xE9sir"), section("benefits", "ritual-strip", "Promettre une routine"), section("productMain", "beauty-buy-box", "Convertir"), section("imageText", "ingredient-story", "Expliquer la formule"), section("gallery", "editorial-mosaic", "Montrer la texture"), section(proof, "beauty-journal", "Prouver"), section("bundle", "ritual-set", "Augmenter le panier"), section("faq", "editorial", "Lever les objections"), section("cta", "beauty-close", "Conclure"), section("footer", "minimal", "Signer")],
     "clinical-wellness": [section("announcement", "clinical-proof", "Rassurer"), section("navigation", "clinical", "Installer la marque"), section("productHero", "clinical-evidence", "Clarifier la promesse"), section("productMain", "clinical-buy-box", "Convertir"), section("benefits", "evidence-grid", "D\xE9tailler les b\xE9n\xE9fices"), section("imageText", "formula-focus", "Expliquer"), section(proof, "measured-proof", "Prouver"), section("bundle", "protocol", "Structurer la cure"), section("shipping", "assurance-strip", "R\xE9duire le risque"), section("faq", "clinical", "Lever les objections"), section("cta", "clinical-close", "Conclure"), section("footer", "clinical", "Signer")],
-    "technical-performance": [section("navigation", "technical", "Installer la marque"), section("productHero", "spec-led", "D\xE9montrer"), section("productMain", "technical-buy-box", "Convertir"), section("benefits", "spec-grid", "Expliquer les performances"), section("comparison", "benchmark", "Comparer"), section("gallery", "detail-grid", "Montrer les d\xE9tails"), section(proof, "field-tests", "Prouver"), section("shipping", "service-bar", "Rassurer"), section("faq", "technical", "Lever les objections"), section("cta", "performance-close", "Conclure"), section("footer", "technical", "Signer")],
+    "technical-performance": [section("navigation", "technical", "Installer la marque"), section("productHero", "spec-led", "D\xE9montrer"), section("productMain", "technical-buy-box", "Convertir"), section("benefits", "spec-grid", "Expliquer les performances"), section("comparison", "benchmark", "Comparer"), section("gallery", "detail-grid", "Montrer les d\xE9tails"), section(proof, "field-tests", "Prouver"), section("bundle", "performance-pack", "Augmenter le panier"), section("shipping", "service-bar", "Rassurer"), section("guarantees", "technical-assurance", "R\xE9duire le risque"), section("faq", "technical", "Lever les objections"), section("cta", "performance-close", "Conclure"), section("footer", "technical", "Signer")],
     "direct-response": [section("announcement", "benefit-bar", "Capter"), section("navigation", "compact", "Orienter"), section("productHero", "problem-solution", "Nommer le probl\xE8me"), section("benefits", "outcome-stack", "Montrer la transformation"), section("productMain", "conversion-buy-box", "Convertir"), section("comparison", "before-after", "Faire comparer"), section(proof, "results-wall", "Prouver"), section("bundle", "best-value", "Augmenter le panier"), section("guarantees", "risk-reversal", "R\xE9duire le risque"), section("faq", "objection-led", "Lever les objections"), section("cta", "direct-close", "Conclure"), section("footer", "compact", "Signer")],
     "playful-gifting": [section("announcement", "gift-note", "Capter"), section("navigation", "playful", "Installer la marque"), section("productHero", "giftable-story", "Cr\xE9er l\u2019envie d\u2019offrir"), section("gallery", "color-pop", "Montrer le produit"), section("productMain", "gift-buy-box", "Convertir"), section("benefits", "occasion-cards", "Donner des occasions"), section(proof, "community-grid", "Prouver"), section("bundle", "gift-sets", "Augmenter le panier"), section("faq", "friendly", "Lever les objections"), section("cta", "gift-close", "Conclure"), section("footer", "playful", "Signer")],
-    "premium-accessories": [section("navigation", "luxury", "Installer la marque"), section("productHero", "object-editorial", "Cr\xE9er le d\xE9sir"), section("gallery", "lookbook", "Montrer le savoir-faire"), section("productMain", "luxury-buy-box", "Convertir"), section("imageText", "craft-story", "Raconter le d\xE9tail"), section("benefits", "detail-led", "Justifier la valeur"), section(proof, "press-quotes", "Prouver"), section("guarantees", "concierge", "Rassurer"), section("faq", "minimal", "Lever les objections"), section("cta", "luxury-close", "Conclure"), section("footer", "luxury", "Signer")],
+    "premium-accessories": [section("navigation", "luxury", "Installer la marque"), section("productHero", "object-editorial", "Cr\xE9er le d\xE9sir"), section("gallery", "lookbook", "Montrer le savoir-faire"), section("productMain", "luxury-buy-box", "Convertir"), section("imageText", "craft-story", "Raconter le d\xE9tail"), section("benefits", "detail-led", "Justifier la valeur"), section(proof, "press-quotes", "Prouver"), section("bundle", "curated-set", "Augmenter le panier"), section("guarantees", "concierge", "Rassurer"), section("faq", "minimal", "Lever les objections"), section("cta", "luxury-close", "Conclure"), section("footer", "luxury", "Signer")],
     "food-craft": [section("announcement", "origin-note", "Capter"), section("navigation", "craft", "Installer la marque"), section("productHero", "maker-led", "Cr\xE9er l\u2019app\xE9tit"), section("productMain", "tasting-buy-box", "Convertir"), section("imageText", "origin-story", "Raconter la provenance"), section("benefits", "tasting-notes", "Expliquer"), section("gallery", "table-mosaic", "Montrer les usages"), section(proof, "community-table", "Prouver"), section("bundle", "discovery-box", "Augmenter le panier"), section("faq", "craft", "Lever les objections"), section("cta", "tasting-close", "Conclure"), section("footer", "craft", "Signer")]
   };
   return { id: `recipe-${input.artDirection.id}`, profileId: input.artDirection.id, sections: schemes[input.artDirection.id] };
@@ -29027,8 +29031,8 @@ function money(value2, currency) {
     return `${value2.toFixed(2)} ${currency}`;
   }
 }
-function item(id, title, text5, extra = {}) {
-  return { id, type: "item", settings: { title, text: text5, ...extra } };
+function item(id2, title, text5, extra = {}) {
+  return { id: id2, type: "item", settings: { title, text: text5, ...extra } };
 }
 function makeSection(type, index, settings2, blocks2 = []) {
   const definition = getSectionDefinition(type);
@@ -29064,13 +29068,13 @@ function buildStoreDocument(input) {
     ]],
     ["productHero", { title: product.title, subtitle: product.vendor || strings.heroEyebrow, text: product.description, price, compare_at_price: compareAt, image: heroImage, image_alt: product.title, cta_label: strings.buy, cta_link: "#product" }],
     ["gallery", { title: strings.gallery, text: "" }, product.images.map((url, index) => item(`gallery-image-${index + 1}`, `${product.title} \u2014 ${index + 1}`, "", { image: url, image_alt: `${product.title} ${index + 1}` }))],
-    ["productMain", { title: strings.product, text: product.description, price, compare_at_price: compareAt, image: heroImage, cta_label: strings.buy, product_handle: slugify2(product.title) }, product.variants.map((variant, index) => ({ id: `variant-${index + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } }))],
+    ["productMain", { title: strings.product, text: selectedAngles[0]?.description ?? strings.heroEyebrow, price, compare_at_price: compareAt, image: heroImage, cta_label: strings.buy, product_handle: slugify2(product.title) }, product.variants.map((variant, index) => ({ id: `variant-${index + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } }))],
     ["bundle", { title: strings.bundle, text: product.title, price, cta_label: strings.buy, cta_link: "#product" }, [
       item("bundle-single", strings.single, "", { price }),
       item("bundle-duo", strings.duo, "", { price: product.price === null ? "" : money(product.price * 1.8, product.currency) }),
       item("bundle-family", strings.family, "", { price: product.price === null ? "" : money(product.price * 2.55, product.currency) })
     ]],
-    ["benefits", { title: strings.benefits, text: product.description }, selectedAngles.slice(0, 4).map((angle, index) => item(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
+    ["benefits", { title: strings.benefits, text: selectedAngles.map((angle) => angle.title).slice(0, 3).join(" \xB7 ") || strings.detail }, selectedAngles.slice(0, 4).map((angle, index) => item(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
     ["imageText", { title: strings.detail, subtitle: selectedPersonas[0]?.title ?? "", text: selectedPersonas[0]?.insight ?? product.description, image: product.images[1] ?? heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }]
   ];
   if (product.reviews.length) {
@@ -29082,7 +29086,7 @@ function buildStoreDocument(input) {
     ["shipping", { title: strings.shipping, text: "" }, strings.shippingItems.map(([title, text5], index) => item(`shipping-${index + 1}`, title, text5))],
     ["guarantees", { title: strings.guarantee, text: "" }, selectedAngles.slice(0, 3).map((angle, index) => item(`guarantee-${index + 1}`, angle.title, angle.description))],
     ["faq", { title: strings.faq, text: "" }, strings.faqItems.map(([title, text5], index) => item(`faq-${index + 1}`, title, text5))],
-    ["cta", { title: strings.cta, text: product.description, cta_label: strings.buy, cta_link: "#product" }],
+    ["cta", { title: strings.cta, text: selectedPersonas[0]?.insight ?? strings.footer, cta_label: strings.buy, cta_link: "#product" }],
     ["footer", { title: input.brandName, text: strings.footer, cta_label: "" }, [item("footer-shop", strings.shop, "", { label: strings.shop, link: "#product" })]]
   );
   const recipeSections = recipe.sections.map((recipeItem) => {
@@ -29218,10 +29222,10 @@ function validImageDataUrl(value2) {
   if (!match) return false;
   return Buffer.byteLength(match[1], "base64") <= 45e4;
 }
-async function authorizedDraft(deps, id, req) {
+async function authorizedDraft(deps, id2, req) {
   const token = tokenFrom(req);
   if (!token) return null;
-  const draft = await deps.store.getOnboardingDraft(id);
+  const draft = await deps.store.getOnboardingDraft(id2);
   return draft && claimTokenMatches(token, draft.claimTokenHash) ? draft : null;
 }
 function slugify3(value2) {
@@ -29381,6 +29385,71 @@ function imageRoutes(deps) {
   return app2;
 }
 
+// src/server/studio.ts
+import { Hono as Hono11 } from "hono";
+
+// src/studio/models.ts
+var MODELS = {
+  "flux-kontext-pro": { id: "flux-kontext-pro", label: "Flux Kontext Pro", description: "Rapide, fid\xE8le au produit", textEndpoint: "fal-ai/flux-pro/kontext/text-to-image", referenceEndpoint: "fal-ai/flux-pro/kontext" },
+  "flux-kontext-max": { id: "flux-kontext-max", label: "Flux Kontext Max", description: "Fid\xE9lit\xE9 et finition maximales", textEndpoint: "fal-ai/flux-pro/kontext/max/text-to-image", referenceEndpoint: "fal-ai/flux-pro/kontext/max" },
+  "ideogram-v3": { id: "ideogram-v3", label: "Ideogram V3", description: "Visuels publicitaires avec texte", textEndpoint: "fal-ai/ideogram/v3", referenceEndpoint: "fal-ai/flux-pro/kontext" },
+  "recraft-v3": { id: "recraft-v3", label: "Recraft V3", description: "Direction artistique e-commerce", textEndpoint: "fal-ai/recraft/v3/text-to-image", referenceEndpoint: "fal-ai/recraft/v3/image-to-image" }
+};
+var SIZES = {
+  "1:1": { width: 1024, height: 1024 },
+  "4:3": { width: 1200, height: 900 },
+  "16:9": { width: 1365, height: 768 },
+  "3:4": { width: 900, height: 1200 },
+  "9:16": { width: 768, height: 1365 }
+};
+function imageModel(id2) {
+  return MODELS[id2];
+}
+function imageSizeFor(ratio) {
+  return SIZES[ratio];
+}
+function isImageModel(value2) {
+  return typeof value2 === "string" && value2 in MODELS;
+}
+function isImageAspectRatio(value2) {
+  return typeof value2 === "string" && value2 in SIZES;
+}
+
+// src/server/studio.ts
+function id() {
+  return `img_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+}
+function studioRoutes(deps) {
+  const app2 = new Hono11();
+  app2.get("/studio/generations", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const workspace = await ensureWorkspace(deps.store, user.id);
+    return c.json({ generations: await deps.store.listImageGenerations(workspace.id) });
+  });
+  app2.post("/studio/generate", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const body = await c.req.json().catch(() => ({}));
+    const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+    const numImages = typeof body.numImages === "number" ? Math.floor(body.numImages) : 1;
+    if (!prompt || prompt.length > 3e3 || !isImageModel(body.model) || !isImageAspectRatio(body.aspectRatio) || numImages < 1 || numImages > 4) return c.json({ error: "invalid_request", message: "Choisis un mod\xE8le, un format et d\xE9cris l\u2019image \xE0 g\xE9n\xE9rer." }, 400);
+    if (!deps.imageStudio) return c.json({ error: "unavailable", message: "Le Studio images n\u2019est pas configur\xE9 sur cet environnement." }, 503);
+    const referenceUrl = typeof body.referenceUrl === "string" && /^(https:\/\/|data:image\/)/.test(body.referenceUrl) ? body.referenceUrl : null;
+    const workspace = await ensureWorkspace(deps.store, user.id);
+    try {
+      const result = await deps.imageStudio.generate({ model: body.model, prompt, aspectRatio: body.aspectRatio, numImages, referenceUrl });
+      const row = { id: id(), workspaceId: workspace.id, userId: user.id, model: body.model, prompt, aspectRatio: body.aspectRatio, referenceUrl, images: result.images, status: "completed", createdAt: (/* @__PURE__ */ new Date()).toISOString() };
+      await deps.store.saveImageGeneration(row);
+      return c.json(row, 201);
+    } catch (error) {
+      console.error("studio generation failed", error instanceof Error ? error.message : error);
+      return c.json({ error: "generation_failed", message: "La g\xE9n\xE9ration n\u2019a pas abouti. R\xE9essaie dans un instant." }, 502);
+    }
+  });
+  return app2;
+}
+
 // src/server/app.ts
 function assetType(name) {
   if (name.endsWith(".png")) return "image/png";
@@ -29397,6 +29466,9 @@ var htmlRoutes = {
   "/start": "start.html",
   "/connexion": "connexion.html",
   "/dashboard": "dashboard.html",
+  "/creations": "creations.html",
+  "/studio": "studio.html",
+  "/boutique": "boutique.html",
   "/editeur": "editeur.html",
   "/facturation": "facturation.html",
   "/parrainage": "parrainage.html",
@@ -29406,7 +29478,7 @@ var htmlRoutes = {
   "/maquette-dashboard": "maquette-dashboard.html"
 };
 function createApp(deps) {
-  const app2 = new Hono11();
+  const app2 = new Hono12();
   app2.onError((error, c) => {
     console.error(error);
     if (c.req.path.startsWith("/api/")) {
@@ -29454,6 +29526,7 @@ function createApp(deps) {
   app2.route("/api", authRoutes(deps));
   app2.route("/api", onboardingRoutes(deps));
   app2.route("/api", imageRoutes(deps));
+  app2.route("/api", studioRoutes(deps));
   app2.route("/api", meRoutes(deps));
   app2.route("/api", settingsRoutes(deps));
   app2.route("/api", pagesRoutes(deps));
@@ -29585,12 +29658,12 @@ function sleep3(ms, signal) {
       resolve();
       return;
     }
-    const id = setTimeout(() => {
+    const id2 = setTimeout(() => {
       signal === null || signal === void 0 || signal.removeEventListener("abort", onAbort);
       resolve();
     }, ms);
     function onAbort() {
-      clearTimeout(id);
+      clearTimeout(id2);
       resolve();
     }
     signal === null || signal === void 0 || signal.addEventListener("abort", onAbort);
@@ -33387,9 +33460,9 @@ var NamespaceOperations = class {
     });
     return response.data.namespaces.map((ns) => ({ namespace: ns }));
   }
-  async createNamespace(id, metadata) {
+  async createNamespace(id2, metadata) {
     const request = {
-      namespace: id.namespace,
+      namespace: id2.namespace,
       properties: metadata?.properties
     };
     const response = await this.client.request({
@@ -33399,26 +33472,26 @@ var NamespaceOperations = class {
     });
     return response.data;
   }
-  async dropNamespace(id) {
+  async dropNamespace(id2) {
     await this.client.request({
       method: "DELETE",
-      path: `${this.prefix}/namespaces/${namespaceToPath(id.namespace)}`
+      path: `${this.prefix}/namespaces/${namespaceToPath(id2.namespace)}`
     });
   }
-  async loadNamespaceMetadata(id) {
+  async loadNamespaceMetadata(id2) {
     const response = await this.client.request({
       method: "GET",
-      path: `${this.prefix}/namespaces/${namespaceToPath(id.namespace)}`
+      path: `${this.prefix}/namespaces/${namespaceToPath(id2.namespace)}`
     });
     return {
       properties: response.data.properties
     };
   }
-  async namespaceExists(id) {
+  async namespaceExists(id2) {
     try {
       await this.client.request({
         method: "HEAD",
-        path: `${this.prefix}/namespaces/${namespaceToPath(id.namespace)}`
+        path: `${this.prefix}/namespaces/${namespaceToPath(id2.namespace)}`
       });
       return true;
     } catch (error) {
@@ -33428,9 +33501,9 @@ var NamespaceOperations = class {
       throw error;
     }
   }
-  async createNamespaceIfNotExists(id, metadata) {
+  async createNamespaceIfNotExists(id2, metadata) {
     try {
-      return await this.createNamespace(id, metadata);
+      return await this.createNamespace(id2, metadata);
     } catch (error) {
       if (error instanceof IcebergError && error.status === 409) {
         return;
@@ -33468,10 +33541,10 @@ var TableOperations = class {
     });
     return response.data.metadata;
   }
-  async updateTable(id, request) {
+  async updateTable(id2, request) {
     const response = await this.client.request({
       method: "POST",
-      path: `${this.prefix}/namespaces/${namespaceToPath2(id.namespace)}/tables/${id.name}`,
+      path: `${this.prefix}/namespaces/${namespaceToPath2(id2.namespace)}/tables/${id2.name}`,
       body: request
     });
     return {
@@ -33479,26 +33552,26 @@ var TableOperations = class {
       metadata: response.data.metadata
     };
   }
-  async dropTable(id, options) {
+  async dropTable(id2, options) {
     await this.client.request({
       method: "DELETE",
-      path: `${this.prefix}/namespaces/${namespaceToPath2(id.namespace)}/tables/${id.name}`,
+      path: `${this.prefix}/namespaces/${namespaceToPath2(id2.namespace)}/tables/${id2.name}`,
       query: { purgeRequested: String(options?.purge ?? false) }
     });
   }
-  async loadTable(id) {
+  async loadTable(id2) {
     const headers = {};
     if (this.accessDelegation) {
       headers["X-Iceberg-Access-Delegation"] = this.accessDelegation;
     }
     const response = await this.client.request({
       method: "GET",
-      path: `${this.prefix}/namespaces/${namespaceToPath2(id.namespace)}/tables/${id.name}`,
+      path: `${this.prefix}/namespaces/${namespaceToPath2(id2.namespace)}/tables/${id2.name}`,
       headers
     });
     return response.data.metadata;
   }
-  async tableExists(id) {
+  async tableExists(id2) {
     const headers = {};
     if (this.accessDelegation) {
       headers["X-Iceberg-Access-Delegation"] = this.accessDelegation;
@@ -33506,7 +33579,7 @@ var TableOperations = class {
     try {
       await this.client.request({
         method: "HEAD",
-        path: `${this.prefix}/namespaces/${namespaceToPath2(id.namespace)}/tables/${id.name}`,
+        path: `${this.prefix}/namespaces/${namespaceToPath2(id2.namespace)}/tables/${id2.name}`,
         headers
       });
       return true;
@@ -33584,8 +33657,8 @@ var IcebergRestCatalog = class {
    * console.log(response.properties); // { owner: 'data-team', ... }
    * ```
    */
-  async createNamespace(id, metadata) {
-    return this.namespaceOps.createNamespace(id, metadata);
+  async createNamespace(id2, metadata) {
+    return this.namespaceOps.createNamespace(id2, metadata);
   }
   /**
    * Drops a namespace from the catalog.
@@ -33599,8 +33672,8 @@ var IcebergRestCatalog = class {
    * await catalog.dropNamespace({ namespace: ['analytics'] });
    * ```
    */
-  async dropNamespace(id) {
-    await this.namespaceOps.dropNamespace(id);
+  async dropNamespace(id2) {
+    await this.namespaceOps.dropNamespace(id2);
   }
   /**
    * Loads metadata for a namespace.
@@ -33614,8 +33687,8 @@ var IcebergRestCatalog = class {
    * console.log(metadata.properties);
    * ```
    */
-  async loadNamespaceMetadata(id) {
-    return this.namespaceOps.loadNamespaceMetadata(id);
+  async loadNamespaceMetadata(id2) {
+    return this.namespaceOps.loadNamespaceMetadata(id2);
   }
   /**
    * Lists all tables in a namespace.
@@ -33687,8 +33760,8 @@ var IcebergRestCatalog = class {
    * console.log(response.metadata); // TableMetadata object
    * ```
    */
-  async updateTable(id, request) {
-    return this.tableOps.updateTable(id, request);
+  async updateTable(id2, request) {
+    return this.tableOps.updateTable(id2, request);
   }
   /**
    * Drops a table from the catalog.
@@ -33700,8 +33773,8 @@ var IcebergRestCatalog = class {
    * await catalog.dropTable({ namespace: ['analytics'], name: 'events' });
    * ```
    */
-  async dropTable(id, options) {
-    await this.tableOps.dropTable(id, options);
+  async dropTable(id2, options) {
+    await this.tableOps.dropTable(id2, options);
   }
   /**
    * Loads metadata for a table.
@@ -33716,8 +33789,8 @@ var IcebergRestCatalog = class {
    * console.log(metadata.location);
    * ```
    */
-  async loadTable(id) {
-    return this.tableOps.loadTable(id);
+  async loadTable(id2) {
+    return this.tableOps.loadTable(id2);
   }
   /**
    * Checks if a namespace exists in the catalog.
@@ -33731,8 +33804,8 @@ var IcebergRestCatalog = class {
    * console.log(exists); // true or false
    * ```
    */
-  async namespaceExists(id) {
-    return this.namespaceOps.namespaceExists(id);
+  async namespaceExists(id2) {
+    return this.namespaceOps.namespaceExists(id2);
   }
   /**
    * Checks if a table exists in the catalog.
@@ -33746,8 +33819,8 @@ var IcebergRestCatalog = class {
    * console.log(exists); // true or false
    * ```
    */
-  async tableExists(id) {
-    return this.tableOps.tableExists(id);
+  async tableExists(id2) {
+    return this.tableOps.tableExists(id2);
   }
   /**
    * Creates a namespace if it does not exist.
@@ -33771,8 +33844,8 @@ var IcebergRestCatalog = class {
    * }
    * ```
    */
-  async createNamespaceIfNotExists(id, metadata) {
-    return this.namespaceOps.createNamespaceIfNotExists(id, metadata);
+  async createNamespaceIfNotExists(id2, metadata) {
+    return this.namespaceOps.createNamespaceIfNotExists(id2, metadata);
   }
   /**
    * Creates a table if it does not exist.
@@ -35296,10 +35369,10 @@ var StorageBucketApi = class extends BaseApiClient {
   *   - `objects` table permissions: none
   * - Refer to the [Storage guide](/docs/guides/storage/security/access-control) on how access control works
   */
-  async getBucket(id) {
+  async getBucket(id2) {
     var _this2 = this;
     return _this2.handleOperation(async () => {
-      return await get(_this2.fetch, `${_this2.url}/bucket/${id}`, { headers: _this2.headers });
+      return await get(_this2.fetch, `${_this2.url}/bucket/${id2}`, { headers: _this2.headers });
     });
   }
   /**
@@ -35346,12 +35419,12 @@ var StorageBucketApi = class extends BaseApiClient {
   *   - `objects` table permissions: none
   * - Refer to the [Storage guide](/docs/guides/storage/security/access-control) on how access control works
   */
-  async createBucket(id, options = { public: false }) {
+  async createBucket(id2, options = { public: false }) {
     var _this3 = this;
     return _this3.handleOperation(async () => {
       return await post(_this3.fetch, `${_this3.url}/bucket`, {
-        id,
-        name: id,
+        id: id2,
+        name: id2,
         type: options.type,
         public: options.public,
         file_size_limit: options.fileSizeLimit,
@@ -35401,12 +35474,12 @@ var StorageBucketApi = class extends BaseApiClient {
   *   - `objects` table permissions: none
   * - Refer to the [Storage guide](/docs/guides/storage/security/access-control) on how access control works
   */
-  async updateBucket(id, options) {
+  async updateBucket(id2, options) {
     var _this4 = this;
     return _this4.handleOperation(async () => {
-      return await put(_this4.fetch, `${_this4.url}/bucket/${id}`, {
-        id,
-        name: id,
+      return await put(_this4.fetch, `${_this4.url}/bucket/${id2}`, {
+        id: id2,
+        name: id2,
         public: options.public,
         file_size_limit: options.fileSizeLimit,
         allowed_mime_types: options.allowedMimeTypes
@@ -35444,10 +35517,10 @@ var StorageBucketApi = class extends BaseApiClient {
   *   - `objects` table permissions: `select` and `delete`
   * - Refer to the [Storage guide](/docs/guides/storage/security/access-control) on how access control works
   */
-  async emptyBucket(id) {
+  async emptyBucket(id2) {
     var _this5 = this;
     return _this5.handleOperation(async () => {
-      return await post(_this5.fetch, `${_this5.url}/bucket/${id}/empty`, {}, { headers: _this5.headers });
+      return await post(_this5.fetch, `${_this5.url}/bucket/${id2}/empty`, {}, { headers: _this5.headers });
     });
   }
   /**
@@ -35482,10 +35555,10 @@ var StorageBucketApi = class extends BaseApiClient {
   *   - `objects` table permissions: none
   * - Refer to the [Storage guide](/docs/guides/storage/security/access-control) on how access control works
   */
-  async deleteBucket(id) {
+  async deleteBucket(id2) {
     var _this6 = this;
     return _this6.handleOperation(async () => {
-      return await remove(_this6.fetch, `${_this6.url}/bucket/${id}`, {}, { headers: _this6.headers });
+      return await remove(_this6.fetch, `${_this6.url}/bucket/${id2}`, {}, { headers: _this6.headers });
     });
   }
   /**
@@ -35524,13 +35597,13 @@ var StorageBucketApi = class extends BaseApiClient {
   *   .purgeBucketCache('avatars', { transformations: true })
   * ```
   */
-  async purgeBucketCache(id, options, parameters) {
+  async purgeBucketCache(id2, options, parameters) {
     var _this7 = this;
     return _this7.handleOperation(async () => {
       const query = new URLSearchParams();
       if (options === null || options === void 0 ? void 0 : options.transformations) query.set("transformations", "true");
       const queryString = query.toString();
-      return await remove(_this7.fetch, `${_this7.url}/cdn/${encodeStoragePath(id)}${queryString ? `?${queryString}` : ""}`, {}, { headers: _this7.headers }, parameters);
+      return await remove(_this7.fetch, `${_this7.url}/cdn/${encodeStoragePath(id2)}${queryString ? `?${queryString}` : ""}`, {}, { headers: _this7.headers }, parameters);
     });
   }
   listBucketOptionsToQueryString(options) {
@@ -36559,8 +36632,8 @@ var StorageClient = class extends StorageBucketApi {
   * const avatars = supabase.storage.from('avatars')
   * ```
   */
-  from(id) {
-    return new StorageFileApi(this.url, this.headers, id, this.fetch);
+  from(id2) {
+    return new StorageFileApi(this.url, this.headers, id2, this.fetch);
   }
   /**
   *
@@ -37351,6 +37424,7 @@ var MemoryStore = class {
   attributions = /* @__PURE__ */ new Map();
   users = /* @__PURE__ */ new Map();
   onboardingDrafts = /* @__PURE__ */ new Map();
+  imageGenerations = /* @__PURE__ */ new Map();
   async createWorkspace(input) {
     const ws = {
       id: randomId("ws_"),
@@ -37369,31 +37443,31 @@ var MemoryStore = class {
     );
     return [...this.workspaces.values()].filter((ws) => ids.has(ws.id));
   }
-  async getWorkspace(id) {
-    return this.workspaces.get(id) ?? null;
+  async getWorkspace(id2) {
+    return this.workspaces.get(id2) ?? null;
   }
   async getWorkspaceBySlug(slug2) {
     return [...this.workspaces.values()].find((ws) => ws.slug === slug2) ?? null;
   }
-  async updateWorkspace(id, patch) {
-    const ws = this.workspaces.get(id);
+  async updateWorkspace(id2, patch) {
+    const ws = this.workspaces.get(id2);
     if (!ws) throw new Error("workspace not found");
     const updated = { ...ws, name: patch.name };
-    this.workspaces.set(id, updated);
+    this.workspaces.set(id2, updated);
     return updated;
   }
-  async deleteWorkspace(id) {
-    this.workspaces.delete(id);
-    this.memberships = this.memberships.filter((m) => m.workspaceId !== id);
+  async deleteWorkspace(id2) {
+    this.workspaces.delete(id2);
+    this.memberships = this.memberships.filter((m) => m.workspaceId !== id2);
     for (const page of [...this.pages.values()]) {
-      if (page.workspaceId === id) this.pages.delete(page.id);
+      if (page.workspaceId === id2) this.pages.delete(page.id);
     }
-    this.credits.delete(id);
-    this.shopify.delete(id);
-    this.whop.delete(id);
-    this.attributions.delete(id);
+    this.credits.delete(id2);
+    this.shopify.delete(id2);
+    this.whop.delete(id2);
+    this.attributions.delete(id2);
     for (const [key, row] of [...this.attributions.entries()]) {
-      if (row.referrerWorkspaceId === id) this.attributions.delete(key);
+      if (row.referrerWorkspaceId === id2) this.attributions.delete(key);
     }
   }
   async addMembership(input) {
@@ -37415,8 +37489,8 @@ var MemoryStore = class {
   async listPages(workspaceId) {
     return [...this.pages.values()].filter((p) => p.workspaceId === workspaceId);
   }
-  async getPage(id) {
-    return this.pages.get(id) ?? null;
+  async getPage(id2) {
+    return this.pages.get(id2) ?? null;
   }
   async createPage(input) {
     const taken = [...this.pages.values()].some(
@@ -37432,15 +37506,15 @@ var MemoryStore = class {
     this.pages.set(page.id, page);
     return page;
   }
-  async updatePage(id, patch, options = {}) {
-    const page = this.pages.get(id);
+  async updatePage(id2, patch, options = {}) {
+    const page = this.pages.get(id2);
     if (!page) throw new Error("page not found");
     if (options.expectedVersion !== void 0 && options.expectedVersion !== page.documentVersion) {
       throw new PageVersionConflictError();
     }
     if (patch.slug && patch.slug !== page.slug) {
       const taken = [...this.pages.values()].some(
-        (p) => p.workspaceId === page.workspaceId && p.slug === patch.slug && p.id !== id
+        (p) => p.workspaceId === page.workspaceId && p.slug === patch.slug && p.id !== id2
       );
       if (taken) throw new Error("slug already exists");
     }
@@ -37450,11 +37524,11 @@ var MemoryStore = class {
       documentVersion: page.documentVersion + 1,
       updatedAt: (/* @__PURE__ */ new Date()).toISOString()
     };
-    this.pages.set(id, updated);
+    this.pages.set(id2, updated);
     return updated;
   }
-  async deletePage(id) {
-    this.pages.delete(id);
+  async deletePage(id2) {
+    this.pages.delete(id2);
   }
   async getCredits(workspaceId) {
     const existing = this.credits.get(workspaceId);
@@ -37501,23 +37575,29 @@ var MemoryStore = class {
     this.onboardingDrafts.set(draft.id, draft);
     return structuredClone(draft);
   }
-  async getOnboardingDraft(id) {
-    const draft = this.onboardingDrafts.get(id);
+  async getOnboardingDraft(id2) {
+    const draft = this.onboardingDrafts.get(id2);
     return draft ? structuredClone(draft) : null;
   }
-  async updateOnboardingDraft(id, patch) {
-    const draft = this.onboardingDrafts.get(id);
+  async updateOnboardingDraft(id2, patch) {
+    const draft = this.onboardingDrafts.get(id2);
     if (!draft) throw new Error("onboarding draft not found");
     const updated = { ...draft, ...structuredClone(patch), updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
-    this.onboardingDrafts.set(id, updated);
+    this.onboardingDrafts.set(id2, updated);
     return structuredClone(updated);
   }
-  async claimOnboardingDraft(id, claimTokenHash, userId, pageId) {
-    const draft = this.onboardingDrafts.get(id);
+  async claimOnboardingDraft(id2, claimTokenHash, userId, pageId) {
+    const draft = this.onboardingDrafts.get(id2);
     if (!draft) throw new Error("onboarding draft not found");
     if (draft.claimTokenHash !== claimTokenHash) throw new Error("invalid claim token");
     if (draft.claimedPageId) return structuredClone(draft);
-    return this.updateOnboardingDraft(id, { status: "claimed", claimedUserId: userId, claimedPageId: pageId });
+    return this.updateOnboardingDraft(id2, { status: "claimed", claimedUserId: userId, claimedPageId: pageId });
+  }
+  async listImageGenerations(workspaceId) {
+    return [...this.imageGenerations.values()].filter((row) => row.workspaceId === workspaceId).sort((a, b2) => b2.createdAt.localeCompare(a.createdAt)).map((row) => structuredClone(row));
+  }
+  async saveImageGeneration(generation) {
+    this.imageGenerations.set(generation.id, structuredClone(generation));
   }
 };
 
@@ -38194,7 +38274,7 @@ function Connection(options, queues = {}, { onopen = noop3, onend = noop3, onclo
     backoff: backoff2,
     target_session_attrs
   } = options;
-  const sent = queue_default(), id = uid++, backend = { pid: null, secret: null }, idleTimer = timer(end, options.idle_timeout), lifeTimer = timer(end, options.max_lifetime), connectTimer = timer(connectTimedOut, options.connect_timeout);
+  const sent = queue_default(), id2 = uid++, backend = { pid: null, secret: null }, idleTimer = timer(end, options.idle_timeout), lifeTimer = timer(end, options.max_lifetime), connectTimer = timer(connectTimedOut, options.connect_timeout);
   let socket = null, cancelMessage, errorResponse = null, result = new Result(), incoming = Buffer.alloc(0), needsTypes = options.fetch_types, backendParameters = {}, statements = {}, statementId = Math.random().toString(36).slice(2), statementCount = 1, closedTime = 0, remaining = 0, hostIndex = 0, retries = 0, length = 0, delay = 0, rows = 0, serverSignature = null, nextWriteTimer = null, terminated = false, incomings = null, results = null, initial = null, ending = null, stream = null, chunk = null, ended = null, nonce = null, query = null, final = null;
   const connection2 = {
     queue: queues.closed,
@@ -38208,7 +38288,7 @@ function Connection(options, queues = {}, { onopen = noop3, onend = noop3, onclo
     cancel,
     end,
     count: 0,
-    id
+    id: id2
   };
   queues.closed && queues.closed.push(connection2);
   return connection2;
@@ -38289,7 +38369,7 @@ function Connection(options, queues = {}, { onopen = noop3, onend = noop3, onclo
     q.prepared = q.prepare && q.signature in statements;
     q.describeFirst = q.onlyDescribe || parameters.length && !q.prepared;
     q.statement = q.prepared ? statements[q.signature] : { string, types: types2, name: q.prepare ? statementId + statementCount++ : "" };
-    typeof options.debug === "function" && options.debug(id, string, parameters, types2);
+    typeof options.debug === "function" && options.debug(id2, string, parameters, types2);
   }
   function write(x, fn) {
     chunk = chunk ? Buffer.concat([chunk, x]) : Buffer.from(x);
@@ -39661,6 +39741,7 @@ var ONBOARDING_WORKSPACE_ID = "ws_weflo_onboarding";
 var ONBOARDING_WORKSPACE_SLUG = "weflo-system-onboarding";
 var PostgresStore = class {
   sql;
+  imageGenerationsReady = null;
   constructor(url) {
     this.sql = src_default(url, { prepare: false });
   }
@@ -39702,11 +39783,11 @@ var PostgresStore = class {
       createdAt: iso(row.createdAt)
     }));
   }
-  async getWorkspace(id) {
+  async getWorkspace(id2) {
     const rows = await this.sql`
       select id, name, slug, owner_user_id as "ownerUserId", created_at as "createdAt"
       from workspaces
-      where id = ${id}
+      where id = ${id2}
     `;
     const row = rows[0];
     if (!row) return null;
@@ -39734,11 +39815,11 @@ var PostgresStore = class {
       createdAt: iso(row.createdAt)
     };
   }
-  async updateWorkspace(id, patch) {
+  async updateWorkspace(id2, patch) {
     const rows = await this.sql`
       update workspaces
       set name = ${patch.name}
-      where id = ${id}
+      where id = ${id2}
       returning id, name, slug, owner_user_id as "ownerUserId", created_at as "createdAt"
     `;
     const row = rows[0];
@@ -39751,9 +39832,9 @@ var PostgresStore = class {
       createdAt: iso(row.createdAt)
     };
   }
-  async deleteWorkspace(id) {
-    await this.sql`delete from referral_attributions where referrer_workspace_id = ${id}`;
-    await this.sql`delete from workspaces where id = ${id}`;
+  async deleteWorkspace(id2) {
+    await this.sql`delete from referral_attributions where referrer_workspace_id = ${id2}`;
+    await this.sql`delete from workspaces where id = ${id2}`;
   }
   async addMembership(input) {
     await this.sql`
@@ -39783,11 +39864,11 @@ var PostgresStore = class {
     `;
     return rows.map(mapPage);
   }
-  async getPage(id) {
+  async getPage(id2) {
     const rows = await this.sql`
       select id, workspace_id as "workspaceId", name, slug, type, status, document, updated_at as "updatedAt"
       from pages
-      where id = ${id}
+      where id = ${id2}
     `;
     return rows[0] ? mapPage(rows[0]) : null;
   }
@@ -39818,8 +39899,8 @@ var PostgresStore = class {
     }
     return page;
   }
-  async updatePage(id, patch, options = {}) {
-    const page = await this.getPage(id);
+  async updatePage(id2, patch, options = {}) {
+    const page = await this.getPage(id2);
     if (!page) throw new Error("page not found");
     if (options.expectedVersion !== void 0 && options.expectedVersion !== page.documentVersion) {
       throw new PageVersionConflictError();
@@ -39838,7 +39919,7 @@ var PostgresStore = class {
             status = ${updated.status},
             document = ${this.sql.json(storedPageDocument(updated.document, updated.documentVersion))},
             updated_at = ${updated.updatedAt}
-        where id = ${id}
+        where id = ${id2}
           ${options.expectedVersion === void 0 ? this.sql`` : this.sql`and coalesce((document ->> '__wefloDocumentVersion')::int, 1) = ${options.expectedVersion}`}
         returning id
       `;
@@ -39849,8 +39930,8 @@ var PostgresStore = class {
     }
     return updated;
   }
-  async deletePage(id) {
-    await this.sql`delete from pages where id = ${id}`;
+  async deletePage(id2) {
+    await this.sql`delete from pages where id = ${id2}`;
   }
   async getCredits(workspaceId) {
     const existing = await this.sql`
@@ -39991,6 +40072,26 @@ var PostgresStore = class {
   async getUserProfile(_userId) {
     return null;
   }
+  ensureImageGenerations() {
+    if (!this.imageGenerationsReady) this.imageGenerationsReady = (async () => {
+      await this.sql`
+        create table if not exists image_generations (
+          id text primary key,
+          workspace_id text not null,
+          user_id text not null,
+          model text not null,
+          prompt text not null,
+          aspect_ratio text not null,
+          reference_url text,
+          images jsonb not null,
+          status text not null,
+          created_at timestamptz not null
+        )
+      `;
+      await this.sql`create index if not exists image_generations_workspace_created_idx on image_generations (workspace_id, created_at desc)`;
+    })();
+    return this.imageGenerationsReady;
+  }
   async ensureOnboardingWorkspace() {
     await this.sql`
       insert into workspaces (id, name, slug, owner_user_id, created_at)
@@ -40008,33 +40109,52 @@ var PostgresStore = class {
     `;
     return draft;
   }
-  async getOnboardingDraft(id) {
+  async getOnboardingDraft(id2) {
     const rows = await this.sql`
       select document as payload
       from pages
-      where id = ${id} and workspace_id = ${ONBOARDING_WORKSPACE_ID} and type = ${"onboarding"}
+      where id = ${id2} and workspace_id = ${ONBOARDING_WORKSPACE_ID} and type = ${"onboarding"}
     `;
     return rows[0]?.payload ? structuredClone(rows[0].payload) : null;
   }
-  async updateOnboardingDraft(id, patch) {
-    const draft = await this.getOnboardingDraft(id);
+  async updateOnboardingDraft(id2, patch) {
+    const draft = await this.getOnboardingDraft(id2);
     if (!draft) throw new Error("onboarding draft not found");
     const updated = { ...draft, ...structuredClone(patch), updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
     const rows = await this.sql`
       update pages
       set status = ${updated.status}, document = ${this.sql.json(updated)}, updated_at = ${updated.updatedAt}
-      where id = ${id} and workspace_id = ${ONBOARDING_WORKSPACE_ID} and type = ${"onboarding"}
+      where id = ${id2} and workspace_id = ${ONBOARDING_WORKSPACE_ID} and type = ${"onboarding"}
       returning id
     `;
     if (!rows.length) throw new Error("onboarding draft not found");
     return updated;
   }
-  async claimOnboardingDraft(id, claimTokenHash, userId, pageId) {
-    const draft = await this.getOnboardingDraft(id);
+  async claimOnboardingDraft(id2, claimTokenHash, userId, pageId) {
+    const draft = await this.getOnboardingDraft(id2);
     if (!draft) throw new Error("onboarding draft not found");
     if (draft.claimTokenHash !== claimTokenHash) throw new Error("invalid claim token");
     if (draft.claimedPageId) return draft;
-    return this.updateOnboardingDraft(id, { status: "claimed", claimedUserId: userId, claimedPageId: pageId });
+    return this.updateOnboardingDraft(id2, { status: "claimed", claimedUserId: userId, claimedPageId: pageId });
+  }
+  async listImageGenerations(workspaceId) {
+    await this.ensureImageGenerations();
+    const rows = await this.sql`
+      select id, workspace_id as "workspaceId", user_id as "userId", model, prompt,
+             aspect_ratio as "aspectRatio", reference_url as "referenceUrl", images, status,
+             created_at as "createdAt"
+      from image_generations where workspace_id = ${workspaceId}
+      order by created_at desc limit 100
+    `;
+    return rows.map((row) => ({ ...row, createdAt: iso(row.createdAt) }));
+  }
+  async saveImageGeneration(generation) {
+    await this.ensureImageGenerations();
+    await this.sql`
+      insert into image_generations (id, workspace_id, user_id, model, prompt, aspect_ratio, reference_url, images, status, created_at)
+      values (${generation.id}, ${generation.workspaceId}, ${generation.userId}, ${generation.model}, ${generation.prompt}, ${generation.aspectRatio}, ${generation.referenceUrl}, ${this.sql.json(generation.images)}, ${generation.status}, ${generation.createdAt})
+      on conflict (id) do nothing
+    `;
   }
 };
 function mapPage(row) {
@@ -40169,6 +40289,29 @@ function createOpenAiImageEdit(apiKey) {
   };
 }
 
+// src/studio/fal.ts
+function createFalImageStudio(key, fetcher = fetch) {
+  return { async generate(input) {
+    const model = imageModel(input.model);
+    const size2 = imageSizeFor(input.aspectRatio);
+    const controller = new AbortController();
+    const timer2 = setTimeout(() => controller.abort(), 9e4);
+    const endpoint = input.referenceUrl ? model.referenceEndpoint : model.textEndpoint;
+    const body = { prompt: input.prompt, image_size: size2, num_images: input.numImages, output_format: "webp", safety_tolerance: "2" };
+    if (input.referenceUrl) body.image_url = input.referenceUrl;
+    try {
+      const response = await fetcher(`https://fal.run/${endpoint}`, { method: "POST", signal: controller.signal, headers: { Authorization: `Key ${key}`, "content-type": "application/json" }, body: JSON.stringify(body) });
+      if (!response.ok) throw new Error(`Fal ${response.status}: ${(await response.text()).slice(0, 240)}`);
+      const payload = await response.json();
+      const images = Array.isArray(payload.images) ? payload.images : payload.image ? [payload.image] : [];
+      if (!images.length || images.some((image2) => typeof image2?.url !== "string")) throw new Error("Fal returned no image");
+      return { images };
+    } finally {
+      clearTimeout(timer2);
+    }
+  } };
+}
+
 // src/server/prod.ts
 function parseDotEnvFile(filename) {
   try {
@@ -40278,8 +40421,10 @@ function prodDeps() {
   const productFetch = createNativeProductFetchPort();
   const onboardingAi = openaiApiKey() ? createOpenAiOnboarding(openaiApiKey()) : void 0;
   const imageEdit = openaiApiKey() ? createOpenAiImageEdit(openaiApiKey()) : void 0;
+  const falKey = process.env.FAL_KEY?.trim();
+  const imageStudio = falKey ? createFalImageStudio(falKey) : void 0;
   if (!url || !anonKey) {
-    return { store, session: async () => null, llm, onboardingAi, imageEdit, productFetch, publicAppUrl, whop, ...shopify };
+    return { store, session: async () => null, llm, onboardingAi, imageEdit, imageStudio, productFetch, publicAppUrl, whop, ...shopify };
   }
   const supabase = createClient(url, anonKey);
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
@@ -40297,6 +40442,7 @@ function prodDeps() {
     llm,
     onboardingAi,
     imageEdit,
+    imageStudio,
     productFetch,
     publicAppUrl,
     whop,
