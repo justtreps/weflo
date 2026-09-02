@@ -87,4 +87,4 @@
 - [x] Parse non-JSON failures safely and always restore the idle UI in `finally`.
 - [x] Run `npm test`, `npx tsc --noEmit`, `npm run build`, and `git diff --check`.
 - [x] Perform real local URL-error and image-success requests.
-- [ ] Commit, push `main`, deploy with `npx vercel --prod --yes`, and repeat both checks on production.
+- [x] Commit, push `main`, deploy with `npx vercel --prod --yes`, and repeat both checks on production.
