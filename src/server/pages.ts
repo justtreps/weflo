@@ -1,7 +1,9 @@
 import { Hono } from "hono";
-import { applyCanardo, canardoCreditCost } from "../lib/canardo";
+import { migrateDocument } from "../editor/migrate";
+import { applyCanardo, canardoCreditCost, refuseReferralHelp } from "../lib/canardo";
 import { initialDocument } from "../lib/catalog";
 import { spendCredits, totalCredits } from "../lib/credits";
+import { publishAccessForBilling } from "../lib/publishing";
 import { resolveShopifyToken } from "../lib/shopify";
 import type { Store } from "../repos/types";
 import type { Page, PageStatus, PageType, User, WhopPort } from "../types";
@@ -95,6 +97,12 @@ export function pagesRoutes(deps: AppDeps) {
     if (!user) return c.json({ error: "unauthorized" }, 401);
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    if (c.req.query("documentVersion") === "2") {
+      return c.json({
+        ...loaded.page,
+        document: migrateDocument(loaded.page.document, loaded.page.type),
+      });
+    }
     return c.json(loaded.page);
   });
 
@@ -168,6 +176,18 @@ export function pagesRoutes(deps: AppDeps) {
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
     const workspace = await deps.store.getWorkspace(loaded.page.workspaceId);
     if (!workspace) return c.json({ error: "not found" }, 404);
+    const subscription = await deps.store.getWhop(workspace.id);
+    const access = publishAccessForBilling(
+      { status: subscription?.status ?? "none", planId: subscription?.planId ?? null },
+      process.env.WHOP_PLAN_PRO?.trim() || null,
+    );
+    if (!access.allowed) {
+      return c.json({
+        error: access.reason,
+        message: "Passe à Weflo Pro pour publier ta page.",
+        upgradeUrl: "/facturation",
+      }, 402);
+    }
     const updated = await deps.store.updatePage(loaded.page.id, { status: "published_hosted" });
     const previewUrl = `/s/${workspace.slug}/${updated.slug}`;
     const shopify = await deps.store.getShopify(workspace.id);
@@ -215,20 +235,35 @@ export function pagesRoutes(deps: AppDeps) {
     if (!user) return c.json({ error: "unauthorized" }, 401);
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    const body: { prompt?: unknown } = await c.req.json<{ prompt?: unknown }>().catch(() => ({}));
+    const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+    if (!prompt) {
+      return c.json({ error: "prompt", message: "Décris la page ou la modification souhaitée." }, 400);
+    }
+    const refused = refuseReferralHelp(prompt, loaded.page.document);
+    if (refused) {
+      const ledger = await deps.store.getCredits(loaded.page.workspaceId);
+      return c.json({ message: refused.message, document: loaded.page.document, credits: ledger });
+    }
     const ledger = await deps.store.getCredits(loaded.page.workspaceId);
     if (totalCredits(ledger) === 0) {
-      return c.json({ error: "credits", cta: "Add Credits" }, 402);
+      return c.json({ error: "credits", message: "Tu n’as plus assez de crédits Canardo.", cta: "Add Credits" }, 402);
     }
-    if (!deps.llm) return c.json({ error: "unavailable" }, 503);
-    const body = await c.req.json<{ prompt?: unknown }>().catch(() => ({}));
-    const prompt = typeof body.prompt === "string" ? body.prompt : "";
-    const raw = await deps.llm.complete({ prompt, document: loaded.page.document });
+    if (!deps.llm) {
+      return c.json({ error: "unavailable", message: "Canardo n’est pas configuré sur cet environnement." }, 503);
+    }
+    let raw;
+    try {
+      raw = await deps.llm.complete({ prompt, document: loaded.page.document });
+    } catch {
+      return c.json({ error: "generation", message: "Canardo n’a pas pu terminer la génération. Ta page est conservée." }, 502);
+    }
     let applied: { message: string; document: Page["document"] };
     try {
       applied = applyCanardo(loaded.page.document, raw);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "catalog";
-      return c.json({ error: msg }, 400);
+      return c.json({ error: msg, message: "La réponse était invalide. Ta page actuelle a été conservée." }, 400);
     }
     const cost = canardoCreditCost(prompt, applied.document);
     let nextLedger;
