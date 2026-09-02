@@ -53,6 +53,7 @@ const htmlRoutes: Record<string, string> = {
   "/start": "start.html",
   "/connexion": "connexion.html",
   "/dashboard": "dashboard.html",
+  "/creations": "creations.html",
   "/editeur": "editeur.html",
   "/facturation": "facturation.html",
   "/parrainage": "parrainage.html",

@@ -392,6 +392,12 @@ function dashboardHomeModel(input) {
   };
 }
 
+// src/dashboard/brand-icons.ts
+function shopifyLogo(variant = "mark") {
+  const className = variant === "full" ? "brand-logo brand-logo--full" : "brand-logo";
+  return `<img class="${className}" src="/assets/brands/shopify.svg" alt="Shopify" loading="lazy">`;
+}
+
 // src/dashboard/home-view.ts
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -411,19 +417,19 @@ function renderDashboardHome(model) {
   return `<div class="shell dashboard-shell">
     <aside class="sidebar" aria-label="Navigation principale">
       <a class="brand" href="/dashboard">weflo<span>.</span></a>
-      <nav class="main-nav"><a class="nav-item is-active" href="/dashboard"><span>\u2302</span>Accueil</a><a class="nav-item" href="#creations"><span>\u25A3</span>Mes cr\xE9ations <b>${model.totalProjects}</b></a><a class="nav-item" href="/facturation#shopify"><span>\u25C6</span>Ma boutique</a><a class="nav-item" href="/facturation"><span>\u25C8</span>Abonnement</a></nav>
+      <nav class="main-nav"><a class="nav-item is-active" href="/dashboard"><span>\u2302</span>Accueil</a><a class="nav-item" href="/creations"><span>\u25A3</span>Mes cr\xE9ations <b>${model.totalProjects}</b></a><a class="nav-item" href="/studio"><span>\u2726</span>Studio images</a><a class="nav-item" href="/boutique"><span>\u25C6</span>Ma boutique</a><a class="nav-item" href="/facturation"><span>\u25C8</span>Abonnement</a></nav>
       <div class="sidebar-bottom"><a class="nav-item" href="/parrainage"><span>\u2667</span>Parrainage</a><a class="nav-item" href="/facturation"><span>\u2699</span>R\xE9glages</a><div class="profile"><span class="avatar">${escapeHtml(model.greeting.replace("Bonjour", "").trim().charAt(0) || "W")}</span><span><strong>${escapeHtml(model.workspace.name)}</strong><small>Ton espace</small></span></div></div>
     </aside>
     <main><header class="topbar"><div><p class="hello">${escapeHtml(model.greeting)}</p><p class="subhello">Transforme ton prochain produit en boutique.</p></div><a class="pro-button" href="/facturation">Passer Pro</a></header>
       <section class="creation-desk"><div class="duck" aria-hidden="true">\u{1F425}</div><div class="desk-copy"><h1>Que veux-tu vendre ?</h1><p>Donne-moi un produit. Je m\u2019occupe de l\u2019offre, des mots et de la boutique.</p></div>
         <form class="prompt" data-dashboard-prompt><textarea aria-label="D\xE9crire le produit ou coller son lien" placeholder="Colle un lien produit ou d\xE9cris ce que tu veux vendre\u2026"></textarea><div class="prompt-footer"><span>Amazon, AliExpress, Shopify ou n\u2019importe quel site</span><button type="submit" data-dashboard-action="generate">G\xE9n\xE9rer ma boutique <span>\u2197</span></button></div></form>
-        <div class="start-modes"><button data-dashboard-action="link"><span>\u2197</span><strong>Importer un lien</strong><small>Produit et images</small></button><button data-dashboard-action="image"><span>\u25A7</span><strong>Ajouter une image</strong><small>On reconna\xEEt le produit</small></button><button data-dashboard-action="shopify"><span class="shopify-mark">S</span><strong>Depuis Shopify</strong><small>Choisir dans le catalogue</small></button><button data-dashboard-action="blank"><span>\uFF0B</span><strong>Partir de z\xE9ro</strong><small>Une page vraiment vierge</small></button></div>
+        <div class="start-modes"><button data-dashboard-action="link"><span>\u2197</span><strong>Importer un lien</strong><small>Produit et images</small></button><button data-dashboard-action="image"><span>\u25A7</span><strong>Ajouter une image</strong><small>On reconna\xEEt le produit</small></button><button data-dashboard-action="shopify"><span class="shopify-brand">${shopifyLogo()}</span><strong>Depuis Shopify</strong><small>Choisir dans le catalogue</small></button><button data-dashboard-action="blank"><span>\uFF0B</span><strong>Partir de z\xE9ro</strong><small>Une page vraiment vierge</small></button></div>
       </section>
-      <section class="projects" id="creations"><div class="section-heading"><div><h2>Mes cr\xE9ations</h2><p>Reprends l\xE0 o\xF9 tu t\u2019es arr\xEAt\xE9.</p></div><button data-dashboard-action="all">Tout afficher \u2192</button></div><div class="project-shelf">${cards}</div></section>
-      <section class="workbench"><div class="next-actions"><div class="section-heading compact"><div><h2>Le prochain geste</h2><p>Publie sans casser ton th\xE8me Shopify.</p></div></div><button class="task-row" data-dashboard-action="shopify"><span class="task-icon">S</span><span><strong>Connecter Shopify</strong><small>Choisir le th\xE8me au moment de publier</small></span><b>Configurer \u2192</b></button><button class="task-row" data-dashboard-action="generate"><span class="task-icon">Aa</span><span><strong>Cr\xE9er une nouvelle offre</strong><small>Canardo adapte le message au produit</small></span><b>Commencer \u2192</b></button></div>
-        <aside class="shopify-card"><span class="shopify-mark large">S</span><p class="mini-title">Publication Shopify</p><h2>Ta boutique, dans ton vrai th\xE8me.</h2><p>Sections modifiables, copie s\xE9curis\xE9e et retour arri\xE8re inclus.</p><button data-dashboard-action="shopify">Connecter ma boutique</button></aside></section>
+      <section class="projects" id="creations"><div class="section-heading"><div><h2>Mes cr\xE9ations</h2><p>Reprends l\xE0 o\xF9 tu t\u2019es arr\xEAt\xE9.</p></div><a href="/creations">Tout afficher \u2192</a></div><div class="project-shelf">${cards}</div></section>
+      <section class="workbench"><div class="next-actions"><div class="section-heading compact"><div><h2>Le prochain geste</h2><p>Publie sans casser ton th\xE8me Shopify.</p></div></div><button class="task-row" data-dashboard-action="shopify"><span class="task-icon shopify-brand">${shopifyLogo()}</span><span><strong>Connecter Shopify</strong><small>Choisir le th\xE8me au moment de publier</small></span><b>Configurer \u2192</b></button><button class="task-row" data-dashboard-action="generate"><span class="task-icon">Aa</span><span><strong>Cr\xE9er une nouvelle offre</strong><small>Canardo adapte le message au produit</small></span><b>Commencer \u2192</b></button></div>
+        <aside class="shopify-card"><span class="shopify-brand large">${shopifyLogo()}</span><p class="mini-title">Publication Shopify</p><h2>Ta boutique, dans ton vrai th\xE8me.</h2><p>Sections modifiables, copie s\xE9curis\xE9e et retour arri\xE8re inclus.</p><button data-dashboard-action="shopify">Connecter ma boutique</button></aside></section>
     </main></div>
-    <nav class="mobile-nav"><a href="/dashboard">\u2302<span>Accueil</span></a><a href="#creations">\u25A3<span>Cr\xE9ations</span></a><button data-dashboard-action="generate">\uFF0B<span>Cr\xE9er</span></button><a href="/facturation#shopify">\u25C6<span>Shopify</span></a><a href="/facturation">\u2699<span>R\xE9glages</span></a></nav>`;
+    <nav class="mobile-nav"><a href="/dashboard">\u2302<span>Accueil</span></a><a href="/creations">\u25A3<span>Cr\xE9ations</span></a><a href="/studio">\u2726<span>Studio</span></a><a href="/boutique">\u25C6<span>Boutique</span></a><a href="/facturation">\u2699<span>R\xE9glages</span></a></nav>`;
 }
 
 // src/hydrate/dashboard.ts

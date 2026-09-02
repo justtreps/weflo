@@ -881,16 +881,35 @@ body:has(#weflo-dashboard-home:not(:empty)) > x-dc {
 .empty-project small {
   color: var(--muted);
 }
-#weflo-dashboard-home .section-heading > button {
+#weflo-dashboard-home .section-heading > button,
+#weflo-dashboard-home .section-heading > a {
   border: 0;
   background: transparent;
+  color: inherit;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
 }
 #weflo-dashboard-home .pro-button {
   display: grid;
   place-items: center;
   text-decoration: none;
+}
+#weflo-dashboard-home .shopify-brand {
+  display: inline-grid !important;
+  place-items: center;
+  background: transparent !important;
+  color: inherit !important;
+}
+#weflo-dashboard-home .brand-logo {
+  display: block;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+#weflo-dashboard-home .shopify-brand.large .brand-logo {
+  width: 44px;
+  height: 44px;
 }
 @media (max-width: 760px) {
   #weflo-dashboard-home .project-menu > div {
