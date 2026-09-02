@@ -58,6 +58,46 @@ async function readApiJson(response) {
   };
 }
 
+// src/create/build-view.ts
+function esc2(value) {
+  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+function renderBuildExperience(input) {
+  const total = Math.max(input.stages.length, 1);
+  const activeIndex = Math.min(Math.max(input.activeIndex, 0), total - 1);
+  const progress = Math.round((activeIndex + 1) / total * 100);
+  const current = input.stages[activeIndex]?.label ?? "Finalisation de la page";
+  const visible = input.stages.slice(Math.max(0, activeIndex - 2), Math.min(total, activeIndex + 4));
+  const image = input.productImage && /^(https:\/\/|data:image\/)/.test(input.productImage) ? input.productImage : null;
+  const previewSections = ["navigation", "hero", "offre", "b\xE9n\xE9fices", "preuves sociales"];
+  return `<main class="build-experience">
+    <header class="build-topbar"><div><span>${esc2(input.formatTitle)}</span><strong>${esc2(input.brandName)} prend forme</strong></div><div class="build-percent"><b>${progress}%</b><span>Construction</span></div></header>
+    <div class="build-progress" data-build-progress="${progress}" role="progressbar" aria-label="Construction de la page : ${progress} %" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"><i style="width:${progress}%"></i></div>
+    <div class="build-layout">
+      <section class="build-status">
+        <div class="canardo-status"><span class="canardo-orbit">\u25CF</span><div><small>Canardo travaille maintenant</small><h1>${esc2(current)}</h1><p>La structure, les textes et la direction visuelle sont assembl\xE9s dans une m\xEAme identit\xE9.</p></div></div>
+        <div class="stage-stream">${visible.map((stage) => {
+    const index = input.stages.indexOf(stage);
+    const state = index < activeIndex ? "done" : index === activeIndex ? "active" : "waiting";
+    return `<div class="stage-row" data-stage-state="${state}"><i>${state === "done" ? "\u2713" : state === "active" ? "\u25CF" : ""}</i><span>${esc2(stage.label)}</span>${state === "active" ? "<em>en cours</em>" : ""}</div>`;
+  }).join("")}</div>
+        <div class="build-note"><span>\u2726</span><p><strong>Une seule direction de marque.</strong> Chaque nouvelle section reprend les m\xEAmes couleurs, espacements et r\xE8gles typographiques.</p></div>
+      </section>
+      <section class="storefront-window" data-build-preview>
+        <div class="browser-chrome"><i></i><i></i><i></i><span>${esc2(input.brandName.toLowerCase().replace(/[^a-z0-9]+/g, "")) || "boutique"}.com</span><b>aper\xE7u en direct</b></div>
+        <div class="storefront-canvas">
+          <div class="preview-nav preview-part ${activeIndex >= 0 ? "is-built" : ""}" data-preview-section="navigation"><strong>${esc2(input.brandName)}</strong><span>Boutique&nbsp;&nbsp; \xC0 propos&nbsp;&nbsp; Journal</span><button>Panier (0)</button></div>
+          <div class="preview-hero preview-part ${activeIndex >= 1 ? "is-built" : ""}" data-preview-section="hero"><div><small>La s\xE9lection ${esc2(input.brandName)}</small><h2>Le produit pens\xE9 pour ton quotidien.</h2><p>Une promesse claire, une preuve cr\xE9dible et un parcours sans friction.</p><button>D\xE9couvrir le produit</button></div><div class="preview-media">${image ? `<img src="${esc2(image)}" alt="Produit import\xE9">` : "<span></span>"}</div></div>
+          <div class="preview-trust preview-part ${activeIndex >= 2 ? "is-built" : ""}" data-preview-section="offre"><span>Livraison suivie</span><span>Paiement s\xE9curis\xE9</span><span>30 jours pour essayer</span></div>
+          <div class="preview-benefits preview-part ${activeIndex >= 3 ? "is-built" : ""}" data-preview-section="b\xE9n\xE9fices"><article><i>01</i><strong>Con\xE7u avec intention</strong><p>Le b\xE9n\xE9fice principal expliqu\xE9 sans d\xE9tour.</p></article><article><i>02</i><strong>Simple \xE0 adopter</strong><p>Une d\xE9monstration visuelle qui rassure.</p></article><article><i>03</i><strong>Fait pour durer</strong><p>Des preuves concr\xE8tes avant la promesse.</p></article></div>
+          <div class="preview-proof preview-part ${activeIndex >= 4 ? "is-built" : ""}" data-preview-section="preuves"><div><span>\u2605\u2605\u2605\u2605\u2605</span><strong>\u201CC\u2019est exactement ce que je cherchais.\u201D</strong><small>Acheteur v\xE9rifi\xE9</small></div><div class="proof-image"></div></div>
+          <div class="preview-building"><span></span><span></span><span></span></div>
+        </div>
+      </section>
+    </div>
+  </main>`;
+}
+
 // src/hydrate/creer.ts
 var root = document.querySelector("#create-app");
 var params = new URLSearchParams(location.search);
@@ -69,7 +109,8 @@ var token = "";
 var error = "";
 var busy = false;
 var workspaceName = "Ton espace";
-function esc2(value) {
+var buildStageIndex = 0;
+function esc3(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 async function request(url, init) {
@@ -85,11 +126,12 @@ function render() {
 }
 function renderStrategy() {
   const choices = [...draft.personas.map((item) => ({ ...item, kind: "persona" })), ...draft.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc2(workspaceName)}</small></aside><main><div class="create-heading"><p>${esc2(creationFormats.find((item) => item.id === format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc2(item.id)}" aria-pressed="${item.selected}"><strong>${esc2(item.icon)} ${esc2(item.title)}</strong><small>${esc2(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc2(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc3(workspaceName)}</small></aside><main><div class="create-heading"><p>${esc3(creationFormats.find((item) => item.id === format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc3(item.id)}" aria-pressed="${item.selected}"><strong>${esc3(item.icon)} ${esc3(item.title)}</strong><small>${esc3(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc3(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
 }
 function renderBuild() {
   if (!root || !draft) return;
-  root.innerHTML = `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol></aside><main class="build-screen"><div class="build-card"><p>Canardo travaille</p><h1>${esc2(draft.brandName || "Ta page")} prend forme.</h1><ul>${draft.stages.map((stage, index) => `<li class="${index < 6 ? "done" : index === 6 ? "active" : ""}">${esc2(stage.label)}</li>`).join("")}</ul></div></main></div>`;
+  const formatTitle = creationFormats.find((item) => item.id === format)?.title ?? "Boutique";
+  root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc3(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
 }
 async function importLink(value) {
   const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });
@@ -120,11 +162,35 @@ async function build() {
   if (!draft) return;
   busy = true;
   error = "";
+  buildStageIndex = 0;
   renderBuild();
-  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: format ?? "store", personas: draft.personas, angles: draft.angles, language: "fr" }) });
-  await request(`/api/onboarding/${draft.id}/build`, { method: "POST", headers: { "x-weflo-claim-token": token } });
-  const claimed = await request(`/api/onboarding/${draft.id}/claim`, { method: "POST", headers: { "x-weflo-claim-token": token } });
-  location.assign(`/editeur?page=${claimed.pageId}`);
+  let timer;
+  try {
+    await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: format ?? "store", personas: draft.personas, angles: draft.angles, language: "fr" }) });
+    buildStageIndex = 1;
+    renderBuild();
+    timer = setInterval(() => {
+      if (!draft) return;
+      const ceiling = Math.max(1, draft.stages.length - 2);
+      if (buildStageIndex < ceiling) {
+        buildStageIndex += 1;
+        renderBuild();
+      }
+    }, 650);
+    await request(`/api/onboarding/${draft.id}/build`, { method: "POST", headers: { "x-weflo-claim-token": token } });
+    if (timer) clearInterval(timer);
+    timer = void 0;
+    while (buildStageIndex < draft.stages.length - 1) {
+      buildStageIndex += 1;
+      renderBuild();
+      await new Promise((resolve) => setTimeout(resolve, 90));
+    }
+    const claimed = await request(`/api/onboarding/${draft.id}/claim`, { method: "POST", headers: { "x-weflo-claim-token": token } });
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    location.assign(`/editeur?page=${claimed.pageId}`);
+  } finally {
+    if (timer) clearInterval(timer);
+  }
 }
 function bind() {
   root?.querySelectorAll("[data-create-format]").forEach((button) => button.addEventListener("click", () => {
