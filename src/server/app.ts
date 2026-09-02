@@ -12,6 +12,7 @@ import { settingsRoutes } from "./settings";
 import { shopifyRoutes } from "./shopify";
 import { storefrontRoutes } from "./storefront";
 import type { ProductFetchPort } from "../import/product-extractor";
+import type { OnboardingAiPort } from "../onboarding/analyser";
 
 export type { ShopifyPort, WhopPort };
 
@@ -27,6 +28,7 @@ export type AppDeps = {
   inviteEmail?: (input: { email: string; workspaceId: string; role: string }) => Promise<void>;
   deleteUser?: (userId: string) => Promise<void>;
   productFetch?: ProductFetchPort;
+  onboardingAi?: OnboardingAiPort;
 };
 
 function assetType(name: string): string {
