@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 import { productHeroSection } from "../src/sections/product-hero";
 import { productMainSection } from "../src/sections/product-main";
 import { reviewsSection } from "../src/sections/reviews";
+import { benefitsSection } from "../src/sections/benefits";
+import { testimonialsSection } from "../src/sections/testimonials";
+import { bundleSection } from "../src/sections/bundle";
+import { faqSection } from "../src/sections/faq";
 import type { EditorSection } from "../src/editor/document";
 import { renderKnownSection } from "../src/editor/render/render-section";
 
@@ -10,6 +14,22 @@ function section(type: string, variant: string): EditorSection {
 }
 
 describe("premium section variants", () => {
+  it.each([
+    [productHeroSection, "productHero", "beauty-editorial", "wf-product-hero--beauty-editorial"],
+    [productHeroSection, "productHero", "object-editorial", "wf-product-hero--object-editorial"],
+    [productMainSection, "productMain", "conversion-split", "wf-product--conversion-split"],
+    [productMainSection, "productMain", "bundle-led", "wf-product--bundle-led"],
+    [benefitsSection, "benefits", "ritual-cards", "wf-benefits--ritual-cards"],
+    [benefitsSection, "benefits", "technical-grid", "wf-benefits--technical-grid"],
+    [testimonialsSection, "testimonials", "editorial-stories", "wf-testimonials--editorial-stories"],
+    [testimonialsSection, "testimonials", "ugc-grid", "wf-testimonials--ugc-grid"],
+    [bundleSection, "bundle", "routine-set", "wf-bundle--routine-set"],
+    [bundleSection, "bundle", "quantity-break", "wf-bundle--quantity-break"],
+    [faqSection, "faq", "editorial-accordion", "wf-faq--editorial-accordion"],
+    [faqSection, "faq", "support-columns", "wf-faq--support-columns"],
+  ])("renders %s/%s as a distinct layout", (definition, type, variant, className) => {
+    expect(definition.renderWeb({ section: section(type, variant), pageName: "Lampe" })).toContain(className);
+  });
   it("renders materially distinct hero compositions", () => {
     const ambient = productHeroSection.renderWeb({ section: section("productHero", "ambient-editorial"), pageName: "Lampe" });
     const direct = productHeroSection.renderWeb({ section: section("productHero", "problem-solution"), pageName: "Lampe" });

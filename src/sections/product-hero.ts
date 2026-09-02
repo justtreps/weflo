@@ -6,6 +6,7 @@ const base = createSectionDefinition("productHero", "Hero produit", "commerce", 
 
 export const productHeroSection = {
   ...base,
+  previewVariants: ["beauty-editorial", "object-editorial"],
   renderWeb: ({ section, pageName }: Parameters<typeof base.renderWeb>[0]) => {
     const title = value(section, "title", pageName);
     const subtitle = value(section, "subtitle");
@@ -14,10 +15,11 @@ export const productHeroSection = {
     const cta = value(section, "cta_label", "Ajouter au panier");
     const media = image(section, "image", value(section, "image_alt", title), "wf-hero__image");
     const action = `<a class="wf-section__button" href="${safeLink(section.settings.cta_link)}">${escapeHtml(cta)}</a>`;
-    const variant = value(section, "variant", "ambient-editorial");
+    const requested = value(section, "variant", "ambient-editorial");
+    const variant = new Set(["ambient-editorial","problem-solution","clinical-evidence","beauty-editorial","object-editorial"]).has(requested) ? requested : "ambient-editorial";
     if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy"><span>Le problème, résolu.</span>${edit("h1","title",title)}${edit("p","text",body)}<div class="wf-hero__proof">✓ Simple à choisir · ✓ Pensé pour le quotidien</div>${price ? edit("strong","price",price,"wf-section__price") : ""}${action}</div><figure>${media}<figcaption>${escapeHtml(subtitle)}</figcaption></figure></section>`;
     if (variant === "clinical-evidence") return `<section class="wf-section wf-hero wf-hero__clinical" data-wf-variant="clinical-evidence"><div><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1","title",title)}${edit("p","text",body)}<dl><div><dt>Usage</dt><dd>Clair</dd></div><div><dt>Choix</dt><dd>Guidé</dd></div></dl>${action}</div><figure>${media}</figure></section>`;
-    return `<section class="wf-section wf-hero wf-hero__atmosphere" data-wf-variant="${escapeHtml(variant)}"><figure>${media}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1","title",title)}${edit("p","text",body)}${price ? edit("strong","price",price,"wf-section__price") : ""}${action}</div></section>`;
+    return `<section class="wf-section wf-hero wf-hero__atmosphere wf-product-hero--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><figure>${media}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1","title",title)}${edit("p","text",body)}${price ? edit("strong","price",price,"wf-section__price") : ""}${action}</div></section>`;
   },
   renderLiquid: (section?: EditorSection) => {
     const variant = section ? value(section, "variant", "ambient-editorial") : "ambient-editorial";
