@@ -3,6 +3,7 @@ import { renderEditorDocument } from "../render/render-document";
 import { parseCanvasBridgeMessage } from "./canvas-bridge";
 import { CANVAS_RUNTIME } from "./canvas-runtime";
 import type { EditorStore } from "./store";
+import { sectionMoveTarget } from "./drag-sections";
 
 export type CanvasOptions = {
   mode: "edit" | "preview";
@@ -49,7 +50,19 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
   const receive = (event: MessageEvent) => {
     if (event.source !== iframe.contentWindow) return;
     const action = parseCanvasBridgeMessage(event.data);
-    if (action?.type === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+    if (!action) return;
+    if (action.type === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+    if (action.type === "inlineEdit") store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: action.key, value: action.value });
+    if (action.type === "move") store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: store.getState().pageId, toIndex: action.toIndex });
+    if (action.type === "action") {
+      if (action.action === "hide") store.dispatch({ type: "toggleHidden", sectionId: action.sectionId });
+      if (action.action === "remove") store.dispatch({ type: "removeSection", sectionId: action.sectionId });
+      if (action.action === "duplicate") store.dispatch({ type: "duplicateSection", sectionId: action.sectionId, newSectionId: `${action.sectionId}-copy-${Date.now()}` });
+      if (action.action === "moveUp" || action.action === "moveDown") {
+        const target = sectionMoveTarget(store.getState().document, action.sectionId, action.action === "moveUp" ? -1 : 1);
+        if (target) store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: target.pageId, toIndex: target.toIndex });
+      }
+    }
   };
   const resize = new ResizeObserver(paint);
   resize.observe(container);
@@ -58,4 +71,3 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
   paint();
   return () => { resize.disconnect(); window.removeEventListener("message", receive); unsubscribe(); };
 }
-

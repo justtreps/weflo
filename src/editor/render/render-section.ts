@@ -25,6 +25,11 @@ function blocks(section: EditorSection): string {
   }).join("");
 }
 
+function editable(tag: "h1" | "h2" | "p" | "strong", key: string, value: string, className = ""): string {
+  const cls = className ? ` class="${className}"` : "";
+  return `<${tag}${cls} data-wf-edit-key="${key}">${value}</${tag}>`;
+}
+
 export function renderKnownSection(section: EditorSection, pageName: string): string {
   const title = text(section, "title", "heading") || escapeEditorHtml(pageName);
   const subtitle = text(section, "subtitle", "subheading");
@@ -39,23 +44,22 @@ export function renderKnownSection(section: EditorSection, pageName: string): st
 
   switch (section.type) {
     case "navigation":
-      return `<nav class="wf-v2-wrap wf-v2-nav"><strong>${title}</strong><div>${blockMarkup || "<a href=\"#product\">Produit</a><a href=\"#story\">Histoire</a>"}</div><a href="#cart">Panier</a></nav>`;
+      return `<nav class="wf-v2-wrap wf-v2-nav">${editable("strong", "title", title)}<div>${blockMarkup || "<a href=\"#product\">Produit</a><a href=\"#story\">Histoire</a>"}</div><a href="#cart">Panier</a></nav>`;
     case "footer":
       return `<footer class="wf-v2-wrap wf-v2-footer"><strong>${title}</strong><span>Conçu avec Weflo</span>${blockMarkup}</footer>`;
     case "productHero":
-      return `<div class="wf-v2-wrap wf-v2-split">${media}<div>${subtitle ? `<p class="wf-v2-kicker">${subtitle}</p>` : ""}<h1>${title}</h1>${body ? `<p>${body}</p>` : ""}${price ? `<strong class="wf-v2-price">${price}</strong>` : ""}<a class="wf-v2-button" href="#buy">${cta}</a>${blockMarkup}</div></div>`;
+      return `<div class="wf-v2-wrap wf-v2-split">${media}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta}</a>${blockMarkup}</div></div>`;
     case "hero":
-      return `<div class="wf-v2-wrap wf-v2-split"><div>${subtitle ? `<p class="wf-v2-kicker">${subtitle}</p>` : ""}<h1>${title}</h1>${body ? `<p>${body}</p>` : ""}<a class="wf-v2-button" href="#start">${cta}</a>${blockMarkup}</div>${media}</div>`;
+      return `<div class="wf-v2-wrap wf-v2-split"><div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}<a class="wf-v2-button" href="#start">${cta}</a>${blockMarkup}</div>${media}</div>`;
     case "bundle":
     case "cta":
-      return `<div class="wf-v2-wrap wf-v2-band"><div><p class="wf-v2-kicker">${subtitle || section.type}</p><h2>${title}</h2><p>${body}</p></div><div>${price ? `<strong class="wf-v2-price">${price}</strong>` : ""}<a class="wf-v2-button" href="#buy">${cta}</a></div>${blockMarkup}</div>`;
+      return `<div class="wf-v2-wrap wf-v2-band"><div>${editable("p", "subtitle", subtitle || section.type, "wf-v2-kicker")}${editable("h2", "title", title)}${editable("p", "text", body)}</div><div>${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta}</a></div>${blockMarkup}</div>`;
     case "faq":
-      return `<div class="wf-v2-wrap wf-v2-content"><h2>${title}</h2><details open><summary>${title}</summary><p>${body}</p></details>${blockMarkup}</div>`;
+      return `<div class="wf-v2-wrap wf-v2-content">${editable("h2", "title", title)}<details open><summary>${title}</summary>${editable("p", "text", body)}</details>${blockMarkup}</div>`;
     case "atelier":
     case "article":
-      return `<div class="wf-v2-wrap wf-v2-split">${media}<div><p class="wf-v2-kicker">${subtitle || section.type}</p><h2>${title}</h2><p>${body}</p>${blockMarkup}</div></div>`;
+      return `<div class="wf-v2-wrap wf-v2-split">${media}<div>${editable("p", "subtitle", subtitle || section.type, "wf-v2-kicker")}${editable("h2", "title", title)}${editable("p", "text", body)}${blockMarkup}</div></div>`;
     default:
-      return `<div class="wf-v2-wrap wf-v2-content"><p class="wf-v2-kicker">${subtitle || section.type}</p><h2>${title}</h2><p>${body}</p><div class="wf-v2-grid">${blockMarkup || `<article><h3>${title}</h3><p>${body || "Pensé dans les moindres détails."}</p></article><article><h3>Simple</h3><p>Une expérience claire.</p></article><article><h3>Durable</h3><p>Fait pour durer.</p></article>`}</div></div>`;
+      return `<div class="wf-v2-wrap wf-v2-content">${editable("p", "subtitle", subtitle || section.type, "wf-v2-kicker")}${editable("h2", "title", title)}${editable("p", "text", body)}<div class="wf-v2-grid">${blockMarkup || `<article><h3>${title}</h3><p>${body || "Pensé dans les moindres détails."}</p></article><article><h3>Simple</h3><p>Une expérience claire.</p></article><article><h3>Durable</h3><p>Fait pour durer.</p></article>`}</div></div>`;
   }
 }
-
