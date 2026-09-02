@@ -36,7 +36,7 @@ export function shopifyRoutes(deps: AppDeps) {
     if (!deps.shopify) return c.json({ error: "unavailable" }, 503);
     const body = await c.req
       .json<{ workspaceId?: unknown; shopDomain?: unknown; token?: unknown }>()
-      .catch(() => ({}));
+      .catch(() => ({} as { workspaceId?: unknown; shopDomain?: unknown; token?: unknown }));
     const workspaceId = typeof body.workspaceId === "string" ? body.workspaceId : "";
     const shopDomain = typeof body.shopDomain === "string" ? normalizeShop(body.shopDomain) : "";
     const token = typeof body.token === "string" ? body.token : "";
@@ -71,7 +71,8 @@ export function shopifyRoutes(deps: AppDeps) {
   app.post("/shopify/disconnect", async (c) => {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);
-    const body = await c.req.json<{ workspaceId?: unknown }>().catch(() => ({}));
+    const body = await c.req.json<{ workspaceId?: unknown }>()
+      .catch(() => ({} as { workspaceId?: unknown }));
     const workspaceId = typeof body.workspaceId === "string" ? body.workspaceId : "";
     if (!workspaceId) return c.json({ error: "invalid" }, 400);
     if (!(await requireMember(deps, user.id, workspaceId))) {

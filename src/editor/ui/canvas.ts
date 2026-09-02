@@ -73,7 +73,7 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
   const resize = new ResizeObserver(() => paint(true));
   resize.observe(container);
   window.addEventListener("message", receive);
-  const unsubscribe = store.subscribe(paint);
+  const unsubscribe = store.subscribe(() => paint());
   paint(true);
   return () => { resize.disconnect(); window.removeEventListener("message", receive); unsubscribe(); };
 }

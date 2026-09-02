@@ -1,5 +1,5 @@
 import type { PageDocument, PageTheme, Section } from "../types";
-import type { EditorDocument } from "../editor/document";
+import { isEditorDocument, type EditorDocument } from "../editor/document";
 import { migrateDocument } from "../editor/migrate";
 import { renderEditorDocument } from "../editor/render/render-document";
 import { DEFAULT_PAGE_THEME } from "./catalog";
@@ -92,7 +92,7 @@ function sectionHtml(section: Section, pageName: string): string {
 }
 
 export function renderDocument(doc: PageDocument | EditorDocument, options: { compact?: boolean } = {}): string {
-  if ("version" in doc && doc.version === 2) {
+  if (isEditorDocument(doc)) {
     return renderEditorDocument(doc, { mode: "preview", breakpoint: "desktop" });
   }
   const theme = themeValues(doc.theme);

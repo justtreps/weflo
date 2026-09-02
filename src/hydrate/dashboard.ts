@@ -17,6 +17,7 @@ const DEFAULT_NAME: Record<PageType, string> = {
 };
 
 type PagesPayload = { workspace: Workspace; pages: Page[] };
+type WorkspaceSummary = Pick<Workspace, "id" | "name" | "slug">;
 
 function formatEdited(iso: string): string {
   const then = new Date(iso).getTime();
@@ -72,7 +73,7 @@ function appendChat(text: string, mine: boolean) {
   list.appendChild(row);
 }
 
-function previewUrl(workspace: Workspace, page: Page): string {
+function previewUrl(workspace: WorkspaceSummary, page: Page): string {
   return `${location.origin}/s/${workspace.slug}/${page.slug}`;
 }
 
@@ -133,7 +134,7 @@ function bindCreateMenu() {
 }
 
 
-function bindRow(rowEl: HTMLElement, page: Page, workspace: Workspace, reload: () => Promise<void>) {
+function bindRow(rowEl: HTMLElement, page: Page, workspace: WorkspaceSummary, reload: () => Promise<void>) {
   const cols = [...rowEl.children] as HTMLElement[];
   const nameCol = cols[0];
   const editedCol = cols[1];
@@ -243,7 +244,7 @@ function bindRow(rowEl: HTMLElement, page: Page, workspace: Workspace, reload: (
   });
 }
 
-function renderRows(pages: Page[], workspace: Workspace, reload: () => Promise<void>) {
+function renderRows(pages: Page[], workspace: WorkspaceSummary, reload: () => Promise<void>) {
   const list = document.querySelector('sc-for[list="{{ rows }}"]');
   if (!list) return;
   const first = list.firstElementChild as HTMLElement | null;
@@ -418,7 +419,7 @@ export async function hydrateDashboard() {
   bindCoach();
 
   let pages: Page[] = [];
-  let workspace: Workspace = me.workspace;
+  let workspace: WorkspaceSummary = me.workspace;
   let chip = "Tout";
   let query = "";
   let sortBy: "edited" | "name" | "type" = "edited";

@@ -119,7 +119,7 @@ export function referralApiRoutes(deps: AppDeps) {
   app.post("/referral/claim", async (c) => {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);
-    const body = await c.req.json<{ code?: unknown }>().catch(() => ({}));
+    const body = await c.req.json<{ code?: unknown }>().catch(() => ({} as { code?: unknown }));
     const code = typeof body.code === "string" ? body.code.trim() : "";
     if (!code) return c.json({ error: "invalid" }, 400);
     const referrer = await deps.store.getWorkspaceBySlug(code);

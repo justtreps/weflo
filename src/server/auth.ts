@@ -18,7 +18,8 @@ export function authRoutes(deps: AppDeps) {
 
   app.post("/auth/signup", async (c) => {
     if (!deps.auth) return c.json({ error: "unavailable" }, 503);
-    const body = await c.req.json<{ email?: string; password?: string; name?: string }>().catch(() => ({}));
+    const body = await c.req.json<{ email?: string; password?: string; name?: string }>()
+      .catch(() => ({} as { email?: string; password?: string; name?: string }));
     try {
       const { accessToken, user } = await deps.auth.signUpEmail(
         typeof body.email === "string" ? body.email : "",
@@ -34,7 +35,8 @@ export function authRoutes(deps: AppDeps) {
 
   app.post("/auth/login", async (c) => {
     if (!deps.auth) return c.json({ error: "unavailable" }, 503);
-    const body = await c.req.json<{ email?: string; password?: string }>().catch(() => ({}));
+    const body = await c.req.json<{ email?: string; password?: string }>()
+      .catch(() => ({} as { email?: string; password?: string }));
     try {
       const { accessToken, user } = await deps.auth.signInEmail(
         typeof body.email === "string" ? body.email : "",

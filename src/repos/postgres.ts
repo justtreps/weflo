@@ -210,7 +210,7 @@ export class PostgresStore implements Store {
           ${page.slug},
           ${page.type},
           ${page.status},
-          ${this.sql.json(storedPageDocument(page.document, page.documentVersion))},
+          ${this.sql.json(storedPageDocument(page.document, page.documentVersion) as never)},
           ${page.updatedAt}
         )
       `;
@@ -243,7 +243,7 @@ export class PostgresStore implements Store {
         set name = ${updated.name},
             slug = ${updated.slug},
             status = ${updated.status},
-            document = ${this.sql.json(storedPageDocument(updated.document, updated.documentVersion))},
+            document = ${this.sql.json(storedPageDocument(updated.document, updated.documentVersion) as never)},
             updated_at = ${updated.updatedAt}
         where id = ${id}
           ${options.expectedVersion === undefined ? this.sql`` : this.sql`and coalesce((document ->> '__wefloDocumentVersion')::int, 1) = ${options.expectedVersion}`}

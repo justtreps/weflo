@@ -35,8 +35,11 @@ export function validateCanardoResponse(value: unknown, document: EditorDocument
 
   let next = structuredClone(document);
   if (Array.isArray(value.commands) && value.commands.length <= 30) for (const raw of value.commands) {
-    if (!object(raw) || typeof raw.type !== "string" || !COMMAND_KEYS[raw.type]) { errors.push("Commande inconnue."); continue; }
-    if (Object.keys(raw).some((key) => !COMMAND_KEYS[raw.type].has(key))) { errors.push(`Propriété inattendue pour ${raw.type}.`); continue; }
+    if (!object(raw) || typeof raw.type !== "string") { errors.push("Commande inconnue."); continue; }
+    const commandType = raw.type;
+    const allowedKeys = COMMAND_KEYS[commandType];
+    if (!allowedKeys) { errors.push("Commande inconnue."); continue; }
+    if (Object.keys(raw).some((key) => !allowedKeys.has(key))) { errors.push(`Propriété inattendue pour ${commandType}.`); continue; }
     if (raw.type === "insertSection") validateInsertedSection(raw.section, errors);
     if (errors.length) continue;
     try { next = applyCommand(next, raw as EditorCommand); } catch (error) { errors.push(error instanceof Error ? error.message : "Commande invalide."); }

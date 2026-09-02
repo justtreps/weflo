@@ -7,6 +7,7 @@ import type {
   EditorSection,
   SettingValue,
 } from "./document";
+import { isEditorDocument } from "./document";
 import { buildModelDocument } from "../models/model-manifest";
 
 function slug(value: string): string {
@@ -69,7 +70,7 @@ export function editorKind(type: PageType | EditorPageKind): EditorPageKind {
 }
 
 export function migrateDocument(document: PageDocument | EditorDocument, kind: PageType | EditorPageKind = "landing"): EditorDocument {
-  if ("version" in document && document.version === 2) return structuredClone(document);
+  if (isEditorDocument(document)) return structuredClone(document);
   const pageSlug = slug(document.path === "/" ? document.name : document.path);
   return {
     version: 2,

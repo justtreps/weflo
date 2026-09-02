@@ -1,4 +1,5 @@
-import type { EditorBlock, EditorSection, InspectorControl, SettingValue } from "../editor/document";
+import type { EditorBlock, EditorSection, SettingValue } from "../editor/document";
+import type { InspectorControl } from "../editor/section-schema";
 
 export type SectionCategory = "brand" | "media" | "commerce" | "conversion" | "content" | "layout";
 

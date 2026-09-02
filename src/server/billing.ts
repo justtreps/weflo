@@ -52,7 +52,7 @@ export function billingRoutes(deps: AppDeps) {
     if (!deps.whop) return c.json({ error: "unavailable" }, 503);
     const body = await c.req
       .json<{ workspaceId?: unknown; kind?: unknown; planId?: unknown }>()
-      .catch(() => ({}));
+      .catch(() => ({} as { workspaceId?: unknown; kind?: unknown; planId?: unknown }));
     const workspaceId = typeof body.workspaceId === "string" ? body.workspaceId : "";
     const planId = typeof body.planId === "string" ? body.planId : "";
     const kind = body.kind === "subscription" || body.kind === "credits" ? body.kind : "";

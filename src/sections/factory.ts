@@ -1,4 +1,5 @@
-import type { EditorBlock, EditorSection, InspectorControl, SettingValue } from "../editor/document";
+import type { EditorBlock, EditorSection, SettingValue } from "../editor/document";
+import type { InspectorControl } from "../editor/section-schema";
 import { blockValue, edit, escapeHtml, image, safeLink, safeMediaUrl, textControl, value } from "./shared";
 import type { BlockDefinition, SectionCategory, SectionDefinition } from "./types";
 

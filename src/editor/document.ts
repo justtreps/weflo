@@ -61,3 +61,8 @@ export type EditorDocument = {
   shopify?: ShopifyBindings;
 };
 
+export function isEditorDocument(value: unknown): value is EditorDocument {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<EditorDocument>;
+  return candidate.version === 2 && Array.isArray(candidate.pages);
+}

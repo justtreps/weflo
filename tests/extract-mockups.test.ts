@@ -15,6 +15,7 @@ import {
   sanitizeConnexionTalent,
   revealEditorToolbar,
   extractEditorPreviewAssets,
+// @ts-expect-error The extraction helper intentionally remains an executable ESM script.
 } from "../scripts/extract-lib.mjs";
 
 const sample = `<script type="__bundler/template">"<!DOCTYPE html>\\n<html><body><button class=\\"oauth-shopify\\">avec Shopify</button><button class=\\"oauth-google\\">Google</button></body></html>"</script>`;

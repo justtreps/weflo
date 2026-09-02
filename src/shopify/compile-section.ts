@@ -1,4 +1,5 @@
-import type { EditorSection, InspectorControl } from "../editor/document";
+import type { EditorSection } from "../editor/document";
+import type { InspectorControl } from "../editor/section-schema";
 import { getSectionDefinition } from "../sections/index";
 import { sectionFileName } from "./names";
 

@@ -116,7 +116,7 @@ export function pagesRoutes(deps: AppDeps) {
   app.post("/pages", async (c) => {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);
-    const body = await c.req.json<{ type?: unknown; name?: unknown }>().catch(() => ({}));
+    const body = await c.req.json<{ type?: unknown; name?: unknown }>().catch(() => ({} as { type?: unknown; name?: unknown }));
     if (!isPageType(body.type)) return c.json({ error: "invalid type" }, 400);
     const name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Page";
     const workspace = await ensureWorkspace(deps.store, user.id);
@@ -137,7 +137,7 @@ export function pagesRoutes(deps: AppDeps) {
     if (!user) return c.json({ error: "unauthorized" }, 401);
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
-    const body = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+    const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
     const patch: Partial<Pick<Page, "name" | "slug" | "status" | "document">> = {};
     if (typeof body.name === "string") patch.name = body.name;
     if (typeof body.slug === "string") patch.slug = slugify(body.slug);
@@ -219,7 +219,7 @@ export function pagesRoutes(deps: AppDeps) {
         upgradeUrl: "/facturation",
       }, 402);
     }
-    const body = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+    const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
     const expectedVersion = typeof body.expectedVersion === "number" ? body.expectedVersion : undefined;
     if (expectedVersion !== undefined && expectedVersion !== loaded.page.documentVersion) return c.json({ error: "version_conflict", serverPage: loaded.page }, 409);
     const destination = body.destination === "hosted" || body.destination === "shopify" ? body.destination : undefined;

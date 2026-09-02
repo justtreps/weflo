@@ -12,6 +12,7 @@ function page(name: string, type: Page["type"]): Page {
     type,
     status: "draft",
     document: initialDocument(name, type),
+    documentVersion: 1,
     updatedAt: new Date().toISOString(),
   };
 }

@@ -9,7 +9,7 @@ function definition(type: string): SectionDefinition {
     name: "Test section",
     category: "content",
     defaults: { title: "Hello" },
-    settings: [{ key: "title", label: "Title", type: "text" }],
+    settings: [{ key: "title", label: "Title", type: "text", scope: "settings" }],
     blocks: [],
     renderWeb: ({ section }) => `<h2>${section.settings.title}</h2>`,
     renderLiquid: () => "<h2>{{ section.settings.title }}</h2>",
