@@ -31,9 +31,10 @@ describe("Vercel Node handler", () => {
 
 describe("Vercel function entry", () => {
   it("exists before the Vercel build starts", () => {
-    const entry = readFileSync("api/index.ts", "utf8");
+    const entry = readFileSync("api/index.js", "utf8");
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { scripts: Record<string, string> };
-    expect(entry).toContain('export { default } from "../src/server/vercel-handler.js"');
-    expect(pkg.scripts["build:api"]).not.toContain("api/index.js");
+    expect(entry.length).toBeGreaterThan(100_000);
+    expect(entry).toContain("vercel-handler");
+    expect(pkg.scripts["build:api"]).toContain("api/index.js");
   });
 });
