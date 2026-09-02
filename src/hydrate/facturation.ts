@@ -1,3 +1,4 @@
+import { applyAppChrome, setScIf } from "./app-chrome";
 import { guardSession } from "./session-guard";
 
 type ShopifyPublic = {
@@ -224,10 +225,16 @@ async function bindSettings(workspaceId: string, workspaceName: string) {
     if (res.ok || res.status === 204) location.assign("/connexion");
   });
 
-  bindIf(clickableFor("Invite member"), () => {
-    const modal = document.querySelector<HTMLElement>('sc-if[value="{{ inviteOpen }}"]');
-    if (modal) modal.style.display = "block";
-  });
+  const inviteModal = document.querySelector<HTMLElement>('sc-if[value="{{ inviteOpen }}"]');
+  setScIf(inviteModal, false);
+  const openInvite = () => setScIf(inviteModal, true);
+  const closeInvite = () => setScIf(inviteModal, false);
+  inviteModal?.querySelector(":scope > div > div")?.addEventListener("click", (e) => e.stopPropagation());
+  bindIf(clickableFor("Invite member"), openInvite);
+  bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ openInvite }}"]'), openInvite);
+  for (const el of document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ closeInvite }}"]')) {
+    bindIf(el, closeInvite);
+  }
 
   bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ invite }}"]'), async () => {
     const email = inviteMailInput()?.value.trim() ?? "";
@@ -237,9 +244,19 @@ async function bindSettings(workspaceId: string, workspaceName: string) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ email, role: selectedInviteRole(), workspaceId }),
     });
-    const modal = document.querySelector<HTMLElement>('sc-if[value="{{ inviteOpen }}"]');
-    if (modal) modal.style.display = "none";
+    closeInvite();
   });
+
+  for (const el of document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ r.onPick }}"]')) {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      for (const other of document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ r.onPick }}"]')) {
+        other.style.background = "transparent";
+      }
+      el.style.background = "#F1F0EC";
+    });
+  }
 }
 
 function paintBilling(billing: BillingPublic) {
@@ -279,6 +296,7 @@ function paintBilling(billing: BillingPublic) {
 export async function hydrateFacturation() {
   const me = await guardSession();
   if (!me) return;
+  applyAppChrome(me, "/facturation");
 
   let billing: BillingPublic | null = null;
   try {
@@ -297,6 +315,61 @@ export async function hydrateFacturation() {
   }
 
   await bindSettings(me.workspace.id, me.workspace.name);
+
+  const refLink = `${location.origin}/parrainage`;
+  bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ copyRef }}"]'), async () => {
+    try {
+      await navigator.clipboard.writeText(refLink);
+    } catch {
+      window.prompt("Lien de parrainage", refLink);
+    }
+  });
+  bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ openRef }}"]'), () => {
+    location.assign("/parrainage");
+  });
+
+  const annual = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ toggleAnnual }}"]');
+  let yearly = true;
+  annual?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    yearly = !yearly;
+    annual.style.background = yearly ? "#0084d1" : "#e5e5e5";
+  });
+
+  const setChat = (open: boolean) => {
+    setScIf(document.querySelector<HTMLElement>('sc-if[value="{{ chatClosed }}"]'), !open);
+    const opened = document.querySelector<HTMLElement>('sc-if[value="{{ chatOpen }}"]');
+    if (opened) opened.style.setProperty("display", open ? "flex" : "none", "important");
+  };
+  bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ openChat }}"]'), () => setChat(true));
+  bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ closeChat }}"]'), () => setChat(false));
+  bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ sendChat }}"]'), async () => {
+    const input = document.querySelector<HTMLInputElement>('input[sc-camel-on-change="{{ onChatInput }}"]');
+    const prompt = input?.value.trim() ?? "";
+    if (!prompt) return;
+    if (input) input.value = "";
+    location.assign(`/dashboard`);
+  });
+
+  bindIf(document.querySelector<HTMLElement>('[sc-camel-on-click="{{ stop }}"]'), () => {
+    setChat(false);
+  });
+  for (const sel of [
+    '[sc-camel-on-click="{{ it.onPick }}"]',
+    '[sc-camel-on-click="{{ m.onOpenRole }}"]',
+    '[sc-camel-on-click="{{ m.onRemove }}"]',
+    '[sc-camel-on-click="{{ o.onPick }}"]',
+    '[sc-camel-on-click="{{ row.onClick }}"]',
+    '[sc-camel-on-click="{{ c.onPick }}"]',
+  ]) {
+    document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+  }
 
   const bar = shopBar();
   const cta = ctaBox();

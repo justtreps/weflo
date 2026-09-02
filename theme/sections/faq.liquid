@@ -1,0 +1,29 @@
+<section class="wf-wrap wf-sec wf-faq">
+  <h2>{{ section.settings.heading | default: "Questions" }}</h2>
+  {% for block in section.blocks %}
+    <details>
+      <summary>{{ block.settings.heading }}</summary>
+      <p>{{ block.settings.text }}</p>
+    </details>
+  {% else %}
+    <details open>
+      <summary>{{ section.settings.heading | default: "Quand est-ce envoyé ?" }}</summary>
+      <p>{{ section.settings.text | default: "Sous 48h ouvrées, suivi par e-mail." }}</p>
+    </details>
+  {% endfor %}
+</section>
+{% schema %}
+{
+  "name": "FAQ",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" }
+  ],
+  "blocks": [
+    { "type": "item", "name": "Question", "settings": [
+      { "type": "text", "id": "heading", "label": "Question" },
+      { "type": "textarea", "id": "text", "label": "Réponse" }
+    ]}
+  ]
+}
+{% endschema %}

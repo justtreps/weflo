@@ -1,0 +1,30 @@
+<section class="wf-wrap wf-sec">
+  <h2>{{ section.settings.heading | default: "Pourquoi c'est mieux" }}</h2>
+  <div class="wf-grid">
+    {% for block in section.blocks %}
+      <article class="wf-card">
+        <h3>{{ block.settings.heading }}</h3>
+        <p>{{ block.settings.text }}</p>
+      </article>
+    {% else %}
+      <article class="wf-card"><h3>Livraison soignée</h3><p>{{ section.settings.text | default: "Préparé à la commande, suivi inclus." }}</p></article>
+      <article class="wf-card"><h3>Matières choisies</h3><p>Rien de superflu. Juste ce qui tient.</p></article>
+      <article class="wf-card"><h3>Retours simples</h3><p>14 jours pour changer d'avis.</p></article>
+    {% endfor %}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Benefits",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" }
+  ],
+  "blocks": [
+    { "type": "item", "name": "Avantage", "settings": [
+      { "type": "text", "id": "heading", "label": "Titre" },
+      { "type": "textarea", "id": "text", "label": "Texte" }
+    ]}
+  ]
+}
+{% endschema %}

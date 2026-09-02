@@ -1,4 +1,7 @@
-import { guardSession, type MeProfile } from "./session-guard";
+import { groupChips, paintChip } from "../lib/chips";
+import { filterPages, sortPages } from "../lib/page-filters";
+import { applyAppChrome, fillProfile, setScIf } from "./app-chrome";
+import { guardSession } from "./session-guard";
 import type { Page, PageType, Workspace } from "../types";
 
 const TYPE_LABEL: Record<PageType, string> = {
@@ -14,12 +17,6 @@ const DEFAULT_NAME: Record<PageType, string> = {
 };
 
 type PagesPayload = { workspace: Workspace; pages: Page[] };
-
-function byText(tag: string, text: string): HTMLElement | undefined {
-  return [...document.querySelectorAll(tag)].find((el) => el.textContent?.trim() === text) as
-    | HTMLElement
-    | undefined;
-}
 
 function formatEdited(iso: string): string {
   const then = new Date(iso).getTime();
@@ -57,8 +54,8 @@ function showToast(text: string, href?: string) {
 function setChatOpen(open: boolean) {
   const closed = document.querySelector<HTMLElement>('sc-if[value="{{ chatClosed }}"]');
   const opened = document.querySelector<HTMLElement>('sc-if[value="{{ chatOpen }}"]');
-  if (closed) closed.style.display = open ? "none" : "";
-  if (opened) opened.style.display = open ? "flex" : "none";
+  setScIf(closed, !open);
+  if (opened) opened.style.setProperty("display", open ? "flex" : "none", "important");
 }
 
 function appendChat(text: string, mine: boolean) {
@@ -75,22 +72,6 @@ function appendChat(text: string, mine: boolean) {
   list.appendChild(row);
 }
 
-function fillProfile(me: MeProfile) {
-  const userToggle = document.querySelector('[sc-camel-on-click="{{ toggleUser }}"]');
-  const userGrid = userToggle?.querySelector("div[style*='display: grid']");
-  const userSpans = userGrid?.querySelectorAll("span");
-  if (userSpans?.[0]) userSpans[0].textContent = me.name?.trim() || me.email;
-  if (userSpans?.[1]) userSpans[1].textContent = me.email;
-  const initial = userToggle?.querySelector<HTMLElement>("span[style*='PP Editorial']");
-  if (initial) initial.textContent = (me.name?.trim() || me.email).charAt(0).toUpperCase();
-
-  const wsToggle = document.querySelector('[sc-camel-on-click="{{ toggleWorkspace }}"]');
-  const wsGrid = wsToggle?.querySelector("div[style*='display: grid']");
-  const wsSpans = wsGrid?.querySelectorAll("span");
-  if (wsSpans?.[0]) wsSpans[0].textContent = me.workspace.name;
-  if (wsSpans?.[1]) wsSpans[1].textContent = `Espace ${me.workspace.name}`;
-}
-
 function previewUrl(workspace: Workspace, page: Page): string {
   return `${location.origin}/s/${workspace.slug}/${page.slug}`;
 }
@@ -102,18 +83,32 @@ async function json<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-async function createAndOpen(type: PageType) {
+function goEditor(pageId: string, prompt?: string) {
+  if (prompt) sessionStorage.setItem("weflo-canardo-prompt", prompt);
+  location.assign("/editeur?page=" + pageId);
+}
+
+async function createAndOpen(type: PageType, name = DEFAULT_NAME[type]) {
   const page = await json<Page>("/api/pages", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ type, name: DEFAULT_NAME[type] }),
+    body: JSON.stringify({ type, name }),
   });
-  location.assign("/editeur?page=" + page.id);
+  goEditor(page.id);
 }
+
+const CREATE_TYPE: Record<string, PageType> = {
+  "Page produit": "sell",
+  "Landing page": "sell",
+  "Page d'accueil": "blank",
+  Advertorial: "write",
+  "Article de blog": "write",
+  "Page vierge": "blank",
+};
 
 function bindCreateMenu() {
   const menu = document.querySelector<HTMLElement>('sc-if[value="{{ newPageOpen }}"]');
-  if (menu) menu.style.display = "none";
+  setScIf(menu, false);
   const cta = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onNewPage }}"]');
   cta?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -121,55 +116,22 @@ function bindCreateMenu() {
       void createAndOpen("sell");
       return;
     }
-    const open = menu.style.display !== "none" && menu.getAttribute("hidden") == null;
-    if (open && menu.style.display) {
-      menu.style.display = "none";
-    } else {
-      menu.removeAttribute("hidden");
-      menu.style.display = "block";
-    }
+    const open = menu.style.display !== "none";
+    setScIf(menu, !open);
   });
 
-  const bindList = (selector: string, type: PageType) => {
-    document.querySelector(selector)?.addEventListener("click", (e) => {
+  for (const el of menu?.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ opt.onClick }}"]') ?? []) {
+    const label = el.querySelector("span")?.textContent?.trim() ?? "";
+    const type = CREATE_TYPE[label];
+    if (!type) continue;
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      void createAndOpen(type);
+      void createAndOpen(type, label);
     });
-  };
-  bindList('sc-for[list="{{ sellItems }}"]', "sell");
-  bindList('sc-for[list="{{ writeItems }}"]', "write");
-  bindList('sc-for[list="{{ blankItems }}"]', "blank");
-}
-
-function bindLogout() {
-  const label = byText("span", "Se déconnecter");
-  label?.closest("div")?.addEventListener("click", async (e) => {
-    e.stopPropagation();
-    await fetch("/api/auth/logout", { method: "POST" });
-    location.assign("/connexion");
-  });
-}
-
-function bindNav() {
-  for (const el of document.querySelectorAll("span, a")) {
-    const t = el.textContent?.trim();
-    if (t === "Mon abonnement" || t === "Facturation") {
-      el.closest("div, a")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        location.assign("/facturation");
-      });
-    }
-    if (t === "Parrainage" || t === "Partager et gagner") {
-      const host = el.closest("a") ?? el.closest("div");
-      host?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        location.assign("/parrainage");
-      });
-    }
   }
 }
+
 
 function bindRow(rowEl: HTMLElement, page: Page, workspace: Workspace, reload: () => Promise<void>) {
   const cols = [...rowEl.children] as HTMLElement[];
@@ -294,7 +256,7 @@ function renderRows(pages: Page[], workspace: Workspace, reload: () => Promise<v
     list.appendChild(row);
   }
   const empty = document.querySelector<HTMLElement>('sc-if[value="{{ isEmpty }}"]');
-  if (empty) empty.style.display = pages.length ? "none" : "";
+  setScIf(empty, pages.length === 0);
 }
 
 function bindCanardo(getPages: () => Page[]) {
@@ -313,8 +275,8 @@ function bindCanardo(getPages: () => Page[]) {
   const sendBtn = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ sendChat }}"]');
   let sending = false;
 
-  const send = async () => {
-    const prompt = input?.value.trim() ?? "";
+  const sendPrompt = async (raw?: string) => {
+    const prompt = (raw ?? input?.value ?? "").trim();
     if (!prompt || sending) return;
     sending = true;
     appendChat(prompt, true);
@@ -328,18 +290,9 @@ function bindCanardo(getPages: () => Page[]) {
           body: JSON.stringify({ type: "sell", name: DEFAULT_NAME.sell }),
         });
       }
-      const res = await fetch(`/api/pages/${page.id}/canardo`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-      if (res.status === 402) {
-        showToast("Plus de crédits", "/facturation");
-        return;
-      }
-      if (!res.ok) return;
-      const body = (await res.json()) as { message: string };
-      appendChat(body.message, false);
+      goEditor(page.id, prompt);
+    } catch {
+      showToast("Impossible d'ouvrir l'éditeur");
     } finally {
       sending = false;
     }
@@ -350,7 +303,7 @@ function bindCanardo(getPages: () => Page[]) {
     (e) => {
       e.preventDefault();
       e.stopImmediatePropagation();
-      void send();
+      void sendPrompt();
     },
     true,
   );
@@ -360,27 +313,206 @@ function bindCanardo(getPages: () => Page[]) {
       if (e.key !== "Enter") return;
       e.preventDefault();
       e.stopImmediatePropagation();
-      void send();
+      void sendPrompt();
     },
     true,
   );
+  for (const el of document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ c.onPick }}"]')) {
+    const label = el.textContent?.trim() ?? "";
+    if (!label) continue;
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setChatOpen(true);
+      void sendPrompt(label);
+    });
+  }
+}
+
+function bindAnnouncement() {
+  const box = document.querySelector<HTMLElement>('sc-if[value="{{ showAnnouncement }}"]');
+  if (!box) return;
+  const slides = [
+    {
+      title: "Créer une boutique en parlant",
+      body: "Décris ce que tu vends, le canard monte la boutique et tu corriges une phrase à la fois.",
+      link: "Par où commencer",
+    },
+    {
+      title: "Les tests A/B sortent de bêta",
+      body: "Deux versions d'une page s'affrontent, le canard désigne la gagnante en trois jours.",
+      link: "Lire les notes",
+    },
+    {
+      title: "Le parrainage paie au mois",
+      body: "Chaque espace que tu amènes rapporte douze mois, tes liens déjà partagés compris.",
+      link: "Voir les conditions",
+    },
+  ];
+  const imgs = [...box.querySelectorAll("img")];
+  const titleEl = box.querySelector("p");
+  const bodyEl = titleEl?.nextElementSibling as HTMLElement | null;
+  const linkEl = bodyEl?.nextElementSibling as HTMLElement | null;
+  const countEl = [...box.querySelectorAll("span")].find((el) => /\d+\s*\/\s*\d+/.test(el.textContent ?? ""));
+  let index = 0;
+  const paint = () => {
+    const slide = slides[index % slides.length];
+    if (titleEl) titleEl.textContent = slide.title;
+    if (bodyEl) bodyEl.textContent = slide.body;
+    if (linkEl) linkEl.textContent = slide.link;
+    if (countEl) countEl.textContent = `${(index % slides.length) + 1} / ${slides.length}`;
+    imgs.forEach((img, i) => {
+      img.style.display = i === index % imgs.length ? "block" : "none";
+    });
+  };
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ annPrev }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    index = (index - 1 + slides.length) % slides.length;
+    paint();
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ annNext }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    index = (index + 1) % slides.length;
+    paint();
+  });
+  linkEl?.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (index % slides.length === 2) location.assign("/parrainage");
+    else {
+      void (async () => {
+        try {
+          const data = await json<PagesPayload>("/api/pages");
+          const page =
+            data.pages[0] ??
+            (await json<Page>("/api/pages", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ type: "sell", name: DEFAULT_NAME.sell }),
+            }));
+          goEditor(page.id);
+        } catch {
+          setChatOpen(true);
+        }
+      })();
+    }
+  });
+}
+
+function bindCoach() {
+  const coach = document.querySelector<HTMLElement>('sc-if[value="{{ coachOn }}"]');
+  setScIf(coach, false);
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ tutSkip }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    setScIf(coach, false);
+  });
 }
 
 export async function hydrateDashboard() {
   const me = await guardSession();
   if (!me) return;
-  fillProfile(me);
+  applyAppChrome(me, "/dashboard");
   bindCreateMenu();
-  bindLogout();
-  bindNav();
+  bindAnnouncement();
+  bindCoach();
 
   let pages: Page[] = [];
+  let workspace: Workspace = me.workspace;
+  let chip = "Tout";
+  let query = "";
+  let sortBy: "edited" | "name" | "type" = "edited";
+  let desc = true;
+  const groups = groupChips(document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ chip.onClick }}"]'));
+  paintChip(groups, chip, setScIf);
+
+  const hasQueryIf = document.querySelector<HTMLElement>('sc-if[value="{{ hasQuery }}"]');
+  const sortLabel = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ toggleSort }}"] span');
+  const dirLabel = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ toggleDirection }}"] span');
+
+  const paint = () => {
+    setScIf(hasQueryIf, query.trim().length > 0);
+    if (sortLabel) {
+      sortLabel.textContent =
+        sortBy === "name" ? "Nom" : sortBy === "type" ? "Type" : "Modifié récemment";
+    }
+    if (dirLabel) dirLabel.textContent = desc ? "Décroissant" : "Croissant";
+    const visible = sortPages(filterPages(pages, chip, query), sortBy, desc);
+    renderRows(visible, workspace, reload);
+  };
+
   const reload = async () => {
     const data = await json<PagesPayload>("/api/pages");
     pages = data.pages;
+    workspace = data.workspace;
     fillProfile({ ...me, workspace: data.workspace });
-    renderRows(data.pages, data.workspace, reload);
+    paint();
   };
+
+  for (const btn of document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ chip.onClick }}"]')) {
+    const label = btn.querySelector("span")?.textContent?.trim();
+    if (!label) continue;
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      chip = label;
+      paintChip(groups, chip, setScIf);
+      paint();
+    });
+  }
+
+  const search = document.querySelector<HTMLInputElement>('input[sc-camel-on-change="{{ onQuery }}"]');
+  search?.addEventListener("input", () => {
+    query = search.value;
+    paint();
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ clearQuery }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (search) search.value = "";
+    query = "";
+    paint();
+  });
+
+  const sortMenu = document.querySelector<HTMLElement>('sc-if[value="{{ sortOpen }}"]');
+  setScIf(sortMenu, false);
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ toggleSort }}"]')?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setScIf(sortMenu, sortMenu?.style.display === "none");
+  });
+  const applySort = (next: typeof sortBy, nextDesc = desc) => {
+    sortBy = next;
+    desc = nextDesc;
+    setScIf(sortMenu, false);
+    paint();
+  };
+  document.querySelector('[sc-camel-on-click="{{ sortByName }}"]')?.addEventListener("click", () => applySort("name"));
+  document.querySelector('[sc-camel-on-click="{{ sortByEdited }}"]')?.addEventListener("click", () => applySort("edited"));
+  document.querySelector('[sc-camel-on-click="{{ sortByType }}"]')?.addEventListener("click", () => applySort("type"));
+  document.querySelector('[sc-camel-on-click="{{ toggleDirection }}"]')?.addEventListener("click", () => {
+    applySort(sortBy, !desc);
+  });
+  const SORT_LABEL: Record<string, "edited" | "name" | "type"> = {
+    "Modifié récemment": "edited",
+    "Date de création": "edited",
+    Nom: "name",
+    Type: "type",
+  };
+  for (const el of sortMenu?.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ opt.onClick }}"]') ?? []) {
+    const label = el.querySelector("span")?.textContent?.trim() ?? "";
+    const next = SORT_LABEL[label];
+    if (!next) continue;
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      applySort(next);
+    });
+  }
+
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ closeAll }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    setScIf(sortMenu, false);
+    setScIf(document.querySelector<HTMLElement>('sc-if[value="{{ newPageOpen }}"]'), false);
+  });
 
   bindCanardo(() => pages);
   await reload();

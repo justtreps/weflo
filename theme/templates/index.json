@@ -1,0 +1,20 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "heading": "Des pages qui vendent",
+        "subheading": "Weflo",
+        "text": "Structure, copy et parcours d'achat, dès la première version.",
+        "button_label": "Voir la boutique"
+      }
+    },
+    "collection-grid": {
+      "type": "collection-grid",
+      "settings": {
+        "heading": "La sélection"
+      }
+    }
+  },
+  "order": ["hero", "collection-grid"]
+}

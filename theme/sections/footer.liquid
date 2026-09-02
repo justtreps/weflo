@@ -1,0 +1,12 @@
+<div class="wf-wrap wf-footer">
+  <span>{{ section.settings.heading | default: shop.name }}</span>
+  <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</span>
+</div>
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" }
+  ]
+}
+{% endschema %}

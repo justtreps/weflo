@@ -5,6 +5,10 @@ import { createEditorStore, type EditorState } from "../editor/ui/store";
 import { renderPublishPaywall } from "./publish-access";
 import { mountCanardo } from "../editor/ui/canardo";
 import { openPublishDialog, publishRequest, type PublishOptions } from "../editor/ui/publish-dialog";
+import { mountEditorGallery } from "./editor-gallery";
+import { buildModelDocument } from "../models/model-manifest";
+import { blankDocument } from "../lib/catalog";
+import { migrateDocument } from "../editor/migrate";
 
 export type VisualEditorPage = {
   id: string;
@@ -53,6 +57,23 @@ export async function hydrateVisualEditor(pageId: string): Promise<void> {
   if (response.status === 401) { location.assign("/connexion"); return; }
   if (!response.ok) { location.assign("/dashboard"); return; }
   const page = await response.json() as VisualEditorPage;
+  if (!page.document.modelId) {
+    document.body.style.margin = "0";
+    document.body.replaceChildren();
+    const galleryRoot = document.createElement("div");
+    document.body.appendChild(galleryRoot);
+    mountEditorGallery({
+      root: galleryRoot,
+      pageName: page.name,
+      async onPick(modelId) {
+        const nextDocument = modelId === "blank" ? migrateDocument(blankDocument(page.name), "landing") : buildModelDocument(modelId, page.name);
+        const save = await fetch(`/api/pages/${encodeURIComponent(page.id)}`, editorSaveRequest(nextDocument, page.documentVersion));
+        if (!save.ok) throw new Error("model save failed");
+        await hydrateVisualEditor(pageId);
+      },
+    });
+    return;
+  }
   const store = createEditorStore(visualEditorInitialState(page));
   document.documentElement.style.height = "100%";
   if (!document.querySelector('link[data-weflo-editor-css]')) {

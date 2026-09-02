@@ -1,0 +1,12 @@
+<div class="wf-wrap wf-header">
+  <a class="wf-logo" href="{{ routes.root_url }}">{{ shop.name }}</a>
+  <nav class="wf-nav">
+    <a href="{{ routes.root_url }}">Accueil</a>
+    <a href="{{ routes.all_products_collection_url }}">Boutique</a>
+    <a href="{{ pages.contact.url | default: routes.root_url }}">Contact</a>
+  </nav>
+  <a class="wf-cart" href="{{ routes.cart_url }}">Panier {{ cart.item_count }}</a>
+</div>
+{% schema %}
+{ "name": "Header", "settings": [] }
+{% endschema %}

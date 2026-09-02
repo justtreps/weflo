@@ -5,6 +5,7 @@ import type { EditorDocument } from "../editor/document";
 import { compileShopifyPage } from "../shopify/compiler";
 import { publishToShopify } from "../shopify/publisher";
 import type { ShopifyTheme } from "../shopify/themes";
+import { bindingForDocument } from "../shopify/page-binding";
 
 export const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION?.trim() || "2026-07";
 
@@ -122,9 +123,10 @@ export function createShopifyPort(): ShopifyPort {
         writeFile: async (themeId: string, key: string, value: string) => { await admin(input.shop, input.token, `/themes/${themeId}/assets.json`, { method: "PUT", body: JSON.stringify({ asset: { key, value } }) }); },
         deleteFile: async (themeId: string, key: string) => { await admin(input.shop, input.token, `/themes/${themeId}/assets.json?asset[key]=${encodeURIComponent(key)}`, { method: "DELETE" }); },
         bindResource: async (_themeId: string, templateSuffix: string) => {
-          if (document.kind === "product" && document.shopify?.productId) {
-            await admin(input.shop, input.token, `/products/${document.shopify.productId}.json`, { method: "PUT", body: JSON.stringify({ product: { id: document.shopify.productId, template_suffix: templateSuffix } }) });
-            return { resourceId: document.shopify.productId };
+          const binding = bindingForDocument(document, templateSuffix);
+          if (!binding.create && binding.resourceId) {
+            await admin(input.shop, input.token, `/${binding.resource}s/${binding.resourceId}.json`, { method: "PUT", body: JSON.stringify({ [binding.resource]: { id: binding.resourceId, template_suffix: templateSuffix } }) });
+            return { resourceId: binding.resourceId };
           }
           const payload = await admin(input.shop, input.token, "/pages.json", { method: "POST", body: JSON.stringify({ page: { title: input.pageName, body_html: `<div data-wf-page="${document.modelId ?? "page"}"></div>`, published: true, template_suffix: templateSuffix } }) });
           const page = payload?.page as { id?: unknown } | undefined;

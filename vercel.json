@@ -1,7 +1,11 @@
 {
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/", "destination": "/api" },
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/s/(.*)", "destination": "/api" }
   ]

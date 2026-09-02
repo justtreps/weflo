@@ -1,0 +1,23 @@
+<section class="wf-wrap wf-sec">
+  <h2>{{ section.settings.heading | default: collections.all.title | default: "La sélection" }}</h2>
+  <div class="wf-grid">
+    {% for product in collections.all.products limit: 6 %}
+      <a class="wf-card" href="{{ product.url }}">
+        {%- if product.featured_image -%}{{ product.featured_image | image_url: width: 800 | image_tag }}{%- endif -%}
+        <h3>{{ product.title }}</h3>
+        <p>{{ product.price | money }}</p>
+      </a>
+    {% else %}
+      <article class="wf-card"><h3>{{ section.settings.heading }}</h3><p>{{ section.settings.text }}</p></article>
+    {% endfor %}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Collection grid",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" }
+  ]
+}
+{% endschema %}

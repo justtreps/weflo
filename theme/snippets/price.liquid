@@ -1,0 +1,5 @@
+{%- if product.selected_or_first_available_variant -%}
+  <span class="wf-price">{{ product.selected_or_first_available_variant.price | money }}</span>
+{%- elsif settings_price != blank -%}
+  <span class="wf-price">{{ settings_price }}</span>
+{%- endif -%}

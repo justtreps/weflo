@@ -1,0 +1,8 @@
+{
+  "sections": {
+    "hero": { "type": "hero", "settings": {} },
+    "article": { "type": "article", "settings": {} },
+    "cta": { "type": "cta", "settings": {} }
+  },
+  "order": ["hero", "article", "cta"]
+}

@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "product-hero": { "type": "product-hero", "settings": {} },
+    "benefits": { "type": "benefits", "settings": {} },
+    "bundle": { "type": "bundle", "settings": {} },
+    "guarantees": { "type": "guarantees", "settings": {} },
+    "reviews": { "type": "reviews", "settings": {} },
+    "faq": { "type": "faq", "settings": {} },
+    "cta": { "type": "cta", "settings": {} }
+  },
+  "order": ["product-hero", "benefits", "bundle", "guarantees", "reviews", "faq", "cta"]
+}

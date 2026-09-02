@@ -1,0 +1,22 @@
+<section class="wf-wrap wf-hero">
+  <div class="wf-media">
+    {%- if section.settings.image != blank -%}
+      <img src="{{ section.settings.image }}" alt="{{ section.settings.heading | escape }}">
+    {%- endif -%}
+  </div>
+  <div>
+    <p class="wf-kicker">Atelier</p>
+    <h2 class="wf-title">{{ section.settings.heading | default: "Fait ici" }}</h2>
+    <p class="wf-lead">{{ section.settings.text }}</p>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Atelier",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" },
+    { "type": "text", "id": "image", "label": "Image URL" }
+  ]
+}
+{% endschema %}

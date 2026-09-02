@@ -1,0 +1,17 @@
+<section class="wf-wrap wf-sec">
+  <div class="wf-cta">
+    <h2>{{ section.settings.heading | default: "Prêt à commander" }}</h2>
+    <p>{{ section.settings.text }}</p>
+    <a class="wf-btn wf-btn--gold" href="{{ routes.all_products_collection_url }}">{{ section.settings.button_label | default: "Voir la boutique" }}</a>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "CTA",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" },
+    { "type": "text", "id": "button_label", "label": "Bouton" }
+  ]
+}
+{% endschema %}

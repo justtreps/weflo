@@ -7,4 +7,5 @@ node_modules/
 .dev.vars
 dist/
 public/hydrate/
+api/index.js
 .worktrees/

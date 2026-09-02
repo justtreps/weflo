@@ -1,0 +1,27 @@
+<section class="wf-wrap wf-hero">
+  <div>
+    <p class="wf-kicker">{{ section.settings.subheading }}</p>
+    <h1 class="wf-title">{{ section.settings.heading | default: shop.name }}</h1>
+    <p class="wf-lead">{{ section.settings.text }}</p>
+    {%- if section.settings.button_label != blank -%}
+      <a class="wf-btn wf-btn--gold" href="{{ routes.all_products_collection_url }}">{{ section.settings.button_label }}</a>
+    {%- endif -%}
+  </div>
+  <div class="wf-media">
+    {%- if section.settings.image != blank -%}
+      <img src="{{ section.settings.image }}" alt="{{ section.settings.heading | escape }}">
+    {%- endif -%}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "text", "id": "subheading", "label": "Sous-titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" },
+    { "type": "text", "id": "image", "label": "Image URL" },
+    { "type": "text", "id": "button_label", "label": "Bouton" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,17 @@
+<section class="wf-wrap wf-sec">
+  <h2>{{ section.settings.heading | default: "Garanties" }}</h2>
+  <div class="wf-grid">
+    <article class="wf-card"><h3>Paiement sécurisé</h3><p>Shopify Payments, 3-D Secure.</p></article>
+    <article class="wf-card"><h3>Satisfait ou remboursé</h3><p>{{ section.settings.text | default: "14 jours, sans justification." }}</p></article>
+    <article class="wf-card"><h3>Support humain</h3><p>Une vraie personne, pas un ticket perdu.</p></article>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Guarantees",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" }
+  ]
+}
+{% endschema %}

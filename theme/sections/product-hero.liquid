@@ -1,0 +1,36 @@
+<section class="wf-wrap wf-product">
+  <div class="wf-media">
+    {%- if section.settings.image != blank -%}
+      <img src="{{ section.settings.image }}" alt="{{ section.settings.heading | escape }}">
+    {%- elsif product.featured_image -%}
+      {{ product.featured_image | image_url: width: 1400 | image_tag }}
+    {%- endif -%}
+  </div>
+  <div>
+    <p class="wf-kicker">{{ section.settings.subheading }}</p>
+    <h1 class="wf-title">{{ section.settings.heading | default: product.title }}</h1>
+    <p class="wf-lead">{{ section.settings.text | default: product.description }}</p>
+    {% render 'price', product: product, settings_price: section.settings.price %}
+    {%- if product -%}
+      <form data-weflo-add action="{{ routes.cart_add_url }}" method="post">
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <button class="wf-btn" type="submit">{{ section.settings.button_label | default: "Ajouter au panier" }}</button>
+      </form>
+    {%- else -%}
+      <a class="wf-btn" href="#acheter">{{ section.settings.button_label | default: "Acheter" }}</a>
+    {%- endif -%}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Product hero",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "text", "id": "subheading", "label": "Sous-titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" },
+    { "type": "text", "id": "price", "label": "Prix" },
+    { "type": "text", "id": "image", "label": "Image URL" },
+    { "type": "text", "id": "button_label", "label": "Bouton" }
+  ]
+}
+{% endschema %}

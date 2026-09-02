@@ -50,6 +50,10 @@ describe("Shopify connect and publish", () => {
       workspaceId: ws.id, name: "Home", slug: "home", type: "sell",
       status: "draft", document: initialDocument("Home", "sell"),
     });
+    await store.saveWhop({
+      workspaceId: ws.id, membershipId: "mem_1", planId: "pro", status: "active",
+      manageUrl: null, affiliateId: null,
+    });
     let rolled = false;
     const app = createApp({
       store,

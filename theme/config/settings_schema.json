@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Weflo",
+    "theme_version": "1.0.0",
+    "theme_author": "Weflo",
+    "theme_documentation_url": "https://weflo.app",
+    "theme_support_url": "https://weflo.app"
+  },
+  {
+    "name": "Couleurs",
+    "settings": [
+      { "type": "color", "id": "color_ink", "label": "Encre", "default": "#141310" },
+      { "type": "color", "id": "color_paper", "label": "Papier", "default": "#faf9f5" },
+      { "type": "color", "id": "color_gold", "label": "Or", "default": "#fbc531" }
+    ]
+  }
+]

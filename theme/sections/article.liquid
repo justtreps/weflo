@@ -1,0 +1,13 @@
+<article class="wf-wrap wf-article">
+  <h1 class="wf-title">{{ section.settings.heading | default: page.title | default: article.title }}</h1>
+  <div class="wf-lead">{{ section.settings.text }}</div>
+</article>
+{% schema %}
+{
+  "name": "Article",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "richtext", "id": "text", "label": "Corps" }
+  ]
+}
+{% endschema %}

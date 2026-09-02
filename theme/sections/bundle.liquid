@@ -1,0 +1,17 @@
+<section class="wf-wrap wf-sec">
+  <div class="wf-card">
+    <h2>{{ section.settings.heading | default: "Le pack" }}</h2>
+    <p>{{ section.settings.text }}</p>
+    {%- if section.settings.price != blank -%}<p class="wf-price">{{ section.settings.price }}</p>{%- endif -%}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Bundle",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre" },
+    { "type": "textarea", "id": "text", "label": "Texte" },
+    { "type": "text", "id": "price", "label": "Prix" }
+  ]
+}
+{% endschema %}

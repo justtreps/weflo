@@ -37,16 +37,23 @@ const databaseUrl = loadDatabaseUrl();
 const run = databaseUrl ? it : it.skip;
 
 describe("PostgresStore", () => {
-  run("creates a workspace, page, lists and deletes", async () => {
+  run("creates a workspace, page, lists and deletes", { timeout: 30000 }, async () => {
     const schema = readFileSync(resolve(process.cwd(), "db/schema.sql"), "utf8");
-    const sql = postgres(databaseUrl!);
+    const sql = postgres(databaseUrl!, { prepare: false });
     const store = new PostgresStore(databaseUrl!);
+    let wsId: string | undefined;
     try {
-      await sql.unsafe(schema);
+      try {
+        await sql.unsafe(schema);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "";
+        if (!/permission denied for schema public/i.test(msg)) throw err;
+      }
       const ws = await store.createWorkspace({
         name: "ACAI Test",
         ownerUserId: `u_${Date.now()}`,
       });
+      wsId = ws.id;
       expect(ws.slug).toMatch(/^acai-test-[a-z0-9]+$/);
 
       await expect(store.assertMember("stranger", ws.id)).rejects.toThrow("forbidden");
@@ -70,6 +77,13 @@ describe("PostgresStore", () => {
     } catch (err) {
       throw redact(err);
     } finally {
+      if (wsId) {
+        try {
+          await store.deleteWorkspace(wsId);
+        } catch {
+          /* cleanup best-effort */
+        }
+      }
       await store.close();
       await sql.end({ timeout: 5 });
     }

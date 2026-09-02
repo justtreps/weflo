@@ -1,0 +1,25 @@
+<section class="wf-wrap wf-sec">
+  <h1 class="wf-title">Panier</h1>
+  {%- if cart.item_count == 0 -%}
+    <p>Ton panier est vide.</p>
+    <a class="wf-btn" href="{{ routes.all_products_collection_url }}">Continuer</a>
+  {%- else -%}
+    <form action="{{ routes.cart_url }}" method="post">
+      {% for item in cart.items %}
+        <div class="wf-card" style="margin-bottom:12px;display:flex;justify-content:space-between;gap:16px">
+          <div>
+            <strong>{{ item.product.title }}</strong>
+            <p>{{ item.final_line_price | money }}</p>
+          </div>
+          <input type="number" name="updates[]" value="{{ item.quantity }}" min="0">
+        </div>
+      {% endfor %}
+      <p class="wf-price">{{ cart.total_price | money }}</p>
+      <button class="wf-btn" name="update" type="submit">Mettre à jour</button>
+      <button class="wf-btn wf-btn--gold" name="checkout" type="submit">Payer</button>
+    </form>
+  {%- endif -%}
+</section>
+{% schema %}
+{ "name": "Cart", "settings": [] }
+{% endschema %}
