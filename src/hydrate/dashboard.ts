@@ -566,6 +566,7 @@ export async function hydrateDashboard() {
   });
 
   bindCanardo(() => pages);
+  mountHome();
   await reload();
 }
 

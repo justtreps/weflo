@@ -1,6 +1,12 @@
 @import "./maquette-dashboard.css";
 body:has(#weflo-dashboard-home:not(:empty))>x-dc{display:none!important}
 #weflo-dashboard-home{min-height:100vh}
+#weflo-dashboard-home .dashboard-boot{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;background:#f8f8f5;color:#6f6c65;font:500 13px/1.4 Inter,Arial,sans-serif}
+#weflo-dashboard-home .dashboard-boot__mark{color:#141310;font:700 30px/1 Syne,Inter,sans-serif;letter-spacing:-.07em}
+#weflo-dashboard-home .dashboard-boot__mark span{color:#f5be24}
+#weflo-dashboard-home .dashboard-boot__pulse{width:78px;height:3px;overflow:hidden;border-radius:999px;background:#e4e2dc;position:relative}
+#weflo-dashboard-home .dashboard-boot__pulse:after{content:"";position:absolute;inset:0;width:36%;border-radius:inherit;background:#f5be24;animation:dashboard-boot 1s ease-in-out infinite alternate}
+@keyframes dashboard-boot{from{transform:translateX(-5%)}to{transform:translateX(185%)}}
 #weflo-dashboard-home .project-preview{width:100%;padding:0;text-align:inherit;cursor:pointer}
 #weflo-dashboard-home .project-menu{position:relative}
 #weflo-dashboard-home .project-menu summary{list-style:none;cursor:pointer;padding:7px}
