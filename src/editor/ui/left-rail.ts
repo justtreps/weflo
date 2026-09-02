@@ -7,10 +7,15 @@ import { pagesPanel } from "./panels/pages";
 import { structurePanel } from "./panels/structure";
 import type { EditorPanel, EditorState, EditorStore } from "./store";
 import { getSectionDefinition } from "../../sections/index";
+import { materializeSectionVariant } from "../../section-preview/materialize";
+import { sectionCatalogMarkup } from "./section-catalog";
+import { openSectionPreviewDialog } from "./section-preview-dialog";
+import "./section-catalog.css";
 
 export type PanelAction =
   | { action: "select" | "toggleHidden" | "toggleLocked"; sectionId: string }
   | { action: "insert"; sectionType: string }
+  | { action: "insertVariant"; sectionType: string; variantId: string }
   | { action: "selectPage"; pageId: string }
   | { action: "addPage"; name: string }
   | { action: "addAsset"; asset: AssetReference }
@@ -78,12 +83,53 @@ export function runPanelAction(store: EditorStore, action: PanelAction): void {
     store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section });
     store.setState({ selectedId: section.id, activePanel: "structure", rightCollapsed: false });
   }
+  if (action.action === "insertVariant") {
+    const page = state.document.pages.find((item) => item.id === state.pageId) ?? state.document.pages[0];
+    const selectedIndex = page.sections.findIndex((section) => section.id === state.selectedId);
+    const used = new Set(state.document.pages.flatMap((item) => item.sections.map((section) => section.id)));
+    let suffix = 1;
+    while (used.has(`${action.sectionType}-${suffix}`)) suffix += 1;
+    const result = materializeSectionVariant({ document: state.document, sectionType: action.sectionType, variantId: action.variantId, sectionId: `${action.sectionType}-${suffix}` });
+    store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section: result.section });
+    store.setState({ selectedId: result.section.id, activePanel: "structure", rightCollapsed: false });
+  }
 }
 
 export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void {
   const click = (event: Event) => {
-    const target = (event.target as HTMLElement).closest<HTMLElement>("[data-editor-panel-button],[data-panel-action]");
+    const target = (event.target as HTMLElement).closest<HTMLElement>("[data-editor-panel-button],[data-panel-action],[data-section-preview-open],[data-section-variant-insert],[data-catalog-filter],[data-catalog-viewport]");
     if (!target) return;
+    const variantInsert = target.dataset.sectionVariantInsert;
+    if (variantInsert) {
+      const [sectionType, variantId] = variantInsert.split(":");
+      if (sectionType && variantId) runPanelAction(store, { action:"insertVariant", sectionType, variantId });
+      return;
+    }
+    const previewOpen = target.dataset.sectionPreviewOpen;
+    if (previewOpen) {
+      const [sectionType, variantId] = previewOpen.split(":");
+      if (sectionType && variantId) openSectionPreviewDialog({ sectionType, variantId, fixtureId:"", trigger:target, onInsert:(type,variant)=>runPanelAction(store,{action:"insertVariant",sectionType:type,variantId:variant}) });
+      return;
+    }
+    if (target.dataset.catalogViewport) {
+      const catalog=target.closest<HTMLElement>("[data-section-catalog]");
+      const viewport=target.dataset.catalogViewport as "desktop"|"mobile";
+      if (!catalog) return;
+      catalog.dataset.catalogViewport=viewport;
+      catalog.querySelectorAll<HTMLElement>("[data-catalog-viewport]").forEach((button)=>button.setAttribute("aria-pressed",String(button===target)));
+      catalog.querySelectorAll<HTMLImageElement>("img[data-preview-desktop]").forEach((image)=>{image.src=viewport==="mobile"?image.dataset.previewMobile??image.src:image.dataset.previewDesktop??image.src;});
+      return;
+    }
+    if (target.dataset.catalogFilter !== undefined) {
+      const catalog=target.closest<HTMLElement>("[data-section-catalog]");
+      if (!catalog) return;
+      const category=target.dataset.catalogFilter || undefined;
+      catalog.dataset.catalogCategory=category??"";
+      catalog.querySelectorAll<HTMLElement>("[data-catalog-filter]").forEach((button)=>button.setAttribute("aria-pressed",String(button===target)));
+      const grid=catalog.querySelector<HTMLElement>("[data-section-catalog-grid]");
+      if (grid) grid.innerHTML=sectionCatalogMarkup({category,viewport:(catalog.dataset.catalogViewport as "desktop"|"mobile")||"desktop"});
+      return;
+    }
     const panel = target.dataset.editorPanelButton as EditorPanel | undefined;
     if (panel) return activateEditorPanel(store, panel);
     const action = target.dataset.panelAction;

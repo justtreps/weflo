@@ -44,6 +44,14 @@ describe("editor left rail", () => {
     expect(editor.getState().saveStatus).toBe("modified");
   });
 
+  it("inserts a selected premium variant without preview-only data", () => {
+    const editor = store();
+    runPanelAction(editor, { action: "insertVariant", sectionType: "productHero", variantId: "beauty-editorial" });
+    const inserted = editor.getState().document.pages[0].sections.find((section) => section.settings.variant === "beauty-editorial");
+    expect(inserted?.type).toBe("productHero");
+    expect(JSON.stringify(inserted)).not.toMatch(/previewOnly|aurea-serum/);
+  });
+
   it("explains how to connect Shopify when commerce is unavailable", () => {
     const editor = store();
     activateEditorPanel(editor, "commerce");
