@@ -54,4 +54,21 @@ describe("static routes", () => {
     expect((await app.request("/mascottes")).status).toBe(200);
     expect((await app.request("/maquettes")).status).toBe(200);
   });
+
+  it("returns JSON for unexpected API failures", async () => {
+    const app = createApp({
+      store: { createOnboardingDraft: async () => { throw new Error("database unavailable"); } } as never,
+      session: async () => null,
+      productFetch: { fetch: async () => { throw new Error("not reached"); } },
+    });
+    const response = await app.request("/api/onboarding/import", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sourceUrl: "https://example.com/product" }),
+    });
+
+    expect(response.status).toBe(500);
+    expect(response.headers.get("content-type")).toContain("application/json");
+    expect(await response.json()).toEqual({ error: "internal_error", message: "Le serveur a rencontré une erreur. Réessaie dans un instant." });
+  });
 });

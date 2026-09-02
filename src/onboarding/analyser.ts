@@ -1,7 +1,11 @@
 import type { BuyerPersona, ImportedProduct, MarketingAngle } from "./types";
 
 export type OnboardingAnalysis = { brandNames: string[]; personas: BuyerPersona[]; angles: MarketingAngle[] };
-export type OnboardingAiPort = { analyse(input: { product: ImportedProduct; language: string }): Promise<OnboardingAnalysis> };
+export type ImageOnboardingAnalysis = { product: ImportedProduct; analysis: OnboardingAnalysis };
+export type OnboardingAiPort = {
+  analyse(input: { product: ImportedProduct; language: string }): Promise<OnboardingAnalysis>;
+  analyseImage?(input: { imageDataUrl: string; fileName: string; language: string }): Promise<ImageOnboardingAnalysis>;
+};
 
 function clean(value: unknown, max = 180): string { return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : ""; }
 function tags(value: unknown): string[] { return Array.isArray(value) ? value.map((tag) => clean(tag, 24)).filter(Boolean).slice(0, 4) : []; }

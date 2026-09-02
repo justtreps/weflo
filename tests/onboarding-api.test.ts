@@ -44,4 +44,56 @@ describe("anonymous onboarding API", () => {
     const app = createApp({ store: new MemoryStore(), session: async () => null });
     expect((await app.request("/api/onboarding/unknown")).status).toBe(401);
   });
+
+  it("returns a useful error when product extraction exceeds its deadline", async () => {
+    const app = createApp({
+      store: new MemoryStore(),
+      session: async () => null,
+      productFetch: { fetch: async () => new Promise(() => undefined) },
+      onboardingImportTimeoutMs: 5,
+    });
+
+    const result = await Promise.race([
+      app.request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: product.sourceUrl }) }),
+      new Promise<"hung">((resolve) => setTimeout(() => resolve("hung"), 100)),
+    ]);
+
+    expect(result).not.toBe("hung");
+    expect(result).toBeInstanceOf(Response);
+    const response = result as Response;
+    expect(response.status).toBe(422);
+    expect((await response.json()).message).toMatch(/temps|réess/i);
+  });
+
+  it("starts the same onboarding flow from a product image", async () => {
+    const store = new MemoryStore();
+    const imageDataUrl = "data:image/png;base64,iVBORw0KGgo=";
+    const app = createApp({
+      store,
+      session: async () => null,
+      onboardingAi: {
+        analyse: async () => { throw new Error("not used"); },
+        analyseImage: async ({ imageDataUrl: received }: { imageDataUrl: string }) => ({
+          product: { ...product, sourceUrl: "https://image.weflo.local/lampe.png", title: "Lampe murale magnétique", images: [received] },
+          analysis: {
+            brandNames: ["Lumia", "Halo", "Noma", "Éclat", "Aura", "Sora", "Néon", "Maison Lumi"],
+            personas: Array.from({ length: 4 }, (_, index) => ({ id: `p-${index}`, title: `Persona ${index}`, insight: "Besoin identifié", icon: "✨", tags: [], selected: index === 0 })),
+            angles: Array.from({ length: 4 }, (_, index) => ({ id: `a-${index}`, title: `Angle ${index}`, description: "Bénéfice identifié", icon: "✨", tags: [], selected: index === 0 })),
+          },
+        }),
+      } as never,
+    });
+
+    const response = await app.request("/api/onboarding/import-image", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ imageDataUrl, fileName: "lampe.png", language: "fr" }),
+    });
+
+    expect(response.status).toBe(201);
+    const body = await response.json();
+    expect(body.draft.product).toMatchObject({ title: "Lampe murale magnétique", images: [imageDataUrl] });
+    expect(body.draft.personas).toHaveLength(4);
+    expect(body.claimToken).toBeTruthy();
+  });
 });

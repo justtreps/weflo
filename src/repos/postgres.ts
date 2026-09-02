@@ -40,6 +40,9 @@ function isUniqueViolation(err: unknown): boolean {
   return typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "23505";
 }
 
+const ONBOARDING_WORKSPACE_ID = "ws_weflo_onboarding";
+const ONBOARDING_WORKSPACE_SLUG = "weflo-system-onboarding";
+
 export class PostgresStore implements Store {
   private sql: postgres.Sql;
 
@@ -420,19 +423,30 @@ export class PostgresStore implements Store {
     return null;
   }
 
+  private async ensureOnboardingWorkspace(): Promise<void> {
+    await this.sql`
+      insert into workspaces (id, name, slug, owner_user_id, created_at)
+      values (${ONBOARDING_WORKSPACE_ID}, ${"Weflo Onboarding"}, ${ONBOARDING_WORKSPACE_SLUG}, ${"system:weflo"}, ${new Date().toISOString()})
+      on conflict (id) do nothing
+    `;
+  }
+
   async createOnboardingDraft(input: CreateOnboardingDraftInput): Promise<OnboardingDraft> {
     const now = new Date().toISOString();
     const draft: OnboardingDraft = { ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now };
+    await this.ensureOnboardingWorkspace();
     await this.sql`
-      insert into onboarding_drafts (id, claim_token_hash, status, payload, created_at, updated_at)
-      values (${draft.id}, ${draft.claimTokenHash}, ${draft.status}, ${this.sql.json(draft as never)}, ${draft.createdAt}, ${draft.updatedAt})
+      insert into pages (id, workspace_id, name, slug, type, status, document, updated_at)
+      values (${draft.id}, ${ONBOARDING_WORKSPACE_ID}, ${"Brouillon d’onboarding"}, ${draft.id}, ${"onboarding"}, ${draft.status}, ${this.sql.json(draft as never)}, ${draft.updatedAt})
     `;
     return draft;
   }
 
   async getOnboardingDraft(id: string): Promise<OnboardingDraft | null> {
     const rows = await this.sql<{ payload: OnboardingDraft }[]>`
-      select payload from onboarding_drafts where id = ${id}
+      select document as payload
+      from pages
+      where id = ${id} and workspace_id = ${ONBOARDING_WORKSPACE_ID} and type = ${"onboarding"}
     `;
     return rows[0]?.payload ? structuredClone(rows[0].payload) : null;
   }
@@ -442,9 +456,9 @@ export class PostgresStore implements Store {
     if (!draft) throw new Error("onboarding draft not found");
     const updated: OnboardingDraft = { ...draft, ...structuredClone(patch), updatedAt: new Date().toISOString() };
     const rows = await this.sql<{ id: string }[]>`
-      update onboarding_drafts
-      set status = ${updated.status}, payload = ${this.sql.json(updated as never)}, updated_at = ${updated.updatedAt}
-      where id = ${id}
+      update pages
+      set status = ${updated.status}, document = ${this.sql.json(updated as never)}, updated_at = ${updated.updatedAt}
+      where id = ${id} and workspace_id = ${ONBOARDING_WORKSPACE_ID} and type = ${"onboarding"}
       returning id
     `;
     if (!rows.length) throw new Error("onboarding draft not found");

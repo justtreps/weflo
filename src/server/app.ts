@@ -32,6 +32,8 @@ export type AppDeps = {
   deleteUser?: (userId: string) => Promise<void>;
   productFetch?: ProductFetchPort;
   onboardingAi?: OnboardingAiPort;
+  onboardingImportTimeoutMs?: number;
+  onboardingAiTimeoutMs?: number;
   imageEdit?: ImageEditPort;
 };
 
@@ -61,6 +63,14 @@ const htmlRoutes: Record<string, string> = {
 
 export function createApp(deps: AppDeps) {
   const app = new Hono();
+
+  app.onError((error, c) => {
+    console.error(error);
+    if (c.req.path.startsWith("/api/")) {
+      return c.json({ error: "internal_error", message: "Le serveur a rencontré une erreur. Réessaie dans un instant." }, 500);
+    }
+    return c.text("Internal Server Error", 500);
+  });
 
   for (const [route, file] of Object.entries(htmlRoutes)) {
     app.get(route, async (c) => {

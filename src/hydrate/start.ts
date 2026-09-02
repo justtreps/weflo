@@ -1,6 +1,7 @@
 import "./start.css";
 import "./start-brands.css";
 import type { OnboardingDraft } from "../onboarding/types";
+import { fetchWithDeadline, readApiJson } from "./onboarding-request";
 
 type PublicDraft = Omit<OnboardingDraft, "claimTokenHash">;
 type SavedState = { draft: PublicDraft; claimToken: string; step: number };
@@ -18,6 +19,7 @@ const models = [
 let state: SavedState | null = load();
 let step = state?.step ?? 0;
 let busy = false;
+let busyMessage = "Importation…";
 let error = "";
 let authOpen = false;
 let signup = true;
@@ -47,7 +49,40 @@ function shell(content: string, narrow = false): string {
 function actions(label = "Continuer", back = true): string { return `<div class="ob__actions">${back ? '<button class="secondary" data-action="back">← Retour</button>' : ""}<button class="primary" data-action="next">${e(label)}</button></div>`; }
 
 function sourceScreen(): string {
-  return shell(`<h1 class="ob__title">Quel produit veux-tu vendre ?</h1><p class="ob__lead">Colle le lien d’un fournisseur, d’une boutique ou d’un concurrent.</p><div class="ob__sources">${sources.map(([id, name, logo]) => `<span class="source source--${id}" title="${name}"><img src="${logo}" alt="${name}"></span>`).join("")}<span class="source source--other" title="Autre site" aria-label="Autre site">↗</span></div><form class="url-form" id="url-form"><div class="url-wrap"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input name="url" type="url" required autocomplete="url" placeholder="https://www.aliexpress.com/item/…" aria-label="Lien du produit"><button type="submit" ${busy ? "disabled" : ""}>${busy ? "Importation…" : "Continuer"}</button></div>${error ? `<p class="field-error">${e(error)}</p>` : ""}<p class="ob__hint">Amazon, AliExpress, Shopify, Etsy, Temu et la plupart des pages produit publiques sont compatibles.</p></form>`, true);
+  return shell(`<h1 class="ob__title">Quel produit veux-tu vendre ?</h1><p class="ob__lead">Colle le lien d’un fournisseur, d’une boutique ou d’un concurrent.</p><div class="ob__sources">${sources.map(([id, name, logo]) => `<span class="source source--${id}" title="${name}"><img src="${logo}" alt="${name}"></span>`).join("")}<span class="source source--other" title="Autre site" aria-label="Autre site">↗</span></div><form class="url-form" id="url-form"><div class="url-wrap"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input name="url" type="url" required autocomplete="url" placeholder="https://www.aliexpress.com/item/…" aria-label="Lien du produit"><button type="submit" ${busy ? "disabled" : ""}>${busy ? e(busyMessage) : "Continuer"}</button></div><p class="ob__hint">Amazon, AliExpress, Shopify, Etsy, Temu et la plupart des pages produit publiques sont compatibles.</p><div class="import-divider"><span>ou</span></div><label class="image-import${busy ? " is-disabled" : ""}" for="product-image"><span class="image-import__icon">＋</span><span><strong>Importer directement une image</strong><small>PNG, JPG ou WebP · Weflo l’analyse et l’optimise automatiquement</small></span><input id="product-image" type="file" accept="image/png,image/jpeg,image/webp" ${busy ? "disabled" : ""}></label>${error ? `<p class="field-error">${e(error)}</p>` : ""}</form>`, true);
+}
+
+function readFile(file: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("Impossible de lire cette image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function optimizeImage(file: File): Promise<string> {
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) throw new Error("Choisis une image PNG, JPG ou WebP.");
+  if (file.size > 12_000_000) throw new Error("Cette image dépasse 12 Mo. Choisis une image plus légère.");
+  const original = await readFile(file);
+  if (file.size <= 300_000) return original;
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Ton navigateur ne peut pas optimiser cette image.");
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const compressed = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/webp", 0.78));
+  if (!compressed) throw new Error("Impossible d’optimiser cette image.");
+  if (compressed.size > 450_000) {
+    const smaller = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.62));
+    if (!smaller || smaller.size > 450_000) throw new Error("Cette image reste trop volumineuse après optimisation.");
+    return readFile(smaller);
+  }
+  return readFile(compressed);
 }
 
 function languageScreen(): string {
@@ -98,7 +133,7 @@ function render(): void {
 async function patchDraft(patch: Record<string, unknown>): Promise<void> {
   if (!state) return;
   const response = await fetch(`/api/onboarding/${state.draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": state.claimToken }, body: JSON.stringify(patch) });
-  const body = await response.json();
+  const body = await readApiJson(response);
   if (!response.ok) throw new Error(body.message || "Impossible d’enregistrer tes choix.");
   state.draft = body.draft; save();
 }
@@ -111,7 +146,7 @@ async function build(): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 115));
   }
   const response = await fetch(`/api/onboarding/${state.draft.id}/build`, { method: "POST", headers: { "x-weflo-claim-token": state.claimToken } });
-  const body = await response.json();
+  const body = await readApiJson(response);
   if (!response.ok) throw new Error(body.message || "Impossible de construire ta boutique.");
   state.draft = body.draft; step = 7; save(); render();
 }
@@ -119,7 +154,7 @@ async function build(): Promise<void> {
 async function claimAfterAuth(): Promise<void> {
   if (!state) return;
   const response = await fetch(`/api/onboarding/${state.draft.id}/claim`, { method: "POST", headers: { "x-weflo-claim-token": state.claimToken } });
-  const body = await response.json();
+  const body = await readApiJson(response);
   if (!response.ok) throw new Error(body.message || "Impossible de récupérer ta boutique.");
   localStorage.removeItem(storageKey);
   location.href = `/editeur?page=${encodeURIComponent(body.pageId)}`;
@@ -131,22 +166,44 @@ document.addEventListener("submit", async (event) => {
     event.preventDefault(); busy = true; error = ""; render();
     const url = String(new FormData(form).get("url") ?? "");
     try {
-      const response = await fetch("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: url, language: "en" }) });
-      const body = await response.json();
+      const response = await fetchWithDeadline("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: url, language: "en" }) });
+      const body = await readApiJson(response);
       if (!response.ok) throw new Error(body.message || "Impossible d’importer ce produit.");
       state = { draft: body.draft, claimToken: body.claimToken, step: 1 }; step = 1; save();
     } catch (reason) { error = reason instanceof Error ? reason.message : "L’importation a échoué."; }
-    busy = false; render();
+    finally { busy = false; busyMessage = "Importation…"; render(); }
   }
   if (form.id === "auth-form") {
     event.preventDefault(); error = "";
     const values = Object.fromEntries(new FormData(form));
     try {
       const response = await fetch(signup ? "/api/auth/signup" : "/api/auth/login", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(values) });
-      const body = await response.json();
+      const body = await readApiJson(response);
       if (!response.ok) throw new Error(body.error === "unavailable" ? "L’authentification n’est pas configurée sur cet environnement." : "Vérifie ton adresse e-mail et ton mot de passe, puis réessaie.");
       await claimAfterAuth();
     } catch (reason) { error = reason instanceof Error ? reason.message : "La connexion a échoué."; render(); }
+  }
+});
+
+document.addEventListener("change", async (event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.id !== "product-image" || !input.files?.[0] || busy) return;
+  const file = input.files[0];
+  busy = true; busyMessage = "Analyse de l’image…"; error = ""; render();
+  try {
+    const imageDataUrl = await optimizeImage(file);
+    const response = await fetchWithDeadline("/api/onboarding/import-image", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ imageDataUrl, fileName: file.name, language: "en" }),
+    });
+    const body = await readApiJson(response);
+    if (!response.ok) throw new Error(body.message || "Impossible d’analyser cette image.");
+    state = { draft: body.draft, claimToken: body.claimToken, step: 1 }; step = 1; save();
+  } catch (reason) {
+    error = reason instanceof Error ? reason.message : "L’analyse de l’image a échoué.";
+  } finally {
+    busy = false; busyMessage = "Importation…"; render();
   }
 });
 

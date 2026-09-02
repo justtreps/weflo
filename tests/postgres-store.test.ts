@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import postgres from "postgres";
 import { describe, expect, it } from "vitest";
 import { initialDocument } from "../src/lib/catalog";
+import { createOnboardingDraftInput } from "../src/onboarding/schema";
 import { PostgresStore } from "../src/repos/postgres";
 
 function loadDatabaseUrl(): string | undefined {
@@ -42,6 +43,7 @@ describe("PostgresStore", () => {
     const sql = postgres(databaseUrl!, { prepare: false });
     const store = new PostgresStore(databaseUrl!);
     let wsId: string | undefined;
+    let draftId: string | undefined;
     try {
       try {
         await sql.unsafe(schema);
@@ -74,9 +76,23 @@ describe("PostgresStore", () => {
 
       await store.deletePage(page.id);
       expect(await store.listPages(ws.id)).toEqual([]);
+
+      const draft = await store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: "hash-test", sourceUrl: "https://example.com/product" }));
+      draftId = draft.id;
+      expect((await store.getOnboardingDraft(draft.id))?.sourceUrl).toBe("https://example.com/product");
+      const updatedDraft = await store.updateOnboardingDraft(draft.id, { status: "questions", brandName: "Test Brand" });
+      expect(updatedDraft).toMatchObject({ status: "questions", brandName: "Test Brand" });
+      expect((await store.claimOnboardingDraft(draft.id, "hash-test", "user-test", "page-test"))).toMatchObject({ status: "claimed", claimedPageId: "page-test" });
     } catch (err) {
       throw redact(err);
     } finally {
+      if (draftId) {
+        try {
+          await sql`delete from pages where id = ${draftId}`;
+        } catch {
+          /* cleanup best-effort */
+        }
+      }
       if (wsId) {
         try {
           await store.deleteWorkspace(wsId);

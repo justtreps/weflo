@@ -5,7 +5,7 @@ import { createBrandKit } from "../onboarding/brand-kit";
 import { buildStoreDocument } from "../onboarding/compile-store";
 import { createOnboardingDraftInput, initialBuildStages } from "../onboarding/schema";
 import { claimTokenMatches, createClaimToken } from "../onboarding/token";
-import type { OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
+import type { ImportedProduct, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
 import type { AppDeps } from "./app";
 import { ensureWorkspace, requireUser } from "./pages";
 
@@ -16,6 +16,44 @@ function publicDraft(draft: OnboardingDraft): Omit<OnboardingDraft, "claimTokenH
 
 function tokenFrom(req: Request): string {
   return req.headers.get("x-weflo-claim-token")?.trim() ?? "";
+}
+
+async function withDeadline<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_resolve, reject) => { timeout = setTimeout(() => reject(new Error(message)), timeoutMs); }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
+function imageProduct(imageDataUrl: string, fileName: string): ImportedProduct {
+  const title = fileName.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 180) || "Produit importé";
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]+/g, "-").slice(0, 100) || "produit.jpg";
+  return {
+    sourceUrl: `https://image.weflo.local/${encodeURIComponent(safeName)}`,
+    title,
+    description: "Produit importé à partir d’une image.",
+    vendor: "",
+    currency: "EUR",
+    price: null,
+    compareAtPrice: null,
+    images: [imageDataUrl],
+    variants: [],
+    rating: null,
+    reviewCount: null,
+    reviews: [],
+  };
+}
+
+function validImageDataUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const match = value.match(/^data:image\/(?:png|jpeg|webp);base64,([a-zA-Z0-9+/]+={0,2})$/);
+  if (!match) return false;
+  return Buffer.byteLength(match[1], "base64") <= 450_000;
 }
 
 async function authorizedDraft(deps: AppDeps, id: string, req: Request): Promise<OnboardingDraft | null> {
@@ -49,10 +87,18 @@ export function onboardingRoutes(deps: AppDeps) {
     const claim = createClaimToken();
     let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl }));
     try {
-      const product = await importProduct(sourceUrl, deps.productFetch);
+      const product = await withDeadline(
+        importProduct(sourceUrl, deps.productFetch),
+        deps.onboardingImportTimeoutMs ?? 17_000,
+        "L’importation a dépassé le temps autorisé. Réessaie ou importe une image.",
+      );
       draft = await deps.store.updateOnboardingDraft(draft.id, { product, status: "analysing", language });
       let analysis;
-      try { analysis = deps.onboardingAi ? await deps.onboardingAi.analyse({ product, language }) : fallbackOnboardingAnalysis(product, language); }
+      try {
+        analysis = deps.onboardingAi
+          ? await withDeadline(deps.onboardingAi.analyse({ product, language }), deps.onboardingAiTimeoutMs ?? 15_000, "L’analyse IA a dépassé le temps autorisé.")
+          : fallbackOnboardingAnalysis(product, language);
+      }
       catch { analysis = fallbackOnboardingAnalysis(product, language); }
       draft = await deps.store.updateOnboardingDraft(draft.id, { ...analysis, brandName: analysis.brandNames[0], modelId: "proteo", status: "questions" });
       return c.json({ draft: publicDraft(draft), claimToken: claim.token }, 201);
@@ -60,6 +106,47 @@ export function onboardingRoutes(deps: AppDeps) {
       const message = error instanceof Error ? error.message : "Impossible d’importer ce produit.";
       await deps.store.updateOnboardingDraft(draft.id, { status: "failed", error: message });
       return c.json({ error: "import_failed", message }, 422);
+    }
+  });
+
+  app.post("/onboarding/import-image", async (c) => {
+    const body = await c.req.json<{ imageDataUrl?: unknown; fileName?: unknown; language?: unknown }>().catch(() => ({} as { imageDataUrl?: unknown; fileName?: unknown; language?: unknown }));
+    if (!validImageDataUrl(body.imageDataUrl)) {
+      return c.json({ error: "invalid_image", message: "Choisis une image PNG, JPG ou WebP. Weflo doit pouvoir l’optimiser sous 450 Ko." }, 400);
+    }
+    const fileName = typeof body.fileName === "string" ? body.fileName.trim().slice(0, 120) : "produit.jpg";
+    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "en";
+    const claim = createClaimToken();
+    let product = imageProduct(body.imageDataUrl, fileName);
+    let analysis = fallbackOnboardingAnalysis(product, language);
+    let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl: product.sourceUrl }));
+    try {
+      if (deps.onboardingAi?.analyseImage) {
+        try {
+          const result = await withDeadline(
+            deps.onboardingAi.analyseImage({ imageDataUrl: body.imageDataUrl, fileName, language }),
+            deps.onboardingAiTimeoutMs ?? 15_000,
+            "L’analyse de l’image a dépassé le temps autorisé.",
+          );
+          product = result.product;
+          analysis = result.analysis;
+        } catch {
+          analysis = fallbackOnboardingAnalysis(product, language);
+        }
+      }
+      draft = await deps.store.updateOnboardingDraft(draft.id, {
+        product,
+        ...analysis,
+        brandName: analysis.brandNames[0],
+        modelId: "proteo",
+        status: "questions",
+        language,
+      });
+      return c.json({ draft: publicDraft(draft), claimToken: claim.token }, 201);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Impossible d’analyser cette image.";
+      await deps.store.updateOnboardingDraft(draft.id, { status: "failed", error: message });
+      return c.json({ error: "image_import_failed", message }, 422);
     }
   });
 

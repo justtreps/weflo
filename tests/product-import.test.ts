@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { extractProductFromHtml } from "../src/import/html-product-parser";
+import { createNativeProductFetchPort } from "../src/import/product-extractor";
 import { assertPublicProductUrl } from "../src/import/url-policy";
 
 const html = `<!doctype html><html><head>
@@ -38,5 +39,13 @@ describe("product import", () => {
 
   it("accepts a public https product host", async () => {
     await expect(assertPublicProductUrl("https://shop.example/products/1", async () => ["93.184.216.34"])).resolves.toMatchObject({ hostname: "shop.example" });
+  });
+
+  it("stops redirect loops instead of importing forever", async () => {
+    const fetchImpl = vi.fn(async () => new Response(null, { status: 302, headers: { location: "https://example.com/loop" } }));
+    const port = createNativeProductFetchPort({ fetchImpl, maxRedirects: 2, timeoutMs: 100 });
+
+    await expect(port.fetch(new URL("https://example.com/product"))).rejects.toThrow(/redirections/i);
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
   });
 });
