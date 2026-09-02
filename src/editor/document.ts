@@ -1,4 +1,5 @@
 import type { PageTheme } from "../types";
+import type { BrandKit, BuyerPersona, ImportedProduct, MarketingAngle } from "../onboarding/types";
 
 export type EditorPageKind = "landing" | "product" | "collection" | "home";
 export type EditorAssetType = "image" | "video";
@@ -49,6 +50,14 @@ export type ShopifyBindings = {
   themeId?: string;
 };
 
+export type EditorCommerce = {
+  sourceProduct: ImportedProduct;
+  personas: BuyerPersona[];
+  angles: MarketingAngle[];
+  brandKit: BrandKit;
+  storefrontLanguage: string;
+};
+
 export type EditorDocument = {
   version: 2;
   name: string;
@@ -58,6 +67,7 @@ export type EditorDocument = {
   theme: PageTheme;
   pages: EditorPage[];
   assets: AssetReference[];
+  commerce?: EditorCommerce;
   shopify?: ShopifyBindings;
 };
 
