@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import { Hono } from "hono";
 import { describe, expect, it } from "vitest";
 import { createVercelNodeHandler } from "../src/server/vercel-node";
+import { readFileSync } from "node:fs";
 
 describe("Vercel Node handler", () => {
   it("reads JSON POST bodies and returns the Hono response", async () => {
@@ -25,5 +26,14 @@ describe("Vercel Node handler", () => {
     } finally {
       await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
     }
+  });
+});
+
+describe("Vercel function entry", () => {
+  it("exists before the Vercel build starts", () => {
+    const entry = readFileSync("api/index.ts", "utf8");
+    const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { scripts: Record<string, string> };
+    expect(entry).toContain('export { default } from "../src/server/vercel-handler"');
+    expect(pkg.scripts["build:api"]).not.toContain("api/index.js");
   });
 });

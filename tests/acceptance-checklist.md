@@ -5,7 +5,7 @@ Branche : `main`
 
 ## Vérifications automatiques
 
-- [x] Suite Vitest complète : 77 fichiers, 285 tests réussis.
+- [x] Suite Vitest complète : 77 fichiers, 286 tests réussis.
 - [x] Vérification TypeScript : `npx tsc --noEmit`.
 - [x] Build navigateur et API : `npm run build`.
 - [x] Le checkout Pro refuse toute URL autre que HTTPS sur `whop.com` avant redirection.
