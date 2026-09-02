@@ -80,6 +80,6 @@ describe("Vercel Hono entry", () => {
     expect(vercel).toContain('"framework": "hono"');
     expect(vercel).not.toContain('"buildCommand"');
     expect(vercel).not.toContain('"source": "/api/:path*"');
-    expect(vercel).not.toContain('"outputDirectory"');
+    expect(vercel).toContain('"outputDirectory": "."');
   });
 });
