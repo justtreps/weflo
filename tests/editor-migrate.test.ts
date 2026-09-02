@@ -50,4 +50,9 @@ describe("legacy editor document migration", () => {
     expect(normalized.document.pages[0].sections).toHaveLength(page.document.sections.length);
     expect((await store.getPage(page.id))?.document).toEqual(page.document);
   });
+
+  it("keeps an already migrated document unchanged on reload", () => {
+    const migrated = migrateDocument(initialDocument("Déjà v2", "blank"));
+    expect(migrateDocument(migrated)).toEqual(migrated);
+  });
 });

@@ -67,7 +67,8 @@ export function editorKind(type: PageType | EditorPageKind): EditorPageKind {
   return type;
 }
 
-export function migrateDocument(document: PageDocument, kind: PageType | EditorPageKind = "landing"): EditorDocument {
+export function migrateDocument(document: PageDocument | EditorDocument, kind: PageType | EditorPageKind = "landing"): EditorDocument {
+  if ("version" in document && document.version === 2) return structuredClone(document);
   const pageSlug = slug(document.path === "/" ? document.name : document.path);
   return {
     version: 2,
@@ -89,4 +90,3 @@ export function migrateDocument(document: PageDocument, kind: PageType | EditorP
 export function documentForModel(modelId: string, pageName: string): EditorDocument {
   return migrateDocument(documentFromModel(modelId, pageName), "product");
 }
-

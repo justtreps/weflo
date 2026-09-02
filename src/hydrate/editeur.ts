@@ -1,5 +1,11 @@
+import { blankDocument, documentFromModel } from "../lib/catalog";
+import { bindAppChrome, setScIf } from "./app-chrome";
 import { guardSession } from "./session-guard";
+import { mountEditorGallery, type EditorGallery } from "./editor-gallery";
+import { canardoControlState, canardoErrorMessage, editorViewForDocument } from "./editeur-state";
+import { renderPublishPaywall } from "./publish-access";
 import type { Page, PageDocument, Workspace } from "../types";
+import { hydrateVisualEditor } from "./editor-v2";
 
 type PagesPayload = { workspace: Workspace; pages: Page[]; workspaces: Workspace[] };
 
@@ -36,6 +42,33 @@ function showCreditsToast() {
   window.setTimeout(() => {
     toast.style.display = "none";
   }, 3600);
+}
+
+function showPublishPaywall() {
+  let backdrop = document.querySelector<HTMLElement>("[data-publish-paywall]");
+  if (!backdrop) {
+    backdrop = document.createElement("div");
+    backdrop.dataset.publishPaywall = "1";
+    backdrop.style.cssText = "position:fixed;inset:0;z-index:500;display:grid;place-items:center;padding:20px;background:rgba(20,19,16,.58);backdrop-filter:blur(8px)";
+    backdrop.innerHTML = `<style>
+      .publish-paywall{position:relative;width:min(480px,100%);padding:34px;border-radius:22px;background:#fff;color:#141310;box-shadow:0 32px 90px rgba(0,0,0,.32);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+      .publish-paywall__close{position:absolute;top:15px;right:15px;width:32px;height:32px;border:1px solid #e6e5e0;border-radius:50%;background:#fff;color:#141310;font-size:21px;cursor:pointer}
+      .publish-paywall__mark{display:grid;place-items:center;width:48px;height:48px;border-radius:13px;background:#141310;color:#fbc531;font:800 23px/1 Syne,sans-serif}
+      .publish-paywall__label{margin:24px 0 8px;color:#75736c;font-size:13px;font-weight:700}
+      .publish-paywall h2{margin:0;max-width:390px;font:700 36px/1.02 Syne,-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:-.04em}
+      .publish-paywall>p:not(.publish-paywall__label){margin:18px 0;color:#625f58;font-size:15px;line-height:1.55}
+      .publish-paywall ul{display:grid;gap:9px;margin:22px 0;padding:18px 0;border-block:1px solid #e6e5e0;list-style:none;font-size:14px;font-weight:600}
+      .publish-paywall li:before{content:"✓";display:inline-block;margin-right:10px;color:#2fa36b}
+      .publish-paywall>a{display:flex;align-items:center;justify-content:center;height:48px;border-radius:11px;background:#fbc531;color:#141310;font-size:15px;font-weight:750;text-decoration:none}
+    </style>${renderPublishPaywall()}`;
+    const hide = () => { if (backdrop) backdrop.style.display = "none"; };
+    backdrop.addEventListener("click", (event) => { if (event.target === backdrop) hide(); });
+    backdrop.querySelector("[data-paywall-close]")?.addEventListener("click", hide);
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") hide(); });
+    document.body.appendChild(backdrop);
+  }
+  backdrop.style.display = "grid";
+  backdrop.querySelector<HTMLElement>("[data-paywall-close]")?.focus();
 }
 
 function appendConversation(text: string, mine: boolean) {
@@ -78,7 +111,29 @@ function fillSlug(slug: string) {
   if (slugEl) slugEl.textContent = slug;
 }
 
-function setPreviewIframe(src: string) {
+function editorToolbar(): HTMLElement | null {
+  return (
+    document.querySelector<HTMLElement>("[data-weflo-toolbar]") ??
+    document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onPublish }}"]')?.parentElement?.parentElement ??
+    null
+  );
+}
+
+function showEditorToolbar() {
+  const bar = editorToolbar();
+  if (!bar) return;
+  bar.style.setProperty("display", "flex", "important");
+  bar.style.setProperty("z-index", "80", "important");
+}
+
+function showModelPicker(open: boolean) {
+  const empty = document.querySelector<HTMLElement>('[data-empty-scroll="1"]');
+  if (empty) empty.style.setProperty("display", open ? "flex" : "none", "important");
+  const iframe = document.querySelector<HTMLIFrameElement>("iframe[data-page-preview]");
+  if (iframe) iframe.style.display = open ? "none" : "block";
+}
+
+function setPreviewIframe(src: string, visible = true) {
   let iframe = document.querySelector<HTMLIFrameElement>("iframe[data-page-preview]");
   if (!iframe) {
     iframe = document.createElement("iframe");
@@ -90,6 +145,7 @@ function setPreviewIframe(src: string) {
     (canvas ?? document.body).appendChild(iframe);
   }
   iframe.src = src;
+  iframe.style.display = visible ? "block" : "none";
 }
 
 function panelInputs(): HTMLInputElement[] {
@@ -175,26 +231,43 @@ function setPublishButtonState(published: boolean, publishing = false) {
   btn.style.cursor = publishing ? "wait" : "pointer";
 }
 
-function noop(e: Event) {
-  e.preventDefault();
-  e.stopPropagation();
+function isShown(el: HTMLElement | null): boolean {
+  return !!el && el.style.display !== "none";
 }
 
-function bindNoop(selector: string) {
-  document.querySelectorAll(selector).forEach((el) => {
-    el.addEventListener("click", noop);
+function bindToggle(clickSel: string, box: HTMLElement | null) {
+  document.querySelectorAll<HTMLElement>(clickSel).forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setScIf(box, !isShown(box));
+    });
+  });
+}
+
+function bindShow(clickSel: string, box: HTMLElement | null, open = true) {
+  document.querySelectorAll<HTMLElement>(clickSel).forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setScIf(box, open);
+    });
   });
 }
 
 export async function hydrateEditeur() {
   const me = await guardSession();
   if (!me) return;
+  bindAppChrome();
 
   const pageId = new URLSearchParams(location.search).get("page");
   if (!pageId) {
     location.assign("/dashboard");
     return;
   }
+
+  await hydrateVisualEditor(pageId);
+  return;
 
   let page: Page;
   try {
@@ -209,15 +282,31 @@ export async function hydrateEditeur() {
   const workspace =
     list.workspaces.find((w) => w.id === page.workspaceId) ??
     (list.workspace.id === page.workspaceId ? list.workspace : me.workspace);
-  const src = previewPath(workspace.slug, page.slug);
-
   fillName(page.name);
   fillSlug(page.slug);
   fillPanelFromDocument(page.document);
-  setPreviewIframe(src);
+  showEditorToolbar();
 
   let current: Page = page;
   let timer: number | undefined;
+  let galleryController: EditorGallery | undefined;
+  const settings = document.querySelector<HTMLElement>('sc-if[value="{{ settingsOpen }}"]');
+
+  const adoptPage = (updated: Page) => {
+    current = updated;
+    fillName(updated.name);
+    fillSlug(updated.slug);
+    fillPanelFromDocument(updated.document);
+    const galleryOpen = editorViewForDocument(updated.document) === "gallery";
+    if (galleryController) galleryController.setOpen(galleryOpen);
+    else showModelPicker(galleryOpen);
+    if (settings) settings.style.setProperty("display", galleryOpen ? "none" : "block", "important");
+    if (!galleryOpen) {
+      setPreviewIframe(`${previewPath(workspace.slug, updated.slug)}?editor=${Date.now()}`, true);
+    }
+  };
+
+  adoptPage(current);
 
   const save = async () => {
     const nextDoc = applyPanelToDocument(current.document);
@@ -236,9 +325,7 @@ export async function hydrateEditeur() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ document: nextDoc, name }),
     });
-    current = updated;
-    fillSlug(updated.slug);
-    setPreviewIframe(previewPath(workspace.slug, updated.slug));
+    adoptPage(updated);
   };
 
   const scheduleSave = () => {
@@ -253,13 +340,260 @@ export async function hydrateEditeur() {
     input.addEventListener("change", scheduleSave);
   }
 
-  bindNoop('[sc-camel-on-click="{{ openAb }}"]');
-  bindNoop('[sc-camel-on-click="{{ startAb }}"]');
-  bindNoop('[sc-camel-on-click="{{ sendInvite }}"]');
-  bindNoop('[sc-camel-on-click="{{ addVariant }}"]');
+  for (const key of [
+    "lightboxOpen",
+    "publishDoneOpen",
+    "abOpen",
+    "shareOpen",
+    "coachOn",
+    "inspectorOpen",
+  ]) {
+    setScIf(document.querySelector<HTMLElement>(`sc-if[value="{{ ${key} }}"]`), false);
+  }
+  setScIf(document.querySelector<HTMLElement>('sc-if[value="{{ settingsOpen }}"]'), true);
+
+  const ab = document.querySelector<HTMLElement>('sc-if[value="{{ abOpen }}"]');
+  const share = document.querySelector<HTMLElement>('sc-if[value="{{ shareOpen }}"]');
+  const inspector = document.querySelector<HTMLElement>('sc-if[value="{{ inspectorOpen }}"]');
+  const previewMenu = document.querySelector<HTMLElement>('sc-if[value="{{ previewOpen }}"]');
+  const rolePick = document.querySelector<HTMLElement>('sc-if[value="{{ rolePickOpen }}"]');
+  const renaming = document.querySelector<HTMLElement>('sc-if[value="{{ renaming }}"]');
+  const notRenaming = document.querySelector<HTMLElement>('sc-if[value="{{ notRenaming }}"]');
+  const panelClosed = document.querySelector<HTMLElement>('sc-if[value="{{ panelClosed }}"]');
+  setScIf(previewMenu, false);
+  setScIf(rolePick, false);
+  setScIf(renaming, false);
+  setScIf(notRenaming, true);
+  setScIf(panelClosed, false);
+
+  bindShow('[sc-camel-on-click="{{ openAb }}"]', ab, true);
+  bindShow('[sc-camel-on-click="{{ startAb }}"]', ab, true);
+  bindShow('[sc-camel-on-click="{{ addVariant }}"]', ab, true);
+  bindShow('[sc-camel-on-click="{{ askEndAb }}"]', ab, true);
+  bindShow('[sc-camel-on-click="{{ endAb }}"]', ab, false);
+  bindShow('[sc-camel-on-click="{{ cancelEndAb }}"]', ab, false);
+  bindToggle('[sc-camel-on-click="{{ toggleSettings }}"]', settings);
+  bindToggle('[sc-camel-on-click="{{ togglePreview }}"]', previewMenu);
+  bindShow('[sc-camel-on-click="{{ reopenPanel }}"]', inspector, true);
+  bindShow('[sc-camel-on-click="{{ selectHero }}"]', inspector, true);
+  bindShow('[sc-camel-on-click="{{ selectGrid }}"]', inspector, true);
+  bindToggle('[sc-camel-on-click="{{ toggleRolePick }}"]', rolePick);
+
+  const hide = (sel: string) => {
+    document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const box = el.closest("sc-if") as HTMLElement | null;
+        setScIf(box, false);
+      });
+    });
+  };
+  hide('[sc-camel-on-click="{{ closeLightbox }}"]');
+  hide('[sc-camel-on-click="{{ closeAb }}"]');
+  hide('[sc-camel-on-click="{{ closeShare }}"]');
+  hide('[sc-camel-on-click="{{ closePublishDone }}"]');
+  hide('[sc-camel-on-click="{{ tipSkip }}"]');
+  hide('[sc-camel-on-click="{{ closeInspector }}"]');
+  hide('[sc-camel-on-click="{{ closePanel }}"]');
 
   const livePreviewPath = () => previewPath(workspace.slug, current.slug);
   const livePreviewUrl = () => `${location.origin}${livePreviewPath()}`;
+
+  document.querySelectorAll<HTMLElement>('[title="Toutes les pages"]').forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      location.assign("/dashboard");
+    });
+  });
+  document.querySelectorAll<HTMLElement>('[title="Boutique"]').forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setPreviewIframe(livePreviewPath());
+    });
+  });
+
+  const canvas = document.querySelector<HTMLElement>('[sc-camel-on-drag-over="{{ onCanvasOver }}"]');
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onDesktop }}"]')?.addEventListener("click", () => {
+    if (canvas) canvas.style.maxWidth = "";
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onMobile }}"]')?.addEventListener("click", () => {
+    if (canvas) canvas.style.maxWidth = "390px";
+  });
+
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ openShare }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    setScIf(share, true);
+  });
+  byText("span", "Aperçu")?.closest("div")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setScIf(previewMenu, !isShown(previewMenu));
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ startRename }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setScIf(notRenaming, false);
+    setScIf(renaming, true);
+    const input = renaming?.querySelector<HTMLInputElement>("input");
+    if (input) {
+      input.value = current.name;
+      input.focus();
+      input.select();
+    }
+  });
+  const headerRename = renaming?.querySelector<HTMLInputElement>("input");
+  const commitHeaderRename = () => {
+    setScIf(renaming, false);
+    setScIf(notRenaming, true);
+    scheduleSave();
+  };
+  headerRename?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      commitHeaderRename();
+    }
+    if (e.key === "Escape") {
+      setScIf(renaming, false);
+      setScIf(notRenaming, true);
+    }
+  });
+  headerRename?.addEventListener("blur", commitHeaderRename);
+
+  const pubSwitch = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ togglePublished }}"]');
+  const paintPublished = (on: boolean) => {
+    const knob = pubSwitch?.querySelector<HTMLElement>("span span");
+    const track = pubSwitch?.querySelector<HTMLElement>("span");
+    const title = pubSwitch?.querySelectorAll("span")[2];
+    if (track) track.style.background = on ? "#2FA36B" : "#D8D5CE";
+    if (knob) knob.style.transform = on ? "translateX(14px)" : "translateX(0px)";
+    if (title) title.textContent = on ? "En ligne" : "Brouillon";
+  };
+  paintPublished(current.status !== "draft");
+  pubSwitch?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (current.status === "draft") void publishPage();
+    else paintPublished(true);
+  });
+
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ sendInvite }}"]')?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const mail = document.querySelector<HTMLInputElement>('input[sc-camel-on-change="{{ onInviteMail }}"]');
+    const email = mail?.value.trim() ?? "";
+    if (!email) return;
+    await fetch("/api/workspace/members", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email, role: "member" }),
+    });
+    if (mail) mail.value = "";
+    setScIf(rolePick, false);
+  });
+  for (const el of document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ r.onPick }}"]')) {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const label = el.querySelector("span")?.textContent?.trim();
+      const host = document.querySelector('[sc-camel-on-click="{{ toggleRolePick }}"] span');
+      if (label && host) host.textContent = label;
+      setScIf(rolePick, false);
+    });
+  }
+
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onDuckPoke }}"]')?.addEventListener("click", () => {
+    barInput?.focus();
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ pickFiles }}"]')?.addEventListener("click", () => {
+    let file = document.querySelector<HTMLInputElement>("input[data-weflo-files]");
+    if (!file) {
+      file = document.createElement("input");
+      file.type = "file";
+      file.accept = "image/*";
+      file.multiple = true;
+      file.dataset.wefloFiles = "1";
+      file.hidden = true;
+      document.body.appendChild(file);
+    }
+    file.click();
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onCardDesktop }}"]')?.addEventListener("click", () => {
+    if (canvas) canvas.style.maxWidth = "";
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onCardMobile }}"]')?.addEventListener("click", () => {
+    if (canvas) canvas.style.maxWidth = "390px";
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ tipNext }}"]')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    setScIf(document.querySelector<HTMLElement>('sc-if[value="{{ coachOn }}"]'), false);
+  });
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ removeSelectedBlock }}"]')?.addEventListener(
+    "click",
+    (e) => {
+      e.preventDefault();
+      setScIf(inspector, false);
+    },
+  );
+  for (const el of document.querySelectorAll<HTMLElement>('[sc-camel-on-click="{{ btn.onClick }}"]')) {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      setScIf(inspector, true);
+    });
+  }
+  const applyPickedModel = async (modelId: string) => {
+    const nextDoc = modelId === "blank" ? blankDocument(current.name) : documentFromModel(modelId, current.name);
+    const updated = await json<Page>(`/api/pages/${current.id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ document: nextDoc, name: nextDoc.name }),
+    });
+    adoptPage(updated);
+    showEditorToolbar();
+  };
+
+  const galleryRoot = document.querySelector<HTMLElement>('[data-empty-scroll="1"]');
+  if (galleryRoot) {
+    galleryController = mountEditorGallery({
+      root: galleryRoot,
+      pageName: current.name,
+      onPick: applyPickedModel,
+    });
+    adoptPage(current);
+  }
+
+  for (const sel of [
+    '[sc-camel-on-click="{{ v.onPick }}"]',
+    '[sc-camel-on-click="{{ v.onRemove }}"]',
+    '[sc-camel-on-click="{{ a.onRemove }}"]',
+    '[sc-camel-on-click="{{ b.onRemove }}"]',
+    '[sc-camel-on-click="{{ b.onSelect }}"]',
+    '[sc-camel-on-click="{{ k.onPick }}"]',
+    '[sc-camel-on-click="{{ o.onPick }}"]',
+    '[sc-camel-on-click="{{ m.onEdit }}"]',
+    '[sc-camel-on-click="{{ m.onRemove }}"]',
+    '[sc-camel-on-click="{{ nextTitle }}"]',
+    '[sc-camel-on-click="{{ stop }}"]',
+  ]) {
+    document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+  }
+  document.querySelector<HTMLElement>('[sc-camel-on-click="{{ copyShareLink }}"]')?.addEventListener(
+    "click",
+    async (e) => {
+      e.preventDefault();
+      try {
+        await navigator.clipboard.writeText(livePreviewUrl());
+      } catch {
+        window.prompt("Lien", livePreviewUrl());
+      }
+    },
+  );
   byText("span", "Copier le lien d'aperçu")?.closest("div")?.addEventListener("click", async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -278,11 +612,23 @@ export async function hydrateEditeur() {
 
   const barInput = document.querySelector<HTMLInputElement>('input[sc-camel-on-change="{{ onInput }}"]');
   const sendBtn = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onSend }}"]');
+  barInput?.parentElement?.parentElement?.parentElement?.classList.add("editor-canardo-dock");
   let sending = false;
+  const paintCanardoBusy = (busy: boolean) => {
+    const state = canardoControlState(busy);
+    if (barInput) {
+      barInput.disabled = state.inputDisabled;
+      barInput.setAttribute("aria-busy", state.ariaBusy);
+    }
+    sendBtn?.setAttribute("aria-disabled", state.ariaDisabled);
+    if (sendBtn) sendBtn.style.cursor = state.cursor;
+  };
+  paintCanardoBusy(false);
   const sendCanardo = async () => {
     const prompt = barInput?.value.trim() ?? "";
     if (!prompt || sending) return;
     sending = true;
+    paintCanardoBusy(true);
     appendConversation(prompt, true);
     if (barInput) barInput.value = "";
     try {
@@ -299,13 +645,24 @@ export async function hydrateEditeur() {
         location.assign("/connexion");
         return;
       }
-      if (!res.ok) return;
-      const body = (await res.json()) as { message: string; document: PageDocument };
-      appendConversation(body.message, false);
-      current = { ...current, document: body.document };
-      setPreviewIframe(previewPath(workspace.slug, current.slug));
+      const body = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        message?: string;
+        document?: PageDocument;
+      };
+      if (!res.ok || !body.document) {
+        appendConversation(canardoErrorMessage(res.status, body), false);
+        return;
+      }
+      appendConversation(body.message ?? "Page mise à jour.", false);
+      adoptPage({ ...current, document: body.document });
+      showEditorToolbar();
+    } catch {
+      appendConversation(canardoErrorMessage(0, {}), false);
     } finally {
       sending = false;
+      paintCanardoBusy(false);
+      barInput?.focus();
     }
   };
   sendBtn?.addEventListener(
@@ -327,6 +684,12 @@ export async function hydrateEditeur() {
     },
     true,
   );
+  const pendingPrompt = sessionStorage.getItem("weflo-canardo-prompt");
+  if (pendingPrompt) {
+    sessionStorage.removeItem("weflo-canardo-prompt");
+    if (barInput) barInput.value = pendingPrompt;
+    void sendCanardo();
+  }
 
   const publishBtn = document.querySelector<HTMLElement>('[sc-camel-on-click="{{ onPublish }}"]');
   let publishing = false;
@@ -341,6 +704,11 @@ export async function hydrateEditeur() {
         location.assign("/connexion");
         return;
       }
+      if (res.status === 402) {
+        setPublishButtonState(false);
+        showPublishPaywall();
+        return;
+      }
       if (!res.ok) {
         setPublishButtonState(current.status !== "draft");
         return;
@@ -352,6 +720,7 @@ export async function hydrateEditeur() {
       };
       current = { ...current, status: body.status as Page["status"] };
       setPublishButtonState(true);
+      paintPublished(true);
       showPublishToast(body.previewUrl);
       if (body.message) appendConversation(body.message, false);
     } finally {

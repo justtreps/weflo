@@ -39,9 +39,15 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
   iframe.style.cssText = "display:block;height:100%;min-height:900px;border:0;background:#fff;transform-origin:top left";
   container.replaceChildren(iframe);
 
-  const paint = () => {
+  let lastDocument: EditorDocument | null = null;
+  let lastViewKey = "";
+  const paint = (force = false) => {
     const state = store.getState();
     const layout = viewportLayout(state.breakpoint, container.clientWidth || 1440);
+    const viewKey = `${state.mode}:${state.breakpoint}:${state.selectedId ?? ""}:${layout.width}:${layout.zoom}`;
+    if (!force && state.document === lastDocument && viewKey === lastViewKey) return;
+    lastDocument = state.document;
+    lastViewKey = viewKey;
     iframe.width = String(layout.width);
     iframe.style.width = `${layout.width}px`;
     iframe.style.transform = layout.zoom === 1 ? "none" : `scale(${layout.zoom})`;
@@ -64,10 +70,10 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
       }
     }
   };
-  const resize = new ResizeObserver(paint);
+  const resize = new ResizeObserver(() => paint(true));
   resize.observe(container);
   window.addEventListener("message", receive);
   const unsubscribe = store.subscribe(paint);
-  paint();
+  paint(true);
   return () => { resize.disconnect(); window.removeEventListener("message", receive); unsubscribe(); };
 }

@@ -27,7 +27,19 @@ export type AppDeps = {
   deleteUser?: (userId: string) => Promise<void>;
 };
 
+function assetType(name: string): string {
+  if (name.endsWith(".png")) return "image/png";
+  if (name.endsWith(".webp")) return "image/webp";
+  if (name.endsWith(".svg")) return "image/svg+xml";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+  if (name.endsWith(".gif")) return "image/gif";
+  if (name.endsWith(".woff2")) return "font/woff2";
+  if (name.endsWith(".woff")) return "font/woff";
+  return "application/octet-stream";
+}
+
 const htmlRoutes: Record<string, string> = {
+  "/": "accueil.html",
   "/connexion": "connexion.html",
   "/dashboard": "dashboard.html",
   "/editeur": "editeur.html",
@@ -40,11 +52,6 @@ const htmlRoutes: Record<string, string> = {
 
 export function createApp(deps: AppDeps) {
   const app = new Hono();
-
-  app.get("/", async (c) => {
-    const user = await deps.session(c.req.raw);
-    return c.redirect(user ? "/dashboard" : "/connexion");
-  });
 
   for (const [route, file] of Object.entries(htmlRoutes)) {
     app.get(route, async (c) => {
@@ -62,8 +69,25 @@ export function createApp(deps: AppDeps) {
       return c.body("Not found", 404);
     }
     try {
-      const js = await readFile(target, "utf8");
-      return c.body(js, 200, { "content-type": "application/javascript" });
+      const content = await readFile(target, "utf8");
+      const contentType = name.endsWith(".css") ? "text/css; charset=utf-8" : "application/javascript; charset=utf-8";
+      return c.body(content, 200, { "content-type": contentType });
+    } catch {
+      return c.body("Not found", 404);
+    }
+  });
+
+  app.get("/assets/*", async (c) => {
+    const name = c.req.path.replace("/assets/", "");
+    const root = join(process.cwd(), "public", "assets");
+    const target = normalize(join(root, name));
+    const rootWithSep = root.endsWith(sep) ? root : root + sep;
+    if (name.includes("..") || (!target.startsWith(rootWithSep) && target !== root)) {
+      return c.body("Not found", 404);
+    }
+    try {
+      const data = await readFile(target);
+      return c.body(data, 200, { "content-type": assetType(name) });
     } catch {
       return c.body("Not found", 404);
     }

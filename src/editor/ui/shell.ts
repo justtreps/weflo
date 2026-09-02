@@ -4,6 +4,17 @@ import { bindInspector, inspectorMarkup } from "./inspector";
 import { mountCanvas } from "./canvas";
 import "./layout.css";
 
+export type EditorShellAction = "undo" | "redo" | "desktop" | "tablet" | "mobile" | "preview" | "collapseLeft" | "collapseRight";
+
+export function runEditorShellAction(store: EditorStore, action: EditorShellAction): void {
+  if (action === "undo") store.undo();
+  if (action === "redo") store.redo();
+  if (action === "desktop" || action === "tablet" || action === "mobile") store.setState({ breakpoint: action });
+  if (action === "preview") store.setState((state) => ({ mode: state.mode === "edit" ? "preview" : "edit" }));
+  if (action === "collapseLeft") store.setState((state) => ({ leftCollapsed: !state.leftCollapsed }));
+  if (action === "collapseRight") store.setState((state) => ({ rightCollapsed: !state.rightCollapsed }));
+}
+
 const ICONS = {
   structure: "☷",
   add: "+",
@@ -63,9 +74,23 @@ export function mountEditorShell(root: HTMLElement, store: EditorStore): () => v
     root.querySelectorAll<HTMLElement>("[data-editor-breakpoint]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.editorBreakpoint === state.breakpoint)));
     const save = root.querySelector<HTMLElement>("[data-editor-save-status]");
     if (save) { save.dataset.editorSaveStatus = state.saveStatus; save.textContent = state.saveStatus === "saved" ? "Enregistré" : state.saveStatus === "saving" ? "Enregistrement…" : "Modifié"; }
+    const preview = root.querySelector<HTMLButtonElement>("[data-editor-preview]");
+    if (preview) preview.textContent = state.mode === "edit" ? "Aperçu" : "Édition";
   };
   const unsubscribe = store.subscribe(patch);
   const unbind = bindLeftRail(root, store);
   const unbindInspector = bindInspector(root, store);
-  return () => { unsubscribe(); unbind(); unbindInspector(); unmountCanvas(); };
+  const topbarClick = (event: Event) => {
+    const target = (event.target as HTMLElement).closest<HTMLElement>("button");
+    if (!target) return;
+    if (target.matches("[data-editor-undo]")) runEditorShellAction(store, "undo");
+    if (target.matches("[data-editor-redo]")) runEditorShellAction(store, "redo");
+    if (target.matches("[data-editor-preview]")) runEditorShellAction(store, "preview");
+    if (target.matches("[data-editor-collapse-left]")) runEditorShellAction(store, "collapseLeft");
+    if (target.matches("[data-editor-collapse-right]")) runEditorShellAction(store, "collapseRight");
+    const breakpoint = target.dataset.editorBreakpoint;
+    if (breakpoint === "desktop" || breakpoint === "tablet" || breakpoint === "mobile") runEditorShellAction(store, breakpoint);
+  };
+  root.addEventListener("click", topbarClick);
+  return () => { unsubscribe(); unbind(); unbindInspector(); unmountCanvas(); root.removeEventListener("click", topbarClick); };
 }
