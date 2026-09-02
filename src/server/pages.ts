@@ -185,6 +185,21 @@ export function pagesRoutes(deps: AppDeps) {
     return c.body(null, 204);
   });
 
+  app.get("/pages/:id/publish-options", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
+    if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    const subscription = await deps.store.getWhop(loaded.page.workspaceId);
+    const access = publishAccessForBilling({ status: subscription?.status ?? "none", planId: subscription?.planId ?? null }, process.env.WHOP_PLAN_PRO?.trim() || null);
+    const connection = await deps.store.getShopify(loaded.page.workspaceId);
+    let themes: Array<{ id: string; name: string; role: "main" | "unpublished" | "development" | "demo" }> = [];
+    if (connection?.status === "connected" && deps.shopify?.listThemes) {
+      try { themes = await deps.shopify.listThemes({ shop: connection.shopDomain, token: resolveShopifyToken(connection.tokenEncrypted, deps.encryptionKey) }); } catch { themes = []; }
+    }
+    return c.json({ pro: access.allowed, documentVersion: loaded.page.documentVersion, shopify: { connected: connection?.status === "connected", shopDomain: connection?.shopDomain ?? null, themes } });
+  });
+
   app.post("/pages/:id/publish", async (c) => {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);
@@ -204,10 +219,16 @@ export function pagesRoutes(deps: AppDeps) {
         upgradeUrl: "/facturation",
       }, 402);
     }
+    const body = await c.req.json<Record<string, unknown>>().catch(() => ({}));
+    const expectedVersion = typeof body.expectedVersion === "number" ? body.expectedVersion : undefined;
+    if (expectedVersion !== undefined && expectedVersion !== loaded.page.documentVersion) return c.json({ error: "version_conflict", serverPage: loaded.page }, 409);
+    const destination = body.destination === "hosted" || body.destination === "shopify" ? body.destination : undefined;
+    const strategy = body.strategy === "active" || body.strategy === "duplicate_active" || body.strategy === "new_weflo" ? body.strategy : "new_weflo";
+    if (strategy === "active" && body.confirmLive !== true) return c.json({ error: "live_confirmation_required", message: "Confirme explicitement la publication sur le thème actif." }, 400);
     const updated = await deps.store.updatePage(loaded.page.id, { status: "published_hosted" });
     const previewUrl = `/s/${workspace.slug}/${updated.slug}`;
     const shopify = await deps.store.getShopify(workspace.id);
-    if (!shopify || shopify.status !== "connected") {
+    if (destination === "hosted" || !shopify || shopify.status !== "connected") {
       return c.json({
         status: "published_hosted",
         shopify: "skipped",
@@ -225,6 +246,17 @@ export function pagesRoutes(deps: AppDeps) {
     }
 
     const token = resolveShopifyToken(shopify.tokenEncrypted, deps.encryptionKey);
+    const possibleEditor = updated.document as unknown as Partial<EditorDocument>;
+    if (possibleEditor.version === 2 && Array.isArray(possibleEditor.pages)) {
+      if (!deps.shopify.publishEditor) return c.json({ error: "editor_publish_unavailable", status: "published_hosted", previewUrl }, 503);
+      try {
+        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: possibleEditor, pageName: updated.name, strategy, ...(typeof body.themeId === "string" ? { themeId: body.themeId } : {}), replaceGlobalTemplate: body.replaceGlobalTemplate === true });
+        const published = await deps.store.updatePage(loaded.page.id, { status: "published_shopify" });
+        return c.json({ status: published.status, shopify: "published", previewUrl, shopifyPreviewUrl: result.previewUrl, themeId: result.themeId, message: "Page publiée dans le thème Shopify choisi." });
+      } catch {
+        return c.json({ shopify: "failed", status: "published_hosted", previewUrl }, 502);
+      }
+    }
     try {
       await deps.shopify.publish({
         shop: shopify.shopDomain,

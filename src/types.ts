@@ -99,6 +99,8 @@ export type ShopifyPort = {
     pageName: string;
   }): Promise<{ themeId: string; productId: string }>;
   rollback(input: { shop: string; token: string; themeId?: string; productId?: string }): Promise<void>;
+  listThemes?(input: { shop: string; token: string }): Promise<Array<{ id: string; name: string; role: "main" | "unpublished" | "development" | "demo" }>>;
+  publishEditor?(input: { shop: string; token: string; document: unknown; pageName: string; strategy: "active" | "duplicate_active" | "new_weflo"; themeId?: string; replaceGlobalTemplate?: boolean }): Promise<{ themeId: string; previewUrl: string }>;
 };
 
 export type WhopPort = {

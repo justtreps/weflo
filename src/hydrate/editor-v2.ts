@@ -4,6 +4,7 @@ import { mountEditorShell } from "../editor/ui/shell";
 import { createEditorStore, type EditorState } from "../editor/ui/store";
 import { renderPublishPaywall } from "./publish-access";
 import { mountCanardo } from "../editor/ui/canardo";
+import { openPublishDialog, publishRequest, type PublishOptions } from "../editor/ui/publish-dialog";
 
 export type VisualEditorPage = {
   id: string;
@@ -85,19 +86,26 @@ export async function hydrateVisualEditor(pageId: string): Promise<void> {
   root.addEventListener("click", async (event) => {
     const target = (event.target as HTMLElement).closest<HTMLElement>("[data-editor-publish]");
     if (!target) return;
+    if (document.querySelector("[data-publish-overlay]")) return;
     target.setAttribute("aria-busy", "true");
-    target.textContent = "Publication…";
     try {
       await autosave.flush();
-      const publish = await fetch(`/api/pages/${encodeURIComponent(page.id)}/publish`, { method: "POST" });
-      if (publish.status === 402) { showProDialog(); return; }
-      if (!publish.ok) throw new Error("publish failed");
-      target.textContent = "Publié";
+      const optionsResponse = await fetch(`/api/pages/${encodeURIComponent(page.id)}/publish-options`);
+      if (!optionsResponse.ok) throw new Error("Impossible de charger les destinations de publication.");
+      const options = await optionsResponse.json() as PublishOptions;
+      if (!options.pro) { showProDialog(); return; }
+      openPublishDialog(options, async (choice) => {
+        const publish = await fetch(`/api/pages/${encodeURIComponent(page.id)}/publish`, publishRequest(choice));
+        const body = await publish.json().catch(() => ({})) as { message?: string; previewUrl?: string; shopifyPreviewUrl?: string; error?: string };
+        if (publish.status === 402) { showProDialog(); throw new Error(body.message ?? "Weflo Pro est requis."); }
+        if (!publish.ok) throw new Error(body.message ?? "La publication a échoué.");
+        target.textContent = "Publié";
+        return body;
+      });
     } catch {
       target.textContent = "Réessayer";
     } finally {
       target.removeAttribute("aria-busy");
-      if (target.textContent === "Publication…") target.textContent = "Publier";
     }
   });
 }
