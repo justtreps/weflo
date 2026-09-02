@@ -6,7 +6,7 @@ const MODELS: Record<ImageModelId, ImageModelDefinition> = {
   "nano-banana-2": { id: "nano-banana-2", label: "Nano Banana 2", description: "Rapide, réaliste et fidèle au produit", textEndpoint: "fal-ai/nano-banana-2", referenceEndpoint: "fal-ai/nano-banana-2/edit", inputMode: "aspect", referenceKey: "image_urls" },
   "nano-banana-pro": { id: "nano-banana-pro", label: "Nano Banana Pro", description: "Composition premium et texte précis", textEndpoint: "fal-ai/nano-banana-pro", referenceEndpoint: "fal-ai/nano-banana-pro/edit", inputMode: "aspect", referenceKey: "image_urls" },
   "gpt-image-2": { id: "gpt-image-2", label: "GPT Image 2", description: "Prompt complexe, typographie et retouche", textEndpoint: "openai/gpt-image-2", referenceEndpoint: "openai/gpt-image-2/edit", inputMode: "size", referenceKey: "image_urls" },
-  "flux-2-flex": { id: "flux-2-flex", label: "FLUX.2 Flex", description: "Direction artistique et détails contrôlés", textEndpoint: "fal-ai/flux-2-flex", referenceEndpoint: "fal-ai/flux-pro/kontext", inputMode: "size", referenceKey: "image_url" },
+  "flux-2-flex": { id: "flux-2-flex", label: "FLUX.2 Flex", description: "Direction artistique et détails contrôlés", textEndpoint: "fal-ai/flux-2-flex", referenceEndpoint: "fal-ai/flux-2-flex/edit", inputMode: "size", referenceKey: "image_urls" },
 };
 
 const SIZES: Record<ImageAspectRatio, { width: number; height: number }> = {

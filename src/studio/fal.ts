@@ -10,15 +10,20 @@ export function createFalImageStudio(key: string, fetcher: Fetch = fetch): Image
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 90_000);
     const endpoint = input.referenceUrl ? model.referenceEndpoint : model.textEndpoint;
-    const body: Record<string, unknown> = { prompt: input.prompt, num_images: input.numImages, output_format: "webp" };
+    const body: Record<string, unknown> = { prompt: input.prompt, output_format: model.id === "flux-2-flex" ? "png" : "webp" };
+    if (model.id !== "flux-2-flex") body.num_images = input.numImages;
     if (model.inputMode === "aspect") body.aspect_ratio = input.aspectRatio;
     else body.image_size = size;
     if (input.referenceUrl) body[model.referenceKey] = model.referenceKey === "image_urls" ? [input.referenceUrl] : input.referenceUrl;
     try {
-      const response = await fetcher(`https://fal.run/${endpoint}`, { method: "POST", signal: controller.signal, headers: { Authorization: `Key ${key}`, "content-type": "application/json" }, body: JSON.stringify(body) });
-      if (!response.ok) throw new Error(`Fal ${response.status}: ${(await response.text()).slice(0, 240)}`);
-      const payload = await response.json() as { images?: GeneratedImage[]; image?: GeneratedImage };
-      const images = Array.isArray(payload.images) ? payload.images : payload.image ? [payload.image] : [];
+      const requestOnce = async () => {
+        const response = await fetcher(`https://fal.run/${endpoint}`, { method: "POST", signal: controller.signal, headers: { Authorization: `Key ${key}`, "content-type": "application/json" }, body: JSON.stringify(body) });
+        if (!response.ok) throw new Error(`Fal ${response.status}: ${(await response.text()).slice(0, 240)}`);
+        const payload = await response.json() as { images?: GeneratedImage[]; image?: GeneratedImage };
+        return Array.isArray(payload.images) ? payload.images : payload.image ? [payload.image] : [];
+      };
+      const batches = await Promise.all(Array.from({ length: model.id === "flux-2-flex" ? input.numImages : 1 }, requestOnce));
+      const images = batches.flat();
       if (!images.length || images.some((image) => typeof image?.url !== "string")) throw new Error("Fal returned no image");
       return { images };
     } finally { clearTimeout(timer); }

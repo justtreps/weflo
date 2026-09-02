@@ -35,4 +35,20 @@ describe("Fal image studio", () => {
     expect(JSON.parse(String(request?.init?.body))).toMatchObject({ image_urls: ["https://cdn.example/lamp.jpg"], prompt: expect.stringContaining("exactement") });
     expect(result.images[0].url).toContain("generated.webp");
   });
+
+  it("uses the current FLUX.2 Flex edit endpoint and a supported output format", async () => {
+    const requests: Array<{ url: string; body: Record<string, unknown> }> = [];
+    const studio = createFalImageStudio("secret", async (input, init) => {
+      requests.push({ url: String(input), body: JSON.parse(String(init?.body)) });
+      return new Response(JSON.stringify({ images: [{ url: `https://fal.media/flux-${requests.length}.png` }] }), { status: 200 });
+    });
+
+    const result = await studio.generate({ model: "flux-2-flex", prompt: "Photo produit", aspectRatio: "3:4", numImages: 2, referenceUrl: "https://cdn.example/product.png" });
+
+    expect(requests).toHaveLength(2);
+    expect(requests[0].url).toBe("https://fal.run/fal-ai/flux-2-flex/edit");
+    expect(requests[0].body).toMatchObject({ image_urls: ["https://cdn.example/product.png"], output_format: "png", image_size: { width: 900, height: 1200 } });
+    expect(requests[0].body).not.toHaveProperty("num_images");
+    expect(result.images).toHaveLength(2);
+  });
 });

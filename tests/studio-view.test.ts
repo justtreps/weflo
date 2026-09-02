@@ -15,10 +15,13 @@ describe("image studio view", () => {
     expect(html).toContain("https://fal.media/lamp.webp");
   });
 
-  it("renders an active generation as the first conversation item", () => {
-    const html = renderStudioView({ workspaceName: "Studio", generations: [], pending: { prompt: "Une lampe sur du travertin", model: "gpt-image-2", aspectRatio: "4:3" } });
+  it("renders image-shaped pending frames inside the result grid", () => {
+    const html = renderStudioView({ workspaceName: "Studio", generations: [], pending: { prompt: "Une lampe sur du travertin", model: "gpt-image-2", aspectRatio: "4:3", numImages: 2 } });
     expect(html).toContain('data-generation-pending');
-    expect(html.indexOf('data-generation-pending')).toBeLessThan(html.indexOf('data-result-grid'));
+    expect(html.indexOf('data-result-grid')).toBeLessThan(html.indexOf('data-generation-pending'));
+    expect(html.match(/data-generation-pending/g)).toHaveLength(2);
+    expect(html).toContain('style="aspect-ratio:4/3"');
+    expect(html).toContain('class="pending-image-spinner"');
     expect(html).toContain("GPT Image 2");
     expect(html).toContain("Génération en cours");
   });

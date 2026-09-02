@@ -1,4 +1,9 @@
-.generation-thread{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin:0 0 20px;padding:22px;border:1px solid #4d4837;border-radius:14px;background:#1b1913;box-shadow:0 14px 40px #0005}
-.generation-thread span{color:#fbc531;font-size:11px;font-weight:800}.generation-thread h2{margin:5px 0;font-size:20px}.generation-thread p{margin:0;color:#98958d;font-size:12px}
-.thread-spinner,.mini-spinner{border:2px solid #59564d;border-top-color:#fbc531;border-radius:50%;animation:spin .8s linear infinite}.thread-spinner{width:42px;height:42px}.mini-spinner{width:30px;height:30px}
+.pending-image-frame{position:relative;display:grid;place-items:center;min-width:0;overflow:hidden;border:1px solid #514923;border-radius:14px;background:linear-gradient(145deg,#242116,#121210 58%,#1e1b13);isolation:isolate}
+.pending-image-frame::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 22%,#fbc53110 43%,#fbc5312b 50%,#fbc53110 57%,transparent 78%);transform:translateX(-100%);animation:image-scan 2.2s ease-in-out infinite}
+.pending-image-glow{position:absolute;width:45%;aspect-ratio:1;border-radius:50%;background:#fbc53122;filter:blur(44px);animation:image-pulse 1.8s ease-in-out infinite}
+.pending-image-spinner,.mini-spinner{border:2px solid #59564d;border-top-color:#fbc531;border-radius:50%;animation:spin .8s linear infinite}.pending-image-spinner{z-index:1;width:46px;height:46px;box-shadow:0 0 28px #fbc53120}.mini-spinner{width:30px;height:30px}
+.pending-image-copy{position:absolute;z-index:1;right:18px;bottom:18px;left:18px;display:grid;gap:4px;padding:13px 14px;border:1px solid #ffffff14;border-radius:10px;background:#0b0b09c7;backdrop-filter:blur(10px)}
+.pending-image-copy span{color:#fbc531;font-size:10px;font-weight:800}.pending-image-copy strong{overflow:hidden;color:#f6f3e9;font-size:13px;text-overflow:ellipsis;white-space:nowrap}.pending-image-copy small{color:#8d8a81;font-size:10px}
 .studio-history .is-generating{background:#242117!important;border:1px solid #4b4121!important}
+@keyframes image-scan{0%,15%{transform:translateX(-100%)}75%,100%{transform:translateX(100%)}}@keyframes image-pulse{0%,100%{opacity:.45;transform:scale(.82)}50%{opacity:1;transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.pending-image-frame::before,.pending-image-glow,.pending-image-spinner,.mini-spinner{animation:none}}

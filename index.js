@@ -29426,7 +29426,7 @@ var MODELS = {
   "nano-banana-2": { id: "nano-banana-2", label: "Nano Banana 2", description: "Rapide, r\xE9aliste et fid\xE8le au produit", textEndpoint: "fal-ai/nano-banana-2", referenceEndpoint: "fal-ai/nano-banana-2/edit", inputMode: "aspect", referenceKey: "image_urls" },
   "nano-banana-pro": { id: "nano-banana-pro", label: "Nano Banana Pro", description: "Composition premium et texte pr\xE9cis", textEndpoint: "fal-ai/nano-banana-pro", referenceEndpoint: "fal-ai/nano-banana-pro/edit", inputMode: "aspect", referenceKey: "image_urls" },
   "gpt-image-2": { id: "gpt-image-2", label: "GPT Image 2", description: "Prompt complexe, typographie et retouche", textEndpoint: "openai/gpt-image-2", referenceEndpoint: "openai/gpt-image-2/edit", inputMode: "size", referenceKey: "image_urls" },
-  "flux-2-flex": { id: "flux-2-flex", label: "FLUX.2 Flex", description: "Direction artistique et d\xE9tails contr\xF4l\xE9s", textEndpoint: "fal-ai/flux-2-flex", referenceEndpoint: "fal-ai/flux-pro/kontext", inputMode: "size", referenceKey: "image_url" }
+  "flux-2-flex": { id: "flux-2-flex", label: "FLUX.2 Flex", description: "Direction artistique et d\xE9tails contr\xF4l\xE9s", textEndpoint: "fal-ai/flux-2-flex", referenceEndpoint: "fal-ai/flux-2-flex/edit", inputMode: "size", referenceKey: "image_urls" }
 };
 var SIZES = {
   "1:1": { width: 1024, height: 1024 },
@@ -40331,15 +40331,20 @@ function createFalImageStudio(key, fetcher = fetch) {
     const controller = new AbortController();
     const timer2 = setTimeout(() => controller.abort(), 9e4);
     const endpoint = input.referenceUrl ? model.referenceEndpoint : model.textEndpoint;
-    const body = { prompt: input.prompt, num_images: input.numImages, output_format: "webp" };
+    const body = { prompt: input.prompt, output_format: model.id === "flux-2-flex" ? "png" : "webp" };
+    if (model.id !== "flux-2-flex") body.num_images = input.numImages;
     if (model.inputMode === "aspect") body.aspect_ratio = input.aspectRatio;
     else body.image_size = size2;
     if (input.referenceUrl) body[model.referenceKey] = model.referenceKey === "image_urls" ? [input.referenceUrl] : input.referenceUrl;
     try {
-      const response = await fetcher(`https://fal.run/${endpoint}`, { method: "POST", signal: controller.signal, headers: { Authorization: `Key ${key}`, "content-type": "application/json" }, body: JSON.stringify(body) });
-      if (!response.ok) throw new Error(`Fal ${response.status}: ${(await response.text()).slice(0, 240)}`);
-      const payload = await response.json();
-      const images = Array.isArray(payload.images) ? payload.images : payload.image ? [payload.image] : [];
+      const requestOnce = async () => {
+        const response = await fetcher(`https://fal.run/${endpoint}`, { method: "POST", signal: controller.signal, headers: { Authorization: `Key ${key}`, "content-type": "application/json" }, body: JSON.stringify(body) });
+        if (!response.ok) throw new Error(`Fal ${response.status}: ${(await response.text()).slice(0, 240)}`);
+        const payload = await response.json();
+        return Array.isArray(payload.images) ? payload.images : payload.image ? [payload.image] : [];
+      };
+      const batches = await Promise.all(Array.from({ length: model.id === "flux-2-flex" ? input.numImages : 1 }, requestOnce));
+      const images = batches.flat();
       if (!images.length || images.some((image2) => typeof image2?.url !== "string")) throw new Error("Fal returned no image");
       return { images };
     } finally {
