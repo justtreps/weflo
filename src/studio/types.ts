@@ -1,4 +1,4 @@
-export type ImageModelId = "flux-kontext-pro" | "flux-kontext-max" | "ideogram-v3" | "recraft-v3";
+export type ImageModelId = "nano-banana-2" | "nano-banana-pro" | "gpt-image-2" | "flux-2-flex";
 export type ImageAspectRatio = "1:1" | "4:3" | "16:9" | "3:4" | "9:16";
 export type GeneratedImage = { url: string; width?: number; height?: number; contentType?: string };
 export type ImageGeneration = {

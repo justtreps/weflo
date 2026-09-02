@@ -1,12 +1,12 @@
 import type { ImageAspectRatio, ImageModelId } from "./types";
 
-export type ImageModelDefinition = { id: ImageModelId; label: string; description: string; textEndpoint: string; referenceEndpoint: string };
+export type ImageModelDefinition = { id: ImageModelId; label: string; description: string; textEndpoint: string; referenceEndpoint: string; inputMode: "aspect" | "size"; referenceKey: "image_url" | "image_urls" };
 
 const MODELS: Record<ImageModelId, ImageModelDefinition> = {
-  "flux-kontext-pro": { id: "flux-kontext-pro", label: "Flux Kontext Pro", description: "Rapide, fidèle au produit", textEndpoint: "fal-ai/flux-pro/kontext/text-to-image", referenceEndpoint: "fal-ai/flux-pro/kontext" },
-  "flux-kontext-max": { id: "flux-kontext-max", label: "Flux Kontext Max", description: "Fidélité et finition maximales", textEndpoint: "fal-ai/flux-pro/kontext/max/text-to-image", referenceEndpoint: "fal-ai/flux-pro/kontext/max" },
-  "ideogram-v3": { id: "ideogram-v3", label: "Ideogram V3", description: "Visuels publicitaires avec texte", textEndpoint: "fal-ai/ideogram/v3", referenceEndpoint: "fal-ai/flux-pro/kontext" },
-  "recraft-v3": { id: "recraft-v3", label: "Recraft V3", description: "Direction artistique e-commerce", textEndpoint: "fal-ai/recraft/v3/text-to-image", referenceEndpoint: "fal-ai/recraft/v3/image-to-image" },
+  "nano-banana-2": { id: "nano-banana-2", label: "Nano Banana 2", description: "Rapide, réaliste et fidèle au produit", textEndpoint: "fal-ai/nano-banana-2", referenceEndpoint: "fal-ai/nano-banana-2/edit", inputMode: "aspect", referenceKey: "image_urls" },
+  "nano-banana-pro": { id: "nano-banana-pro", label: "Nano Banana Pro", description: "Composition premium et texte précis", textEndpoint: "fal-ai/nano-banana-pro", referenceEndpoint: "fal-ai/nano-banana-pro/edit", inputMode: "aspect", referenceKey: "image_urls" },
+  "gpt-image-2": { id: "gpt-image-2", label: "GPT Image 2", description: "Prompt complexe, typographie et retouche", textEndpoint: "openai/gpt-image-2", referenceEndpoint: "openai/gpt-image-2/edit", inputMode: "size", referenceKey: "image_urls" },
+  "flux-2-flex": { id: "flux-2-flex", label: "FLUX.2 Flex", description: "Direction artistique et détails contrôlés", textEndpoint: "fal-ai/flux-2-flex", referenceEndpoint: "fal-ai/flux-pro/kontext", inputMode: "size", referenceKey: "image_url" },
 };
 
 const SIZES: Record<ImageAspectRatio, { width: number; height: number }> = {

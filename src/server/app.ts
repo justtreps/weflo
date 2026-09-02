@@ -54,6 +54,7 @@ function assetType(name: string): string {
 const htmlRoutes: Record<string, string> = {
   "/": "accueil.html",
   "/start": "start.html",
+  "/creer": "creer.html",
   "/connexion": "connexion.html",
   "/dashboard": "dashboard.html",
   "/creations": "creations.html",

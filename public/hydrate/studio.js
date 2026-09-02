@@ -1,9 +1,9 @@
 // src/studio/models.ts
 var MODELS = {
-  "flux-kontext-pro": { id: "flux-kontext-pro", label: "Flux Kontext Pro", description: "Rapide, fid\xE8le au produit", textEndpoint: "fal-ai/flux-pro/kontext/text-to-image", referenceEndpoint: "fal-ai/flux-pro/kontext" },
-  "flux-kontext-max": { id: "flux-kontext-max", label: "Flux Kontext Max", description: "Fid\xE9lit\xE9 et finition maximales", textEndpoint: "fal-ai/flux-pro/kontext/max/text-to-image", referenceEndpoint: "fal-ai/flux-pro/kontext/max" },
-  "ideogram-v3": { id: "ideogram-v3", label: "Ideogram V3", description: "Visuels publicitaires avec texte", textEndpoint: "fal-ai/ideogram/v3", referenceEndpoint: "fal-ai/flux-pro/kontext" },
-  "recraft-v3": { id: "recraft-v3", label: "Recraft V3", description: "Direction artistique e-commerce", textEndpoint: "fal-ai/recraft/v3/text-to-image", referenceEndpoint: "fal-ai/recraft/v3/image-to-image" }
+  "nano-banana-2": { id: "nano-banana-2", label: "Nano Banana 2", description: "Rapide, r\xE9aliste et fid\xE8le au produit", textEndpoint: "fal-ai/nano-banana-2", referenceEndpoint: "fal-ai/nano-banana-2/edit", inputMode: "aspect", referenceKey: "image_urls" },
+  "nano-banana-pro": { id: "nano-banana-pro", label: "Nano Banana Pro", description: "Composition premium et texte pr\xE9cis", textEndpoint: "fal-ai/nano-banana-pro", referenceEndpoint: "fal-ai/nano-banana-pro/edit", inputMode: "aspect", referenceKey: "image_urls" },
+  "gpt-image-2": { id: "gpt-image-2", label: "GPT Image 2", description: "Prompt complexe, typographie et retouche", textEndpoint: "openai/gpt-image-2", referenceEndpoint: "openai/gpt-image-2/edit", inputMode: "size", referenceKey: "image_urls" },
+  "flux-2-flex": { id: "flux-2-flex", label: "FLUX.2 Flex", description: "Direction artistique et d\xE9tails contr\xF4l\xE9s", textEndpoint: "fal-ai/flux-2-flex", referenceEndpoint: "fal-ai/flux-pro/kontext", inputMode: "size", referenceKey: "image_url" }
 };
 function imageModels() {
   return Object.values(MODELS);
@@ -26,8 +26,10 @@ function renderStudioView(input) {
   const latest = input.generations[0];
   const images = input.generations.flatMap((generation) => generation.images.map((image, index) => resultCard(generation, image.url, index))).join("");
   const history = input.generations.map((generation) => `<button data-history-id="${esc(generation.id)}"><span>${generation.images[0] ? `<img src="${esc(generation.images[0].url)}" alt="">` : "\u2726"}</span><span><strong>${esc(generation.prompt)}</strong><small>${esc(imageModels().find((item) => item.id === generation.model)?.label ?? generation.model)} \xB7 ${esc(generation.aspectRatio)}</small></span></button>`).join("");
-  return `<div class="studio-shell"><aside class="studio-history"><a class="studio-brand" href="/dashboard">weflo<span>.</span></a><a class="back-link" href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><button class="new-session" data-new-session>\uFF0B Nouvelle cr\xE9ation</button><p class="side-title">HISTORIQUE</p><div data-studio-history>${history || `<p class="empty-history">Tes g\xE9n\xE9rations appara\xEEtront ici.</p>`}</div><nav><a href="/creations">\u25A3 Mes cr\xE9ations</a><a href="/boutique">${shopifyLogo()} Ma boutique</a></nav></aside>
-    <main class="studio-canvas"><header><div><p class="eyebrow">STUDIO IMAGES</p><h1>Imagine. G\xE9n\xE8re. Vends.</h1></div><span>${esc(input.workspaceName)}</span></header><section class="result-grid" data-result-grid>${images || `<div class="studio-empty"><span>\u2726</span><h2>Ton prochain visuel commence par une id\xE9e.</h2><p>D\xE9cris une sc\xE8ne, ajoute ton produit en r\xE9f\xE9rence et choisis le mod\xE8le adapt\xE9.</p><div><button data-prompt-example="Photo e-commerce premium du produit, lumi\xE8re naturelle et fond \xE9ditorial">Photo produit premium</button><button data-prompt-example="Publicit\xE9 Meta avec une accroche courte et lisible, produit parfaitement fid\xE8le">Static Meta avec texte</button><button data-prompt-example="Le produit dans une vraie sc\xE8ne de vie, composition cr\xE9dible et \xE9l\xE9gante">Lifestyle r\xE9aliste</button></div></div>`}</section>
+  const pending = input.pending ? `<article class="generation-thread is-loading" data-generation-pending><div class="thread-spinner"></div><div><span>G\xE9n\xE9ration en cours</span><h2>${esc(input.pending.prompt)}</h2><p>${esc(imageModels().find((item) => item.id === input.pending?.model)?.label ?? input.pending.model)} \xB7 ${esc(input.pending.aspectRatio)} \xB7 Weflo pr\xE9pare le cadrage, la lumi\xE8re et les d\xE9tails.</p></div></article>` : "";
+  const pendingHistory = input.pending ? `<button class="is-generating"><span class="mini-spinner"></span><span><strong>${esc(input.pending.prompt)}</strong><small>G\xE9n\xE9ration en cours\u2026</small></span></button>` : "";
+  return `<div class="studio-shell"><aside class="studio-history"><a class="studio-brand" href="/dashboard">weflo<span>.</span></a><a class="back-link" href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><button class="new-session" data-new-session>\uFF0B Nouvelle cr\xE9ation</button><p class="side-title">HISTORIQUE</p><div data-studio-history>${pendingHistory}${history || (!input.pending ? `<p class="empty-history">Tes g\xE9n\xE9rations appara\xEEtront ici.</p>` : "")}</div><nav><a href="/creations">\u25A3 Mes cr\xE9ations</a><a href="/boutique">${shopifyLogo()} Ma boutique</a></nav></aside>
+    <main class="studio-canvas"><header><div><p class="eyebrow">STUDIO IMAGES</p><h1>Imagine. G\xE9n\xE8re. Vends.</h1></div><span>${esc(input.workspaceName)}</span></header>${pending}<section class="result-grid" data-result-grid>${images || (!input.pending ? `<div class="studio-empty"><span>\u2726</span><h2>Ton prochain visuel commence par une id\xE9e.</h2><p>D\xE9cris une sc\xE8ne, ajoute ton produit en r\xE9f\xE9rence et choisis le mod\xE8le adapt\xE9.</p><div><button data-prompt-example="Photo e-commerce premium du produit, lumi\xE8re naturelle et fond \xE9ditorial">Photo produit premium</button><button data-prompt-example="Publicit\xE9 Meta avec une accroche courte et lisible, produit parfaitement fid\xE8le">Static Meta avec texte</button><button data-prompt-example="Le produit dans une vraie sc\xE8ne de vie, composition cr\xE9dible et \xE9l\xE9gante">Lifestyle r\xE9aliste</button></div></div>` : "")}</section>
       <form class="studio-composer" data-studio-form><div class="reference-preview" data-reference-preview hidden><img alt="Produit de r\xE9f\xE9rence"><button type="button" data-reference-remove aria-label="Retirer la r\xE9f\xE9rence">\xD7</button></div><textarea name="prompt" placeholder="D\xE9cris l\u2019image que tu veux cr\xE9er\u2026" aria-label="Prompt de g\xE9n\xE9ration">${latest ? "" : ""}</textarea><div class="composer-row"><label class="attach">\uFF0B Image de r\xE9f\xE9rence<input type="file" accept="image/png,image/jpeg,image/webp" data-reference-input hidden></label><span class="product-lock">\u25C9 Fid\xE9lit\xE9 produit renforc\xE9e</span><button type="submit">G\xE9n\xE9rer <span>\u2197</span></button></div></form>
     </main><aside class="studio-settings"><header><strong>Direction artistique</strong><small>Chaque r\xE9glage reste modifiable.</small></header><section><p>MOD\xC8LE</p><div class="model-list">${imageModels().map((model, index) => `<button class="${index === 0 ? "is-active" : ""}" data-model="${model.id}"><span>\u2726</span><span><strong>${model.label}</strong><small>${model.description}</small></span><i>${index === 0 ? "Rapide" : "Pro"}</i></button>`).join("")}</div></section><section><p>FORMAT</p><div class="ratio-list">${["1:1", "4:3", "16:9", "3:4", "9:16"].map((ratio, index) => `<button class="${index === 0 ? "is-active" : ""}" data-ratio="${ratio}"><i style="aspect-ratio:${ratio.replace(":", "/")}"></i><span>${ratio}</span></button>`).join("")}</div></section><section><p>VARIANTES</p><div class="count-list">${[1, 2, 3, 4].map((n) => `<button class="${n === 1 ? "is-active" : ""}" data-count="${n}">${n}</button>`).join("")}</div></section><div class="studio-tip"><strong>Conseil Weflo</strong><p>Ajoute une photo nette du produit pour garder sa forme, ses mati\xE8res et ses d\xE9tails.</p></div></aside></div><dialog class="insert-dialog" data-insert-dialog><button data-insert-close aria-label="Fermer">\xD7</button><p class="eyebrow">UTILISER LE VISUEL</p><h2>Ajouter \xE0 une page</h2><p>Choisis la cr\xE9ation \xE0 ouvrir. Le visuel t\u2019attendra dans l\u2019\xE9diteur.</p><div data-page-choices></div></dialog>`;
 }
@@ -62,13 +64,14 @@ async function start() {
   const root = document.querySelector("#studio-app");
   if (!root) return;
   let history = await api("/api/studio/generations").catch(() => ({ generations: [] }));
-  let model = "flux-kontext-pro";
+  let model = "nano-banana-2";
   let ratio = "1:1";
   let count = 1;
   let referenceUrl = null;
   let insertUrl = "";
+  let pending = null;
   const render = () => {
-    root.innerHTML = renderStudioView({ workspaceName: me.workspace.name, generations: history.generations });
+    root.innerHTML = renderStudioView({ workspaceName: me.workspace.name, generations: history.generations, pending });
     bind();
   };
   const setChoice = (selector, selected) => {
@@ -134,15 +137,22 @@ async function start() {
     root.querySelector("[data-studio-form]")?.addEventListener("submit", async (event) => {
       event.preventDefault();
       const prompt = root.querySelector("textarea")?.value.trim() ?? "";
-      if (!prompt) return;
-      const grid = root.querySelector("[data-result-grid]");
-      if (grid) grid.innerHTML = `<div class="studio-progress"><div><span></span><h2>Weflo compose tes visuels\u2026</h2><p>Le produit reste la r\xE9f\xE9rence centrale.</p></div></div>`;
+      if (!prompt || pending) return;
+      pending = { prompt, model, aspectRatio: ratio };
+      const request = { model, aspectRatio: ratio, numImages: count, referenceUrl };
+      render();
+      root.querySelector("[data-generation-pending]")?.scrollIntoView({ behavior: "smooth", block: "start" });
       try {
-        const generated = await api("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt, model, aspectRatio: ratio, numImages: count, referenceUrl }) });
+        const generated = await api("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt, ...request }) });
         history = { generations: [generated, ...history.generations] };
+        pending = null;
         render();
+        root.querySelector(`[data-generation-id="${generated.id}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
       } catch (error) {
-        if (grid) grid.innerHTML = `<div class="studio-error"><div><h2>La g\xE9n\xE9ration n\u2019a pas abouti.</h2><p>${error instanceof Error ? error.message : "R\xE9essaie dans un instant."}</p><button onclick="location.reload()">R\xE9essayer</button></div></div>`;
+        pending = null;
+        render();
+        const grid = root.querySelector("[data-result-grid]");
+        if (grid) grid.insertAdjacentHTML("afterbegin", `<div class="studio-error"><div><h2>La g\xE9n\xE9ration n\u2019a pas abouti.</h2><p>${error instanceof Error ? error.message : "R\xE9essaie dans un instant."}</p></div></div>`);
       }
     });
     root.querySelectorAll("[data-image-command]").forEach((button) => button.addEventListener("click", async () => {
@@ -157,7 +167,7 @@ async function start() {
         const dialog2 = root.querySelector("[data-insert-dialog]");
         const pages = await api("/api/pages");
         const choices = dialog2.querySelector("[data-page-choices]");
-        choices.innerHTML = pages.pages.length ? pages.pages.map((page) => `<button data-page-id="${page.id}">${page.name}<small> \xB7 ${page.type === "sell" ? "Page produit" : "Page"}</small></button>`).join("") : `<a href="/start">Cr\xE9er une page d\u2019abord</a>`;
+        choices.innerHTML = pages.pages.length ? pages.pages.map((page) => `<button data-page-id="${page.id}">${page.name}<small> \xB7 ${page.type === "sell" ? "Page produit" : "Page"}</small></button>`).join("") : `<a href="/creer">Cr\xE9er une page d\u2019abord</a>`;
         choices.querySelectorAll("[data-page-id]").forEach((choice) => choice.addEventListener("click", () => {
           const pageId = choice.dataset.pageId;
           sessionStorage.setItem("weflo-studio-insert", JSON.stringify({ pageId, imageUrl: insertUrl }));

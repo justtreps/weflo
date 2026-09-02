@@ -18,14 +18,14 @@ describe("studio image API", () => {
   it("validates prompts and reports a missing provider as JSON", async () => {
     const { app } = await setup();
     expect((await app.request("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" })).status).toBe(400);
-    const response = await app.request("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: "Une lampe premium", model: "flux-kontext-pro", aspectRatio: "1:1", numImages: 1 }) });
+    const response = await app.request("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: "Une lampe premium", model: "nano-banana-2", aspectRatio: "1:1", numImages: 1 }) });
     expect(response.status).toBe(503);
     expect(response.headers.get("content-type")).toContain("application/json");
   });
 
   it("persists a successful generation in workspace history", async () => {
     const { app } = await setup({ generate: async () => ({ images: [{ url: "https://fal.media/lamp.webp", width: 1024, height: 1024 }] }) });
-    const generated = await app.request("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: "Une lampe premium", model: "recraft-v3", aspectRatio: "1:1", numImages: 1 }) });
+    const generated = await app.request("/api/studio/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: "Une lampe premium", model: "gpt-image-2", aspectRatio: "1:1", numImages: 1 }) });
     expect(generated.status).toBe(201);
     expect(await generated.json()).toMatchObject({ prompt: "Une lampe premium", status: "completed", images: [{ url: "https://fal.media/lamp.webp" }] });
     const history = await app.request("/api/studio/generations");

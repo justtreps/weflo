@@ -83,9 +83,9 @@ function renderCreationsView(model) {
     <aside class="workspace-sidebar"><a class="wordmark" href="/dashboard">weflo<span>.</span></a><nav>
       <a href="/dashboard">\u2302 <span>Accueil</span></a><a class="is-active" href="/creations">\u25A3 <span>Mes cr\xE9ations</span><b>${model.totalProjects}</b></a><a href="/studio">\u2726 <span>Studio images</span></a><a href="/boutique"><span class="nav-shopify">${shopifyLogo()}</span><span>Ma boutique</span></a><a href="/facturation">\u25C8 <span>Abonnement</span></a>
     </nav><div class="sidebar-foot"><a href="/parrainage">\u2667 <span>Parrainage</span></a><a href="/facturation">\u2699 <span>R\xE9glages</span></a><p><strong>${escapeHtml(model.workspace.name)}</strong><small>Ton espace</small></p></div></aside>
-    <main class="creations-main"><header><div><p class="eyebrow">BIBLIOTH\xC8QUE</p><h1>Mes cr\xE9ations</h1><p>Retrouve, pr\xE9visualise et publie toutes tes pages.</p></div><a class="primary-cta" href="/start">\uFF0B Nouvelle cr\xE9ation</a></header>
+    <main class="creations-main"><header><div><p class="eyebrow">BIBLIOTH\xC8QUE</p><h1>Mes cr\xE9ations</h1><p>Retrouve, pr\xE9visualise et publie toutes tes pages.</p></div><a class="primary-cta" href="/creer">\uFF0B Nouvelle cr\xE9ation</a></header>
       <section class="library-tools"><label><span>\u2315</span><input type="search" placeholder="Rechercher une cr\xE9ation\u2026" data-creation-search></label><div><button class="is-active" data-filter="all">Toutes</button><button data-filter="sell">Pages produit</button><button data-filter="write">\xC9ditorial</button><button data-filter="blank">Sur mesure</button></div></section>
-      <section class="creation-grid" data-creation-grid>${model.projects.length ? model.projects.map(card).join("") : `<a class="creation-empty" href="/start"><span>\uFF0B</span><strong>Cr\xE9e ta premi\xE8re boutique</strong><small>Importe un produit ou pars d\u2019une page vierge.</small></a>`}</section>
+      <section class="creation-grid" data-creation-grid>${model.projects.length ? model.projects.map(card).join("") : `<a class="creation-empty" href="/creer"><span>\uFF0B</span><strong>Cr\xE9e ta premi\xE8re boutique</strong><small>Importe un produit ou pars d\u2019une page vierge.</small></a>`}</section>
     </main></div>`;
 }
 

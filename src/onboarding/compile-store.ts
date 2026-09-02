@@ -4,6 +4,7 @@ import type { BrandKit, BuyerPersona, ImportedProduct, MarketingAngle } from "./
 import { buildProductTruthSheet } from "./product-truth";
 import { selectArtDirection } from "./art-direction";
 import { buildStoreRecipe } from "./store-recipe";
+import { sectionTypesForCreation, type CreationFormatId } from "./creation-recipe";
 
 export type BuildStoreInput = {
   product: ImportedProduct;
@@ -13,6 +14,7 @@ export type BuildStoreInput = {
   personas: BuyerPersona[];
   angles: MarketingAngle[];
   brandKit: BrandKit;
+  creationFormat?: CreationFormatId;
 };
 
 const copy = {
@@ -103,12 +105,20 @@ export function buildStoreDocument(input: BuildStoreInput): EditorDocument {
     ]],
     ["benefits", { title: strings.benefits, text: selectedAngles.map((angle) => angle.title).slice(0, 3).join(" · ") || strings.detail }, selectedAngles.slice(0, 4).map((angle, index) => item(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
     ["imageText", { title: strings.detail, subtitle: selectedPersonas[0]?.title ?? "", text: selectedPersonas[0]?.insight ?? product.description, image: product.images[1] ?? heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
+    ["hero", { title: selectedAngles[0]?.title ?? product.title, subtitle: product.vendor || strings.heroEyebrow, text: selectedAngles[0]?.description ?? product.description, image: heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
+    ["comparison", { title: "Pourquoi cette solution change la donne", text: product.description }, selectedAngles.slice(0, 4).map((angle, index) => item(`comparison-${index + 1}`, angle.title, angle.description))],
+    ["richText", { title: `L’histoire derrière ${product.title}`, text: `${product.description}\n\n${selectedPersonas[0]?.insight ?? "Une réponse pensée pour un besoin concret, expliquée simplement."}` }],
+    ["press", { title: "Vu, analysé et recommandé", text: "Les points qui distinguent vraiment cette offre." }, selectedAngles.slice(0, 3).map((angle, index) => item(`press-${index + 1}`, angle.title, angle.description))],
+    ["quiz", { title: "Trouvons la bonne option pour vous", text: "Répondez à quelques questions pour obtenir une recommandation." }, selectedPersonas.slice(0, 4).map((persona, index) => item(`quiz-${index + 1}`, persona.title, persona.insight))],
+    ["form", { title: "Recevez votre recommandation", text: "Indiquez votre e-mail pour découvrir le résultat.", cta_label: "Voir ma recommandation" }],
+    ["collectionGrid", { title: `Découvrir ${input.brandName}`, text: "Les essentiels de la marque, réunis au même endroit." }, product.images.slice(0, 6).map((url, index) => item(`collection-${index + 1}`, `${product.title} ${index + 1}`, product.description, { image: url }))],
+    ["newsletter", { title: "Restez au courant", text: "Nouveautés, conseils et offres de la marque.", cta_label: "S’inscrire" }],
   ];
+
+  sectionInputs.push(["testimonials", { title: strings.inspiration, subtitle: "", text: "" }, selectedPersonas.slice(0, 3).map((persona, index) => item(`persona-proof-${index + 1}`, persona.title, persona.insight, { tags: persona.tags }))]);
 
   if (product.reviews.length) {
     sectionInputs.push(["reviews", { title: strings.reviews, subtitle: product.rating ? `${product.rating}/5` : "", text: strings.reviewsIntro }, product.reviews.slice(0, 8).map((review, index) => item(`review-${index + 1}`, review.title || review.author, review.text, { author: review.author, rating: review.rating, image: review.image ?? "" }))]);
-  } else {
-    sectionInputs.push(["testimonials", { title: strings.inspiration, subtitle: "", text: "" }, selectedPersonas.slice(0, 3).map((persona, index) => item(`persona-proof-${index + 1}`, persona.title, persona.insight, { tags: persona.tags }))]);
   }
 
   sectionInputs.push(
@@ -119,7 +129,10 @@ export function buildStoreDocument(input: BuildStoreInput): EditorDocument {
     ["footer", { title: input.brandName, text: strings.footer, cta_label: "" }, [item("footer-shop", strings.shop, "", { label: strings.shop, link: "#product" })]],
   );
 
-  const recipeSections = recipe.sections.map((recipeItem) => {
+  const proof = product.reviews.length ? "reviews" : "testimonials";
+  const requestedTypes = sectionTypesForCreation(input.creationFormat ?? "store", artDirection.id, proof);
+  const selectedRecipe = requestedTypes.length ? requestedTypes.map((type) => ({ type, variant: `${input.creationFormat ?? "store"}-${type}`, purpose: "Adapter la section au format" })) : recipe.sections;
+  const recipeSections = selectedRecipe.map((recipeItem) => {
     const source = sectionInputs.find(([type]) => type === recipeItem.type);
     if (!source) throw new Error(`Recipe uses unavailable section: ${recipeItem.type}`);
     return [source[0], { ...source[1], variant: recipeItem.variant, purpose: recipeItem.purpose }, source[2]] as [string, Record<string, SettingValue>, EditorBlock[]?];
@@ -130,7 +143,7 @@ export function buildStoreDocument(input: BuildStoreInput): EditorDocument {
     version: 2,
     name: input.brandName,
     path: "/",
-    kind: "product",
+    kind: input.creationFormat === "home" ? "home" : input.creationFormat === "product" || input.creationFormat === "store" || !input.creationFormat ? "product" : "landing",
     modelId: input.modelId,
     theme: {
       background: artDirection.palette[0] ?? firstScheme?.background ?? "#ffffff",

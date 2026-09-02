@@ -6,6 +6,7 @@ import type { Page, PageType, Workspace } from "../types";
 import { dashboardHomeModel } from "../dashboard/home-model";
 import { renderDashboardHome } from "../dashboard/home-view";
 import "./dashboard-home.css";
+import { creationActionUrl } from "../create/workspace";
 
 const TYPE_LABEL: Record<PageType, string> = {
   sell: "Page produit",
@@ -435,17 +436,17 @@ export async function hydrateDashboard() {
     home.querySelector<HTMLFormElement>("[data-dashboard-prompt]")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const value = home.querySelector<HTMLTextAreaElement>("textarea")?.value.trim() ?? "";
-      location.assign(value ? `/start?source=${encodeURIComponent(value)}` : "/start");
+      location.assign(creationActionUrl("generate", value));
     });
     for (const button of home.querySelectorAll<HTMLElement>("[data-dashboard-action]")) {
       button.addEventListener("click", (event) => {
         const action = button.dataset.dashboardAction;
         if (action === "generate" && button.closest("form")) return;
         event.preventDefault();
-        if (action === "generate" || action === "link") location.assign(action === "link" ? "/start?mode=link" : "/start");
-        if (action === "image") location.assign("/start?mode=image");
+        if (action === "generate" || action === "link") location.assign(creationActionUrl(action));
+        if (action === "image") location.assign(creationActionUrl("image"));
         if (action === "shopify") location.assign("/facturation#shopify");
-        if (action === "blank") void createAndOpen("blank", "Page vierge");
+        if (action === "blank") location.assign(creationActionUrl("blank"));
         if (action === "all") home.querySelector("#creations")?.scrollIntoView({ behavior: "smooth" });
       });
     }

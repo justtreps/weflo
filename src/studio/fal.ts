@@ -10,8 +10,10 @@ export function createFalImageStudio(key: string, fetcher: Fetch = fetch): Image
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 90_000);
     const endpoint = input.referenceUrl ? model.referenceEndpoint : model.textEndpoint;
-    const body: Record<string, unknown> = { prompt: input.prompt, image_size: size, num_images: input.numImages, output_format: "webp", safety_tolerance: "2" };
-    if (input.referenceUrl) body.image_url = input.referenceUrl;
+    const body: Record<string, unknown> = { prompt: input.prompt, num_images: input.numImages, output_format: "webp" };
+    if (model.inputMode === "aspect") body.aspect_ratio = input.aspectRatio;
+    else body.image_size = size;
+    if (input.referenceUrl) body[model.referenceKey] = model.referenceKey === "image_urls" ? [input.referenceUrl] : input.referenceUrl;
     try {
       const response = await fetcher(`https://fal.run/${endpoint}`, { method: "POST", signal: controller.signal, headers: { Authorization: `Key ${key}`, "content-type": "application/json" }, body: JSON.stringify(body) });
       if (!response.ok) throw new Error(`Fal ${response.status}: ${(await response.text()).slice(0, 240)}`);

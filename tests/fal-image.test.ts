@@ -4,11 +4,22 @@ import { imageModel, imageSizeFor } from "../src/studio/models";
 
 describe("Fal image studio", () => {
   it("maps each public model and format to a supported Fal request", () => {
-    expect(imageModel("flux-kontext-pro").textEndpoint).toBe("fal-ai/flux-pro/kontext/text-to-image");
-    expect(imageModel("flux-kontext-max").referenceEndpoint).toBe("fal-ai/flux-pro/kontext/max");
-    expect(imageModel("ideogram-v3").textEndpoint).toBe("fal-ai/ideogram/v3");
-    expect(imageModel("recraft-v3").referenceEndpoint).toBe("fal-ai/recraft/v3/image-to-image");
+    expect(imageModel("nano-banana-2").textEndpoint).toBe("fal-ai/nano-banana-2");
+    expect(imageModel("nano-banana-pro").referenceEndpoint).toContain("nano-banana-pro");
+    expect(imageModel("gpt-image-2").textEndpoint).toBe("openai/gpt-image-2");
+    expect(imageModel("flux-2-flex").textEndpoint).toContain("flux-2-flex");
     expect(imageSizeFor("9:16")).toEqual({ width: 768, height: 1365 });
+  });
+
+  it("uses aspect_ratio for modern multimodal models", async () => {
+    let body: Record<string, unknown> = {};
+    const studio = createFalImageStudio("secret", async (_input, init) => {
+      body = JSON.parse(String(init?.body));
+      return new Response(JSON.stringify({ images: [{ url: "https://fal.media/generated.webp" }] }), { status: 200 });
+    });
+    await studio.generate({ model: "nano-banana-2", prompt: "Produit premium", aspectRatio: "16:9", numImages: 1 });
+    expect(body).toMatchObject({ aspect_ratio: "16:9", num_images: 1 });
+    expect(body).not.toHaveProperty("image_size");
   });
 
   it("sends a reference image to a compatible image-to-image endpoint", async () => {
@@ -17,11 +28,11 @@ describe("Fal image studio", () => {
       request = { url: String(input), init };
       return new Response(JSON.stringify({ images: [{ url: "https://fal.media/generated.webp", width: 1024, height: 1024 }] }), { status: 200, headers: { "content-type": "application/json" } });
     });
-    const result = await studio.generate({ model: "flux-kontext-pro", prompt: "Conserve exactement cette lampe", aspectRatio: "1:1", numImages: 1, referenceUrl: "https://cdn.example/lamp.jpg" });
+    const result = await studio.generate({ model: "nano-banana-pro", prompt: "Conserve exactement cette lampe", aspectRatio: "1:1", numImages: 1, referenceUrl: "https://cdn.example/lamp.jpg" });
 
-    expect(request?.url).toBe("https://fal.run/fal-ai/flux-pro/kontext");
+    expect(request?.url).toBe("https://fal.run/fal-ai/nano-banana-pro/edit");
     expect(request?.init?.headers).toMatchObject({ Authorization: "Key secret" });
-    expect(JSON.parse(String(request?.init?.body))).toMatchObject({ image_url: "https://cdn.example/lamp.jpg", prompt: expect.stringContaining("exactement") });
+    expect(JSON.parse(String(request?.init?.body))).toMatchObject({ image_urls: ["https://cdn.example/lamp.jpg"], prompt: expect.stringContaining("exactement") });
     expect(result.images[0].url).toContain("generated.webp");
   });
 });

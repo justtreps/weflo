@@ -7,6 +7,7 @@ import { createOnboardingDraftInput, initialBuildStages } from "../onboarding/sc
 import { claimTokenMatches, createClaimToken } from "../onboarding/token";
 import type { ImportedProduct, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
 import type { AppDeps } from "./app";
+import { isCreationFormat } from "../onboarding/creation-recipe";
 import { ensureWorkspace, requireUser } from "./pages";
 
 function publicDraft(draft: OnboardingDraft): Omit<OnboardingDraft, "claimTokenHash"> {
@@ -173,6 +174,7 @@ export function onboardingRoutes(deps: AppDeps) {
       }
     }
     if (typeof body.modelId === "string") patch.modelId = body.modelId.slice(0, 60);
+    if (isCreationFormat(body.creationFormat)) patch.creationFormat = body.creationFormat;
     if (typeof body.brandName === "string") patch.brandName = body.brandName.trim().slice(0, 60);
     if (Array.isArray(body.personas)) patch.personas = body.personas as OnboardingDraft["personas"];
     if (Array.isArray(body.angles)) patch.angles = body.angles as OnboardingDraft["angles"];
@@ -188,7 +190,7 @@ export function onboardingRoutes(deps: AppDeps) {
     const brandName = draft.brandName || draft.brandNames[0] || draft.product.vendor || "Weflo Store";
     const modelId = draft.modelId || "proteo";
     const brandKit = draft.brandKit ?? createBrandKit(draft.product, modelId);
-    const document = buildStoreDocument({ product: draft.product, language: draft.language, brandName, modelId, personas: draft.personas, angles: draft.angles, brandKit });
+    const document = buildStoreDocument({ product: draft.product, language: draft.language, brandName, modelId, personas: draft.personas, angles: draft.angles, brandKit, creationFormat: draft.creationFormat });
     const updated = await deps.store.updateOnboardingDraft(draft.id, { status: "ready", stages, brandKit, document, brandName, modelId, error: null });
     return c.json({ draft: publicDraft(updated) });
   });
@@ -201,7 +203,8 @@ export function onboardingRoutes(deps: AppDeps) {
     if (!draft.document || draft.status !== "ready") return c.json({ error: "not_ready" }, 409);
     if (draft.claimedPageId) return c.json({ pageId: draft.claimedPageId, alreadyClaimed: true });
     const workspace = await ensureWorkspace(deps.store, user.id, { whop: deps.whop, email: user.email });
-    const page = await deps.store.createPage({ workspaceId: workspace.id, name: draft.brandName, slug: await uniqueSlug(deps, workspace.id, draft.brandName), type: "sell", status: "draft", document: draft.document as never });
+    const pageType = draft.creationFormat === "blog" ? "write" : draft.creationFormat === "blank" ? "blank" : "sell";
+    const page = await deps.store.createPage({ workspaceId: workspace.id, name: draft.brandName, slug: await uniqueSlug(deps, workspace.id, draft.brandName), type: pageType, status: "draft", document: draft.document as never });
     await deps.store.claimOnboardingDraft(draft.id, draft.claimTokenHash, user.id, page.id);
     return c.json({ pageId: page.id }, 201);
   });

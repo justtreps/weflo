@@ -432,6 +432,14 @@ function renderDashboardHome(model) {
     <nav class="mobile-nav"><a href="/dashboard">\u2302<span>Accueil</span></a><a href="/creations">\u25A3<span>Cr\xE9ations</span></a><a href="/studio">\u2726<span>Studio</span></a><a href="/boutique">\u25C6<span>Boutique</span></a><a href="/facturation">\u2699<span>R\xE9glages</span></a></nav>`;
 }
 
+// src/create/workspace.ts
+function creationActionUrl(action, prompt = "") {
+  if (action === "link") return "/creer?source=link";
+  if (action === "image") return "/creer?source=image";
+  if (action === "blank") return "/creer?format=blank";
+  return prompt ? `/creer?source=description&prompt=${encodeURIComponent(prompt)}` : "/creer";
+}
+
 // src/hydrate/dashboard.ts
 var TYPE_LABEL2 = {
   sell: "Page produit",
@@ -816,17 +824,17 @@ async function hydrateDashboard() {
     home.querySelector("[data-dashboard-prompt]")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const value = home.querySelector("textarea")?.value.trim() ?? "";
-      location.assign(value ? `/start?source=${encodeURIComponent(value)}` : "/start");
+      location.assign(creationActionUrl("generate", value));
     });
     for (const button of home.querySelectorAll("[data-dashboard-action]")) {
       button.addEventListener("click", (event) => {
         const action = button.dataset.dashboardAction;
         if (action === "generate" && button.closest("form")) return;
         event.preventDefault();
-        if (action === "generate" || action === "link") location.assign(action === "link" ? "/start?mode=link" : "/start");
-        if (action === "image") location.assign("/start?mode=image");
+        if (action === "generate" || action === "link") location.assign(creationActionUrl(action));
+        if (action === "image") location.assign(creationActionUrl("image"));
         if (action === "shopify") location.assign("/facturation#shopify");
-        if (action === "blank") void createAndOpen("blank", "Page vierge");
+        if (action === "blank") location.assign(creationActionUrl("blank"));
         if (action === "all") home.querySelector("#creations")?.scrollIntoView({ behavior: "smooth" });
       });
     }

@@ -28965,6 +28965,24 @@ function buildStoreRecipe(input) {
   return { id: `recipe-${input.artDirection.id}`, profileId: input.artDirection.id, sections: schemes[input.artDirection.id] };
 }
 
+// src/onboarding/creation-recipe.ts
+var FORMAT_RECIPES = {
+  product: ["announcement", "navigation", "productHero", "gallery", "productMain", "benefits", "reviews", "bundle", "shipping", "faq", "cta", "footer"],
+  landing: ["announcement", "navigation", "hero", "benefits", "imageText", "comparison", "reviews", "productMain", "guarantees", "faq", "cta", "footer"],
+  advertorial: ["navigation", "hero", "press", "richText", "imageText", "benefits", "reviews", "comparison", "productMain", "guarantees", "faq", "cta", "footer"],
+  quiz: ["navigation", "hero", "benefits", "quiz", "form", "testimonials", "productMain", "guarantees", "faq", "cta", "footer"],
+  home: ["announcement", "navigation", "hero", "collectionGrid", "imageText", "benefits", "testimonials", "newsletter", "footer"],
+  blog: ["navigation", "hero", "richText", "imageText", "press", "newsletter", "footer"],
+  blank: ["navigation", "hero", "footer"]
+};
+function isCreationFormat(value2) {
+  return typeof value2 === "string" && (value2 === "store" || value2 in FORMAT_RECIPES);
+}
+function sectionTypesForCreation(format, _profile, proof) {
+  if (format === "store") return [];
+  return FORMAT_RECIPES[format].map((type) => type === "reviews" ? proof : type);
+}
+
 // src/onboarding/compile-store.ts
 var copy = {
   fr: {
@@ -29075,12 +29093,21 @@ function buildStoreDocument(input) {
       item("bundle-family", strings.family, "", { price: product.price === null ? "" : money(product.price * 2.55, product.currency) })
     ]],
     ["benefits", { title: strings.benefits, text: selectedAngles.map((angle) => angle.title).slice(0, 3).join(" \xB7 ") || strings.detail }, selectedAngles.slice(0, 4).map((angle, index) => item(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
-    ["imageText", { title: strings.detail, subtitle: selectedPersonas[0]?.title ?? "", text: selectedPersonas[0]?.insight ?? product.description, image: product.images[1] ?? heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }]
+    ["imageText", { title: strings.detail, subtitle: selectedPersonas[0]?.title ?? "", text: selectedPersonas[0]?.insight ?? product.description, image: product.images[1] ?? heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
+    ["hero", { title: selectedAngles[0]?.title ?? product.title, subtitle: product.vendor || strings.heroEyebrow, text: selectedAngles[0]?.description ?? product.description, image: heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
+    ["comparison", { title: "Pourquoi cette solution change la donne", text: product.description }, selectedAngles.slice(0, 4).map((angle, index) => item(`comparison-${index + 1}`, angle.title, angle.description))],
+    ["richText", { title: `L\u2019histoire derri\xE8re ${product.title}`, text: `${product.description}
+
+${selectedPersonas[0]?.insight ?? "Une r\xE9ponse pens\xE9e pour un besoin concret, expliqu\xE9e simplement."}` }],
+    ["press", { title: "Vu, analys\xE9 et recommand\xE9", text: "Les points qui distinguent vraiment cette offre." }, selectedAngles.slice(0, 3).map((angle, index) => item(`press-${index + 1}`, angle.title, angle.description))],
+    ["quiz", { title: "Trouvons la bonne option pour vous", text: "R\xE9pondez \xE0 quelques questions pour obtenir une recommandation." }, selectedPersonas.slice(0, 4).map((persona, index) => item(`quiz-${index + 1}`, persona.title, persona.insight))],
+    ["form", { title: "Recevez votre recommandation", text: "Indiquez votre e-mail pour d\xE9couvrir le r\xE9sultat.", cta_label: "Voir ma recommandation" }],
+    ["collectionGrid", { title: `D\xE9couvrir ${input.brandName}`, text: "Les essentiels de la marque, r\xE9unis au m\xEAme endroit." }, product.images.slice(0, 6).map((url, index) => item(`collection-${index + 1}`, `${product.title} ${index + 1}`, product.description, { image: url }))],
+    ["newsletter", { title: "Restez au courant", text: "Nouveaut\xE9s, conseils et offres de la marque.", cta_label: "S\u2019inscrire" }]
   ];
+  sectionInputs.push(["testimonials", { title: strings.inspiration, subtitle: "", text: "" }, selectedPersonas.slice(0, 3).map((persona, index) => item(`persona-proof-${index + 1}`, persona.title, persona.insight, { tags: persona.tags }))]);
   if (product.reviews.length) {
     sectionInputs.push(["reviews", { title: strings.reviews, subtitle: product.rating ? `${product.rating}/5` : "", text: strings.reviewsIntro }, product.reviews.slice(0, 8).map((review, index) => item(`review-${index + 1}`, review.title || review.author, review.text, { author: review.author, rating: review.rating, image: review.image ?? "" }))]);
-  } else {
-    sectionInputs.push(["testimonials", { title: strings.inspiration, subtitle: "", text: "" }, selectedPersonas.slice(0, 3).map((persona, index) => item(`persona-proof-${index + 1}`, persona.title, persona.insight, { tags: persona.tags }))]);
   }
   sectionInputs.push(
     ["shipping", { title: strings.shipping, text: "" }, strings.shippingItems.map(([title, text5], index) => item(`shipping-${index + 1}`, title, text5))],
@@ -29089,7 +29116,10 @@ function buildStoreDocument(input) {
     ["cta", { title: strings.cta, text: selectedPersonas[0]?.insight ?? strings.footer, cta_label: strings.buy, cta_link: "#product" }],
     ["footer", { title: input.brandName, text: strings.footer, cta_label: "" }, [item("footer-shop", strings.shop, "", { label: strings.shop, link: "#product" })]]
   );
-  const recipeSections = recipe.sections.map((recipeItem) => {
+  const proof = product.reviews.length ? "reviews" : "testimonials";
+  const requestedTypes = sectionTypesForCreation(input.creationFormat ?? "store", artDirection.id, proof);
+  const selectedRecipe = requestedTypes.length ? requestedTypes.map((type) => ({ type, variant: `${input.creationFormat ?? "store"}-${type}`, purpose: "Adapter la section au format" })) : recipe.sections;
+  const recipeSections = selectedRecipe.map((recipeItem) => {
     const source = sectionInputs.find(([type]) => type === recipeItem.type);
     if (!source) throw new Error(`Recipe uses unavailable section: ${recipeItem.type}`);
     return [source[0], { ...source[1], variant: recipeItem.variant, purpose: recipeItem.purpose }, source[2]];
@@ -29100,7 +29130,7 @@ function buildStoreDocument(input) {
     version: 2,
     name: input.brandName,
     path: "/",
-    kind: "product",
+    kind: input.creationFormat === "home" ? "home" : input.creationFormat === "product" || input.creationFormat === "store" || !input.creationFormat ? "product" : "landing",
     modelId: input.modelId,
     theme: {
       background: artDirection.palette[0] ?? firstScheme?.background ?? "#ffffff",
@@ -29149,6 +29179,7 @@ function createOnboardingDraftInput(input) {
     product: null,
     language: "en",
     modelId: null,
+    creationFormat: "store",
     brandNames: [],
     brandName: "",
     personas: [],
@@ -29331,6 +29362,7 @@ function onboardingRoutes(deps) {
       }
     }
     if (typeof body.modelId === "string") patch.modelId = body.modelId.slice(0, 60);
+    if (isCreationFormat(body.creationFormat)) patch.creationFormat = body.creationFormat;
     if (typeof body.brandName === "string") patch.brandName = body.brandName.trim().slice(0, 60);
     if (Array.isArray(body.personas)) patch.personas = body.personas;
     if (Array.isArray(body.angles)) patch.angles = body.angles;
@@ -29345,7 +29377,7 @@ function onboardingRoutes(deps) {
     const brandName = draft.brandName || draft.brandNames[0] || draft.product.vendor || "Weflo Store";
     const modelId = draft.modelId || "proteo";
     const brandKit = draft.brandKit ?? createBrandKit(draft.product, modelId);
-    const document2 = buildStoreDocument({ product: draft.product, language: draft.language, brandName, modelId, personas: draft.personas, angles: draft.angles, brandKit });
+    const document2 = buildStoreDocument({ product: draft.product, language: draft.language, brandName, modelId, personas: draft.personas, angles: draft.angles, brandKit, creationFormat: draft.creationFormat });
     const updated = await deps.store.updateOnboardingDraft(draft.id, { status: "ready", stages, brandKit, document: document2, brandName, modelId, error: null });
     return c.json({ draft: publicDraft(updated) });
   });
@@ -29357,7 +29389,8 @@ function onboardingRoutes(deps) {
     if (!draft.document || draft.status !== "ready") return c.json({ error: "not_ready" }, 409);
     if (draft.claimedPageId) return c.json({ pageId: draft.claimedPageId, alreadyClaimed: true });
     const workspace = await ensureWorkspace(deps.store, user.id, { whop: deps.whop, email: user.email });
-    const page = await deps.store.createPage({ workspaceId: workspace.id, name: draft.brandName, slug: await uniqueSlug2(deps, workspace.id, draft.brandName), type: "sell", status: "draft", document: draft.document });
+    const pageType = draft.creationFormat === "blog" ? "write" : draft.creationFormat === "blank" ? "blank" : "sell";
+    const page = await deps.store.createPage({ workspaceId: workspace.id, name: draft.brandName, slug: await uniqueSlug2(deps, workspace.id, draft.brandName), type: pageType, status: "draft", document: draft.document });
     await deps.store.claimOnboardingDraft(draft.id, draft.claimTokenHash, user.id, page.id);
     return c.json({ pageId: page.id }, 201);
   });
@@ -29390,10 +29423,10 @@ import { Hono as Hono11 } from "hono";
 
 // src/studio/models.ts
 var MODELS = {
-  "flux-kontext-pro": { id: "flux-kontext-pro", label: "Flux Kontext Pro", description: "Rapide, fid\xE8le au produit", textEndpoint: "fal-ai/flux-pro/kontext/text-to-image", referenceEndpoint: "fal-ai/flux-pro/kontext" },
-  "flux-kontext-max": { id: "flux-kontext-max", label: "Flux Kontext Max", description: "Fid\xE9lit\xE9 et finition maximales", textEndpoint: "fal-ai/flux-pro/kontext/max/text-to-image", referenceEndpoint: "fal-ai/flux-pro/kontext/max" },
-  "ideogram-v3": { id: "ideogram-v3", label: "Ideogram V3", description: "Visuels publicitaires avec texte", textEndpoint: "fal-ai/ideogram/v3", referenceEndpoint: "fal-ai/flux-pro/kontext" },
-  "recraft-v3": { id: "recraft-v3", label: "Recraft V3", description: "Direction artistique e-commerce", textEndpoint: "fal-ai/recraft/v3/text-to-image", referenceEndpoint: "fal-ai/recraft/v3/image-to-image" }
+  "nano-banana-2": { id: "nano-banana-2", label: "Nano Banana 2", description: "Rapide, r\xE9aliste et fid\xE8le au produit", textEndpoint: "fal-ai/nano-banana-2", referenceEndpoint: "fal-ai/nano-banana-2/edit", inputMode: "aspect", referenceKey: "image_urls" },
+  "nano-banana-pro": { id: "nano-banana-pro", label: "Nano Banana Pro", description: "Composition premium et texte pr\xE9cis", textEndpoint: "fal-ai/nano-banana-pro", referenceEndpoint: "fal-ai/nano-banana-pro/edit", inputMode: "aspect", referenceKey: "image_urls" },
+  "gpt-image-2": { id: "gpt-image-2", label: "GPT Image 2", description: "Prompt complexe, typographie et retouche", textEndpoint: "openai/gpt-image-2", referenceEndpoint: "openai/gpt-image-2/edit", inputMode: "size", referenceKey: "image_urls" },
+  "flux-2-flex": { id: "flux-2-flex", label: "FLUX.2 Flex", description: "Direction artistique et d\xE9tails contr\xF4l\xE9s", textEndpoint: "fal-ai/flux-2-flex", referenceEndpoint: "fal-ai/flux-pro/kontext", inputMode: "size", referenceKey: "image_url" }
 };
 var SIZES = {
   "1:1": { width: 1024, height: 1024 },
@@ -29464,6 +29497,7 @@ function assetType(name) {
 var htmlRoutes = {
   "/": "accueil.html",
   "/start": "start.html",
+  "/creer": "creer.html",
   "/connexion": "connexion.html",
   "/dashboard": "dashboard.html",
   "/creations": "creations.html",
@@ -40297,8 +40331,10 @@ function createFalImageStudio(key, fetcher = fetch) {
     const controller = new AbortController();
     const timer2 = setTimeout(() => controller.abort(), 9e4);
     const endpoint = input.referenceUrl ? model.referenceEndpoint : model.textEndpoint;
-    const body = { prompt: input.prompt, image_size: size2, num_images: input.numImages, output_format: "webp", safety_tolerance: "2" };
-    if (input.referenceUrl) body.image_url = input.referenceUrl;
+    const body = { prompt: input.prompt, num_images: input.numImages, output_format: "webp" };
+    if (model.inputMode === "aspect") body.aspect_ratio = input.aspectRatio;
+    else body.image_size = size2;
+    if (input.referenceUrl) body[model.referenceKey] = model.referenceKey === "image_urls" ? [input.referenceUrl] : input.referenceUrl;
     try {
       const response = await fetcher(`https://fal.run/${endpoint}`, { method: "POST", signal: controller.signal, headers: { Authorization: `Key ${key}`, "content-type": "application/json" }, body: JSON.stringify(body) });
       if (!response.ok) throw new Error(`Fal ${response.status}: ${(await response.text()).slice(0, 240)}`);

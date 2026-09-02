@@ -34,4 +34,14 @@ describe("onboarding store compiler", () => {
     const repeats = document.pages[0].sections.filter((section) => section.settings.text === product.description);
     expect(repeats.length).toBeLessThanOrEqual(2);
   });
+
+  it.each([
+    ["advertorial", ["richText", "press", "productMain"]],
+    ["quiz", ["quiz", "form", "productMain"]],
+    ["home", ["collectionGrid", "newsletter"]],
+  ] as const)("builds a valid %s page with its own section recipe", (creationFormat, expected) => {
+    const document = buildStoreDocument({ product, language: "fr", brandName: "LumiWall", modelId: "proteo", personas: strategy.personas, angles: strategy.angles, brandKit, creationFormat });
+    expect(document.pages[0].sections.map((section) => section.type)).toEqual(expect.arrayContaining([...expected]));
+    expect(validateEditorDocument(document)).toMatchObject({ ok: true });
+  });
 });

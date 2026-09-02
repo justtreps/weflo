@@ -1,4 +1,5 @@
 import type { EditorDocument } from "../editor/document";
+import type { CreationFormatId } from "./creation-recipe";
 
 export type OnboardingStatus = "extracting" | "analysing" | "questions" | "building" | "ready" | "claimed" | "failed";
 export type BuildStageState = "waiting" | "running" | "complete" | "failed";
@@ -58,6 +59,7 @@ export type OnboardingDraft = {
   product: ImportedProduct | null;
   language: string;
   modelId: string | null;
+  creationFormat: CreationFormatId;
   brandNames: string[];
   brandName: string;
   personas: BuyerPersona[];

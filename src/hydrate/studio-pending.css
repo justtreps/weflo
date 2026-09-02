@@ -1,0 +1,4 @@
+.generation-thread{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin:0 0 20px;padding:22px;border:1px solid #4d4837;border-radius:14px;background:#1b1913;box-shadow:0 14px 40px #0005}
+.generation-thread span{color:#fbc531;font-size:11px;font-weight:800}.generation-thread h2{margin:5px 0;font-size:20px}.generation-thread p{margin:0;color:#98958d;font-size:12px}
+.thread-spinner,.mini-spinner{border:2px solid #59564d;border-top-color:#fbc531;border-radius:50%;animation:spin .8s linear infinite}.thread-spinner{width:42px;height:42px}.mini-spinner{width:30px;height:30px}
+.studio-history .is-generating{background:#242117!important;border:1px solid #4b4121!important}
