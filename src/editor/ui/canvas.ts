@@ -53,12 +53,25 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
     iframe.style.transform = layout.zoom === 1 ? "none" : `scale(${layout.zoom})`;
     iframe.srcdoc = canvasSrcdoc(state.document, { mode: state.mode, breakpoint: state.breakpoint, selectedId: state.selectedId });
   };
-  const receive = (event: MessageEvent) => {
+  const receive = async (event: MessageEvent) => {
     if (event.source !== iframe.contentWindow) return;
     const action = parseCanvasBridgeMessage(event.data);
     if (!action) return;
     if (action.type === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
     if (action.type === "inlineEdit") store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: action.key, value: action.value });
+    if (action.type === "imageEdit") {
+      const section = store.getState().document.pages.flatMap((page) => page.sections).find((item) => item.id === action.sectionId);
+      const sourceUrl = section?.settings[action.key];
+      const prompt = typeof sourceUrl === "string" ? window.prompt("Describe the new scene. The exact product will be preserved.", "Place this exact product in a premium lifestyle scene") : null;
+      if (section && typeof sourceUrl === "string" && prompt) {
+        try {
+          const response = await fetch("/api/images/edit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl, prompt }) });
+          const result = await response.json() as { url?: string; message?: string };
+          if (!response.ok || !result.url) throw new Error(result.message || "Image editing failed.");
+          store.dispatch({ type: "updateSetting", sectionId: section.id, key: action.key, value: result.url });
+        } catch (error) { window.alert(error instanceof Error ? error.message : "Image editing failed."); }
+      }
+    }
     if (action.type === "move") store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: store.getState().pageId, toIndex: action.toIndex });
     if (action.type === "action") {
       if (action.action === "hide") store.dispatch({ type: "toggleHidden", sectionId: action.sectionId });

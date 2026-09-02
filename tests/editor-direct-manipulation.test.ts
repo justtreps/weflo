@@ -26,5 +26,10 @@ describe("direct canvas manipulation", () => {
     expect(CANVAS_RUNTIME).toContain("dragstart");
     expect(CANVAS_RUNTIME).toContain("canvas:inline-edit");
     expect(CANVAS_RUNTIME).toContain("canvas:move");
+    expect(CANVAS_RUNTIME).toContain("canvas:image-edit");
+  });
+
+  it("parses a direct image editing request", () => {
+    expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:image-edit", sectionId: "hero-1", key: "image" })).toEqual({ type: "imageEdit", sectionId: "hero-1", key: "image" });
   });
 });

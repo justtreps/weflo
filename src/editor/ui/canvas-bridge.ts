@@ -1,6 +1,7 @@
 export type CanvasBridgeAction =
   | { type: "select"; sectionId: string }
   | { type: "inlineEdit"; sectionId: string; key: string; value: string }
+  | { type: "imageEdit"; sectionId: string; key: string }
   | { type: "move"; sectionId: string; toIndex: number }
   | { type: "action"; sectionId: string; action: "moveUp" | "moveDown" | "duplicate" | "hide" | "remove" };
 
@@ -13,6 +14,7 @@ export function parseCanvasBridgeMessage(value: unknown): CanvasBridgeAction | n
   if (message.type === "canvas:inline-edit" && typeof message.key === "string" && /^[a-z][a-z0-9_]*$/i.test(message.key) && typeof message.value === "string") {
     return { type: "inlineEdit", sectionId: message.sectionId, key: message.key, value: message.value };
   }
+  if (message.type === "canvas:image-edit" && typeof message.key === "string" && /^[a-z][a-z0-9_]*$/i.test(message.key)) return { type: "imageEdit", sectionId: message.sectionId, key: message.key };
   if (message.type === "canvas:move" && typeof message.toIndex === "number" && Number.isInteger(message.toIndex) && message.toIndex >= 0) {
     return { type: "move", sectionId: message.sectionId, toIndex: message.toIndex };
   }

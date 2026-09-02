@@ -37,7 +37,7 @@ export function edit(tag: string, key: string, content: unknown, className = "")
 export function image(section: EditorSection, key = "image", alt = "", className = "wf-section__image"): string {
   const url = safeMediaUrl(section.settings[key]);
   return url
-    ? `<img class="${escapeHtml(className)}" src="${url}" alt="${escapeHtml(alt)}" loading="lazy">`
+    ? `<img class="${escapeHtml(className)}" src="${url}" alt="${escapeHtml(alt)}" loading="lazy" data-wf-media-key="${escapeHtml(key)}">`
     : `<div class="${escapeHtml(className)} wf-media-empty" data-wf-media-key="${escapeHtml(key)}" role="img" aria-label="Ajouter une image"></div>`;
 }
 
