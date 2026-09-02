@@ -6,7 +6,7 @@
     "test": "vitest run",
     "dev": "tsx watch src/dev-server.ts",
     "extract": "node scripts/extract-mockups.mjs",
-    "build:hydrate": "esbuild src/hydrate/accueil.ts src/hydrate/connexion.ts src/hydrate/dashboard.ts src/hydrate/editeur.ts src/hydrate/facturation.ts src/hydrate/parrainage.ts src/hydrate/session-guard.ts --bundle --outdir=public/hydrate --format=esm",
+    "build:hydrate": "esbuild src/hydrate/accueil.ts src/hydrate/connexion.ts src/hydrate/dashboard.ts src/hydrate/editeur.ts src/hydrate/start.ts src/hydrate/facturation.ts src/hydrate/parrainage.ts src/hydrate/session-guard.ts --bundle --outdir=public/hydrate --format=esm",
     "build:api": "esbuild src/server/vercel-handler.ts --bundle --platform=node --format=esm --outfile=api/index.js",
     "build": "npm run build:hydrate && npm run build:api"
   },

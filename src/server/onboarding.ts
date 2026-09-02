@@ -73,7 +73,18 @@ export function onboardingRoutes(deps: AppDeps) {
     if (!draft) return c.json({ error: "unauthorized" }, 401);
     const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
     const patch: OnboardingDraftPatch = {};
-    if (typeof body.language === "string") patch.language = body.language.slice(0, 40);
+    if (typeof body.language === "string") {
+      patch.language = body.language.slice(0, 40);
+      if (draft.product && patch.language !== draft.language) {
+        try {
+          const analysis = deps.onboardingAi ? await deps.onboardingAi.analyse({ product: draft.product, language: patch.language }) : fallbackOnboardingAnalysis(draft.product, patch.language);
+          Object.assign(patch, analysis, { brandName: analysis.brandNames[0] });
+        } catch {
+          const analysis = fallbackOnboardingAnalysis(draft.product, patch.language);
+          Object.assign(patch, analysis, { brandName: analysis.brandNames[0] });
+        }
+      }
+    }
     if (typeof body.modelId === "string") patch.modelId = body.modelId.slice(0, 60);
     if (typeof body.brandName === "string") patch.brandName = body.brandName.trim().slice(0, 60);
     if (Array.isArray(body.personas)) patch.personas = body.personas as OnboardingDraft["personas"];
