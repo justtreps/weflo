@@ -19,6 +19,27 @@ export type ImportedProduct = {
   reviews: Array<{ author: string; rating: number | null; title: string; text: string; image?: string }>;
 };
 
+export type ProductTruthSheet = {
+  observedFacts: Pick<ImportedProduct, "sourceUrl" | "title" | "description" | "vendor" | "currency" | "price" | "compareAtPrice" | "images" | "variants" | "rating" | "reviewCount" | "reviews">;
+  supplierClaims: string[];
+  inferences: string[];
+  searchText: string;
+};
+
+export type ArtDirectionId = "editorial-beauty" | "clinical-wellness" | "technical-performance" | "warm-home" | "playful-gifting" | "premium-accessories" | "food-craft" | "direct-response";
+export type ArtDirectionProfile = {
+  id: ArtDirectionId;
+  label: string;
+  headingFont: string;
+  bodyFont: string;
+  mediaRatio: "portrait" | "square" | "landscape";
+  spacing: "compact" | "balanced" | "airy";
+  radius: "none" | "soft" | "round";
+  proofMode: "editorial" | "clinical" | "technical" | "community";
+  buttonStyle: "solid" | "outline" | "pill";
+  palette: string[];
+};
+
 export type BuyerPersona = { id: string; title: string; insight: string; icon: string; tags: string[]; selected: boolean };
 export type MarketingAngle = { id: string; title: string; description: string; icon: string; tags: string[]; selected: boolean };
 export type BrandKit = {

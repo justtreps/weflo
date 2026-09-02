@@ -1,6 +1,8 @@
-import type { BuyerPersona, ImportedProduct, MarketingAngle } from "./types";
+import type { ArtDirectionProfile, BuyerPersona, ImportedProduct, MarketingAngle, ProductTruthSheet } from "./types";
+import { buildProductTruthSheet } from "./product-truth";
+import { artDirectionById, selectArtDirection } from "./art-direction";
 
-export type OnboardingAnalysis = { brandNames: string[]; personas: BuyerPersona[]; angles: MarketingAngle[] };
+export type OnboardingAnalysis = { brandNames: string[]; personas: BuyerPersona[]; angles: MarketingAngle[]; productTruth: ProductTruthSheet; artDirection: ArtDirectionProfile };
 export type ImageOnboardingAnalysis = { product: ImportedProduct; analysis: OnboardingAnalysis };
 export type OnboardingAiPort = {
   analyse(input: { product: ImportedProduct; language: string }): Promise<OnboardingAnalysis>;
@@ -34,12 +36,14 @@ function angles(value: unknown): MarketingAngle[] {
   }));
 }
 
-export function validateOnboardingAnalysis(value: unknown, _product: ImportedProduct): OnboardingAnalysis {
+export function validateOnboardingAnalysis(value: unknown, product: ImportedProduct): OnboardingAnalysis {
   const input = value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
   const brandNames = [...new Set((Array.isArray(input.brandNames) ? input.brandNames : []).map((name) => clean(name, 40)).filter(Boolean))].slice(0, 8);
   if (brandNames.length !== 8) throw new Error("Analysis must contain eight unique brand names.");
   const normalizedPersonas = personas(input.personas);
   const normalizedAngles = angles(input.angles);
   if (normalizedPersonas.length !== 4 || normalizedAngles.length !== 4) throw new Error("Analysis must contain four personas and four angles.");
-  return { brandNames, personas: normalizedPersonas, angles: normalizedAngles };
+  const productTruth = buildProductTruthSheet(product);
+  const artDirection = artDirectionById(input.artDirectionId) ?? selectArtDirection(productTruth);
+  return { brandNames, personas: normalizedPersonas, angles: normalizedAngles, productTruth, artDirection };
 }

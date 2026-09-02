@@ -38,7 +38,7 @@ export function createOpenAiOnboarding(apiKey: string): OnboardingAiPort {
         model: "gpt-4o-mini",
         response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: "You are Weflo's ecommerce strategist. Return strict JSON with exactly eight unique brandNames, four personas and four angles. Each persona has id,title,insight,icon,tags,selected. Each angle has id,title,description,icon,tags,selected. Base every proposal on supplied facts and reviews. Do not add product facts, prices, ratings, certifications or claims. Write proposals in the requested storefront language." },
+          { role: "system", content: "You are Weflo's ecommerce strategist. Return strict JSON with exactly eight unique brandNames, four personas, four angles, and one artDirectionId chosen from editorial-beauty, clinical-wellness, technical-performance, warm-home, playful-gifting, premium-accessories, food-craft, direct-response. Each persona has id,title,insight,icon,tags,selected. Each angle has id,title,description,icon,tags,selected. Separate observed facts from supplier claims and strategic inferences in your reasoning. Never invent product facts, prices, ratings, reviews, materials, dimensions, certifications or claims. Write proposals in the requested storefront language." },
           { role: "user", content: JSON.stringify({ language, product }) },
         ],
       });
@@ -49,7 +49,7 @@ export function createOpenAiOnboarding(apiKey: string): OnboardingAiPort {
         model: "gpt-4o-mini",
         response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: "You are Weflo's ecommerce product analyst. Inspect the supplied product image. Return strict JSON with a product object containing only title, description, vendor and currency, plus exactly eight unique brandNames, four personas and four angles. Each persona has id,title,insight,icon,tags,selected. Each angle has id,title,description,icon,tags,selected. Never invent a price, rating, certification, material or technical claim that cannot be seen. Write all customer-facing proposals in the requested storefront language." },
+          { role: "system", content: "You are Weflo's ecommerce product analyst. Inspect the supplied product image. Return strict JSON with a product object containing only title, description, vendor and currency, plus exactly eight unique brandNames, four personas, four angles, and one artDirectionId chosen from editorial-beauty, clinical-wellness, technical-performance, warm-home, playful-gifting, premium-accessories, food-craft, direct-response. Each persona has id,title,insight,icon,tags,selected. Each angle has id,title,description,icon,tags,selected. Never invent a price, rating, review, certification, material, dimension or technical claim that cannot be seen. Write all customer-facing proposals in the requested storefront language." },
           { role: "user", content: [
             { type: "text", text: JSON.stringify({ language, fileName }) },
             { type: "image_url", image_url: { url: imageDataUrl, detail: "low" } },

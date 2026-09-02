@@ -15,6 +15,8 @@ describe("onboarding analysis", () => {
     expect(result.brandNames).toHaveLength(8);
     expect(result.personas).toHaveLength(4);
     expect(result.angles).toHaveLength(4);
+    expect(result.artDirection.id).toBe("warm-home");
+    expect(result.productTruth.observedFacts.reviewCount).toBe(312);
     expect(JSON.stringify(result).toLowerCase()).toMatch(/lamp|lumi|light|mur/);
   });
 

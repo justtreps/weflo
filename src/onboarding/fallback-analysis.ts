@@ -1,5 +1,7 @@
 import type { OnboardingAnalysis } from "./analyser";
 import type { ImportedProduct } from "./types";
+import { buildProductTruthSheet } from "./product-truth";
+import { selectArtDirection } from "./art-direction";
 
 function stem(product: ImportedProduct): string {
   const words = product.title.replace(/[^a-zA-ZÀ-ÿ0-9 ]/g, " ").split(/\s+/).filter((word) => word.length > 3);
@@ -25,5 +27,6 @@ export function fallbackOnboardingAnalysis(product: ImportedProduct, language: s
     { title: french ? "Simple dès la première utilisation" : "Easy from the first use", description: french ? "Réduis la friction en expliquant l’installation et l’usage." : "Reduce friction by clarifying setup and everyday use.", icon: "⚡", tags: ["Practical", "Direct"] },
     { title: french ? "Une finition premium" : "A premium finish", description: french ? "Valorise le design, les matières et la sensation de qualité." : "Emphasise design, materials and perceived quality.", icon: "◆", tags: ["Premium", "Identity"] },
   ].map((item, index) => ({ id: `angle-${index + 1}`, ...item, selected: index === 0 }));
-  return { brandNames: names, personas, angles };
+  const productTruth = buildProductTruthSheet(product);
+  return { brandNames: names, personas, angles, productTruth, artDirection: selectArtDirection(productTruth) };
 }
