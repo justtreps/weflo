@@ -1109,7 +1109,7 @@ var LABELS = {
   media: "M\xE9dias"
 };
 function editorShellMarkup(state) {
-  const rail = Object.entries(LABELS).map(([id, label]) => `<button type="button" data-editor-panel-button="${id}" aria-label="${label}" aria-pressed="${state.activePanel === id}"><span aria-hidden="true">${ICONS[id]}</span><small>${label}</small></button>`).join("");
+  const rail = Object.entries(LABELS).map(([id2, label]) => `<button type="button" data-editor-panel-button="${id2}" aria-label="${label}" aria-pressed="${state.activePanel === id2}"><span aria-hidden="true">${ICONS[id2]}</span><small>${label}</small></button>`).join("");
   return `<div class="weflo-editor" data-editor-shell data-active-panel="${state.activePanel}" data-left-collapsed="${state.leftCollapsed}" data-right-collapsed="${state.rightCollapsed}">
     <header class="weflo-editor__topbar" data-editor-topbar>
       <div class="weflo-editor__identity"><a href="/dashboard" aria-label="Retour au tableau de bord">W</a><strong>${state.document.name}</strong></div>
@@ -1631,11 +1631,11 @@ var MODEL_IMAGES = {
 function previewSlug(value2) {
   return value2.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
-function pageModel(id, name, brand, theme, description, price, cta2) {
-  const imageId = MODEL_IMAGES[id] ?? MODEL_IMAGES.proteo;
+function pageModel(id2, name, brand, theme, description, price, cta2) {
+  const imageId = MODEL_IMAGES[id2] ?? MODEL_IMAGES.proteo;
   const preview = `/assets/editor-preview-${previewSlug(brand)}`;
   return {
-    id,
+    id: id2,
     name,
     brand,
     theme,
@@ -1803,17 +1803,17 @@ var modelManifestIds = Object.keys(SPECIALTIES);
 function block(sectionId, index, title, text3, extra = {}) {
   return { id: `${sectionId}-block-${index}`, type: "item", settings: { title, text: text3, ...extra } };
 }
-function blocksFor(type, id, model) {
-  if (type === "navigation") return [block(id, 1, "Boutique", "", { label: "Boutique", link: "#produit" }), block(id, 2, "Notre histoire", "", { label: "Notre histoire", link: "#histoire" })];
-  if (type === "productMain") return [{ id: `${id}-variant-1`, type: "variant", settings: { title: "Format signature", variant_id: "" } }];
-  if (type === "reviews" || type === "testimonials") return [block(id, 1, "Camille", `\xAB ${model.brand} a d\xE9pass\xE9 mes attentes. \xBB`, { rating: 5 }), block(id, 2, "Nicolas", "Simple, beau et vraiment bien pens\xE9.", { rating: 5 }), block(id, 3, "In\xE8s", "Je recommande sans h\xE9siter.", { rating: 5 })];
-  if (type === "faq") return [block(id, 1, "Quand vais-je recevoir ma commande ?", "Exp\xE9dition sous 48 h avec suivi."), block(id, 2, "Puis-je changer d\u2019avis ?", "Oui, les retours sont possibles pendant 14 jours.")];
-  if (type === "gallery") return [block(id, 1, "D\xE9tail", "Mati\xE8res et finitions", { image: model.image, image_alt: model.name }), block(id, 2, "En situation", "Pens\xE9 pour le quotidien", { image: model.image, image_alt: model.name })];
-  return [block(id, 1, "Con\xE7u avec intention", model.description), block(id, 2, "Livr\xE9 simplement", "Suivi clair et assistance humaine."), block(id, 3, "Adopt\xE9 durablement", "Une exp\xE9rience faite pour durer.")];
+function blocksFor(type, id2, model) {
+  if (type === "navigation") return [block(id2, 1, "Boutique", "", { label: "Boutique", link: "#produit" }), block(id2, 2, "Notre histoire", "", { label: "Notre histoire", link: "#histoire" })];
+  if (type === "productMain") return [{ id: `${id2}-variant-1`, type: "variant", settings: { title: "Format signature", variant_id: "" } }];
+  if (type === "reviews" || type === "testimonials") return [block(id2, 1, "Camille", `\xAB ${model.brand} a d\xE9pass\xE9 mes attentes. \xBB`, { rating: 5 }), block(id2, 2, "Nicolas", "Simple, beau et vraiment bien pens\xE9.", { rating: 5 }), block(id2, 3, "In\xE8s", "Je recommande sans h\xE9siter.", { rating: 5 })];
+  if (type === "faq") return [block(id2, 1, "Quand vais-je recevoir ma commande ?", "Exp\xE9dition sous 48 h avec suivi."), block(id2, 2, "Puis-je changer d\u2019avis ?", "Oui, les retours sont possibles pendant 14 jours.")];
+  if (type === "gallery") return [block(id2, 1, "D\xE9tail", "Mati\xE8res et finitions", { image: model.image, image_alt: model.name }), block(id2, 2, "En situation", "Pens\xE9 pour le quotidien", { image: model.image, image_alt: model.name })];
+  return [block(id2, 1, "Con\xE7u avec intention", model.description), block(id2, 2, "Livr\xE9 simplement", "Suivi clair et assistance humaine."), block(id2, 3, "Adopt\xE9 durablement", "Une exp\xE9rience faite pour durer.")];
 }
 function section(type, index, model, pageName) {
   const definition = getSectionDefinition(type);
-  const id = `${type}-${index + 1}`;
+  const id2 = `${type}-${index + 1}`;
   const common2 = { ...definition?.defaults ?? {}, title: definition?.name ?? type };
   if (type === "navigation") Object.assign(common2, { title: model.brand, cta_label: "Panier", cta_link: "#panier" });
   if (type === "announcement") Object.assign(common2, { text: "Livraison offerte d\xE8s 60 \u20AC \u2014 retours sous 14 jours", cta_label: "", cta_link: "#" });
@@ -1824,7 +1824,7 @@ function section(type, index, model, pageName) {
   if (type === "cta") Object.assign(common2, { title: `Pr\xEAt \xE0 d\xE9couvrir ${model.brand} ?`, text: model.description, cta_label: model.cta, cta_link: "#produit" });
   if (type === "footer") Object.assign(common2, { title: model.brand, text: "Qualit\xE9, clart\xE9 et service attentionn\xE9.", cta_label: "", cta_link: "#" });
   if (type === SPECIALTIES[model.id]) Object.assign(common2, { title: `${model.brand}, jusque dans les d\xE9tails`, subtitle: model.theme, text: model.description, image: model.image, image_alt: pageName, cta_label: "En savoir plus", cta_link: "#produit" });
-  return { id, type, name: definition?.name ?? type, hidden: false, locked: false, settings: common2, style: {}, responsive: {}, blocks: blocksFor(type, id, model) };
+  return { id: id2, type, name: definition?.name ?? type, hidden: false, locked: false, settings: common2, style: {}, responsive: {}, blocks: blocksFor(type, id2, model) };
 }
 function buildModelDocument(modelId, pageName) {
   const model = PAGE_MODELS.find((item) => item.id === modelId) ?? PAGE_MODELS[0];
@@ -2145,9 +2145,9 @@ function mountEditorGallery(options) {
   let activeTheme = "Tout";
   const paintPreviews = () => {
     grid.querySelectorAll("iframe[data-model-preview]").forEach((frame) => {
-      const id = frame.dataset.modelPreview ?? "blank";
-      const model = PAGE_MODELS.find((candidate) => candidate.id === id);
-      const doc = id === "blank" ? blankDocument(options.pageName) : documentFromModel(id, model?.name ?? options.pageName);
+      const id2 = frame.dataset.modelPreview ?? "blank";
+      const model = PAGE_MODELS.find((candidate) => candidate.id === id2);
+      const doc = id2 === "blank" ? blankDocument(options.pageName) : documentFromModel(id2, model?.name ?? options.pageName);
       frame.srcdoc = renderDocument(doc, { compact: true });
     });
   };
@@ -2212,6 +2212,23 @@ function mountEditorGallery(options) {
   };
 }
 
+// src/editor/studio-insert.ts
+function id(prefix) {
+  return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
+}
+function applyStudioImage(document2, input) {
+  const next = structuredClone(document2);
+  const asset = { id: id("asset"), type: "image", url: input.imageUrl, alt: "Visuel g\xE9n\xE9r\xE9 dans le Studio Weflo" };
+  next.assets.push(asset);
+  const selected = next.pages.flatMap((page) => page.sections).find((section2) => section2.id === input.selectedSectionId);
+  if (selected) selected.settings.image = input.imageUrl;
+  else {
+    const section2 = { id: id("section"), type: "imageText", name: "Visuel Studio", hidden: false, locked: false, settings: { image: input.imageUrl, eyebrow: "NOTRE UNIVERS", title: "Une image pens\xE9e pour ta marque", text: "Modifie ce texte, la mise en page et le visuel directement dans l\u2019\xE9diteur.", cta: "D\xE9couvrir" }, style: {}, responsive: {}, blocks: [] };
+    next.pages[0].sections.splice(Math.min(1, next.pages[0].sections.length), 0, section2);
+  }
+  return next;
+}
+
 // src/hydrate/editor-v2.ts
 function visualEditorInitialState(page) {
   return {
@@ -2272,7 +2289,23 @@ async function hydrateVisualEditor(pageId) {
     location.assign("/dashboard");
     return;
   }
-  const page = await response.json();
+  let page = await response.json();
+  const pendingRaw = sessionStorage.getItem("weflo-studio-insert");
+  if (pendingRaw) {
+    try {
+      const pending = JSON.parse(pendingRaw);
+      if (pending.pageId === page.id && typeof pending.imageUrl === "string" && /^https:\/\//.test(pending.imageUrl)) {
+        const nextDocument = applyStudioImage(page.document, { imageUrl: pending.imageUrl, selectedSectionId: null });
+        const saved = await fetch(`/api/pages/${encodeURIComponent(page.id)}`, editorSaveRequest(nextDocument, page.documentVersion));
+        if (saved.ok) {
+          page = await saved.json();
+          sessionStorage.removeItem("weflo-studio-insert");
+        }
+      }
+    } catch {
+      sessionStorage.removeItem("weflo-studio-insert");
+    }
+  }
   if (!page.document.modelId) {
     document.body.style.margin = "0";
     document.body.replaceChildren();

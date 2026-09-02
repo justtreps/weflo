@@ -10,6 +10,7 @@ import { mountEditorGallery } from "./editor-gallery";
 import { buildModelDocument } from "../models/model-manifest";
 import { blankDocument } from "../lib/catalog";
 import { migrateDocument } from "../editor/migrate";
+import { applyStudioImage } from "../editor/studio-insert";
 
 export type VisualEditorPage = {
   id: string;
@@ -71,7 +72,18 @@ export async function hydrateVisualEditor(pageId: string): Promise<void> {
   const response = await fetch(`/api/pages/${encodeURIComponent(pageId)}?documentVersion=2`);
   if (response.status === 401) { location.assign("/connexion"); return; }
   if (!response.ok) { location.assign("/dashboard"); return; }
-  const page = await response.json() as VisualEditorPage;
+  let page = await response.json() as VisualEditorPage;
+  const pendingRaw = sessionStorage.getItem("weflo-studio-insert");
+  if (pendingRaw) {
+    try {
+      const pending = JSON.parse(pendingRaw) as { pageId?: string; imageUrl?: string };
+      if (pending.pageId === page.id && typeof pending.imageUrl === "string" && /^https:\/\//.test(pending.imageUrl)) {
+        const nextDocument = applyStudioImage(page.document, { imageUrl: pending.imageUrl, selectedSectionId: null });
+        const saved = await fetch(`/api/pages/${encodeURIComponent(page.id)}`, editorSaveRequest(nextDocument, page.documentVersion));
+        if (saved.ok) { page = await saved.json() as VisualEditorPage; sessionStorage.removeItem("weflo-studio-insert"); }
+      }
+    } catch { sessionStorage.removeItem("weflo-studio-insert"); }
+  }
   if (!page.document.modelId) {
     document.body.style.margin = "0";
     document.body.replaceChildren();
