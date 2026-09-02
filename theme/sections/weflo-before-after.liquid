@@ -1,0 +1,8 @@
+{% comment %}Weflo editable section{% endcomment %}
+<section class="weflo-section weflo-section--{{ section.type }}">
+  {% if section.settings.image != blank %}{{ section.settings.image | image_url: width: 1800 | image_tag: loading: 'lazy' }}{% endif %}
+  <div class="weflo-section__content"><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div><a href="{{ section.settings.cta_link }}">{{ section.settings.cta_label | escape }}</a></div>
+  {% for block in section.blocks %}<article {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p></article>{% endfor %}
+</section>
+{% schema %}{"name":"Weflo section","settings":[{"type":"text","id":"title","label":"Titre"},{"type":"textarea","id":"text","label":"Texte"},{"type":"image_picker","id":"image","label":"Image"},{"type":"text","id":"cta_label","label":"Bouton"},{"type":"url","id":"cta_link","label":"Lien"}],"blocks":[{"type":"item","name":"Élément","settings":[{"type":"text","id":"title","label":"Titre"},{"type":"textarea","id":"text","label":"Texte"}]}],"presets":[{"name":"Weflo section"}]}{% endschema %}
+
