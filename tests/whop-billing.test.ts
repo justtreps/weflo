@@ -38,6 +38,13 @@ describe("applyWhopEvent", () => {
 });
 
 describe("billing routes", () => {
+  it("returns the workspace id required for direct checkout", async () => {
+    const store = new MemoryStore();
+    const app = createApp({ store, session: async () => ({ id: "u1", email: "a@b.c" }) });
+    const body = await (await app.request("/api/billing")).json() as { workspace?: { id?: string } };
+    expect(body.workspace?.id).toMatch(/^ws_/);
+  });
+
   it("does not activate a plan on checkout click", async () => {
     const store = new MemoryStore();
     const ws = await store.createWorkspace({ name: "ACAI", ownerUserId: "u1" });

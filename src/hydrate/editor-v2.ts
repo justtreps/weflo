@@ -3,6 +3,7 @@ import { createEditorAutosave, AutosaveConflictError } from "../editor/ui/autosa
 import { mountEditorShell } from "../editor/ui/shell";
 import { createEditorStore, type EditorState } from "../editor/ui/store";
 import { renderPublishPaywall } from "./publish-access";
+import { createProCheckout } from "./pro-checkout";
 import { mountCanardo } from "../editor/ui/canardo";
 import { openPublishDialog, publishRequest, type PublishOptions } from "../editor/ui/publish-dialog";
 import { mountEditorGallery } from "./editor-gallery";
@@ -45,10 +46,24 @@ function showProDialog(): void {
   const overlay = document.createElement("div");
   overlay.dataset.publishPaywall = "1";
   overlay.style.cssText = "position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;background:rgba(20,19,16,.58);backdrop-filter:blur(8px)";
-  overlay.innerHTML = `<style>.publish-paywall{position:relative;width:min(480px,100%);padding:34px;border-radius:18px;background:#fff;color:#141310;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif}.publish-paywall__close{position:absolute;right:14px;top:14px;width:32px;height:32px;border:1px solid #e6e5e0;border-radius:50%;background:#fff}.publish-paywall__mark{display:grid;place-items:center;width:44px;height:44px;border-radius:10px;background:#141310;color:#fbc531;font-weight:800}.publish-paywall__label{color:#75736c;font-size:12px}.publish-paywall h2{font-size:34px;line-height:1;margin:12px 0}.publish-paywall ul{display:grid;gap:8px;padding:18px 0;border-block:1px solid #e6e5e0;list-style:none}.publish-paywall li:before{content:'✓';margin-right:8px;color:#2fa36b}.publish-paywall>a{display:flex;justify-content:center;padding:14px;border-radius:8px;background:#fbc531;color:#141310;font-weight:700;text-decoration:none}</style>${renderPublishPaywall()}`;
+  overlay.innerHTML = `<style>.publish-paywall{position:relative;width:min(480px,100%);padding:34px;border-radius:18px;background:#fff;color:#141310;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif}.publish-paywall__close{position:absolute;right:14px;top:14px;width:32px;height:32px;border:1px solid #e6e5e0;border-radius:50%;background:#fff}.publish-paywall__mark{display:grid;place-items:center;width:44px;height:44px;border-radius:10px;background:#141310;color:#fbc531;font-weight:800}.publish-paywall__label{color:#75736c;font-size:12px}.publish-paywall h2{font-size:34px;line-height:1;margin:12px 0}.publish-paywall ul{display:grid;gap:8px;padding:18px 0;border-block:1px solid #e6e5e0;list-style:none}.publish-paywall li:before{content:'✓';margin-right:8px;color:#2fa36b}.publish-paywall>[data-pro-checkout]{display:flex;width:100%;justify-content:center;padding:14px;border:0;border-radius:8px;background:#fbc531;color:#141310;font-weight:700}.publish-paywall>[data-pro-checkout]:disabled{opacity:.62}.publish-paywall__error{margin:10px 0 0;color:#a6332a;font-size:13px}</style>${renderPublishPaywall()}`;
   const close = () => overlay.remove();
   overlay.addEventListener("click", (event) => { if (event.target === overlay) close(); });
   overlay.querySelector("[data-paywall-close]")?.addEventListener("click", close);
+  const checkout = overlay.querySelector<HTMLButtonElement>("[data-pro-checkout]");
+  const error = overlay.querySelector<HTMLElement>("[data-pro-checkout-error]");
+  checkout?.addEventListener("click", async () => {
+    checkout.disabled = true;
+    checkout.textContent = "Ouverture du paiement…";
+    if (error) error.hidden = true;
+    try {
+      location.assign(await createProCheckout());
+    } catch (cause) {
+      checkout.disabled = false;
+      checkout.textContent = "Réessayer le paiement";
+      if (error) { error.hidden = false; error.textContent = cause instanceof Error ? cause.message : "Impossible d’ouvrir le paiement."; }
+    }
+  });
   document.body.appendChild(overlay);
 }
 

@@ -19,7 +19,8 @@ describe("publish paywall", () => {
   it("offers a clear Pro upgrade instead of publishing", () => {
     const html = renderPublishPaywall();
     expect(html).toContain("Débloque la publication avec Weflo Pro");
-    expect(html).toContain('href="/facturation"');
+    expect(html).toContain("data-pro-checkout");
+    expect(html).not.toContain('href="/facturation"');
     expect(html).toContain("Passer à Weflo Pro");
   });
 });

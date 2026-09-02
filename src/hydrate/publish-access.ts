@@ -8,6 +8,7 @@ export function renderPublishPaywall(): string {
     <h2 id="publish-paywall-title">Débloque la publication avec Weflo Pro</h2>
     <p>Ta boutique est prête. Passe à l’offre Pro pour l’installer directement dans le thème Shopify de ton choix.</p>
     <ul><li>Publication dans tes thèmes Shopify</li><li>Thème actif, copie ou nouveau thème</li><li>Pages et modifications illimitées</li></ul>
-    <a href="/facturation">Passer à Weflo Pro</a>
+    <button type="button" data-pro-checkout>Passer à Weflo Pro</button>
+    <p class="publish-paywall__error" data-pro-checkout-error role="alert" hidden></p>
   </div>`;
 }

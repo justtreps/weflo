@@ -24,6 +24,7 @@ export function billingRoutes(deps: AppDeps) {
       deps.store.getShopify(workspace.id),
     ]);
     return c.json({
+      workspace: { id: workspace.id },
       plan: {
         status: whop?.status ?? "none",
         planId: whop?.planId ?? null,
