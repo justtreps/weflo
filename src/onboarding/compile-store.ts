@@ -1,6 +1,9 @@
 import type { EditorBlock, EditorDocument, EditorSection, SettingValue } from "../editor/document";
 import { getSectionDefinition } from "../sections/index";
 import type { BrandKit, BuyerPersona, ImportedProduct, MarketingAngle } from "./types";
+import { buildProductTruthSheet } from "./product-truth";
+import { selectArtDirection } from "./art-direction";
+import { buildStoreRecipe } from "./store-recipe";
 
 export type BuildStoreInput = {
   product: ImportedProduct;
@@ -81,6 +84,9 @@ export function buildStoreDocument(input: BuildStoreInput): EditorDocument {
   const heroImage = product.images[0] ?? "";
   const price = money(product.price, product.currency);
   const compareAt = money(product.compareAtPrice, product.currency);
+  const productTruth = buildProductTruthSheet(product);
+  const artDirection = selectArtDirection(productTruth);
+  const recipe = buildStoreRecipe({ product, truth: productTruth, artDirection, personas: input.personas, angles: input.angles });
   const sectionInputs: Array<[string, Record<string, SettingValue>, EditorBlock[]?]> = [
     ["announcement", { text: strings.announcement, cta_label: "" }],
     ["navigation", { title: input.brandName, cta_label: strings.cart, cta_link: "#product" }, [
@@ -113,6 +119,11 @@ export function buildStoreDocument(input: BuildStoreInput): EditorDocument {
     ["footer", { title: input.brandName, text: strings.footer, cta_label: "" }, [item("footer-shop", strings.shop, "", { label: strings.shop, link: "#product" })]],
   );
 
+  const recipeSections = recipe.sections.map((recipeItem) => {
+    const source = sectionInputs.find(([type]) => type === recipeItem.type);
+    if (!source) throw new Error(`Recipe uses unavailable section: ${recipeItem.type}`);
+    return [source[0], { ...source[1], variant: recipeItem.variant, purpose: recipeItem.purpose }, source[2]] as [string, Record<string, SettingValue>, EditorBlock[]?];
+  });
   const firstScheme = brandKit.schemes[0];
   const secondScheme = brandKit.schemes[1];
   return {
@@ -122,16 +133,16 @@ export function buildStoreDocument(input: BuildStoreInput): EditorDocument {
     kind: "product",
     modelId: input.modelId,
     theme: {
-      background: firstScheme?.background ?? "#ffffff",
-      surface: secondScheme?.background ?? brandKit.palette[3] ?? "#f4f1ec",
-      ink: firstScheme?.text ?? "#111111",
+      background: artDirection.palette[0] ?? firstScheme?.background ?? "#ffffff",
+      surface: artDirection.palette[3] ?? secondScheme?.background ?? brandKit.palette[3] ?? "#f4f1ec",
+      ink: artDirection.palette[1] ?? firstScheme?.text ?? "#111111",
       muted: "#6d6963",
-      accent: firstScheme?.accent ?? brandKit.palette[1] ?? "#111111",
+      accent: artDirection.palette[2] ?? firstScheme?.accent ?? brandKit.palette[1] ?? "#111111",
       display: "sans",
       radius: "soft",
     },
-    pages: [{ id: `page-${slugify(input.brandName)}`, name: input.brandName, slug: slugify(input.brandName), sections: sectionInputs.map(([type, settings, blocks], index) => makeSection(type, index, settings, blocks)) }],
+    pages: [{ id: `page-${slugify(input.brandName)}`, name: input.brandName, slug: slugify(input.brandName), sections: recipeSections.map(([type, settings, blocks], index) => makeSection(type, index, settings, blocks)) }],
     assets: product.images.map((url, index) => ({ id: `source-image-${index + 1}`, type: "image", url, alt: `${product.title} ${index + 1}` })),
-    commerce: { sourceProduct: product, personas: input.personas, angles: input.angles, brandKit, storefrontLanguage: input.language },
+    commerce: { sourceProduct: product, personas: input.personas, angles: input.angles, brandKit, storefrontLanguage: input.language, productTruth, artDirection, recipeId: recipe.id },
   };
 }

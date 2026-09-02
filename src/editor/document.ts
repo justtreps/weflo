@@ -1,5 +1,5 @@
 import type { PageTheme } from "../types";
-import type { BrandKit, BuyerPersona, ImportedProduct, MarketingAngle } from "../onboarding/types";
+import type { ArtDirectionProfile, BrandKit, BuyerPersona, ImportedProduct, MarketingAngle, ProductTruthSheet } from "../onboarding/types";
 
 export type EditorPageKind = "landing" | "product" | "collection" | "home";
 export type EditorAssetType = "image" | "video";
@@ -56,6 +56,9 @@ export type EditorCommerce = {
   angles: MarketingAngle[];
   brandKit: BrandKit;
   storefrontLanguage: string;
+  productTruth?: ProductTruthSheet;
+  artDirection?: ArtDirectionProfile;
+  recipeId?: string;
 };
 
 export type EditorDocument = {
