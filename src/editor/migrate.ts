@@ -7,6 +7,7 @@ import type {
   EditorSection,
   SettingValue,
 } from "./document";
+import { buildModelDocument } from "../models/model-manifest";
 
 function slug(value: string): string {
   return value
@@ -88,5 +89,5 @@ export function migrateDocument(document: PageDocument | EditorDocument, kind: P
 }
 
 export function documentForModel(modelId: string, pageName: string): EditorDocument {
-  return migrateDocument(documentFromModel(modelId, pageName), "product");
+  return buildModelDocument(modelId, pageName);
 }
