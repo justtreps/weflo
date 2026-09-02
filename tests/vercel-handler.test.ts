@@ -75,6 +75,7 @@ describe("Vercel Hono entry", () => {
     const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { scripts: Record<string, string> };
     const vercel = readFileSync("vercel.json", "utf8");
     expect(entry).toContain("export default app");
+    expect(entry).toContain('from "hono"');
     expect(ignore).toContain("api/**");
     expect(pkg.scripts.build).toBe("npm run build:hydrate");
     expect(vercel).toContain('"framework": "hono"');
