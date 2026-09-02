@@ -42514,70 +42514,26 @@ function prodDeps() {
   };
 }
 
-// src/server/vercel-node.ts
-function requestHeaders(incoming) {
-  const headers = new Headers();
-  for (const [name, value2] of Object.entries(incoming.headers)) {
-    if (Array.isArray(value2)) value2.forEach((item2) => headers.append(name, item2));
-    else if (value2 !== void 0) headers.set(name, value2);
-  }
-  return headers;
+// src/server/vercel-web.ts
+function restoreForwardedRequest(request) {
+  const url = new URL(request.url);
+  const forwardedPath = url.searchParams.get("__weflo_path");
+  if (forwardedPath === null) return request;
+  url.searchParams.delete("__weflo_path");
+  url.pathname = forwardedPath ? `/${forwardedPath.replace(/^\/+/, "")}` : "/";
+  return new Request(url, request);
 }
-async function requestBody(incoming) {
-  if (incoming.method === "GET" || incoming.method === "HEAD") return void 0;
-  if (incoming.body !== void 0) {
-    if (typeof incoming.body === "string") return incoming.body;
-    if (incoming.body instanceof Uint8Array) return Uint8Array.from(incoming.body);
-    return JSON.stringify(incoming.body);
-  }
-  if (incoming.readableEnded || incoming.complete) return void 0;
-  const chunks = [];
-  for await (const chunk of incoming) {
-    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
-  }
-  return chunks.length ? Uint8Array.from(Buffer.concat(chunks)) : void 0;
-}
-function requestUrl(incoming) {
-  const forwardedProto = incoming.headers["x-forwarded-proto"];
-  const protocol = (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) || "https";
-  const host = incoming.headers.host || "localhost";
-  const url = new URL(incoming.url || "/", `${protocol}://${host}`);
-  const queryPath = incoming.query?.__weflo_path;
-  const forwardedPath = url.searchParams.get("__weflo_path") ?? (Array.isArray(queryPath) ? queryPath[0] : queryPath) ?? null;
-  if (forwardedPath !== null) {
-    url.searchParams.delete("__weflo_path");
-    url.pathname = forwardedPath ? `/${forwardedPath.replace(/^\/+/, "")}` : "/";
-  }
-  return url.toString();
-}
-async function writeResponse(response, outgoing) {
-  outgoing.statusCode = response.status;
-  response.headers.forEach((value2, name) => outgoing.setHeader(name, value2));
-  const body = response.body ? Buffer.from(await response.arrayBuffer()) : void 0;
-  outgoing.end(body);
-}
-function createVercelNodeHandler(app2) {
-  return async (incoming, outgoing) => {
-    try {
-      const body = await requestBody(incoming);
-      const request = new Request(requestUrl(incoming), {
-        method: incoming.method,
-        headers: requestHeaders(incoming),
-        body
-      });
-      await writeResponse(await app2.fetch(request), outgoing);
-    } catch (error) {
-      console.error(error);
-      if (!outgoing.headersSent) outgoing.setHeader("content-type", "application/json; charset=UTF-8");
-      outgoing.statusCode = 500;
-      outgoing.end(JSON.stringify({ error: "internal_error", message: "Le serveur a rencontr\xE9 une erreur. R\xE9essaie dans un instant." }));
+function createVercelWebHandler(app2) {
+  return {
+    async fetch(request) {
+      return app2.fetch(restoreForwardedRequest(request));
     }
   };
 }
 
 // src/server/vercel-handler.ts
 var app = createApp(prodDeps());
-var vercel_handler_default = createVercelNodeHandler(app);
+var vercel_handler_default = createVercelWebHandler(app);
 export {
   vercel_handler_default as default
 };
