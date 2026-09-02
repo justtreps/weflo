@@ -1,0 +1,28 @@
+.source {
+  width: 46px;
+  height: 46px;
+  padding: 9px;
+  border-radius: 12px;
+  font-weight: 400;
+}
+
+.source img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.source--amazon,
+.source--temu {
+  background: #fff;
+  color: inherit;
+}
+
+.source--aliexpress { background: #e43225; }
+.source--shopify { background: #72a849; }
+.source--etsy { background: #f1641e; }
+.source--other { padding: 0; }
+
+.ob__screen--narrow { max-width: 900px; }
+.ob__title { text-wrap: balance; }

@@ -226,7 +226,7 @@ export function pagesRoutes(deps: AppDeps) {
     const strategy = body.strategy === "active" || body.strategy === "duplicate_active" || body.strategy === "new_weflo" ? body.strategy : "new_weflo";
     if (strategy === "active" && body.confirmLive !== true) return c.json({ error: "live_confirmation_required", message: "Confirme explicitement la publication sur le thème actif." }, 400);
     const shopify = await deps.store.getShopify(workspace.id);
-    if (destination !== "shopify" || !shopify || shopify.status !== "connected") return c.json({ error: "shopify_required", message: "Connect Shopify before publishing." }, 409);
+    if (destination !== "shopify" || !shopify || shopify.status !== "connected") return c.json({ error: "shopify_required", message: "Connecte Shopify avant de publier." }, 409);
     const updated = loaded.page;
     const previewUrl = `/s/${workspace.slug}/${updated.slug}`;
     if (!deps.shopify) {
@@ -288,7 +288,7 @@ export function pagesRoutes(deps: AppDeps) {
     }
     const ledger = await deps.store.getCredits(loaded.page.workspaceId);
     if (totalCredits(ledger) === 0) {
-      return c.json({ error: "credits", message: "Tu n’as plus assez de crédits Canardo.", cta: "Add Credits" }, 402);
+      return c.json({ error: "credits", message: "Tu n’as plus assez de crédits Canardo.", cta: "Ajouter des crédits" }, 402);
     }
     const possibleEditor = loaded.page.document as unknown as Partial<EditorDocument>;
     if (possibleEditor.version === 2 && Array.isArray(possibleEditor.pages)) {
@@ -312,7 +312,7 @@ export function pagesRoutes(deps: AppDeps) {
       if (consequential && body.confirm !== true) return c.json({ message: response.message, summary: response.summary, commands: response.commands, document: applied.document, requiresConfirmation: true });
       const cost = /\b(image|photo|visuel)\b/i.test(prompt) ? 3 : 1;
       let nextLedger;
-      try { nextLedger = spendCredits(ledger, cost); } catch { return c.json({ error: "credits", cta: "Add Credits" }, 402); }
+      try { nextLedger = spendCredits(ledger, cost); } catch { return c.json({ error: "credits", cta: "Ajouter des crédits" }, 402); }
       const page = await deps.store.updatePage(loaded.page.id, { document: applied.document as never });
       await deps.store.saveCredits(nextLedger);
       return c.json({ message: response.message, summary: response.summary, commands: response.commands, document: page.document, credits: nextLedger, requiresConfirmation: false });
@@ -338,7 +338,7 @@ export function pagesRoutes(deps: AppDeps) {
     try {
       nextLedger = spendCredits(ledger, cost);
     } catch {
-      return c.json({ error: "credits", cta: "Add Credits" }, 402);
+      return c.json({ error: "credits", cta: "Ajouter des crédits" }, 402);
     }
     const page = await deps.store.updatePage(loaded.page.id, { document: applied.document });
     await deps.store.saveCredits(nextLedger);

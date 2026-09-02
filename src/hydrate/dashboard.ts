@@ -42,7 +42,7 @@ function showToast(text: string, href?: string) {
     const link = document.createElement("a");
     link.dataset.creditsCta = "1";
     link.href = href;
-    link.textContent = "Add Credits";
+    link.textContent = "Ajouter des crédits";
     link.style.color = "#FBC531";
     box.appendChild(link);
   }

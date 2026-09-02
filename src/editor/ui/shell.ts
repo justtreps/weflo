@@ -25,30 +25,30 @@ const ICONS = {
 } as const;
 
 const LABELS = {
-  add: "Add section",
-  commerce: "Product & offer",
+  add: "Ajouter une section",
+  commerce: "Produit et offre",
   structure: "Sections",
-  layers: "Brand & style",
+  layers: "Marque et style",
   pages: "Pages",
-  media: "Media",
+  media: "Médias",
 } as const;
 
 export function editorShellMarkup(state: EditorState): string {
   const rail = Object.entries(LABELS).map(([id, label]) => `<button type="button" data-editor-panel-button="${id}" aria-label="${label}" aria-pressed="${state.activePanel === id}"><span aria-hidden="true">${ICONS[id as keyof typeof ICONS]}</span><small>${label}</small></button>`).join("");
   return `<div class="weflo-editor" data-editor-shell data-active-panel="${state.activePanel}" data-left-collapsed="${state.leftCollapsed}" data-right-collapsed="${state.rightCollapsed}">
     <header class="weflo-editor__topbar" data-editor-topbar>
-      <div class="weflo-editor__identity"><a href="/dashboard" aria-label="Back to dashboard">W</a><strong>${state.document.name}</strong></div>
-      <div class="weflo-editor__history"><button type="button" data-editor-undo aria-label="Undo">↶</button><button type="button" data-editor-redo aria-label="Redo">↷</button></div>
-      <div class="weflo-editor__viewports" aria-label="Preview size"><button type="button" data-editor-breakpoint="desktop" aria-pressed="${state.breakpoint === "desktop"}" title="Desktop">▰</button><button type="button" data-editor-breakpoint="tablet" aria-pressed="${state.breakpoint === "tablet"}" title="Tablet">▯</button><button type="button" data-editor-breakpoint="mobile" aria-pressed="${state.breakpoint === "mobile"}" title="Mobile">▯</button></div>
-      <span class="weflo-editor__save" data-editor-save-status="${state.saveStatus}">${state.saveStatus === "saved" ? "Saved" : "Modified"}</span>
-      <button type="button" data-editor-preview>${state.mode === "edit" ? "Preview" : "Edit"}</button>
-      <button type="button" class="weflo-editor__publish" data-editor-publish>Publish</button>
+      <div class="weflo-editor__identity"><a href="/dashboard" aria-label="Retour au tableau de bord">W</a><strong>${state.document.name}</strong></div>
+      <div class="weflo-editor__history"><button type="button" data-editor-undo aria-label="Annuler">↶</button><button type="button" data-editor-redo aria-label="Rétablir">↷</button></div>
+      <div class="weflo-editor__viewports" aria-label="Taille de l’aperçu"><button type="button" data-editor-breakpoint="desktop" aria-pressed="${state.breakpoint === "desktop"}" title="Ordinateur">▰</button><button type="button" data-editor-breakpoint="tablet" aria-pressed="${state.breakpoint === "tablet"}" title="Tablette">▯</button><button type="button" data-editor-breakpoint="mobile" aria-pressed="${state.breakpoint === "mobile"}" title="Mobile">▯</button></div>
+      <span class="weflo-editor__save" data-editor-save-status="${state.saveStatus}">${state.saveStatus === "saved" ? "Enregistré" : "Modifié"}</span>
+      <button type="button" data-editor-preview>${state.mode === "edit" ? "Aperçu" : "Modifier"}</button>
+      <button type="button" class="weflo-editor__publish" data-editor-publish>Publier</button>
     </header>
     <nav class="weflo-editor__rail" data-editor-left-rail aria-label="Outils de l’éditeur">${rail}</nav>
     <aside class="weflo-editor__sidebar" data-editor-sidebar><header><strong>${LABELS[state.activePanel]}</strong><button type="button" data-editor-collapse-left aria-label="Fermer le panneau">×</button></header><div data-editor-sidebar-content>${editorPanelMarkup(state)}</div></aside>
     <main class="weflo-editor__stage" data-editor-canvas><div class="weflo-editor__viewport" data-editor-viewport data-breakpoint="${state.breakpoint}"></div></main>
-    <aside class="weflo-editor__inspector" data-editor-inspector><header><strong>Settings</strong><button type="button" data-editor-collapse-right aria-label="Close settings">×</button></header><div data-editor-inspector-content>${inspectorMarkup(state)}</div></aside>
-    <section class="weflo-editor__canardo" data-editor-canardo><span aria-hidden="true">🐥</span><input aria-label="Ask Canardo" placeholder="Describe any section or change…"><button type="button" data-canardo-send aria-label="Send to Canardo">↑</button></section>
+    <aside class="weflo-editor__inspector" data-editor-inspector><header><strong>Réglages</strong><button type="button" data-editor-collapse-right aria-label="Fermer les réglages">×</button></header><div data-editor-inspector-content>${inspectorMarkup(state)}</div></aside>
+    <section class="weflo-editor__canardo" data-editor-canardo><span aria-hidden="true">🐥</span><input aria-label="Demander à Canardo" placeholder="Décris une section ou une modification…"><button type="button" data-canardo-send aria-label="Envoyer à Canardo">↑</button></section>
   </div>`;
 }
 
@@ -73,9 +73,9 @@ export function mountEditorShell(root: HTMLElement, store: EditorStore): () => v
     if (inspector) inspector.innerHTML = inspectorMarkup(state);
     root.querySelectorAll<HTMLElement>("[data-editor-breakpoint]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.editorBreakpoint === state.breakpoint)));
     const save = root.querySelector<HTMLElement>("[data-editor-save-status]");
-    if (save) { save.dataset.editorSaveStatus = state.saveStatus; save.textContent = state.saveStatus === "saved" ? "Saved" : state.saveStatus === "saving" ? "Saving…" : "Modified"; }
+    if (save) { save.dataset.editorSaveStatus = state.saveStatus; save.textContent = state.saveStatus === "saved" ? "Enregistré" : state.saveStatus === "saving" ? "Enregistrement…" : "Modifié"; }
     const preview = root.querySelector<HTMLButtonElement>("[data-editor-preview]");
-    if (preview) preview.textContent = state.mode === "edit" ? "Preview" : "Edit";
+    if (preview) preview.textContent = state.mode === "edit" ? "Aperçu" : "Modifier";
   };
   const unsubscribe = store.subscribe(patch);
   const unbind = bindLeftRail(root, store);

@@ -40,7 +40,7 @@ describe("section inspector", () => {
 
   it("shows a directional empty state and rejects invalid colors", () => {
     expect(inspectorMarkup(store(false).getState())).toContain("Sélectionne une section");
-    expect(() => applyInspectorValue(store(), { scope: "style", key: "backgroundColor", value: "red; color: blue" })).toThrow("Invalid color");
+    expect(() => applyInspectorValue(store(), { scope: "style", key: "backgroundColor", value: "red; color: blue" })).toThrow("Couleur invalide");
   });
 
   it("normalizes browser control values before applying them", () => {

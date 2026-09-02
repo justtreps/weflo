@@ -39,7 +39,7 @@ export function applyInspectorValue(store: EditorStore, change: InspectorChange)
   const sectionId = store.getState().selectedId;
   if (!sectionId) return;
   if (/color/i.test(change.key) && change.value !== null && (typeof change.value !== "string" || !/^#[0-9a-f]{6}$/i.test(change.value))) {
-    throw new Error("Invalid color");
+    throw new Error("Couleur invalide");
   }
   if (change.scope === "settings") store.dispatch({ type: "updateSetting", sectionId, key: change.key, value: change.value as SettingValue });
   if (change.scope === "style") store.dispatch({ type: "updateStyle", sectionId, key: change.key, value: change.value as StyleValue });
@@ -55,17 +55,17 @@ export function bindInspector(root: HTMLElement, store: EditorStore): () => void
       const key = imageButton.dataset.imageKey ?? "image";
       const sourceUrl = section?.settings[key];
       if (!section || typeof sourceUrl !== "string" || !sourceUrl) return;
-      const prompt = window.prompt("Describe the new scene. Weflo will keep the exact same product.", "Place this exact product in a premium lifestyle scene with conversion-focused composition");
+      const prompt = window.prompt("Décris la nouvelle scène. Weflo conservera exactement le même produit.", "Place exactement ce produit dans une scène premium avec une composition pensée pour la conversion");
       if (!prompt) return;
-      imageButton.disabled = true; imageButton.textContent = "Generating…";
+      imageButton.disabled = true; imageButton.textContent = "Génération…";
       try {
         const response = await fetch("/api/images/edit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl, prompt }) });
         const body = await response.json() as { url?: string; message?: string };
-        if (!response.ok || !body.url) throw new Error(body.message || "Image generation failed.");
+        if (!response.ok || !body.url) throw new Error(body.message || "La génération de l’image a échoué.");
         store.dispatch({ type: "updateSetting", sectionId: section.id, key, value: body.url });
         const latest = store.getState();
-        store.setState({ document: { ...latest.document, assets: [...latest.document.assets, { id: `ai-image-${Date.now()}`, type: "image", url: body.url, alt: `${section.name} AI image` }] }, saveStatus: "modified" });
-      } catch (error) { window.alert(error instanceof Error ? error.message : "Image generation failed."); }
+        store.setState({ document: { ...latest.document, assets: [...latest.document.assets, { id: `ai-image-${Date.now()}`, type: "image", url: body.url, alt: `Image IA — ${section.name}` }] }, saveStatus: "modified" });
+      } catch (error) { window.alert(error instanceof Error ? error.message : "La génération de l’image a échoué."); }
       return;
     }
     const tab = (event.target as HTMLElement).closest<HTMLElement>("[data-inspector-tab]");

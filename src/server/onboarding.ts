@@ -42,7 +42,7 @@ export function onboardingRoutes(deps: AppDeps) {
   const app = new Hono();
 
   app.post("/onboarding/import", async (c) => {
-    if (!deps.productFetch) return c.json({ error: "import_unavailable", message: "Product import is not configured." }, 503);
+    if (!deps.productFetch) return c.json({ error: "import_unavailable", message: "L’importation de produits n’est pas configurée." }, 503);
     const body = await c.req.json<{ sourceUrl?: unknown; language?: unknown }>().catch(() => ({} as { sourceUrl?: unknown; language?: unknown }));
     const sourceUrl = typeof body.sourceUrl === "string" ? body.sourceUrl.trim() : "";
     const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "en";
@@ -57,7 +57,7 @@ export function onboardingRoutes(deps: AppDeps) {
       draft = await deps.store.updateOnboardingDraft(draft.id, { ...analysis, brandName: analysis.brandNames[0], modelId: "proteo", status: "questions" });
       return c.json({ draft: publicDraft(draft), claimToken: claim.token }, 201);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "The product could not be imported.";
+      const message = error instanceof Error ? error.message : "Impossible d’importer ce produit.";
       await deps.store.updateOnboardingDraft(draft.id, { status: "failed", error: message });
       return c.json({ error: "import_failed", message }, 422);
     }

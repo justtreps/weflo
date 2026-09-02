@@ -47,7 +47,7 @@ describe("editor left rail", () => {
   it("explains how to connect Shopify when commerce is unavailable", () => {
     const editor = store();
     activateEditorPanel(editor, "commerce");
-    expect(editorPanelMarkup(editor.getState())).toContain("Shopify connection");
+    expect(editorPanelMarkup(editor.getState())).toContain("Connexion et publication Shopify");
     expect(editorPanelMarkup(editor.getState())).toContain("/dashboard#shopify");
   });
 

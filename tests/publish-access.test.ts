@@ -18,8 +18,8 @@ describe("publishAccessForBilling", () => {
 describe("publish paywall", () => {
   it("offers a clear Pro upgrade instead of publishing", () => {
     const html = renderPublishPaywall();
-    expect(html).toContain("Unlock publishing with Weflo Pro");
+    expect(html).toContain("Débloque la publication avec Weflo Pro");
     expect(html).toContain('href="/facturation"');
-    expect(html).toContain("Upgrade to Weflo Pro");
+    expect(html).toContain("Passer à Weflo Pro");
   });
 });

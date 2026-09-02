@@ -62,14 +62,14 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
     if (action.type === "imageEdit") {
       const section = store.getState().document.pages.flatMap((page) => page.sections).find((item) => item.id === action.sectionId);
       const sourceUrl = section?.settings[action.key];
-      const prompt = typeof sourceUrl === "string" ? window.prompt("Describe the new scene. The exact product will be preserved.", "Place this exact product in a premium lifestyle scene") : null;
+      const prompt = typeof sourceUrl === "string" ? window.prompt("Décris la nouvelle scène. Le produit restera exactement le même.", "Place exactement ce produit dans une scène premium") : null;
       if (section && typeof sourceUrl === "string" && prompt) {
         try {
           const response = await fetch("/api/images/edit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl, prompt }) });
           const result = await response.json() as { url?: string; message?: string };
-          if (!response.ok || !result.url) throw new Error(result.message || "Image editing failed.");
+          if (!response.ok || !result.url) throw new Error(result.message || "La modification de l’image a échoué.");
           store.dispatch({ type: "updateSetting", sectionId: section.id, key: action.key, value: result.url });
-        } catch (error) { window.alert(error instanceof Error ? error.message : "Image editing failed."); }
+        } catch (error) { window.alert(error instanceof Error ? error.message : "La modification de l’image a échoué."); }
       }
     }
     if (action.type === "move") store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: store.getState().pageId, toIndex: action.toIndex });
