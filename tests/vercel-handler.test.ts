@@ -44,6 +44,28 @@ describe("Vercel Node handler", () => {
       await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
     }
   });
+
+  it("reads the forwarded route from Vercel request.query", async () => {
+    const app = new Hono();
+    app.get("/api/auth/me", (c) => c.json({ route: c.req.path }));
+    const handler = createVercelNodeHandler(app);
+    const server = createServer((request, response) => {
+      request.url = "/api";
+      (request as typeof request & { query: Record<string, string> }).query = { __weflo_path: "api/auth/me" };
+      void handler(request, response);
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const address = server.address();
+    if (!address || typeof address === "string") throw new Error("missing test server address");
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${address.port}/api`);
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ route: "/api/auth/me" });
+    } finally {
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  });
 });
 
 describe("Vercel function entry", () => {

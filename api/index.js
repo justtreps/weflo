@@ -42542,7 +42542,8 @@ function requestUrl(incoming) {
   const protocol = (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) || "https";
   const host = incoming.headers.host || "localhost";
   const url = new URL(incoming.url || "/", `${protocol}://${host}`);
-  const forwardedPath = url.searchParams.get("__weflo_path");
+  const queryPath = incoming.query?.__weflo_path;
+  const forwardedPath = url.searchParams.get("__weflo_path") ?? (Array.isArray(queryPath) ? queryPath[0] : queryPath) ?? null;
   if (forwardedPath !== null) {
     url.searchParams.delete("__weflo_path");
     url.pathname = forwardedPath ? `/${forwardedPath.replace(/^\/+/, "")}` : "/";

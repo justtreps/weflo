@@ -1,7 +1,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Hono } from "hono";
 
-type VercelRequest = IncomingMessage & { body?: unknown };
+type VercelRequest = IncomingMessage & {
+  body?: unknown;
+  query?: Record<string, string | string[] | undefined>;
+};
 
 function requestHeaders(incoming: IncomingMessage): Headers {
   const headers = new Headers();
@@ -27,12 +30,13 @@ async function requestBody(incoming: VercelRequest): Promise<BodyInit | undefine
   return chunks.length ? Uint8Array.from(Buffer.concat(chunks)) : undefined;
 }
 
-function requestUrl(incoming: IncomingMessage): string {
+function requestUrl(incoming: VercelRequest): string {
   const forwardedProto = incoming.headers["x-forwarded-proto"];
   const protocol = (Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto) || "https";
   const host = incoming.headers.host || "localhost";
   const url = new URL(incoming.url || "/", `${protocol}://${host}`);
-  const forwardedPath = url.searchParams.get("__weflo_path");
+  const queryPath = incoming.query?.__weflo_path;
+  const forwardedPath = url.searchParams.get("__weflo_path") ?? (Array.isArray(queryPath) ? queryPath[0] : queryPath) ?? null;
   if (forwardedPath !== null) {
     url.searchParams.delete("__weflo_path");
     url.pathname = forwardedPath ? `/${forwardedPath.replace(/^\/+/, "")}` : "/";
