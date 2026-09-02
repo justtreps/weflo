@@ -1,5 +1,12 @@
 import type { CreditLedger, Membership, Page, ReferralAttribution, ShopifyConnection, User, WhopLink, Workspace } from "../types";
 
+export class PageVersionConflictError extends Error {
+  constructor() {
+    super("page version conflict");
+    this.name = "PageVersionConflictError";
+  }
+}
+
 export interface Store {
   createWorkspace(input: { name: string; ownerUserId: string }): Promise<Workspace>;
   listWorkspaces(userId: string): Promise<Workspace[]>;
@@ -12,8 +19,12 @@ export interface Store {
   assertMember(userId: string, workspaceId: string): Promise<Membership>;
   listPages(workspaceId: string): Promise<Page[]>;
   getPage(id: string): Promise<Page | null>;
-  createPage(input: Omit<Page, "id" | "updatedAt">): Promise<Page>;
-  updatePage(id: string, patch: Partial<Pick<Page, "name" | "slug" | "status" | "document">>): Promise<Page>;
+  createPage(input: Omit<Page, "id" | "updatedAt" | "documentVersion">): Promise<Page>;
+  updatePage(
+    id: string,
+    patch: Partial<Pick<Page, "name" | "slug" | "status" | "document">>,
+    options?: { expectedVersion?: number },
+  ): Promise<Page>;
   deletePage(id: string): Promise<void>;
   getCredits(workspaceId: string): Promise<CreditLedger>;
   saveCredits(ledger: CreditLedger): Promise<void>;

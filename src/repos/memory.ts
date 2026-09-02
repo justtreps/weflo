@@ -8,7 +8,7 @@ import type {
   WhopLink,
   Workspace,
 } from "../types";
-import type { Store } from "./types";
+import { PageVersionConflictError, type Store } from "./types";
 
 function randomId(prefix: string): string {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`;
@@ -112,7 +112,7 @@ export class MemoryStore implements Store {
     return this.pages.get(id) ?? null;
   }
 
-  async createPage(input: Omit<Page, "id" | "updatedAt">): Promise<Page> {
+  async createPage(input: Omit<Page, "id" | "updatedAt" | "documentVersion">): Promise<Page> {
     const taken = [...this.pages.values()].some(
       (p) => p.workspaceId === input.workspaceId && p.slug === input.slug,
     );
@@ -120,6 +120,7 @@ export class MemoryStore implements Store {
     const page: Page = {
       ...input,
       id: randomId("pg_"),
+      documentVersion: 1,
       updatedAt: new Date().toISOString(),
     };
     this.pages.set(page.id, page);
@@ -129,16 +130,25 @@ export class MemoryStore implements Store {
   async updatePage(
     id: string,
     patch: Partial<Pick<Page, "name" | "slug" | "status" | "document">>,
+    options: { expectedVersion?: number } = {},
   ): Promise<Page> {
     const page = this.pages.get(id);
     if (!page) throw new Error("page not found");
+    if (options.expectedVersion !== undefined && options.expectedVersion !== page.documentVersion) {
+      throw new PageVersionConflictError();
+    }
     if (patch.slug && patch.slug !== page.slug) {
       const taken = [...this.pages.values()].some(
         (p) => p.workspaceId === page.workspaceId && p.slug === patch.slug && p.id !== id,
       );
       if (taken) throw new Error("slug already exists");
     }
-    const updated: Page = { ...page, ...patch, updatedAt: new Date().toISOString() };
+    const updated: Page = {
+      ...page,
+      ...patch,
+      documentVersion: page.documentVersion + 1,
+      updatedAt: new Date().toISOString(),
+    };
     this.pages.set(id, updated);
     return updated;
   }

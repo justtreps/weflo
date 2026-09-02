@@ -6,6 +6,7 @@ import { spendCredits, totalCredits } from "../lib/credits";
 import { publishAccessForBilling } from "../lib/publishing";
 import { resolveShopifyToken } from "../lib/shopify";
 import type { Store } from "../repos/types";
+import { PageVersionConflictError } from "../repos/types";
 import type { Page, PageStatus, PageType, User, WhopPort } from "../types";
 import type { AppDeps } from "./app";
 
@@ -138,8 +139,17 @@ export function pagesRoutes(deps: AppDeps) {
     if (body.document && typeof body.document === "object") {
       patch.document = body.document as Page["document"];
     }
-    const updated = await deps.store.updatePage(loaded.page.id, patch);
-    return c.json(updated);
+    const expectedVersion = typeof body.expectedVersion === "number" && Number.isInteger(body.expectedVersion)
+      ? body.expectedVersion
+      : undefined;
+    try {
+      const updated = await deps.store.updatePage(loaded.page.id, patch, { expectedVersion });
+      return c.json(updated);
+    } catch (error) {
+      if (!(error instanceof PageVersionConflictError)) throw error;
+      const serverPage = await deps.store.getPage(loaded.page.id);
+      return c.json({ error: "version_conflict", serverPage }, 409);
+    }
   });
 
   app.post("/pages/:id/duplicate", async (c) => {

@@ -8,7 +8,23 @@ export type SectionType =
   | "atelier" | "article";
 
 export type Section = { id: string; type: SectionType; settings: Record<string, unknown> };
-export type PageDocument = { name: string; path: string; sections: Section[] };
+export type PageTheme = {
+  background: string;
+  surface: string;
+  ink: string;
+  muted: string;
+  accent: string;
+  display: "sans" | "serif" | "condensed";
+  radius: "none" | "soft" | "round";
+};
+export type PageDocument = {
+  name: string;
+  path: string;
+  sections: Section[];
+  modelId?: string;
+  theme?: PageTheme;
+  referencePreviews?: { desktop: string; mobile: string };
+};
 
 export type Workspace = { id: string; name: string; slug: string; ownerUserId: string; createdAt: string };
 export type WorkspaceRole = "owner" | "member" | "viewer";
@@ -22,6 +38,7 @@ export type Page = {
   type: PageType;
   status: PageStatus;
   document: PageDocument;
+  documentVersion: number;
   updatedAt: string;
 };
 

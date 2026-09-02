@@ -21,9 +21,12 @@ create table if not exists pages (
   type text not null,
   status text not null,
   document jsonb not null,
+  document_version int not null default 1,
   updated_at timestamptz not null default now(),
   unique (workspace_id, slug)
 );
+
+alter table pages add column if not exists document_version int not null default 1;
 
 create table if not exists credit_ledgers (
   workspace_id text primary key references workspaces(id) on delete cascade,

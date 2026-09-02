@@ -15,7 +15,7 @@ import type {
   Workspace,
   WorkspaceRole,
 } from "../types";
-import type { Store } from "./types";
+import { PageVersionConflictError, type Store } from "./types";
 
 function randomId(prefix: string): string {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`;
@@ -43,7 +43,7 @@ export class PostgresStore implements Store {
   private sql: postgres.Sql;
 
   constructor(url: string) {
-    this.sql = postgres(url);
+    this.sql = postgres(url, { prepare: false });
   }
 
   async close(): Promise<void> {
@@ -193,10 +193,11 @@ export class PostgresStore implements Store {
     return rows[0] ? mapPage(rows[0]) : null;
   }
 
-  async createPage(input: Omit<Page, "id" | "updatedAt">): Promise<Page> {
+  async createPage(input: Omit<Page, "id" | "updatedAt" | "documentVersion">): Promise<Page> {
     const page: Page = {
       ...input,
       id: randomId("pg_"),
+      documentVersion: 1,
       updatedAt: new Date().toISOString(),
     };
     try {
@@ -209,7 +210,7 @@ export class PostgresStore implements Store {
           ${page.slug},
           ${page.type},
           ${page.status},
-          ${this.sql.json(page.document)},
+          ${this.sql.json(storedPageDocument(page.document, page.documentVersion))},
           ${page.updatedAt}
         )
       `;
@@ -223,20 +224,32 @@ export class PostgresStore implements Store {
   async updatePage(
     id: string,
     patch: Partial<Pick<Page, "name" | "slug" | "status" | "document">>,
+    options: { expectedVersion?: number } = {},
   ): Promise<Page> {
     const page = await this.getPage(id);
     if (!page) throw new Error("page not found");
-    const updated: Page = { ...page, ...patch, updatedAt: new Date().toISOString() };
+    if (options.expectedVersion !== undefined && options.expectedVersion !== page.documentVersion) {
+      throw new PageVersionConflictError();
+    }
+    const updated: Page = {
+      ...page,
+      ...patch,
+      documentVersion: page.documentVersion + 1,
+      updatedAt: new Date().toISOString(),
+    };
     try {
-      await this.sql`
+      const rows = await this.sql<{ id: string }[]>`
         update pages
         set name = ${updated.name},
             slug = ${updated.slug},
             status = ${updated.status},
-            document = ${this.sql.json(updated.document)},
+            document = ${this.sql.json(storedPageDocument(updated.document, updated.documentVersion))},
             updated_at = ${updated.updatedAt}
         where id = ${id}
+          ${options.expectedVersion === undefined ? this.sql`` : this.sql`and coalesce((document ->> '__wefloDocumentVersion')::int, 1) = ${options.expectedVersion}`}
+        returning id
       `;
+      if (rows.length === 0) throw new PageVersionConflictError();
     } catch (err) {
       if (isUniqueViolation(err)) throw new Error("slug already exists");
       throw err;
@@ -436,7 +449,14 @@ type WhopRow = {
 };
 
 function mapPage(row: PageRow): Page {
-  return { ...row, updatedAt: iso(row.updatedAt) };
+  const stored = row.document as PageDocument & { __wefloDocumentVersion?: unknown };
+  const documentVersion = typeof stored.__wefloDocumentVersion === "number" ? stored.__wefloDocumentVersion : 1;
+  const { __wefloDocumentVersion: _version, ...document } = stored;
+  return { ...row, document: document as PageDocument, documentVersion, updatedAt: iso(row.updatedAt) };
+}
+
+function storedPageDocument(document: PageDocument, version: number): PageDocument & { __wefloDocumentVersion: number } {
+  return { ...document, __wefloDocumentVersion: version };
 }
 
 function mapCredits(row: CreditRow): CreditLedger {
