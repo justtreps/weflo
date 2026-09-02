@@ -26,6 +26,10 @@ describe("visual editor shell", () => {
     }
     expect(html).toContain('aria-label="Outils de l’éditeur"');
     expect(html).toContain('data-active-panel="structure"');
+    expect(html).toContain("Add section");
+    expect(html).toContain("Product & offer");
+    expect(html).toContain("Brand & style");
+    expect(html).not.toContain(">Calques<");
   });
 
   it("updates state immutably and notifies subscribers", () => {

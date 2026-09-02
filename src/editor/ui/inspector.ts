@@ -47,7 +47,27 @@ export function applyInspectorValue(store: EditorStore, change: InspectorChange)
 }
 
 export function bindInspector(root: HTMLElement, store: EditorStore): () => void {
-  const click = (event: Event) => {
+  const click = async (event: Event) => {
+    const imageButton = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-image-ai]");
+    if (imageButton) {
+      const state = store.getState();
+      const section = selectedSection(state);
+      const key = imageButton.dataset.imageKey ?? "image";
+      const sourceUrl = section?.settings[key];
+      if (!section || typeof sourceUrl !== "string" || !sourceUrl) return;
+      const prompt = window.prompt("Describe the new scene. Weflo will keep the exact same product.", "Place this exact product in a premium lifestyle scene with conversion-focused composition");
+      if (!prompt) return;
+      imageButton.disabled = true; imageButton.textContent = "Generating…";
+      try {
+        const response = await fetch("/api/images/edit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl, prompt }) });
+        const body = await response.json() as { url?: string; message?: string };
+        if (!response.ok || !body.url) throw new Error(body.message || "Image generation failed.");
+        store.dispatch({ type: "updateSetting", sectionId: section.id, key, value: body.url });
+        const latest = store.getState();
+        store.setState({ document: { ...latest.document, assets: [...latest.document.assets, { id: `ai-image-${Date.now()}`, type: "image", url: body.url, alt: `${section.name} AI image` }] }, saveStatus: "modified" });
+      } catch (error) { window.alert(error instanceof Error ? error.message : "Image generation failed."); }
+      return;
+    }
     const tab = (event.target as HTMLElement).closest<HTMLElement>("[data-inspector-tab]");
     if (!tab) return;
     const inspector = tab.closest("[data-inspector-section]");

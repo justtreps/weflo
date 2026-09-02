@@ -222,39 +222,32 @@ export function pagesRoutes(deps: AppDeps) {
     const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
     const expectedVersion = typeof body.expectedVersion === "number" ? body.expectedVersion : undefined;
     if (expectedVersion !== undefined && expectedVersion !== loaded.page.documentVersion) return c.json({ error: "version_conflict", serverPage: loaded.page }, 409);
-    const destination = body.destination === "hosted" || body.destination === "shopify" ? body.destination : undefined;
+    const destination = body.destination === "shopify" ? body.destination : undefined;
     const strategy = body.strategy === "active" || body.strategy === "duplicate_active" || body.strategy === "new_weflo" ? body.strategy : "new_weflo";
     if (strategy === "active" && body.confirmLive !== true) return c.json({ error: "live_confirmation_required", message: "Confirme explicitement la publication sur le thème actif." }, 400);
-    const updated = await deps.store.updatePage(loaded.page.id, { status: "published_hosted" });
-    const previewUrl = `/s/${workspace.slug}/${updated.slug}`;
     const shopify = await deps.store.getShopify(workspace.id);
-    if (destination === "hosted" || !shopify || shopify.status !== "connected") {
-      return c.json({
-        status: "published_hosted",
-        shopify: "skipped",
-        previewUrl,
-        message: "Page publiée sur l'aperçu hébergé.",
-      });
-    }
+    if (destination !== "shopify" || !shopify || shopify.status !== "connected") return c.json({ error: "shopify_required", message: "Connect Shopify before publishing." }, 409);
+    const updated = loaded.page;
+    const previewUrl = `/s/${workspace.slug}/${updated.slug}`;
     if (!deps.shopify) {
       return c.json({
-        status: "published_hosted",
+        status: "draft",
         shopify: "connected",
         previewUrl,
-        message: "Page publiée.",
+        message: "Shopify publishing is not configured.",
       });
     }
 
     const token = resolveShopifyToken(shopify.tokenEncrypted, deps.encryptionKey);
     const possibleEditor = updated.document as unknown as Partial<EditorDocument>;
     if (possibleEditor.version === 2 && Array.isArray(possibleEditor.pages)) {
-      if (!deps.shopify.publishEditor) return c.json({ error: "editor_publish_unavailable", status: "published_hosted", previewUrl }, 503);
+      if (!deps.shopify.publishEditor) return c.json({ error: "editor_publish_unavailable", status: "draft", previewUrl }, 503);
       try {
         const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: possibleEditor, pageName: updated.name, strategy, ...(typeof body.themeId === "string" ? { themeId: body.themeId } : {}), replaceGlobalTemplate: body.replaceGlobalTemplate === true });
         const published = await deps.store.updatePage(loaded.page.id, { status: "published_shopify" });
         return c.json({ status: published.status, shopify: "published", previewUrl, shopifyPreviewUrl: result.previewUrl, themeId: result.themeId, message: "Page publiée dans le thème Shopify choisi." });
       } catch {
-        return c.json({ shopify: "failed", status: "published_hosted", previewUrl }, 502);
+        return c.json({ shopify: "failed", status: "draft", previewUrl }, 502);
       }
     }
     try {
@@ -266,7 +259,7 @@ export function pagesRoutes(deps: AppDeps) {
       });
     } catch {
       await deps.shopify.rollback({ shop: shopify.shopDomain, token });
-      return c.json({ shopify: "failed", status: "published_hosted", previewUrl }, 502);
+      return c.json({ shopify: "failed", status: "draft", previewUrl }, 502);
     }
 
     const published = await deps.store.updatePage(loaded.page.id, { status: "published_shopify" });

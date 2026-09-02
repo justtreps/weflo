@@ -27,7 +27,7 @@ export function editorPanelMarkup(state: EditorState): string {
     case "layers": return layersPanel(state);
     case "pages": return pagesPanel(state);
     case "media": return mediaPanel(state);
-    case "commerce": return commercePanel();
+    case "commerce": return commercePanel(state);
   }
 }
 
@@ -110,6 +110,20 @@ export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void 
       input.click();
     }
   };
+  const change = (event: Event) => {
+    const control = (event.target as HTMLInputElement | HTMLSelectElement).closest<HTMLInputElement | HTMLSelectElement>("[data-theme-key]");
+    if (!control) return;
+    const state = store.getState();
+    const key = control.dataset.themeKey;
+    if (key === "headingFont" || key === "bodyFont") {
+      if (!state.document.commerce) return;
+      const commerce = { ...state.document.commerce, brandKit: { ...state.document.commerce.brandKit, [key]: control.value } };
+      store.setState({ document: { ...state.document, commerce }, saveStatus: "modified" });
+    } else if (key && ["background", "surface", "ink", "accent"].includes(key)) {
+      store.setState({ document: { ...state.document, theme: { ...state.document.theme, [key]: control.value } }, saveStatus: "modified" });
+    }
+  };
   root.addEventListener("click", click);
-  return () => root.removeEventListener("click", click);
+  root.addEventListener("change", change);
+  return () => { root.removeEventListener("click", click); root.removeEventListener("change", change); };
 }

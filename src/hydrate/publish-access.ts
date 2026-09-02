@@ -5,9 +5,9 @@ export function renderPublishPaywall(): string {
     <button type="button" class="publish-paywall__close" data-paywall-close aria-label="Fermer">×</button>
     <div class="publish-paywall__mark">P</div>
     <p class="publish-paywall__label">Weflo Pro</p>
-    <h2 id="publish-paywall-title">Débloque la publication avec Weflo Pro</h2>
-    <p>Ton aperçu reste disponible gratuitement. Passe Pro pour publier ta page, connecter Shopify et retirer la signature Weflo.</p>
-    <ul><li>Publication en un clic</li><li>Connexion Shopify</li><li>Domaine et pages sans limite</li></ul>
-    <a href="/facturation">Passer Pro</a>
+    <h2 id="publish-paywall-title">Unlock publishing with Weflo Pro</h2>
+    <p>Your store is ready. Upgrade to install it directly in the Shopify theme you choose.</p>
+    <ul><li>Publish to Shopify themes</li><li>Active theme, duplicate, or new theme</li><li>Unlimited pages and edits</li></ul>
+    <a href="/facturation">Upgrade to Weflo Pro</a>
   </div>`;
 }

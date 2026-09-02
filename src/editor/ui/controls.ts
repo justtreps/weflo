@@ -18,6 +18,5 @@ export function inspectorControlMarkup(section: EditorSection, control: Inspecto
   if (control.type === "select") return `<label class="editor-control"><span>${control.label}</span><select ${attrs}>${control.options?.map((option) => `<option value="${option}"${value === option ? " selected" : ""}>${option}</option>`).join("")}</select></label>`;
   if (control.type === "toggle") return `<label class="editor-control editor-control--toggle"><span>${control.label}</span><input type="checkbox" ${attrs}${value ? " checked" : ""}></label>`;
   const inputType = control.type === "number" ? "number" : control.type === "color" ? "color" : "text";
-  return `<label class="editor-control"><span>${control.label}</span><input type="${inputType}" ${attrs} value="${escape(value)}"></label>`;
+  return `<label class="editor-control"><span>${control.label}</span><input type="${inputType}" ${attrs} value="${escape(value)}">${control.type === "image" && value ? `<button type="button" class="editor-image-ai" data-image-ai data-image-key="${control.key}">✦ Edit with AI</button>` : ""}</label>`;
 }
-

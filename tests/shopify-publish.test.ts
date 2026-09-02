@@ -65,10 +65,10 @@ describe("Shopify connect and publish", () => {
         rollback: async () => { rolled = true; },
       },
     });
-    const res = await app.request(`/api/pages/${page.id}/publish`, { method: "POST" });
+    const res = await app.request(`/api/pages/${page.id}/publish`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ destination: "shopify" }) });
     expect(res.status).toBe(502);
     expect(rolled).toBe(true);
-    expect((await store.getPage(page.id))!.status).toBe("published_hosted");
+    expect((await store.getPage(page.id))!.status).toBe("draft");
     expect((await res.json()).shopify).toBe("failed");
   });
 });

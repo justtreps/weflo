@@ -23,7 +23,7 @@ describe("POST /api/pages/:id/publish when Shopify not connected", () => {
     expect((await store.getPage(page.id))!.status).toBe("draft");
   });
 
-  it("sets published_hosted and skips Shopify", async () => {
+  it("requires Shopify instead of creating a hosted publication", async () => {
     const store = new MemoryStore();
     const ws = await store.createWorkspace({ name: "ACAI", ownerUserId: "u1" });
     const page = await store.createPage({
@@ -44,14 +44,11 @@ describe("POST /api/pages/:id/publish when Shopify not connected", () => {
     });
 
     const res = await app.request(`/api/pages/${page.id}/publish`, { method: "POST" });
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(409);
     const body = await res.json();
-    expect(body.status).toBe("published_hosted");
-    expect(body.shopify).toBe("skipped");
-    expect(body.previewUrl).toMatch(/\/s\//);
-    expect(body.previewUrl).toBe(`/s/${ws.slug}/home`);
+    expect(body.error).toBe("shopify_required");
 
     const updated = await store.getPage(page.id);
-    expect(updated!.status).toBe("published_hosted");
+    expect(updated!.status).toBe("draft");
   });
 });

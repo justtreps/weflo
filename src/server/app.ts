@@ -14,6 +14,8 @@ import { storefrontRoutes } from "./storefront";
 import type { ProductFetchPort } from "../import/product-extractor";
 import type { OnboardingAiPort } from "../onboarding/analyser";
 import { onboardingRoutes } from "./onboarding";
+import type { ImageEditPort } from "../media/image-edit";
+import { imageRoutes } from "./images";
 
 export type { ShopifyPort, WhopPort };
 
@@ -30,6 +32,7 @@ export type AppDeps = {
   deleteUser?: (userId: string) => Promise<void>;
   productFetch?: ProductFetchPort;
   onboardingAi?: OnboardingAiPort;
+  imageEdit?: ImageEditPort;
 };
 
 function assetType(name: string): string {
@@ -101,6 +104,7 @@ export function createApp(deps: AppDeps) {
 
   app.route("/api", authRoutes(deps));
   app.route("/api", onboardingRoutes(deps));
+  app.route("/api", imageRoutes(deps));
   app.route("/api", meRoutes(deps));
   app.route("/api", settingsRoutes(deps));
   app.route("/api", pagesRoutes(deps));

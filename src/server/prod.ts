@@ -12,6 +12,7 @@ import type { AuthPort, LlmPort } from "../types";
 import type { AppDeps } from "./app";
 import { createOpenAiOnboarding } from "../onboarding/openai-analysis";
 import { createNativeProductFetchPort } from "../import/product-extractor";
+import { createOpenAiImageEdit } from "../media/image-edit";
 
 function parseDotEnvFile(filename: string): Record<string, string> {
   try {
@@ -132,9 +133,10 @@ export function prodDeps(): AppDeps {
   const store = createStore();
   const productFetch = createNativeProductFetchPort();
   const onboardingAi = openaiApiKey() ? createOpenAiOnboarding(openaiApiKey() as string) : undefined;
+  const imageEdit = openaiApiKey() ? createOpenAiImageEdit(openaiApiKey() as string) : undefined;
 
   if (!url || !anonKey) {
-    return { store, session: async () => null, llm, onboardingAi, productFetch, publicAppUrl, whop, ...shopify };
+    return { store, session: async () => null, llm, onboardingAi, imageEdit, productFetch, publicAppUrl, whop, ...shopify };
   }
 
   const supabase = createClient(url, anonKey);
@@ -152,6 +154,7 @@ export function prodDeps(): AppDeps {
     auth: createSupabaseAuth(url, anonKey),
     llm,
     onboardingAi,
+    imageEdit,
     productFetch,
     publicAppUrl,
     whop,
