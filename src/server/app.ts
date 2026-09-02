@@ -59,6 +59,7 @@ const htmlRoutes: Record<string, string> = {
   "/direction-artistique": "direction-artistique.html",
   "/mascottes": "mascottes.html",
   "/maquettes": "maquettes.html",
+  "/maquette-dashboard": "maquette-dashboard.html",
 };
 
 export function createApp(deps: AppDeps) {

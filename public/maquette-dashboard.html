@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Accueil — Weflo</title>
+    <link rel="stylesheet" href="/hydrate/maquette-dashboard.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar" aria-label="Navigation principale">
+        <a class="brand" href="/dashboard" aria-label="Weflo, accueil">weflo<span>.</span></a>
+        <nav class="main-nav">
+          <a class="nav-item is-active" href="#accueil"><span>⌂</span>Accueil</a>
+          <a class="nav-item" href="#creations"><span>▣</span>Mes créations <b>8</b></a>
+          <a class="nav-item" href="#shopify"><span>◆</span>Ma boutique</a>
+          <a class="nav-item" href="#abonnement"><span>◈</span>Abonnement</a>
+        </nav>
+        <div class="sidebar-bottom">
+          <a class="nav-item" href="#parrainage"><span>♧</span>Parrainage</a>
+          <a class="nav-item" href="#reglages"><span>⚙</span>Réglages</a>
+          <div class="profile"><span class="avatar">TL</span><span><strong>Théo</strong><small>Compte gratuit</small></span><button aria-label="Ouvrir le profil">•••</button></div>
+        </div>
+      </aside>
+
+      <main id="accueil">
+        <header class="topbar">
+          <div><p class="hello">Bonjour Théo</p><p class="subhello">Transforme ton prochain produit en boutique.</p></div>
+          <div class="top-actions"><button class="icon-button" aria-label="Notifications">♢</button><button class="pro-button">Passer Pro</button></div>
+        </header>
+
+        <section class="creation-desk" aria-labelledby="desk-title">
+          <div class="duck" aria-hidden="true">🐥</div>
+          <div class="desk-copy">
+            <h1 id="desk-title">Que veux-tu vendre ?</h1>
+            <p>Donne-moi un produit. Je m’occupe de l’offre, des mots et de la boutique.</p>
+          </div>
+          <form class="prompt" data-prompt-form>
+            <label class="sr-only" for="store-prompt">Décrire le produit ou coller son lien</label>
+            <textarea id="store-prompt" rows="2" placeholder="Colle un lien produit ou décris ce que tu veux vendre…"></textarea>
+            <div class="prompt-footer"><span data-prompt-hint>Amazon, AliExpress, Shopify ou n’importe quel site</span><button type="submit">Générer ma boutique <span>↗</span></button></div>
+          </form>
+          <div class="start-modes" aria-label="Autres façons de commencer">
+            <button data-start-mode="link"><span>↗</span><strong>Importer un lien</strong><small>Produit et images</small></button>
+            <button data-start-mode="image"><span>▧</span><strong>Ajouter une image</strong><small>On reconnaît le produit</small></button>
+            <button data-start-mode="shopify"><span class="shopify-mark">S</span><strong>Depuis Shopify</strong><small>Choisir dans le catalogue</small></button>
+            <button data-start-mode="blank"><span>＋</span><strong>Partir de zéro</strong><small>Une page vraiment vierge</small></button>
+          </div>
+          <input type="file" accept="image/*" hidden data-image-picker />
+          <div class="desk-feedback" role="status" aria-live="polite" hidden></div>
+        </section>
+
+        <section class="projects" id="creations" aria-labelledby="projects-title">
+          <div class="section-heading"><div><h2 id="projects-title">Mes créations</h2><p>Reprends là où tu t’es arrêté.</p></div><a href="#all">Tout voir <span>→</span></a></div>
+          <div class="project-shelf">
+            <article class="project-card feature-card">
+              <a class="project-preview" href="/editeur?page=pg_demo"><img src="/assets/editor-preview-brulerie-sud-desktop.webp" alt="Aperçu de la boutique Brûlerie Sud" /></a>
+              <div class="project-info"><div><span class="status live">Sur Shopify</span><h3>Brûlerie Sud</h3><p>Page produit · modifiée aujourd’hui</p></div><button aria-label="Actions pour Brûlerie Sud">•••</button></div>
+            </article>
+            <article class="project-card">
+              <a class="project-preview" href="/editeur?page=pg_demo"><img src="/assets/editor-preview-tenon-desktop.webp" alt="Aperçu de la boutique Tenon" /></a>
+              <div class="project-info"><div><span class="status ready">Prête</span><h3>Tenon</h3><p>Boutique · il y a 2 h</p></div><button aria-label="Actions pour Tenon">•••</button></div>
+            </article>
+            <article class="project-card">
+              <a class="project-preview" href="/editeur?page=pg_demo"><img src="/assets/editor-preview-peau-nue-desktop.webp" alt="Aperçu de la boutique Peau nue" /></a>
+              <div class="project-info"><div><span class="status draft">Brouillon</span><h3>Peau nue</h3><p>Landing page · hier</p></div><button aria-label="Actions pour Peau nue">•••</button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="workbench">
+          <div class="next-actions">
+            <div class="section-heading compact"><div><h2>À terminer</h2><p>Trois actions pour mettre ta prochaine boutique en ligne.</p></div></div>
+            <button class="task-row"><span class="task-icon">S</span><span><strong>Connecter Shopify</strong><small>Publie directement dans ton thème</small></span><b>Configurer →</b></button>
+            <button class="task-row"><span class="task-icon">Aa</span><span><strong>Finaliser l’identité de Peau nue</strong><small>Police et palette encore provisoires</small></span><b>Continuer →</b></button>
+            <button class="task-row"><span class="task-icon">✓</span><span><strong>Vérifier l’offre Tenon</strong><small>Le bundle est prêt à être relu</small></span><b>Ouvrir →</b></button>
+          </div>
+          <aside class="shopify-card" id="shopify">
+            <span class="shopify-mark large">S</span>
+            <p class="mini-title">Publication Shopify</p>
+            <h2>Ta boutique, dans ton vrai thème.</h2>
+            <p>Weflo ajoute ses sections sans écraser le travail déjà en ligne.</p>
+            <ul><li>Thème actif ou copie sécurisée</li><li>Sections modifiables dans Shopify</li><li>Retour arrière inclus</li></ul>
+            <button data-start-mode="shopify">Connecter ma boutique</button>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Navigation mobile"><a href="#accueil">⌂<span>Accueil</span></a><a href="#creations">▣<span>Créations</span></a><button data-start-mode="link">＋<span>Créer</span></button><a href="#shopify">◆<span>Shopify</span></a><a href="#reglages">⚙<span>Réglages</span></a></nav>
+
+    <dialog class="panel" data-shopify-panel><button class="panel-close" data-close-panel aria-label="Fermer">×</button><span class="shopify-mark large">S</span><h2>Connecte ta boutique Shopify</h2><p>Importe ton catalogue et publie les sections Weflo directement dans le thème de ton choix.</p><button class="panel-primary">Connecter Shopify</button><button class="panel-secondary" data-close-panel>Plus tard</button></dialog>
+    <script type="module" src="/hydrate/maquette-dashboard.js"></script>
+  </body>
+</html>
