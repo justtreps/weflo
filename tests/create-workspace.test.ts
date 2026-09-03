@@ -14,7 +14,7 @@ describe("connected creation workspace", () => {
     expect(creationFormats.map((format) => format.id)).toEqual([
       "store", "product", "landing", "advertorial", "quiz", "home", "blog", "blank",
     ]);
-    const html = renderCreateWorkspace({ workspaceName: "Studio", selectedFormat: null, source: null, prompt: "" });
+    const html = renderCreateWorkspace({ workspaceName: "Studio", selectedFormat: null, selectedTemplateId: null, source: null, prompt: "", answers: {} });
     for (const label of ["Boutique complète", "Page produit", "Landing page", "Advertorial", "Quiz et funnel", "Page d’accueil", "Article de blog", "Page vierge"]) {
       expect(html).toContain(label);
     }
@@ -24,5 +24,15 @@ describe("connected creation workspace", () => {
 
   it("loads the connected workspace stylesheet", () => {
     expect(readFileSync("public/creer.html", "utf8")).toContain('href="/hydrate/creer.css"');
+  });
+
+  it("shows the template gallery before the format intake and resumes intake after selection", () => {
+    const gallery = renderCreateWorkspace({ workspaceName: "Studio", selectedFormat: "landing", selectedTemplateId: null, source: null, prompt: "", answers: {} });
+    const intake = renderCreateWorkspace({ workspaceName: "Studio", selectedFormat: "landing", selectedTemplateId: "landing-direct-response", source: null, prompt: "", answers: {} });
+
+    expect(gallery).toContain('data-template-preview="landing-direct-response"');
+    expect(gallery).not.toContain('data-create-source="description"');
+    expect(intake).toContain('data-create-source="description"');
+    expect(intake).toContain('name="campaign"');
   });
 });
