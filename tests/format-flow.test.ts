@@ -19,4 +19,20 @@ describe("format flow registry", () => {
     expect(templateById("home-brand-editorial").format).toBe("home");
     expect(() => templateById("missing")).toThrow("Unknown creation template");
   });
+
+  it("keeps template ids stable while localizing their selection names", () => {
+    expect([
+      ["product-buybox-premium", templateById("product-buybox-premium").name],
+      ["product-bundle-first", templateById("product-bundle-first").name],
+      ["landing-direct-response", templateById("landing-direct-response").name],
+      ["home-brand-editorial", templateById("home-brand-editorial").name],
+      ["home-story-first", templateById("home-story-first").name],
+    ]).toEqual([
+      ["product-buybox-premium", "Fiche produit premium"],
+      ["product-bundle-first", "Offre groupée"],
+      ["landing-direct-response", "Réponse directe"],
+      ["home-brand-editorial", "Éditorial de marque"],
+      ["home-story-first", "L’histoire d’abord"],
+    ]);
+  });
 });
