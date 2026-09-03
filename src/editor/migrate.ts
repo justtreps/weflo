@@ -10,6 +10,7 @@ import type {
 import { isEditorDocument } from "./document";
 import { buildModelDocument } from "../models/model-manifest";
 import { profileFromArtDirection } from "../design/profile";
+import { getSectionDefinition } from "../sections";
 
 function slug(value: string): string {
   return value
@@ -75,10 +76,12 @@ export function editorKind(type: PageType | EditorPageKind): EditorPageKind {
 export function migrateDocument(document: PageDocument | EditorDocument, kind: PageType | EditorPageKind = "landing"): EditorDocument {
   if (isEditorDocument(document)) {
     const migrated = structuredClone(document);
-    for (const page of migrated.pages) for (const section of page.sections) {
+    for (const page of migrated.pages) page.sections = page.sections.map((section) => {
       section.packVersion ??= 1;
       section.variantId ??= typeof section.settings.variant === "string" ? section.settings.variant : "default";
-    }
+      const definition = getSectionDefinition(section.type);
+      return definition ? definition.migrate(section, section.packVersion) : section;
+    });
     if (!migrated.designProfile && migrated.commerce?.artDirection) migrated.designProfile = profileFromArtDirection(migrated.commerce.artDirection);
     return migrated;
   }

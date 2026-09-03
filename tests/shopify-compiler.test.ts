@@ -95,6 +95,23 @@ describe("Shopify document compiler", () => {
     expect(liquid).toContain("block.settings.quantity");
     expect(liquid).toContain("selected_product");
     expect(liquid).not.toContain("15% de réduction");
+    expect(liquid).toContain('data-wf-block-id="{{ block.id }}"');
     expect(published?.blocks?.duo.type).toBe("offer-tier");
+  });
+
+  it("keeps stable discount values with French Shopify labels", () => {
+    const document = buildModelDocument("proteo", "Offres");
+    const definition = getSectionDefinition("quantity-offer")!;
+    document.pages[0].sections.push({ id: "quantity-offer", type: definition.type, name: definition.name, hidden: false, locked: false, settings: { ...definition.defaults }, style: {}, responsive: {}, blocks: [] });
+
+    const liquid = compileShopifyPage(document, { resource: "product" }).find((file) => file.key.includes("quantity-offer.liquid"))!.value;
+    const schema = JSON.parse(liquid.match(/{% schema %}([\s\S]*?){% endschema %}/)?.[1] ?? "{}");
+    const discountType = schema.blocks[0].settings.find((setting: { id: string }) => setting.id === "discount_type");
+
+    expect(discountType.options).toEqual([
+      { value: "percentage", label: "Pourcentage" },
+      { value: "amount", label: "Montant fixe" },
+      { value: "none", label: "Aucune remise" },
+    ]);
   });
 });

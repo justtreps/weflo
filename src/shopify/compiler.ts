@@ -5,7 +5,7 @@ import { shopifySectionType } from "./compile-section";
 import type { CustomSectionPublication } from "../custom-sections/service";
 import { shopifyHandle } from "./names";
 import { assertPublishCapabilities, buildCapabilityReport, type ShopifyCapabilityReport } from "./capability-report";
-import { wefloProductRuntimeSource } from "./runtime/product-form";
+import { quantityOfferRuntimeExtensionSource, wefloProductRuntimeSource } from "./runtime/product-form";
 import { designTokenStyle } from "../design/tokens";
 import { getSectionDefinition } from "../sections";
 
@@ -44,5 +44,5 @@ export function compileShopifyPage(document: EditorDocument, target: ShopifyComp
   const commerceCapabilities = new Set(["product-form", "variant-selection", "quantity-breaks", "fixed-bundle", "selling-plan", "preorder"]);
   const needsProductRuntime = page.sections.some((section) => (getSectionDefinition(section.type)?.capabilities ?? []).some((capability) => commerceCapabilities.has(capability)))
     || (target.customSections ?? []).some((custom) => custom.section.spec.requiredCapabilities.some((capability) => commerceCapabilities.has(capability)));
-  return [...liquidFiles.map((entry) => file(entry.key, entry.value)), file(`assets/weflo-${slug}.css`, css), ...(needsProductRuntime ? [file("assets/weflo-product-form.js", wefloProductRuntimeSource)] : []), file(templateKey, templateValue)];
+  return [...liquidFiles.map((entry) => file(entry.key, entry.value)), file(`assets/weflo-${slug}.css`, css), ...(needsProductRuntime ? [file("assets/weflo-product-form.js", wefloProductRuntimeSource + quantityOfferRuntimeExtensionSource)] : []), file(templateKey, templateValue)];
 }

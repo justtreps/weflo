@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { EditorSection } from "../src/editor/document";
 import { getSectionDefinition } from "../src/sections";
+import * as productRuntime from "../src/shopify/runtime/product-form";
 
 function quantityOffer(): EditorSection {
   const definition = getSectionDefinition("quantity-offer")!;
@@ -65,5 +66,44 @@ describe("section Offre quantité", () => {
     expect(definition.variants.map((variant) => variant.id)).toEqual([
       "horizontal-cards", "stacked-premium", "tier-table",
     ]);
+  });
+
+  it("selects exactly one admissible tier when defaults are duplicated", () => {
+    const definition = getSectionDefinition("quantity-offer")!;
+    const section = quantityOffer();
+    section.blocks = [
+      { id: "note", type: "benefit", settings: { title: "Livraison" } },
+      { ...section.blocks[0], id: "duo", settings: { ...section.blocks[0].settings, preselected: true } },
+      { ...section.blocks[0], id: "trio", settings: { ...section.blocks[0].settings, quantity: 3, preselected: true } },
+    ];
+
+    const web = definition.renderWeb({ section, pageName: "Sérum" });
+    expect((web.match(/\schecked(?=[\s>])/g) ?? [])).toHaveLength(1);
+    expect(web).toContain('data-wf-block-id="duo"');
+    expect(web).toContain('data-wf-block-id="trio"');
+  });
+
+  it("blocks native checkout and exposes the same app-required state for mixed products", () => {
+    const definition = getSectionDefinition("quantity-offer")!;
+    const section = quantityOffer();
+    section.blocks.push({ ...section.blocks[0], id: "mixte", settings: { ...section.blocks[0].settings, product_handle: "creme" } });
+
+    const web = definition.renderWeb({ section, pageName: "Sérum" });
+    const liquid = definition.renderLiquid(section);
+    const status = "Une application Shopify est requise pour les offres multi-produits.";
+    expect(web).toContain(status);
+    expect(web).toContain('type="submit" disabled');
+    expect(liquid).toContain(status);
+    expect(liquid).toContain("wf_mixed_product_offer");
+  });
+
+  it("synchronizes the chosen tier variant into the submitted Shopify id", () => {
+    expect(productRuntime).toHaveProperty("syncQuantityTierVariant");
+    const synchronize = (productRuntime as unknown as { syncQuantityTierVariant(form: { querySelector: (selector: string) => { value: string } | null }, choice: { dataset: Record<string, string> }): boolean }).syncQuantityTierVariant;
+    const id = { value: "first-variant" };
+    const changed = synchronize({ querySelector: () => id }, { dataset: { wfVariantId: "445566" } });
+
+    expect(changed).toBe(true);
+    expect(id.value).toBe("445566");
   });
 });

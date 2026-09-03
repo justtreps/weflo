@@ -63,4 +63,20 @@ describe("legacy editor document migration", () => {
     const migrated = { ...migrateDocument(initialDocument("Accueil", "sell")), templateId: "home-brand-editorial", templateVersion: 1 };
     expect(migrateDocument(migrated)).toEqual(migrated);
   });
+
+  it("migrates legacy quantity offers without losing text or price fields", () => {
+    const document = migrateDocument(initialDocument("Offres", "sell"));
+    document.pages[0].sections = [{
+      id: "quantity", type: "quantity-offer", name: "Offre quantité", hidden: false, locked: false,
+      settings: { product_handle: "serum", quantity_breaks: "1,2,3", variant: "single-duo-trio" }, style: {}, responsive: {}, packVersion: 1,
+      blocks: [{ id: "duo", type: "offer", settings: { title: "Duo", text: "Deux sérums", price: "49 €" } }],
+    }];
+
+    const migrated = migrateDocument(document);
+    const block = migrated.pages[0].sections[0].blocks[0];
+
+    expect(block.type).toBe("offer-tier");
+    expect(block.settings).toMatchObject({ title: "Duo", subtitle: "Deux sérums", text: "Deux sérums", price: "49 €", quantity: 1, product_handle: "serum" });
+    expect(migrated.pages[0].sections[0].settings.variant).toBe("horizontal-cards");
+  });
 });

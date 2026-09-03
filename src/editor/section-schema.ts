@@ -7,6 +7,7 @@ export type InspectorControl = {
   type: InspectorControlType;
   scope: InspectorScope;
   options?: string[];
+  optionLabels?: Record<string, string>;
 };
 
 export type InspectorGroup = {
@@ -35,4 +36,3 @@ export function inspectorGroupsForSection(type: string): InspectorGroup[] {
     { id: "animation", label: "Animation", controls: [{ key: "animation", label: "Entrée", type: "select", scope: "style", options: ["none", "fade", "reveal"] }] },
   ];
 }
-

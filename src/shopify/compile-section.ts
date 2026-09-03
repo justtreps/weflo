@@ -6,7 +6,7 @@ import type { CustomSectionPublication } from "../custom-sections/service";
 
 function settingSchema(control: InspectorControl) {
   const type = control.type === "textarea" || control.type === "code" ? "textarea" : control.type === "toggle" ? "checkbox" : control.type === "number" ? "number" : control.type === "select" ? "select" : control.type === "link" ? "url" : control.type === "image" ? "image_picker" : control.type === "product" ? "product" : control.type === "collection" ? "collection" : "text";
-  return { type, id: control.key, label: control.label, ...(type === "select" ? { options: (control.options ?? []).map((value) => ({ value, label: value })) } : {}) };
+  return { type, id: control.key, label: control.label, ...(type === "select" ? { options: (control.options ?? []).map((value) => ({ value, label: control.optionLabels?.[value] ?? value })) } : {}) };
 }
 
 function customPublication(section: EditorSection, publications: readonly CustomSectionPublication[] = []): CustomSectionPublication | null {
