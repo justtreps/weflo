@@ -1,15 +1,12 @@
 import type { CreationFormatId } from "../onboarding/creation-recipe";
+import { FORMAT_FLOWS } from "./format-flow";
 
-export const creationFormats: Array<{ id: CreationFormatId; title: string; description: string; icon: string }> = [
-  { id: "store", title: "Boutique complète", description: "Accueil, produit, offre et confiance", icon: "◆" },
-  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify complète", icon: "▣" },
-  { id: "landing", title: "Landing page", description: "Une campagne, une promesse, une action", icon: "↗" },
-  { id: "advertorial", title: "Advertorial", description: "Un récit éditorial qui mène vers l’offre", icon: "¶" },
-  { id: "quiz", title: "Quiz et funnel", description: "Questions, recommandation et capture", icon: "?" },
-  { id: "home", title: "Page d’accueil", description: "La vitrine complète d’une marque", icon: "⌂" },
-  { id: "blog", title: "Article de blog", description: "Contenu de marque structuré et lisible", icon: "≡" },
-  { id: "blank", title: "Page vierge", description: "Construire librement dans l’éditeur", icon: "＋" },
-];
+const formatIcons: Record<CreationFormatId, string> = {
+  store: "◆", product: "▣", landing: "↗", advertorial: "¶",
+  quiz: "?", home: "⌂", blog: "≡", blank: "＋",
+};
+
+export const creationFormats = FORMAT_FLOWS.map(({ id, title, description }) => ({ id, title, description, icon: formatIcons[id] }));
 
 export function creationActionUrl(action: "generate" | "link" | "image" | "blank", prompt = ""): string {
   if (action === "link") return "/creer?source=link";
