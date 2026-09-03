@@ -57,7 +57,7 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
     if (event.source !== iframe.contentWindow) return;
     const action = parseCanvasBridgeMessage(event.data);
     if (!action) return;
-    if (action.type === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+    if (action.type === "select") store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId ?? null, rightCollapsed: false });
     if (action.type === "inlineEdit") store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: action.key, value: action.value });
     if (action.type === "imageEdit") {
       const section = store.getState().document.pages.flatMap((page) => page.sections).find((item) => item.id === action.sectionId);

@@ -13,6 +13,8 @@ export type EditorCommand =
   | { type: "insertBlock"; sectionId: string; index: number; block: EditorBlock }
   | { type: "moveBlock"; sectionId: string; blockId: string; toIndex: number }
   | { type: "removeBlock"; sectionId: string; blockId: string }
+  | { type: "updateBlockSetting"; sectionId: string; blockId: string; key: string; value: SettingValue }
+  | { type: "duplicateBlock"; sectionId: string; blockId: string; newBlockId: string; index?: number }
   | { type: "restoreDocument"; document: EditorDocument };
 
 export class EditorCommandError extends Error {}
@@ -141,6 +143,23 @@ export function applyCommand(document: EditorDocument, command: EditorCommand): 
       const index = section.blocks.findIndex((block) => block.id === command.blockId);
       if (index < 0) throw new EditorCommandError(`Block not found: ${command.blockId}`);
       section.blocks.splice(index, 1);
+      break;
+    }
+    case "updateBlockSetting": {
+      const { section } = editableSection(next, command.sectionId);
+      const block = section.blocks.find((item) => item.id === command.blockId);
+      if (!block) throw new EditorCommandError(`Block not found: ${command.blockId}`);
+      block.settings[command.key] = clone(command.value);
+      break;
+    }
+    case "duplicateBlock": {
+      const { section } = editableSection(next, command.sectionId);
+      if (blockIds(next).has(command.newBlockId)) throw new EditorCommandError(`Duplicate block id: ${command.newBlockId}`);
+      const from = section.blocks.findIndex((block) => block.id === command.blockId);
+      if (from < 0) throw new EditorCommandError(`Block not found: ${command.blockId}`);
+      const copy = clone(section.blocks[from]);
+      copy.id = command.newBlockId;
+      section.blocks.splice(checkedIndex(command.index ?? from + 1, section.blocks.length), 0, copy);
       break;
     }
   }

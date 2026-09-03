@@ -1,5 +1,5 @@
 export type CanvasBridgeAction =
-  | { type: "select"; sectionId: string }
+  | { type: "select"; sectionId: string; blockId?: string }
   | { type: "inlineEdit"; sectionId: string; key: string; value: string }
   | { type: "imageEdit"; sectionId: string; key: string }
   | { type: "move"; sectionId: string; toIndex: number }
@@ -10,7 +10,10 @@ export function parseCanvasBridgeMessage(value: unknown): CanvasBridgeAction | n
   const message = value as Record<string, unknown>;
   if (message.source !== "weflo-canvas") return null;
   if (typeof message.sectionId !== "string" || !/^[a-z0-9_-]+$/i.test(message.sectionId)) return null;
-  if (message.type === "canvas:select") return { type: "select", sectionId: message.sectionId };
+  if (message.type === "canvas:select") {
+    if (message.blockId !== undefined && (typeof message.blockId !== "string" || !/^[a-z0-9_-]+$/i.test(message.blockId))) return null;
+    return { type: "select", sectionId: message.sectionId, ...(typeof message.blockId === "string" ? { blockId: message.blockId } : {}) };
+  }
   if (message.type === "canvas:inline-edit" && typeof message.key === "string" && /^[a-z][a-z0-9_]*$/i.test(message.key) && typeof message.value === "string") {
     return { type: "inlineEdit", sectionId: message.sectionId, key: message.key, value: message.value };
   }

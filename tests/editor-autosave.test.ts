@@ -6,7 +6,7 @@ import { createEditorStore } from "../src/editor/ui/store";
 
 function editor() {
   const document = migrateDocument(blankDocument("Boutique"));
-  return createEditorStore({ document, pageId: document.pages[0].id, selectedId: null, activePanel: "structure", breakpoint: "desktop", mode: "edit", leftCollapsed: false, rightCollapsed: false, saveStatus: "saved" });
+  return createEditorStore({ document, pageId: document.pages[0].id, selectedId: null, selectedBlockId: null, activePanel: "structure", breakpoint: "desktop", mode: "edit", leftCollapsed: false, rightCollapsed: false, saveStatus: "saved" });
 }
 
 afterEach(() => vi.useRealTimers());

@@ -9,6 +9,7 @@ function state() {
     document: migrateDocument(blankDocument("Page produit"), "product"),
     pageId: "page-page-produit",
     selectedId: null,
+    selectedBlockId: null,
     activePanel: "structure" as const,
     breakpoint: "desktop" as const,
     mode: "edit" as const,

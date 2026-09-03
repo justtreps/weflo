@@ -8,7 +8,8 @@ export const CANVAS_RUNTIME = `<style>.wf-canvas-toolbar{position:absolute;z-ind
     if(!section)return;
     event.preventDefault();
     event.stopPropagation();
-    post("canvas:select",{sectionId:section.dataset.wfSectionId});
+    const block=event.target.closest("[data-wf-block-id]");
+    post("canvas:select",{sectionId:section.dataset.wfSectionId,...(block?{blockId:block.dataset.wfBlockId}:{})});
     toolbar(section,event.target.closest("[data-wf-media-key]")?.dataset.wfMediaKey);
   },true);
   document.querySelectorAll("[data-wf-section-id]").forEach(section=>{section.draggable=true;section.addEventListener("dragstart",()=>{dragging=section.dataset.wfSectionId});section.addEventListener("dragover",event=>event.preventDefault());section.addEventListener("drop",event=>{event.preventDefault();if(!dragging)return;const siblings=[...section.parentElement.querySelectorAll(":scope > [data-wf-section-id]")];post("canvas:move",{sectionId:dragging,toIndex:siblings.indexOf(section)});dragging=null})});

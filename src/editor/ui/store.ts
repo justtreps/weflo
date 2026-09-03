@@ -9,6 +9,7 @@ export type EditorState = {
   document: EditorDocument;
   pageId: string;
   selectedId: string | null;
+  selectedBlockId: string | null;
   activePanel: EditorPanel;
   breakpoint: EditorBreakpoint;
   mode: "edit" | "preview";
@@ -35,7 +36,9 @@ export function createEditorStore(initial: EditorState): EditorStore {
     setState(patch) {
       const changes = typeof patch === "function" ? patch(state) : patch;
       if (changes.document && changes.document !== state.document) history = createHistory(changes.document);
-      state = { ...state, ...changes };
+      const selectedSectionChanged = changes.selectedId !== undefined && changes.selectedId !== state.selectedId;
+      const selectedPageChanged = changes.pageId !== undefined && changes.pageId !== state.pageId;
+      state = { ...state, ...changes, ...((selectedSectionChanged || selectedPageChanged) && changes.selectedBlockId === undefined ? { selectedBlockId: null } : {}) };
       listeners.forEach((listener) => listener(state));
       return state;
     },

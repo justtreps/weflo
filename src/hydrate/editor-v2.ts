@@ -26,6 +26,7 @@ export function visualEditorInitialState(page: VisualEditorPage): EditorState {
     document: page.document,
     pageId: page.document.pages[0].id,
     selectedId: null,
+    selectedBlockId: null,
     activePanel: "commerce",
     breakpoint: "desktop",
     mode: "edit",

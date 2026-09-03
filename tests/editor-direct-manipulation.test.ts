@@ -16,6 +16,7 @@ describe("direct canvas manipulation", () => {
   });
 
   it("parses inline edit, reorder and toolbar messages", () => {
+    expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:select", sectionId: "hero-1", blockId: "duo" })).toEqual({ type: "select", sectionId: "hero-1", blockId: "duo" });
     expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:inline-edit", sectionId: "hero-1", key: "title", value: "Nouveau titre" })).toEqual({ type: "inlineEdit", sectionId: "hero-1", key: "title", value: "Nouveau titre" });
     expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:move", sectionId: "hero-1", toIndex: 3 })).toEqual({ type: "move", sectionId: "hero-1", toIndex: 3 });
     expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:action", sectionId: "hero-1", action: "hide" })).toEqual({ type: "action", sectionId: "hero-1", action: "hide" });

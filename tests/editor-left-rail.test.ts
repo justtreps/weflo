@@ -10,6 +10,7 @@ function store() {
     document,
     pageId: document.pages[0].id,
     selectedId: null,
+    selectedBlockId: null,
     activePanel: "structure",
     breakpoint: "desktop",
     mode: "edit",

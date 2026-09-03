@@ -15,7 +15,7 @@ describe("editor Canardo workflow", () => {
 
   it("applies a generated document as one undoable history step", () => {
     const document = buildModelDocument("proteo", "Shop");
-    const store = createEditorStore({ document, pageId: document.pages[0].id, selectedId: null, activePanel: "structure", breakpoint: "desktop", mode: "edit", leftCollapsed: false, rightCollapsed: false, saveStatus: "saved" });
+    const store = createEditorStore({ document, pageId: document.pages[0].id, selectedId: null, selectedBlockId: null, activePanel: "structure", breakpoint: "desktop", mode: "edit", leftCollapsed: false, rightCollapsed: false, saveStatus: "saved" });
     const next = structuredClone(document);
     next.pages[0].sections[2].settings.title = "Nouveau";
     applyCanardoDocument(store, next);

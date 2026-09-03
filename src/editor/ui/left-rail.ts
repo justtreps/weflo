@@ -55,15 +55,15 @@ function nextSection(state: EditorState, type: string): EditorSection {
 
 export function runPanelAction(store: EditorStore, action: PanelAction): void {
   const state = store.getState();
-  if (action.action === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+  if (action.action === "select") store.setState({ selectedId: action.sectionId, selectedBlockId: null, rightCollapsed: false });
   if (action.action === "remove") {
     store.dispatch({ type: "removeSection", sectionId: action.sectionId });
-    if (state.selectedId === action.sectionId) store.setState({ selectedId: null });
+    if (state.selectedId === action.sectionId) store.setState({ selectedId: null, selectedBlockId: null });
   }
   if (action.action === "toggleHidden" || action.action === "toggleLocked") {
     store.dispatch({ type: action.action, sectionId: action.sectionId });
   }
-  if (action.action === "selectPage") store.setState({ pageId: action.pageId, selectedId: null });
+  if (action.action === "selectPage") store.setState({ pageId: action.pageId, selectedId: null, selectedBlockId: null });
   if (action.action === "addPage") {
     const name = action.name.trim() || "Nouvelle page";
     const base = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
@@ -72,7 +72,7 @@ export function runPanelAction(store: EditorStore, action: PanelAction): void {
     let suffix = 2;
     while (slugs.has(slug)) slug = `${base}-${suffix++}`;
     const page = { id: `page-${slug}`, name, slug, sections: [] };
-    store.setState({ document: { ...state.document, pages: [...state.document.pages, page] }, pageId: page.id, selectedId: null, saveStatus: "modified" });
+    store.setState({ document: { ...state.document, pages: [...state.document.pages, page] }, pageId: page.id, selectedId: null, selectedBlockId: null, saveStatus: "modified" });
   }
   if (action.action === "addAsset") {
     store.setState({ document: { ...state.document, assets: [...state.document.assets.filter((asset) => asset.id !== action.asset.id), action.asset] }, saveStatus: "modified" });
@@ -86,7 +86,7 @@ export function runPanelAction(store: EditorStore, action: PanelAction): void {
     const selectedIndex = page.sections.findIndex((section) => section.id === state.selectedId);
     const section = nextSection(state, action.sectionType);
     store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section });
-    store.setState({ selectedId: section.id, activePanel: "structure", rightCollapsed: false });
+    store.setState({ selectedId: section.id, selectedBlockId: null, activePanel: "structure", rightCollapsed: false });
   }
   if (action.action === "insertVariant") {
     const page = state.document.pages.find((item) => item.id === state.pageId) ?? state.document.pages[0];
@@ -96,7 +96,7 @@ export function runPanelAction(store: EditorStore, action: PanelAction): void {
     while (used.has(`${action.sectionType}-${suffix}`)) suffix += 1;
     const result = materializeSectionVariant({ document: state.document, sectionType: action.sectionType, variantId: action.variantId, sectionId: `${action.sectionType}-${suffix}` });
     store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section: result.section });
-    store.setState({ selectedId: result.section.id, activePanel: "structure", rightCollapsed: false });
+    store.setState({ selectedId: result.section.id, selectedBlockId: null, activePanel: "structure", rightCollapsed: false });
   }
 }
 

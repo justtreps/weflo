@@ -36,6 +36,8 @@ describe("editor commands", () => {
     { name: "insert block", command: { type: "insertBlock", sectionId: "s1", index: 1, block: { id: "new-block", type: "button", settings: { label: "Go" } } }, verify: (d) => expect(d.pages[0].sections[0].blocks[1].id).toBe("new-block") },
     { name: "move block", command: { type: "moveBlock", sectionId: "s1", blockId: "s1-b1", toIndex: 2 }, verify: (d) => expect(d.pages[0].sections[0].blocks.map(b => b.id)).toEqual(["s1-b2", "s1-b1"]) },
     { name: "remove block", command: { type: "removeBlock", sectionId: "s1", blockId: "s1-b1" }, verify: (d) => expect(d.pages[0].sections[0].blocks.map(b => b.id)).toEqual(["s1-b2"]) },
+    { name: "update block setting", command: { type: "updateBlockSetting", sectionId: "s1", blockId: "s1-b1", key: "text", value: "Changed" }, verify: (d) => expect(d.pages[0].sections[0].blocks[0].settings.text).toBe("Changed") },
+    { name: "duplicate block", command: { type: "duplicateBlock", sectionId: "s1", blockId: "s1-b1", newBlockId: "s1-b3", index: 1 }, verify: (d) => expect(d.pages[0].sections[0].blocks.map(b => b.id)).toEqual(["s1-b1", "s1-b3", "s1-b2"]) },
   ];
 
   for (const entry of cases) {

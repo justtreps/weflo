@@ -53,7 +53,7 @@ export function bindInspector(root: HTMLElement, store: EditorStore): () => void
       const section = selectedSection(store.getState());
       if (section && window.confirm(`Supprimer la section « ${section.name} » ?`)) {
         store.dispatch({ type: "removeSection", sectionId: section.id });
-        store.setState({ selectedId: null });
+        store.setState({ selectedId: null, selectedBlockId: null });
       }
       return;
     }

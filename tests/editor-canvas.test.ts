@@ -22,6 +22,7 @@ describe("editor canvas", () => {
   });
 
   it("accepts only known same-canvas bridge messages", () => {
+    expect(parseCanvasMessage({ source: "weflo-canvas", type: "canvas:select", sectionId: "hero-1", blockId: "duo" })).toEqual({ type: "select", sectionId: "hero-1", blockId: "duo" });
     expect(parseCanvasMessage({ source: "weflo-canvas", type: "canvas:select", sectionId: "hero-1" })).toEqual({ type: "select", sectionId: "hero-1" });
     expect(parseCanvasMessage({ source: "foreign", type: "canvas:select", sectionId: "hero-1" })).toBeNull();
     expect(parseCanvasMessage({ source: "weflo-canvas", type: "canvas:select", sectionId: "<bad>" })).toBeNull();
