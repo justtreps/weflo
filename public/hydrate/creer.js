@@ -64,19 +64,58 @@ function flowForFormat(id) {
   return flow;
 }
 
-// src/create/template-gallery.ts
+// src/create/format-intake.ts
+var sourceLabels = {
+  link: { icon: "\u2197", title: "Importer un lien", description: "Amazon, AliExpress, Shopify ou autre site" },
+  image: { icon: "\u25A7", title: "Ajouter une image", description: "PNG, JPG ou WebP" },
+  description: { icon: "Aa", title: "D\xE9crire mon id\xE9e", description: "Partir d\u2019une intention claire" },
+  shopify: { icon: "S", title: "Depuis Shopify", description: "Choisir dans le catalogue connect\xE9" }
+};
 function esc(value) {
+  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+function renderField(field2, answers2, missingFields) {
+  const value = esc(answers2[field2.id] ?? "");
+  const required = field2.required ? " required" : "";
+  const missing = missingFields.has(field2.id);
+  const error2 = missing ? `<small class="intake-error" id="error-${esc(field2.id)}">Ce champ est obligatoire.</small>` : "";
+  const accessibility = missing ? ` aria-invalid="true" aria-describedby="error-${esc(field2.id)}"` : "";
+  const name = `answers[${esc(field2.id)}]`;
+  const label = `<span>${esc(field2.label)}${field2.required ? "" : " (facultatif)"}</span>`;
+  if (field2.kind === "textarea" || field2.kind === "list") {
+    return `<label class="intake-field ${field2.kind === "list" ? "intake-list" : ""}">${label}<textarea name="${name}" placeholder="${esc(field2.placeholder)}"${required}${accessibility}>${value}</textarea>${error2}</label>`;
+  }
+  return `<label class="intake-field">${label}<input name="${name}" value="${value}" placeholder="${esc(field2.placeholder)}"${required}${accessibility}>${error2}</label>`;
+}
+function renderSource(source2) {
+  const item = sourceLabels[source2];
+  if (source2 === "image") {
+    return `<label data-create-source="image"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small><input type="file" accept="image/png,image/jpeg,image/webp" data-create-image hidden></label>`;
+  }
+  return `<button type="button" data-create-source="${source2}"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small></button>`;
+}
+function validateFormatIntake(flow, answers2) {
+  return flow.intake.filter((field2) => field2.required && !(answers2[field2.id] ?? "").trim()).map((field2) => field2.id);
+}
+function renderFormatIntake(flow, answers2, source2, state = {}) {
+  const missingFields = new Set(state.missingFieldIds ?? []);
+  const promptPlaceholder = source2 === "link" ? "Colle le lien de ton produit\u2026" : "Ajoute une pr\xE9cision utile pour cette page\u2026";
+  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form><div class="intake-fields">${flow.intake.map((field2) => renderField(field2, answers2, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte \xE0 ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state.prompt ?? "")}</textarea></label><button>Analyser et continuer</button></form>`;
+}
+
+// src/create/template-gallery.ts
+function esc2(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 function renderPreview(template2) {
   const title = `Aper\xE7u ${template2.name}`;
-  return `<div class="template-preview" data-template-preview="${esc(template2.id)}" data-preview-device="desktop">
+  return `<div class="template-preview" data-template-preview="${esc2(template2.id)}" data-preview-device="desktop">
     <div class="template-preview-frame">
-      <img src="${esc(template2.previewDesktop)}" alt="${esc(title)} sur ordinateur" data-preview-image="desktop" data-preview-key="previewDesktop" onerror="this.classList.add('is-missing')">
-      <img src="${esc(template2.previewMobile)}" alt="${esc(title)} sur mobile" data-preview-image="mobile" data-preview-key="previewMobile" onerror="this.classList.add('is-missing')">
-      <div class="template-preview-fallback" aria-hidden="true"><span>${esc(template2.name)}</span><i></i><i></i><i></i></div>
+      <img src="${esc2(template2.previewDesktop)}" alt="${esc2(title)} sur ordinateur" data-preview-image="desktop" data-preview-key="previewDesktop" onerror="this.classList.add('is-missing')">
+      <img src="${esc2(template2.previewMobile)}" alt="${esc2(title)} sur mobile" data-preview-image="mobile" data-preview-key="previewMobile" onerror="this.classList.add('is-missing')">
+      <div class="template-preview-fallback" aria-hidden="true"><span>${esc2(template2.name)}</span><i></i><i></i><i></i></div>
     </div>
-    <div class="template-device-switch" role="group" aria-label="Format de l\u2019aper\xE7u ${esc(template2.name)}">
+    <div class="template-device-switch" role="group" aria-label="Format de l\u2019aper\xE7u ${esc2(template2.name)}">
       <button type="button" data-template-device="desktop" aria-pressed="true">Ordinateur</button>
       <button type="button" data-template-device="mobile" aria-pressed="false">Mobile</button>
     </div>
@@ -84,19 +123,19 @@ function renderPreview(template2) {
 }
 function renderTemplateGallery(flow, selectedTemplateId, templateUrl = (template2) => `/creer?format=${flow.id}&template=${template2.id}`) {
   const selected = flow.templates.some((template2) => template2.id === selectedTemplateId) ? selectedTemplateId : null;
-  const cards = flow.templates.map((template2) => `<article class="template-card" data-template-card="${esc(template2.id)}" ${template2.id === selected ? 'data-selected="true"' : ""}>
+  const cards = flow.templates.map((template2) => `<article class="template-card" data-template-card="${esc2(template2.id)}" ${template2.id === selected ? 'data-selected="true"' : ""}>
     ${renderPreview(template2)}
-    <div class="template-card-copy"><div><h2>${esc(template2.name)}</h2><p>${esc(template2.description)}</p></div>
-      <div class="template-card-actions"><button type="button" class="template-preview-button" data-template-open="${esc(template2.id)}">Aper\xE7u</button><a href="${esc(templateUrl(template2))}" data-template-select="${esc(template2.id)}">Choisir ce mod\xE8le</a></div>
+    <div class="template-card-copy"><div><h2>${esc2(template2.name)}</h2><p>${esc2(template2.description)}</p></div>
+      <div class="template-card-actions"><button type="button" class="template-preview-button" data-template-open="${esc2(template2.id)}">Aper\xE7u</button><a href="${esc2(templateUrl(template2))}" data-template-select="${esc2(template2.id)}">Choisir ce mod\xE8le</a></div>
     </div>
   </article>`).join("");
   return `<section class="template-gallery" aria-labelledby="template-gallery-title">
-    <header class="template-gallery-heading"><p>${esc(flow.title)}</p><h1 id="template-gallery-title">Choisis une direction pour ta page.</h1><span>Chaque mod\xE8le pose la hi\xE9rarchie, le rythme et les sections de d\xE9part. Tu pourras tout ajuster dans l\u2019\xE9diteur.</span></header>
+    <header class="template-gallery-heading"><p>${esc2(flow.title)}</p><h1 id="template-gallery-title">Choisis une direction pour ta page.</h1><span>Chaque mod\xE8le pose la hi\xE9rarchie, le rythme et les sections de d\xE9part. Tu pourras tout ajuster dans l\u2019\xE9diteur.</span></header>
     <div class="template-gallery-list">${cards}</div>
   </section>
   <dialog class="template-preview-dialog" data-template-dialog aria-labelledby="template-dialog-title">
     <form method="dialog"><button class="template-dialog-close" aria-label="Fermer l\u2019aper\xE7u">\xD7</button></form>
-    <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aper\xE7u du mod\xE8le</h2><span data-template-dialog-description>Choisis ce mod\xE8le si cette composition te ressemble.</span><a data-template-dialog-select href="${esc(templateUrl(flow.templates[0]))}">Choisir ce mod\xE8le</a></div>
+    <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc2(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aper\xE7u du mod\xE8le</h2><span data-template-dialog-description>Choisis ce mod\xE8le si cette composition te ressemble.</span><a data-template-dialog-select href="${esc2(templateUrl(flow.templates[0]))}">Choisir ce mod\xE8le</a></div>
       <div class="template-dialog-stage" data-preview-device="desktop"><img data-template-dialog-image alt="" onerror="this.classList.add('is-missing')"><div class="template-preview-fallback" aria-hidden="true"><span data-template-dialog-fallback>Mod\xE8le Weflo</span><i></i><i></i><i></i></div></div>
     </div>
   </dialog>`;
@@ -124,37 +163,20 @@ function creationWorkspaceUrl(format2, templateId2, state) {
   const query = params2.toString();
   return query ? `/creer?${query}` : "/creer";
 }
-function esc2(value) {
+function esc3(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
-var sourceLabels = {
-  link: { icon: "\u2197", title: "Importer un lien", description: "Amazon, AliExpress, Shopify ou autre site" },
-  image: { icon: "\u25A7", title: "Ajouter une image", description: "PNG, JPG ou WebP" },
-  description: { icon: "Aa", title: "D\xE9crire mon id\xE9e", description: "Partir d\u2019une intention claire" },
-  shopify: { icon: "S", title: "Depuis Shopify", description: "Choisir dans le catalogue connect\xE9" }
-};
-function renderField(field2, answers2) {
-  const value = esc2(answers2[field2.id] ?? "");
-  const required = field2.required ? " required" : "";
-  if (field2.kind === "textarea" || field2.kind === "list") return `<label class="intake-field ${field2.kind === "list" ? "intake-list" : ""}"><span>${esc2(field2.label)}${field2.required ? "" : " (facultatif)"}</span><textarea name="${esc2(field2.id)}" placeholder="${esc2(field2.placeholder)}"${required}>${value}</textarea></label>`;
-  return `<label class="intake-field"><span>${esc2(field2.label)}${field2.required ? "" : " (facultatif)"}</span><input name="${esc2(field2.id)}" value="${value}" placeholder="${esc2(field2.placeholder)}"${required}></label>`;
-}
-function renderSource(source2) {
-  const item = sourceLabels[source2];
-  if (source2 === "image") return `<label data-create-source="image"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small><input type="file" accept="image/png,image/jpeg,image/webp" data-create-image hidden></label>`;
-  return `<button type="button" data-create-source="${source2}"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small></button>`;
-}
-function renderIntake(format2, source2, prompt2, answers2) {
+function renderIntake(format2, source2, prompt2, answers2, missingFieldIds2 = []) {
   const flow = flowForFormat(format2);
-  return `<button class="back-template" data-back-template>\u2190 Changer de mod\xE8le</button><div class="create-heading"><p>${esc2(flow.title)}</p><h1>Donne-nous la mati\xE8re de d\xE9part.</h1><span>Weflo utilisera ces informations pour construire une premi\xE8re version fid\xE8le \xE0 ton objectif.</span></div><div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form><div class="intake-fields">${flow.intake.map((field2) => renderField(field2, answers2)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte \xE0 ajouter</span><textarea name="prompt" placeholder="${source2 === "link" ? "Colle le lien de ton produit\u2026" : "Ajoute une pr\xE9cision utile pour cette page\u2026"}">${esc2(prompt2)}</textarea></label><button>Analyser et continuer</button></form>`;
+  return `<button class="back-template" data-back-template>\u2190 Changer de mod\xE8le</button><div class="create-heading"><p>${esc3(flow.title)}</p><h1>Donne-nous la mati\xE8re de d\xE9part.</h1><span>Weflo utilisera ces informations pour construire une premi\xE8re version fid\xE8le \xE0 ton objectif.</span></div>${renderFormatIntake(flow, answers2, source2, { prompt: prompt2, missingFieldIds: missingFieldIds2 })}`;
 }
 function renderCreateWorkspace(input) {
   const cards = creationFormats.map((format2) => `<button class="format-card" data-create-format="${format2.id}"><span>${format2.icon}</span><strong>${format2.title}</strong><small>${format2.description}</small></button>`).join("");
   const selected = creationFormats.find((format2) => format2.id === input.selectedFormat);
   const flow = input.selectedFormat ? flowForFormat(input.selectedFormat) : null;
   const hasTemplate = Boolean(flow?.templates.some((template2) => template2.id === input.selectedTemplateId));
-  const content = !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : selected.id === "blank" ? "" : !hasTemplate ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source: input.source, prompt: input.prompt }))}` : renderIntake(selected.id, input.source, input.prompt, input.answers);
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc2(input.workspaceName)}</small></aside><main>${content}</main></div>`;
+  const content = !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : selected.id === "blank" ? "" : !hasTemplate ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source: input.source, prompt: input.prompt }))}` : renderIntake(selected.id, input.source, input.prompt, input.answers, input.missingFieldIds);
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc3(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }
 
 // src/onboarding/creation-recipe.ts
@@ -197,7 +219,7 @@ async function readApiJson(response) {
 }
 
 // src/create/build-view.ts
-function esc3(value) {
+function esc4(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 function renderBuildExperience(input) {
@@ -209,23 +231,23 @@ function renderBuildExperience(input) {
   const image = input.productImage && /^(https:\/\/|data:image\/)/.test(input.productImage) ? input.productImage : null;
   const previewSections = ["navigation", "hero", "offre", "b\xE9n\xE9fices", "preuves sociales"];
   return `<main class="build-experience">
-    <header class="build-topbar"><div><span>${esc3(input.formatTitle)}</span><strong>${esc3(input.brandName)} prend forme</strong></div><div class="build-percent"><b>${progress}%</b><span>Construction</span></div></header>
+    <header class="build-topbar"><div><span>${esc4(input.formatTitle)}</span><strong>${esc4(input.brandName)} prend forme</strong></div><div class="build-percent"><b>${progress}%</b><span>Construction</span></div></header>
     <div class="build-progress" data-build-progress="${progress}" role="progressbar" aria-label="Construction de la page : ${progress} %" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"><i style="width:${progress}%"></i></div>
     <div class="build-layout">
       <section class="build-status">
-        <div class="canardo-status"><span class="canardo-orbit">\u25CF</span><div><small>Canardo travaille maintenant</small><h1>${esc3(current)}</h1><p>La structure, les textes et la direction visuelle sont assembl\xE9s dans une m\xEAme identit\xE9.</p></div></div>
+        <div class="canardo-status"><span class="canardo-orbit">\u25CF</span><div><small>Canardo travaille maintenant</small><h1>${esc4(current)}</h1><p>La structure, les textes et la direction visuelle sont assembl\xE9s dans une m\xEAme identit\xE9.</p></div></div>
         <div class="stage-stream">${visible.map((stage) => {
     const index = input.stages.indexOf(stage);
     const state = index < activeIndex ? "done" : index === activeIndex ? "active" : "waiting";
-    return `<div class="stage-row" data-stage-state="${state}"><i>${state === "done" ? "\u2713" : state === "active" ? "\u25CF" : ""}</i><span>${esc3(stage.label)}</span>${state === "active" ? "<em>en cours</em>" : ""}</div>`;
+    return `<div class="stage-row" data-stage-state="${state}"><i>${state === "done" ? "\u2713" : state === "active" ? "\u25CF" : ""}</i><span>${esc4(stage.label)}</span>${state === "active" ? "<em>en cours</em>" : ""}</div>`;
   }).join("")}</div>
         <div class="build-note"><span>\u2726</span><p><strong>Une seule direction de marque.</strong> Chaque nouvelle section reprend les m\xEAmes couleurs, espacements et r\xE8gles typographiques.</p></div>
       </section>
       <section class="storefront-window" data-build-preview>
-        <div class="browser-chrome"><i></i><i></i><i></i><span>${esc3(input.brandName.toLowerCase().replace(/[^a-z0-9]+/g, "")) || "boutique"}.com</span><b>aper\xE7u en direct</b></div>
+        <div class="browser-chrome"><i></i><i></i><i></i><span>${esc4(input.brandName.toLowerCase().replace(/[^a-z0-9]+/g, "")) || "boutique"}.com</span><b>aper\xE7u en direct</b></div>
         <div class="storefront-canvas">
-          <div class="preview-nav preview-part ${activeIndex >= 0 ? "is-built" : ""}" data-preview-section="navigation"><strong>${esc3(input.brandName)}</strong><span>Boutique&nbsp;&nbsp; \xC0 propos&nbsp;&nbsp; Journal</span><button>Panier (0)</button></div>
-          <div class="preview-hero preview-part ${activeIndex >= 1 ? "is-built" : ""}" data-preview-section="hero"><div><small>La s\xE9lection ${esc3(input.brandName)}</small><h2>Le produit pens\xE9 pour ton quotidien.</h2><p>Une promesse claire, une preuve cr\xE9dible et un parcours sans friction.</p><button>D\xE9couvrir le produit</button></div><div class="preview-media">${image ? `<img src="${esc3(image)}" alt="Produit import\xE9">` : "<span></span>"}</div></div>
+          <div class="preview-nav preview-part ${activeIndex >= 0 ? "is-built" : ""}" data-preview-section="navigation"><strong>${esc4(input.brandName)}</strong><span>Boutique&nbsp;&nbsp; \xC0 propos&nbsp;&nbsp; Journal</span><button>Panier (0)</button></div>
+          <div class="preview-hero preview-part ${activeIndex >= 1 ? "is-built" : ""}" data-preview-section="hero"><div><small>La s\xE9lection ${esc4(input.brandName)}</small><h2>Le produit pens\xE9 pour ton quotidien.</h2><p>Une promesse claire, une preuve cr\xE9dible et un parcours sans friction.</p><button>D\xE9couvrir le produit</button></div><div class="preview-media">${image ? `<img src="${esc4(image)}" alt="Produit import\xE9">` : "<span></span>"}</div></div>
           <div class="preview-trust preview-part ${activeIndex >= 2 ? "is-built" : ""}" data-preview-section="offre"><span>Livraison suivie</span><span>Paiement s\xE9curis\xE9</span><span>30 jours pour essayer</span></div>
           <div class="preview-benefits preview-part ${activeIndex >= 3 ? "is-built" : ""}" data-preview-section="b\xE9n\xE9fices"><article><i>01</i><strong>Con\xE7u avec intention</strong><p>Le b\xE9n\xE9fice principal expliqu\xE9 sans d\xE9tour.</p></article><article><i>02</i><strong>Simple \xE0 adopter</strong><p>Une d\xE9monstration visuelle qui rassure.</p></article><article><i>03</i><strong>Fait pour durer</strong><p>Des preuves concr\xE8tes avant la promesse.</p></article></div>
           <div class="preview-proof preview-part ${activeIndex >= 4 ? "is-built" : ""}" data-preview-section="preuves"><div><span>\u2605\u2605\u2605\u2605\u2605</span><strong>\u201CC\u2019est exactement ce que je cherchais.\u201D</strong><small>Acheteur v\xE9rifi\xE9</small></div><div class="proof-image"></div></div>
@@ -244,13 +266,14 @@ var templateId = params.get("template");
 var source = params.get("source");
 var prompt = params.get("prompt") ?? "";
 var answers = {};
+var missingFieldIds = [];
 var draft = null;
 var token = "";
 var error = "";
 var busy = false;
 var workspaceName = "Ton espace";
 var buildStageIndex = 0;
-function esc4(value) {
+function esc5(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 async function request(url, init) {
@@ -261,17 +284,17 @@ async function request(url, init) {
 }
 function render() {
   if (!root) return;
-  root.innerHTML = draft ? renderStrategy() : renderCreateWorkspace({ workspaceName, selectedFormat: format, selectedTemplateId: templateId, source, prompt, answers });
+  root.innerHTML = draft ? renderStrategy() : renderCreateWorkspace({ workspaceName, selectedFormat: format, selectedTemplateId: templateId, source, prompt, answers, missingFieldIds });
   bind();
 }
 function renderStrategy() {
   const choices = [...draft.personas.map((item) => ({ ...item, kind: "persona" })), ...draft.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc4(workspaceName)}</small></aside><main><div class="create-heading"><p>${esc4(creationFormats.find((item) => item.id === format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc4(item.id)}" aria-pressed="${item.selected}"><strong>${esc4(item.icon)} ${esc4(item.title)}</strong><small>${esc4(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc4(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main><div class="create-heading"><p>${esc5(creationFormats.find((item) => item.id === format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc5(item.id)}" aria-pressed="${item.selected}"><strong>${esc5(item.icon)} ${esc5(item.title)}</strong><small>${esc5(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc5(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
 }
 function renderBuild() {
   if (!root || !draft) return;
   const formatTitle = creationFormats.find((item) => item.id === format)?.title ?? "Boutique";
-  root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc4(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
+  root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
 }
 async function importLink(value) {
   const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });
@@ -337,6 +360,7 @@ function bind() {
     format = button.dataset.createFormat;
     templateId = null;
     answers = {};
+    missingFieldIds = [];
     history.replaceState({}, "", creationWorkspaceUrl(format, null, { source, prompt }));
     render();
   }));
@@ -344,6 +368,7 @@ function bind() {
     format = null;
     templateId = null;
     answers = {};
+    missingFieldIds = [];
     draft = null;
     history.replaceState({}, "", creationWorkspaceUrl(null, null, { source, prompt }));
     render();
@@ -374,9 +399,17 @@ function bind() {
   root?.querySelector("[data-source-form]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    answers = Object.fromEntries([...form.entries()].filter(([key]) => key !== "prompt").map(([key, value]) => [key, String(value)]));
+    answers = Object.fromEntries([...form.entries()].flatMap(([key, value]) => {
+      const fieldId = /^answers\\[(.+)\\]$/.exec(key)?.[1];
+      return fieldId ? [[fieldId, String(value)]] : [];
+    }));
     prompt = String(form.get("prompt") ?? "").trim();
-    const firstAnswer = Object.values(answers).find(Boolean) ?? "";
+    missingFieldIds = format ? validateFormatIntake(flowForFormat(format), answers) : [];
+    if (missingFieldIds.length) {
+      render();
+      return;
+    }
+    const firstAnswer = Object.values(answers).find((value) => value.trim()) ?? "";
     if (!prompt && !firstAnswer) return;
     try {
       busy = true;

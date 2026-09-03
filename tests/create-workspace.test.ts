@@ -34,6 +34,6 @@ describe("connected creation workspace", () => {
     expect(gallery).not.toContain('data-create-source="description"');
     expect(gallery).toContain('/creer?format=landing&amp;template=landing-direct-response&amp;source=description&amp;prompt=une+lampe');
     expect(intake).toContain('data-create-source="description"');
-    expect(intake).toContain('name="campaign"');
+    expect(intake).toContain('name="answers[campaign]"');
   });
 });
