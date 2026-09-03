@@ -1,11 +1,12 @@
 import type { EditorSection } from "../editor/document";
 import { getSectionDefinition } from "../sections";
 import { SECTION_CAPABILITIES } from "../sections/capabilities";
+import { hasConfiguredOfferDiscount, isMixedProductOffer } from "../sections/quantity-offer-domain";
 import type { SectionCapability } from "../sections/types";
 
-export type ShopifyCapabilityState = "available" | "setup-required" | "unsupported";
+export type ShopifyCapabilityState = "native" | "app-required" | "unavailable";
 export type ShopifyCapabilityAction = { label: string; href?: string };
-export type ShopifyCapabilityStatus = { state: ShopifyCapabilityState; reason: string; action?: ShopifyCapabilityAction };
+export type ShopifyCapabilityStatus = { state: ShopifyCapabilityState; available: boolean; reason: string; action?: ShopifyCapabilityAction };
 export type ShopifyCapabilityReport = {
   capabilities: Record<SectionCapability, ShopifyCapabilityStatus>;
   required: SectionCapability[];
@@ -22,12 +23,14 @@ export type ShopifyCapabilityMetadata = {
   sellingPlans?: boolean;
   preorderProvider?: boolean;
   wefloExtensionInstalled?: boolean;
+  cartTransformInstalled?: boolean;
+  discountRuleIds?: string[];
   appBlocks?: boolean;
   supported?: Partial<Record<SectionCapability, boolean>>;
 };
 
 export type CapabilityReportInput = {
-  sections?: Pick<EditorSection, "type" | "settings">[];
+  sections?: Pick<EditorSection, "type" | "settings" | "blocks">[];
   capabilities?: SectionCapability[];
   shopify?: ShopifyCapabilityMetadata;
 };
@@ -45,6 +48,7 @@ const labels: Record<SectionCapability, string> = {
   recommendations: "les recommandations Shopify",
   "fixed-bundle": "le bundle fixe Shopify",
   "custom-bundle": "le bundle personnalisable",
+  "discount-rules": "les règles de remise Shopify",
   "selling-plan": "l’abonnement Shopify",
   preorder: "la précommande",
   "cart-drawer": "le tiroir panier",
@@ -54,61 +58,80 @@ const labels: Record<SectionCapability, string> = {
 };
 
 function requiredCapabilities(input: CapabilityReportInput): SectionCapability[] {
-  const declared = input.capabilities ?? input.sections?.flatMap((section) => getSectionDefinition(section.type)?.capabilities ?? []) ?? [];
+  const sections = input.sections ?? [];
+  const declared = [
+    ...(input.capabilities ?? []),
+    ...sections.flatMap((section) => getSectionDefinition(section.type)?.capabilities ?? []),
+  ];
+  for (const section of sections) {
+    if (section.type !== "quantity-offer") continue;
+    if (isMixedProductOffer(section)) declared.push("custom-bundle");
+    if (hasConfiguredOfferDiscount(section)) declared.push("discount-rules");
+  }
   return [...new Set(declared)];
 }
 
 function status(capability: SectionCapability, metadata: ShopifyCapabilityMetadata): ShopifyCapabilityStatus {
   const override = metadata.supported?.[capability];
-  if (override === false) return { state: "unsupported", reason: `Cette boutique ne prend pas en charge ${labels[capability]}.` };
-  if (override === true) return { state: "available", reason: `${labels[capability]} est disponible.` };
+  if (override === false) return { state: "unavailable", available: false, reason: `Cette boutique ne prend pas en charge ${labels[capability]}.` };
 
   if (capability === "custom-bundle") {
-    return metadata.wefloExtensionInstalled
-      ? { state: "available", reason: "L’extension Weflo Bundle et la Cart Transform sont installées." }
-      : { state: "setup-required", reason: "Configure le bundle personnalisable avec l’extension Weflo Bundle et la Cart Transform.", action: { label: "Configurer le bundle personnalisable", href: "/dashboard#shopify" } };
+    const available = metadata.wefloExtensionInstalled === true && metadata.cartTransformInstalled === true;
+    return available
+      ? { state: "app-required", available, reason: "L’extension Weflo Bundle et sa Cart Transform sont attestées." }
+      : { state: "app-required", available, reason: "Configure et atteste l’extension Weflo Bundle ainsi que sa Cart Transform avant publication.", action: { label: "Configurer le bundle personnalisable", href: "/dashboard#shopify" } };
+  }
+  if (capability === "discount-rules") {
+    const available = Array.isArray(metadata.discountRuleIds) && metadata.discountRuleIds.some((id) => typeof id === "string" && id.trim().length > 0);
+    return available
+      ? { state: "app-required", available, reason: "Une règle de remise Shopify est attestée pour cette offre." }
+      : { state: "app-required", available, reason: "Crée et atteste une règle de remise Shopify réelle avant d’afficher ces économies.", action: { label: "Configurer la remise", href: "/dashboard#shopify" } };
   }
   if (capability === "app-blocks") {
-    return metadata.wefloExtensionInstalled || metadata.appBlocks
-      ? { state: "available", reason: "Les blocs d’application Weflo sont disponibles." }
-      : { state: "setup-required", reason: "Installe l’extension de thème Weflo pour utiliser ce bloc d’application.", action: { label: "Installer l’extension Weflo", href: "/dashboard#shopify" } };
+    const available = metadata.appBlocks === true;
+    return available
+      ? { state: "app-required", available, reason: "Les blocs d’application Weflo sont attestés." }
+      : { state: "app-required", available, reason: "Installe et atteste l’extension de thème Weflo pour utiliser ce bloc d’application.", action: { label: "Installer l’extension Weflo", href: "/dashboard#shopify" } };
   }
   if (capability === "selling-plan") {
-    return metadata.sellingPlans
-      ? { state: "available", reason: "Un fournisseur d’abonnement Shopify est configuré." }
-      : { state: "setup-required", reason: "Configure un fournisseur d’abonnement compatible avec les selling plans Shopify.", action: { label: "Configurer les abonnements", href: "/dashboard#shopify" } };
+    const available = metadata.sellingPlans === true;
+    return available
+      ? { state: "app-required", available, reason: "Un fournisseur d’abonnement Shopify est attesté." }
+      : { state: "app-required", available, reason: "Configure un fournisseur d’abonnement compatible avec les selling plans Shopify.", action: { label: "Configurer les abonnements", href: "/dashboard#shopify" } };
   }
   if (capability === "preorder") {
-    return metadata.preorderProvider
-      ? { state: "available", reason: "Un fournisseur de précommandes compatible est configuré." }
-      : { state: "setup-required", reason: "Configure un fournisseur de précommandes compatible avant publication.", action: { label: "Configurer les précommandes", href: "/dashboard#shopify" } };
+    const available = metadata.preorderProvider === true;
+    return available
+      ? { state: "app-required", available, reason: "Un fournisseur de précommandes compatible est attesté." }
+      : { state: "app-required", available, reason: "Configure un fournisseur de précommandes compatible avant publication.", action: { label: "Configurer les précommandes", href: "/dashboard#shopify" } };
   }
   if (capability === "cart-drawer") {
-    return metadata.cartDrawer
-      ? { state: "available", reason: "Le thème expose un tiroir panier compatible." }
-      : { state: "setup-required", reason: "Le tiroir panier du thème n’a pas été détecté ; l’ajout utilisera le panier Shopify standard.", action: { label: "Vérifier le thème" } };
+    const available = metadata.cartDrawer === true;
+    return available
+      ? { state: "native", available, reason: "Le thème expose un tiroir panier compatible." }
+      : { state: "unavailable", available, reason: "Le tiroir panier du thème n’a pas été détecté ; l’ajout utilisera le panier Shopify standard.", action: { label: "Vérifier le thème" } };
   }
   if (capability === "markets" || capability === "localization") {
-    const enabled = capability === "markets" ? metadata.markets : metadata.localization;
-    return enabled
-      ? { state: "available", reason: `${labels[capability]} est disponible.` }
-      : { state: "setup-required", reason: `Active ${labels[capability]} dans l’administration Shopify.`, action: { label: "Ouvrir Shopify" } };
+    const available = (capability === "markets" ? metadata.markets : metadata.localization) === true;
+    return available
+      ? { state: "native", available, reason: `${labels[capability]} est disponible.` }
+      : { state: "unavailable", available, reason: `Active ${labels[capability]} dans l’administration Shopify.`, action: { label: "Ouvrir Shopify" } };
   }
   if (nativeCapabilities.has(capability)) {
-    return metadata.connected === false || metadata.hasProductData === false
-      ? { state: "setup-required", reason: `Connecte une boutique et associe les données produit pour utiliser ${labels[capability]}.`, action: { label: "Connecter Shopify", href: "/dashboard#shopify" } }
-      : { state: "available", reason: `${labels[capability]} est rendu avec les objets Shopify au runtime.` };
+    const available = metadata.connected === true && metadata.hasProductData === true;
+    return available
+      ? { state: "native", available, reason: `${labels[capability]} est rendu avec les objets Shopify au runtime.` }
+      : { state: "unavailable", available, reason: `Connecte une boutique et associe les données produit pour utiliser ${labels[capability]}.`, action: { label: "Connecter Shopify", href: "/dashboard#shopify" } };
   }
-  return { state: "unsupported", reason: `Capacité Shopify inconnue : ${capability}.` };
+  return { state: "unavailable", available: false, reason: `Capacité Shopify inconnue : ${capability}.` };
 }
 
 export function buildCapabilityReport(input: CapabilityReportInput = {}): ShopifyCapabilityReport {
   const required = requiredCapabilities(input);
-  // Compilation locale is intentionally permissive; publication supplies real connection facts.
-  const metadata: ShopifyCapabilityMetadata = { connected: true, hasProductData: true, ...(input.shopify ?? {}) };
+  const metadata: ShopifyCapabilityMetadata = input.shopify ?? {};
   const capabilities = Object.fromEntries(SECTION_CAPABILITIES.map((capability) => [capability, status(capability, metadata)])) as ShopifyCapabilityReport["capabilities"];
   const blockers = required
-    .filter((capability) => capabilities[capability].state !== "available")
+    .filter((capability) => !capabilities[capability].available)
     .map((capability) => capabilities[capability].reason);
   return { capabilities, required, blockers };
 }

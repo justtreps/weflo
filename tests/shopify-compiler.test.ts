@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { compileShopifyPage } from "../src/shopify/compiler";
 import { buildModelDocument } from "../src/models/model-manifest";
 import { getSectionDefinition } from "../src/sections";
+import { wefloThemeShell } from "../src/shopify/theme-shell";
 
 describe("Shopify document compiler", () => {
   it("creates deterministic namespaced files and an ordered alternate template", () => {
@@ -95,16 +96,24 @@ describe("Shopify document compiler", () => {
     expect(liquid).toContain("block.settings.quantity");
     expect(liquid).toContain("selected_product");
     expect(liquid).not.toContain("15% de réduction");
-    expect(liquid).toContain('data-wf-block-id="{{ block.id }}"');
+    expect(liquid).toContain('data-wf-block-id="{{ block.id | escape }}"');
     expect(liquid).toContain("section.settings.subtitle");
     expect(liquid).toContain("section.settings.text");
     expect(liquid).toContain("section.settings.subtitle | escape");
     expect(liquid).toContain("section.settings.text | escape");
-    expect(liquid).toContain("wf-quantity-offer--{{ section.settings.variant | escape }}");
+    expect(liquid).toContain("wf-quantity-offer--{{ section.settings.variant | default: 'horizontal-cards' | escape }}");
     expect(liquid).toContain("weflo-product-form.js");
     expect(liquid).not.toMatch(/{%\s*if[^%]*\(/);
     expect(published?.blocks?.duo.type).toBe("offer-tier");
     expect(files.find((file) => file.key === "assets/weflo-product-form.js")?.value).toContain("wfNativeCheckoutLocked");
+    const css = files.find((file) => file.key === "assets/weflo-quantity-offer.css")?.value;
+    expect(css).toContain(".wf-quantity-offer__tiers-layout");
+    expect(css).toContain(".wf-quantity-offer__tier");
+    expect(css).toContain(".wf-quantity-offer__badge");
+    expect(css).toContain(".wf-quantity-offer__discount");
+    expect(css).toContain(".wf-quantity-offer--horizontal-cards .wf-quantity-offer__tiers-layout{grid-template-columns:repeat(3,minmax(0,1fr))}");
+    expect(css).toContain(".wf-quantity-offer--stacked-premium .wf-quantity-offer__tiers-layout{grid-template-columns:minmax(0,1fr)}");
+    expect(css).toContain(".wf-quantity-offer--tier-table .wf-quantity-offer__tier{grid-template-columns");
     const schema = JSON.parse(liquid.match(/{% schema %}([\s\S]*?){% endschema %}/)?.[1] ?? "{}");
     expect(schema.settings.map((setting: { id: string }) => setting.id)).toEqual(expect.arrayContaining([
       "title", "subtitle", "text", "product_handle", "quantity_label", "cta_label", "variant",
@@ -122,8 +131,38 @@ describe("Shopify document compiler", () => {
 
     expect(discountType.options).toEqual([
       { value: "percentage", label: "Pourcentage" },
-      { value: "amount", label: "Montant fixe" },
+      { value: "fixed", label: "Montant fixe" },
       { value: "none", label: "Aucune remise" },
     ]);
+  });
+
+  it("normalizes tier data before writing Shopify JSON", () => {
+    const document = buildModelDocument("proteo", "Offres");
+    const definition = getSectionDefinition("quantity-offer")!;
+    document.pages[0].sections = [{
+      id: "quantity-offer",
+      type: definition.type,
+      name: definition.name,
+      hidden: false,
+      locked: false,
+      settings: { ...definition.defaults },
+      style: {},
+      responsive: {},
+      blocks: [{ id: "duo", type: "offer-tier", settings: { quantity: 140.2, discount_type: "amount", discount_value: -8 } }],
+    }];
+
+    const files = compileShopifyPage(document, { resource: "product" });
+    const template = JSON.parse(files.find((file) => file.key.startsWith("templates/product."))!.value);
+    const block = Object.values(template.sections as Record<string, { blocks: Record<string, { settings: Record<string, unknown> }> }>)[0].blocks.duo;
+
+    expect(block.settings).toMatchObject({ quantity: 99, discount_type: "fixed", discount_value: 0 });
+  });
+
+  it("ships the quantity-offer asset in the standalone Weflo theme shell", () => {
+    const css = wefloThemeShell.find((file) => file.key === "assets/weflo-base.css")?.value ?? "";
+
+    expect(css).toContain(".wf-quantity-offer__tiers-layout");
+    expect(css).toContain(".wf-quantity-offer--stacked-premium");
+    expect(css).toContain(".wf-quantity-offer--tier-table");
   });
 });

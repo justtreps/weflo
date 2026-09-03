@@ -1,21 +1,253 @@
-type ShopifyVariant = { id: number | string; options?: string[]; price?: number; compare_at_price?: number | null; available?: boolean; featured_image?: { src?: string } | null };
+type ShopifyVariant = { id: number | string; options?: string[]; price?: number; compare_at_price?: number | null; available?: boolean };
 
-function money(cents: number): string {
-  try { return new Intl.NumberFormat(document.documentElement.lang || "fr-FR", { style: "currency", currency: (window as Window & { Shopify?: { currency?: { active?: string } } }).Shopify?.currency?.active || "EUR" }).format(cents / 100); }
-  catch { return `${(cents / 100).toFixed(2)} €`; }
+export type WefloProductRuntimeEnvironment = {
+  host?: Record<string, unknown>;
+  AbortController?: typeof AbortController;
+  MutationObserver?: typeof MutationObserver;
+  CustomEvent?: typeof CustomEvent;
+  FormData?: typeof FormData;
+  fetch?: typeof fetch;
+};
+
+export type WefloProductRuntime = {
+  mount(root: HTMLElement): void;
+  initialize(scope?: ParentNode): void;
+  unmount(scope: ParentNode): void;
+  destroy(): void;
+};
+
+/** Canonical implementation used directly and serialized into the Shopify asset. */
+export function createWefloProductRuntime(
+  targetDocument: Document,
+  environment: WefloProductRuntimeEnvironment = {},
+): WefloProductRuntime {
+  const host = environment.host ?? globalThis as unknown as Record<string, unknown>;
+  const singletonKey = "__wfProductRuntime";
+  const existing = host[singletonKey] as WefloProductRuntime | undefined;
+  if (existing) return existing;
+
+  const AbortControllerConstructor = environment.AbortController ?? host.AbortController as typeof AbortController | undefined;
+  const MutationObserverConstructor = environment.MutationObserver ?? host.MutationObserver as typeof MutationObserver | undefined;
+  const CustomEventConstructor = environment.CustomEvent ?? host.CustomEvent as typeof CustomEvent | undefined;
+  const FormDataConstructor = environment.FormData ?? host.FormData as typeof FormData | undefined;
+  const fetcher = environment.fetch ?? host.fetch as typeof fetch | undefined;
+  const InputConstructor = host.HTMLInputElement as typeof HTMLInputElement | undefined;
+  const mountedRoots = new Set<HTMLElement>();
+
+  const rootsIn = (scope: ParentNode): HTMLElement[] => {
+    const roots: HTMLElement[] = [];
+    const candidate = scope as ParentNode & { matches?: (selector: string) => boolean };
+    if (candidate.matches?.("[data-wf-product]")) roots.push(candidate as unknown as HTMLElement);
+    if (typeof scope.querySelectorAll === "function") roots.push(...Array.from(scope.querySelectorAll<HTMLElement>("[data-wf-product]")));
+    return [...new Set(roots)];
+  };
+
+  const money = (cents: number): string => {
+    const shopify = host.Shopify as { currency?: { active?: string } } | undefined;
+    try {
+      return new Intl.NumberFormat(targetDocument.documentElement.lang || "fr-FR", { style: "currency", currency: shopify?.currency?.active || "EUR" }).format(cents / 100);
+    } catch {
+      return `${(cents / 100).toFixed(2)} €`;
+    }
+  };
+
+  const variantsFor = (root: HTMLElement): ShopifyVariant[] => {
+    const source = root.querySelector<HTMLScriptElement>("[data-wf-variants]");
+    if (!source?.textContent) return [];
+    try {
+      const value = JSON.parse(source.textContent);
+      return Array.isArray(value) ? value as ShopifyVariant[] : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const isLocked = (form: HTMLElement): boolean => form.dataset.wfNativeCheckoutLocked === "true";
+
+  const syncTierVariant = (form: HTMLFormElement, choice: HTMLElement): boolean => {
+    const variantId = choice.dataset.wfVariantId?.trim();
+    const input = form.querySelector<HTMLInputElement>("[data-wf-variant-input]");
+    if (!variantId || !input) return false;
+    input.value = variantId;
+    return true;
+  };
+
+  const mount = (root: HTMLElement): void => {
+    if (root.dataset.wfMounted === "true") return;
+    const form = root.querySelector<HTMLFormElement>("form[data-wf-product-form], form.wf-product__form");
+    if (!form || !AbortControllerConstructor) return;
+
+    root.dataset.wfMounted = "true";
+    mountedRoots.add(root);
+    const controller = new AbortControllerConstructor();
+    const signal = controller.signal;
+    const submit = form.querySelector<HTMLButtonElement>("[data-wf-add-to-cart]");
+    const variants = variantsFor(root);
+    let busy = false;
+    let currentVariantAvailable = true;
+
+    if (root.querySelector("[data-wf-native-checkout-lock]")) form.dataset.wfNativeCheckoutLocked = "true";
+
+    const choices = () => Array.from(root.querySelectorAll<HTMLInputElement>("[data-wf-quantity][data-wf-variant-id]"));
+    const setChoiceState = (choice: HTMLInputElement, checked: boolean): void => {
+      choice.checked = checked;
+      choice.closest<HTMLElement>(".wf-quantity-offer__tier")?.classList.toggle("is-selected", checked);
+    };
+    const normalizeTierSelection = (): HTMLInputElement | undefined => {
+      const all = choices();
+      let selected = all.find((choice) => choice.checked && !choice.disabled);
+      selected ??= all.find((choice) => !choice.disabled);
+      for (const choice of all) setChoiceState(choice, choice === selected);
+      return selected;
+    };
+    const selectedTierAvailable = (): boolean => {
+      if (root.dataset.wfPurchaseStrategy !== "multipack") return true;
+      const selected = choices().find((choice) => choice.checked);
+      return Boolean(selected && !selected.disabled && selected.dataset.wfAvailable !== "false");
+    };
+    const refreshSubmit = (): void => {
+      const disabled = busy || isLocked(form) || !currentVariantAvailable || !selectedTierAvailable();
+      if (submit && submit.disabled !== disabled) submit.disabled = disabled;
+    };
+    const selectTier = (choice: HTMLInputElement): void => {
+      if (choice.disabled) return;
+      for (const candidate of choices()) setChoiceState(candidate, candidate === choice);
+      syncTierVariant(form, choice);
+      refreshSubmit();
+    };
+
+    const update = (): void => {
+      const optionValues = Array.from(root.querySelectorAll<HTMLSelectElement>("[data-wf-option-index]")).map((select) => select.value);
+      const current = variants.find((variant) => optionValues.every((choice, index) => variant.options?.[index] === choice)) ?? variants[0];
+      if (current) {
+        const id = form.querySelector<HTMLInputElement>("[data-wf-variant-input]");
+        if (id) id.value = String(current.id);
+        const price = root.querySelector<HTMLElement>("[data-wf-price]");
+        if (price && typeof current.price === "number") price.textContent = money(current.price);
+        const compare = root.querySelector<HTMLElement>("[data-wf-compare-price]");
+        if (compare) {
+          const visible = typeof current.compare_at_price === "number" && current.compare_at_price > (current.price ?? 0);
+          compare.hidden = !visible;
+          if (visible) compare.textContent = money(current.compare_at_price!);
+        }
+        const availability = root.querySelector<HTMLElement>("[data-wf-availability]");
+        if (availability) availability.textContent = current.available ? "En stock" : "Indisponible";
+        currentVariantAvailable = current.available !== false;
+        if (CustomEventConstructor) root.dispatchEvent(new CustomEventConstructor("weflo:variant:change", { bubbles: true, detail: { variant: current } }));
+      }
+      const selected = normalizeTierSelection();
+      if (selected) syncTierVariant(form, selected);
+      refreshSubmit();
+    };
+
+    root.querySelectorAll<HTMLSelectElement>("[data-wf-option-index]").forEach((select) => select.addEventListener("change", update, { signal }));
+    root.querySelectorAll<HTMLElement>("[data-wf-quantity]").forEach((control) => control.addEventListener("click", () => {
+      if (InputConstructor && control instanceof InputConstructor && control.matches("[data-wf-variant-id]")) {
+        selectTier(control as HTMLInputElement);
+        return;
+      }
+      const number = Number(control.dataset.wfQuantity);
+      const quantity = Number.isFinite(number) ? Math.min(99, Math.max(1, Math.round(number))) : 1;
+      const input = form.querySelector<HTMLInputElement>("[data-wf-quantity-input]");
+      if (input) {
+        input.value = String(quantity);
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }, { signal }));
+    choices().forEach((choice) => choice.addEventListener("change", () => {
+      if (choice.checked) selectTier(choice);
+    }, { signal }));
+    root.querySelectorAll<HTMLSelectElement>("[data-wf-tier-variant-select]").forEach((select) => select.addEventListener("change", () => {
+      const choice = choices().find((candidate) => candidate.dataset.wfTierId === select.dataset.wfTierId);
+      const selectedOption = select.options[select.selectedIndex];
+      if (!choice || !selectedOption || selectedOption.disabled) return;
+      choice.dataset.wfVariantId = select.value.trim();
+      choice.dataset.wfAvailable = selectedOption.dataset.wfAvailable ?? "true";
+      choice.disabled = choice.dataset.wfAvailable === "false";
+      if (choice.checked) selectTier(choice);
+      refreshSubmit();
+    }, { signal }));
+
+    form.addEventListener("submit", async (event) => {
+      if (isLocked(form) || !selectedTierAvailable() || !currentVariantAvailable) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        refreshSubmit();
+        return;
+      }
+      if (!fetcher || !FormDataConstructor || root.dataset.wfAjax === "false") return;
+      event.preventDefault();
+      busy = true;
+      refreshSubmit();
+      try {
+        const response = await fetcher.call(host, "/cart/add.js", { method: "POST", headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" }, body: new FormDataConstructor(form) });
+        if (!response.ok) throw new Error("cart_add_failed");
+        const item = await response.json();
+        if (CustomEventConstructor) {
+          targetDocument.dispatchEvent(new CustomEventConstructor("weflo:cart:add", { bubbles: true, detail: { item, sectionId: root.dataset.wfSectionId } }));
+          targetDocument.dispatchEvent(new CustomEventConstructor("cart:refresh", { bubbles: true }));
+        }
+      } catch {
+        if (!isLocked(form) && selectedTierAvailable() && currentVariantAvailable) form.submit();
+      } finally {
+        busy = false;
+        refreshSubmit();
+      }
+    }, { signal });
+
+    let observer: MutationObserver | undefined;
+    if (submit && MutationObserverConstructor && isLocked(form)) {
+      observer = new MutationObserverConstructor(() => refreshSubmit());
+      observer.observe(submit, { attributes: true, attributeFilter: ["disabled"] });
+    }
+    (root as HTMLElement & { __wfProductLifecycle?: { controller: AbortController; observer?: MutationObserver } }).__wfProductLifecycle = { controller, observer };
+    update();
+  };
+
+  const unmountRoot = (root: HTMLElement): void => {
+    const lifecycle = (root as HTMLElement & { __wfProductLifecycle?: { controller: AbortController; observer?: MutationObserver } }).__wfProductLifecycle;
+    lifecycle?.controller.abort();
+    lifecycle?.observer?.disconnect();
+    delete (root as HTMLElement & { __wfProductLifecycle?: unknown }).__wfProductLifecycle;
+    delete root.dataset.wfMounted;
+    mountedRoots.delete(root);
+  };
+
+  const initialize = (scope: ParentNode = targetDocument): void => rootsIn(scope).forEach(mount);
+  const unmount = (scope: ParentNode): void => rootsIn(scope).forEach(unmountRoot);
+  const onSectionLoad = (event: Event): void => initialize(event.target as ParentNode);
+  const onSectionUnload = (event: Event): void => unmount(event.target as ParentNode);
+  const onReady = (): void => initialize();
+
+  targetDocument.addEventListener("shopify:section:load", onSectionLoad);
+  targetDocument.addEventListener("shopify:section:unload", onSectionUnload);
+  if (targetDocument.readyState === "loading") targetDocument.addEventListener("DOMContentLoaded", onReady, { once: true });
+  else initialize();
+
+  const runtime: WefloProductRuntime = {
+    mount,
+    initialize,
+    unmount,
+    destroy() {
+      mountedRoots.forEach(unmountRoot);
+      targetDocument.removeEventListener("shopify:section:load", onSectionLoad);
+      targetDocument.removeEventListener("shopify:section:unload", onSectionUnload);
+      targetDocument.removeEventListener("DOMContentLoaded", onReady);
+      if (host[singletonKey] === runtime) delete host[singletonKey];
+    },
+  };
+  host[singletonKey] = runtime;
+  return runtime;
 }
 
-function variantsFor(root: HTMLElement): ShopifyVariant[] {
-  const source = root.querySelector<HTMLScriptElement>("[data-wf-variants]");
-  if (!source?.textContent) return [];
-  try { const value = JSON.parse(source.textContent); return Array.isArray(value) ? value as ShopifyVariant[] : []; } catch { return []; }
-}
+const runtimes = new WeakMap<Document, WefloProductRuntime>();
 
-function unmount(root: HTMLElement): void {
-  const controller = (root as HTMLElement & { __wfProductAbort?: AbortController }).__wfProductAbort;
-  controller?.abort();
-  delete (root as HTMLElement & { __wfProductAbort?: AbortController }).__wfProductAbort;
-  delete root.dataset.wfMounted;
+function runtimeFor(document: Document): WefloProductRuntime {
+  const current = runtimes.get(document);
+  if (current) return current;
+  const runtime = createWefloProductRuntime(document);
+  runtimes.set(document, runtime);
+  return runtime;
 }
 
 /** The quantity radio remains the submitted quantity; this only updates Shopify's line-item variant. */
@@ -32,61 +264,13 @@ export function isNativeCheckoutLocked(root: Pick<HTMLElement, "dataset">): bool
 }
 
 export function mountWefloProduct(root: HTMLElement): void {
-  if (root.dataset.wfMounted === "true") return;
-  const form = root.querySelector<HTMLFormElement>("form[data-wf-product-form], form.wf-product__form");
-  if (!form) return;
-  root.dataset.wfMounted = "true";
-  const controller = new AbortController();
-  (root as HTMLElement & { __wfProductAbort?: AbortController }).__wfProductAbort = controller;
-  const signal = controller.signal;
-  const variants = variantsFor(root);
-  const update = () => {
-    const choices = [...root.querySelectorAll<HTMLSelectElement>("[data-wf-option-index]")].map((select) => select.value);
-    const current = variants.find((variant) => choices.every((choice, index) => variant.options?.[index] === choice)) ?? variants[0];
-    if (!current) return;
-    const id = form.querySelector<HTMLInputElement>("[data-wf-variant-input]");
-    if (id) id.value = String(current.id);
-    const price = root.querySelector<HTMLElement>("[data-wf-price]"); if (price && typeof current.price === "number") price.textContent = money(current.price);
-    const compare = root.querySelector<HTMLElement>("[data-wf-compare-price]");
-    if (compare) { const visible = typeof current.compare_at_price === "number" && current.compare_at_price > (current.price ?? 0); compare.hidden = !visible; if (visible) compare.textContent = money(current.compare_at_price!); }
-    const availability = root.querySelector<HTMLElement>("[data-wf-availability]"); if (availability) availability.textContent = current.available ? "En stock" : "Indisponible";
-    const submit = form.querySelector<HTMLButtonElement>("[data-wf-add-to-cart]"); if (submit) submit.disabled = isNativeCheckoutLocked(form) || current.available === false;
-    root.dispatchEvent(new CustomEvent("weflo:variant:change", { bubbles: true, detail: { variant: current } }));
-  };
-  root.querySelectorAll<HTMLSelectElement>("[data-wf-option-index]").forEach((select) => select.addEventListener("change", update, { signal }));
-  root.querySelectorAll<HTMLElement>("[data-wf-quantity]").forEach((button) => button.addEventListener("click", () => {
-    const quantity = Number(button.dataset.wfQuantity); const input = form.querySelector<HTMLInputElement>("[data-wf-quantity-input]");
-    if (input && Number.isInteger(quantity) && quantity > 0) { input.value = String(quantity); input.dispatchEvent(new Event("change", { bubbles: true })); }
-  }, { signal }));
-  root.querySelectorAll<HTMLInputElement>("[data-wf-quantity][data-wf-variant-id]").forEach((choice) => choice.addEventListener("change", () => {
-    if (choice.checked) syncQuantityTierVariant(form, choice);
-  }, { signal }));
-  form.addEventListener("submit", async (event) => {
-    if (!window.fetch || root.dataset.wfAjax === "false") return;
-    event.preventDefault();
-    const submit = form.querySelector<HTMLButtonElement>("[data-wf-add-to-cart]"); if (submit) submit.disabled = true;
-    try {
-      const response = await fetch("/cart/add.js", { method: "POST", headers: { Accept: "application/json", "X-Requested-With": "XMLHttpRequest" }, body: new FormData(form) });
-      if (!response.ok) throw new Error("cart_add_failed");
-      const item = await response.json();
-      document.dispatchEvent(new CustomEvent("weflo:cart:add", { bubbles: true, detail: { item, sectionId: root.dataset.wfSectionId } }));
-      document.dispatchEvent(new CustomEvent("cart:refresh", { bubbles: true }));
-    } catch {
-      form.submit();
-    } finally { if (submit) submit.disabled = isNativeCheckoutLocked(form); }
-  }, { signal });
-  update();
-  const selectedTier = root.querySelector<HTMLInputElement>("[data-wf-quantity][data-wf-variant-id]:checked");
-  if (selectedTier) syncQuantityTierVariant(form, selectedTier);
+  runtimeFor(root.ownerDocument ?? document).mount(root);
 }
 
 export function initializeWefloProductForms(scope: ParentNode = document): void {
-  scope.querySelectorAll<HTMLElement>("[data-wf-product]").forEach(mountWefloProduct);
+  const owner = scope instanceof Document ? scope : scope.ownerDocument ?? document;
+  runtimeFor(owner).initialize(scope);
 }
 
 /** Emitted as a theme asset so it can run without a Weflo application bundle. */
-export const wefloProductRuntimeSource = `(()=>{const M=(c)=>{try{return new Intl.NumberFormat(document.documentElement.lang||'fr-FR',{style:'currency',currency:(window.Shopify&&window.Shopify.currency&&window.Shopify.currency.active)||'EUR'}).format(c/100)}catch{return(c/100).toFixed(2)+' €'}};const V=r=>{const s=r.querySelector('[data-wf-variants]');try{return s?JSON.parse(s.textContent||'[]'):[]}catch{return[]}};const U=r=>{if(r.dataset.wfMounted==='true')return;const f=r.querySelector('form[data-wf-product-form],form.wf-product__form');if(!f)return;r.dataset.wfMounted='true';const a=new AbortController(),q=a.signal,v=V(r),u=()=>{const c=[...r.querySelectorAll('[data-wf-option-index]')].map(x=>x.value),n=v.find(x=>c.every((y,i)=>(x.options||[])[i]===y))||v[0];if(!n)return;const id=f.querySelector('[data-wf-variant-input]');if(id)id.value=String(n.id);const p=r.querySelector('[data-wf-price]');if(p&&typeof n.price==='number')p.textContent=M(n.price);const z=r.querySelector('[data-wf-compare-price]');if(z){const b=typeof n.compare_at_price==='number'&&n.compare_at_price>(n.price||0);z.hidden=!b;if(b)z.textContent=M(n.compare_at_price)}const av=r.querySelector('[data-wf-availability]');if(av)av.textContent=n.available?'En stock':'Indisponible';const b=f.querySelector('[data-wf-add-to-cart]');if(b)b.disabled=n.available===false;r.dispatchEvent(new CustomEvent('weflo:variant:change',{bubbles:true,detail:{variant:n}}))};r.querySelectorAll('[data-wf-option-index]').forEach(x=>x.addEventListener('change',u,{signal:q}));r.querySelectorAll('[data-wf-quantity]').forEach(b=>b.addEventListener('click',()=>{const n=Number(b.dataset.wfQuantity),i=f.querySelector('[data-wf-quantity-input]');if(i&&Number.isInteger(n)&&n>0){i.value=String(n);i.dispatchEvent(new Event('change',{bubbles:true}))}},{signal:q}));f.addEventListener('submit',async e=>{if(!window.fetch||r.dataset.wfAjax==='false')return;e.preventDefault();const b=f.querySelector('[data-wf-add-to-cart]');if(b)b.disabled=true;try{const x=await fetch('/cart/add.js',{method:'POST',headers:{Accept:'application/json','X-Requested-With':'XMLHttpRequest'},body:new FormData(f)});if(!x.ok)throw Error('cart');const i=await x.json();document.dispatchEvent(new CustomEvent('weflo:cart:add',{bubbles:true,detail:{item:i,sectionId:r.dataset.wfSectionId}}));document.dispatchEvent(new CustomEvent('cart:refresh',{bubbles:true}))}catch{f.submit()}finally{if(b)b.disabled=false}},{signal:q});r.__wfProductAbort=a;u()};const I=s=>(s||document).querySelectorAll('[data-wf-product]').forEach(U);document.addEventListener('shopify:section:load',e=>I(e.target));document.addEventListener('shopify:section:unload',e=>{const r=e.target&&e.target.querySelector&&e.target.querySelector('[data-wf-product]');if(r&&r.__wfProductAbort)r.__wfProductAbort.abort()});document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>I()):I()})();`;
-
-/** Kept separate so existing product-form runtime remains backwards compatible. */
-export const mixedOfferRuntimeGuardSource = `(()=>{const L=r=>r.querySelector('.wf-quantity-offer__app-required'),D=r=>{const f=r.querySelector('form');if(!L(r)||!f)return;f.dataset.wfNativeCheckoutLocked='true';const b=f.querySelector('[data-wf-add-to-cart]');if(b)b.disabled=true},I=()=>document.querySelectorAll('[data-wf-purchase-strategy="multipack"]').forEach(r=>{D(r);const b=r.querySelector('[data-wf-add-to-cart]');if(b)new MutationObserver(()=>D(r)).observe(b,{attributes:true,attributeFilter:['disabled']})});document.readyState==='loading'?document.addEventListener('DOMContentLoaded',I):I()})();`;
-export const quantityOfferRuntimeExtensionSource = `(()=>{const S=x=>{if(!(x instanceof HTMLInputElement)||!x.matches('[data-wf-quantity][data-wf-variant-id]')||!x.checked)return;const f=x.closest('form'),i=f&&f.querySelector('[data-wf-variant-input]'),v=(x.dataset.wfVariantId||'').trim();if(i&&v)i.value=v};document.addEventListener('change',e=>S(e.target));const I=()=>document.querySelectorAll('[data-wf-quantity][data-wf-variant-id]:checked').forEach(S);document.readyState==='loading'?document.addEventListener('DOMContentLoaded',I):I()})();`;
+export const wefloProductRuntimeSource = `(${createWefloProductRuntime.toString()})(document);`;

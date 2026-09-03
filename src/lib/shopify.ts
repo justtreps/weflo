@@ -9,7 +9,6 @@ import { bindingForDocument } from "../shopify/page-binding";
 import type { ShopifyCatalogProduct } from "../onboarding/types";
 import { compileWefloTheme } from "../shopify/adapters/weflo-native";
 import { buildCapabilityReport } from "../shopify/capability-report";
-import { getSectionDefinition } from "../sections";
 
 export const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION?.trim() || "2026-07";
 
@@ -199,10 +198,8 @@ export function createShopifyPort(): ShopifyPort {
       const document = input.document as EditorDocument;
       const resource = document.kind === "product" ? "product" : document.kind === "collection" ? "collection" : document.kind === "home" ? "home" : "page";
       const capabilityReport = buildCapabilityReport({
-        capabilities: [
-          ...document.pages.flatMap((page) => page.sections.flatMap((section) => getSectionDefinition(section.type)?.capabilities ?? [])),
-          ...(input.customSections ?? []).flatMap((section) => section.section.spec.requiredCapabilities),
-        ],
+        sections: document.pages.flatMap((page) => page.sections),
+        capabilities: (input.customSections ?? []).flatMap((section) => section.section.spec.requiredCapabilities),
         shopify: { connected: true, hasProductData: true, cartDrawer: true, markets: true, localization: true },
       });
       const files = input.strategy === "new_weflo"

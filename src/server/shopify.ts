@@ -5,6 +5,31 @@ import type { AppDeps } from "./app";
 import { loadShopifyCatalog } from "./shopify-catalog";
 import { buildCapabilityReport } from "../shopify/capability-report";
 import { getSectionDefinition } from "../sections";
+import type { EditorSection, SettingValue } from "../editor/document";
+
+function capabilitySettings(value: unknown): Record<string, SettingValue> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(Object.entries(value).flatMap(([key, setting]) => {
+    const scalar = setting === null || typeof setting === "string" || typeof setting === "number" || typeof setting === "boolean";
+    const scalarArray = Array.isArray(setting) && setting.every((item) => item === null || typeof item === "string" || typeof item === "number" || typeof item === "boolean");
+    return scalar || scalarArray ? [[key, setting as SettingValue]] : [];
+  }));
+}
+
+function capabilitySections(value: unknown): Pick<EditorSection, "type" | "settings" | "blocks">[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object" || typeof (item as { type?: unknown }).type !== "string") return [];
+    const candidate = item as { type: string; settings?: unknown; blocks?: unknown };
+    if (!getSectionDefinition(candidate.type)) return [];
+    const blocks = Array.isArray(candidate.blocks) ? candidate.blocks.flatMap((block, index) => {
+      if (!block || typeof block !== "object" || typeof (block as { type?: unknown }).type !== "string") return [];
+      const raw = block as { id?: unknown; type: string; settings?: unknown };
+      return [{ id: typeof raw.id === "string" ? raw.id : `capability-block-${index + 1}`, type: raw.type, settings: capabilitySettings(raw.settings) }];
+    }) : [];
+    return [{ type: candidate.type, settings: capabilitySettings(candidate.settings), blocks }];
+  });
+}
 
 function normalizeShop(shop: string): string {
   return shop.replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
@@ -38,14 +63,10 @@ export function shopifyRoutes(deps: AppDeps) {
     if (!user) return c.json({ error: "unauthorized" }, 401);
     const workspace = await ensureWorkspace(deps.store, user.id);
     const connection = await deps.store.getShopify(workspace.id);
-    const body = await c.req.json<{ sections?: unknown }>().catch(() => ({}));
-    const sections = Array.isArray(body.sections) ? body.sections.flatMap((item) => {
-      if (!item || typeof item !== "object" || typeof (item as { type?: unknown }).type !== "string") return [];
-      const type = (item as { type: string }).type;
-      return getSectionDefinition(type) ? [{ type, settings: {} }] : [];
-    }) : [];
+    const body = await c.req.json<{ sections?: unknown }>().catch((): { sections?: unknown } => ({}));
+    const sections = capabilitySections(body.sections);
     // App-installation metadata will be supplied by the Shopify webhook; absent
-    // facts intentionally remain setup-required rather than being inferred from UI.
+    // facts intentionally remain unavailable/app-required rather than inferred.
     const report = buildCapabilityReport({ sections, shopify: {
       connected: connection?.status === "connected",
       hasProductData: connection?.status === "connected",

@@ -27,6 +27,20 @@ export type EditorStore = {
   subscribe(listener: (state: EditorState) => void): () => void;
 };
 
+function reconcileSelection(state: EditorState): EditorState {
+  const page = state.document.pages.find((candidate) => candidate.id === state.pageId) ?? state.document.pages[0];
+  const selected = state.selectedId ? page?.sections.find((section) => section.id === state.selectedId) : undefined;
+  const selectedBlockId = selected && state.selectedBlockId && selected.blocks.some((block) => block.id === state.selectedBlockId)
+    ? state.selectedBlockId
+    : null;
+  return {
+    ...state,
+    pageId: page?.id ?? state.pageId,
+    selectedId: selected?.id ?? null,
+    selectedBlockId,
+  };
+}
+
 export function createEditorStore(initial: EditorState): EditorStore {
   let state = structuredClone(initial);
   let history = createHistory(initial.document);
@@ -38,25 +52,25 @@ export function createEditorStore(initial: EditorState): EditorStore {
       if (changes.document && changes.document !== state.document) history = createHistory(changes.document);
       const selectedSectionChanged = changes.selectedId !== undefined && changes.selectedId !== state.selectedId;
       const selectedPageChanged = changes.pageId !== undefined && changes.pageId !== state.pageId;
-      state = { ...state, ...changes, ...((selectedSectionChanged || selectedPageChanged) && changes.selectedBlockId === undefined ? { selectedBlockId: null } : {}) };
+      state = reconcileSelection({ ...state, ...changes, ...((selectedSectionChanged || selectedPageChanged) && changes.selectedBlockId === undefined ? { selectedBlockId: null } : {}) });
       listeners.forEach((listener) => listener(state));
       return state;
     },
     dispatch(command) {
       history = dispatchHistory(history, command);
-      state = { ...state, document: history.present, saveStatus: "modified" };
+      state = reconcileSelection({ ...state, document: history.present, saveStatus: "modified" });
       listeners.forEach((listener) => listener(state));
       return state;
     },
     undo() {
       history = undoHistory(history);
-      state = { ...state, document: history.present, saveStatus: "modified" };
+      state = reconcileSelection({ ...state, document: history.present, saveStatus: "modified" });
       listeners.forEach((listener) => listener(state));
       return state;
     },
     redo() {
       history = redoHistory(history);
-      state = { ...state, document: history.present, saveStatus: "modified" };
+      state = reconcileSelection({ ...state, document: history.present, saveStatus: "modified" });
       listeners.forEach((listener) => listener(state));
       return state;
     },

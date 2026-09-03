@@ -17,7 +17,7 @@ function template(sectionType: string): string {
 export const wefloNativeAdapter: ThemeAdapter = {
   id: "weflo-native",
   detect(): AdapterConfidence { return { score: 1, confidence: "fallback", reason: "Sortie Weflo autonome disponible pour tout thème." }; },
-  capabilities(): ThemeCapabilityReport { return { adapterId: "weflo-native", capabilities: { "product-form": true, "variant-selection": true, "quantity-breaks": true, "fixed-bundle": true, "selling-plan": true, preorder: true, "custom-bundle": true, "app-blocks": true }, blockers: [] }; },
+  capabilities(): ThemeCapabilityReport { return { adapterId: "weflo-native", capabilities: { "product-form": true, "variant-selection": true, "quantity-breaks": true, "fixed-bundle": true, "selling-plan": false, preorder: false, "custom-bundle": false, "discount-rules": false, "app-blocks": false }, blockers: [] }; },
   mapTokens(profile: DesignProfile): ThemePatch[] { return [{ key: "assets/weflo-profile.css", value: `:root{${designTokenStyle(profile)}}` }]; },
   compileSection(section: EditorSection): ThemeFile[] { return [compileShopifySection(section)]; },
   compileTemplate(page: EditorPage): ThemeFile {

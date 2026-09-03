@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { EditorSection } from "../src/editor/document";
 import { getSectionDefinition } from "../src/sections";
+import { normalizeQuantityOfferSection } from "../src/sections/quantity-offer";
 import * as productRuntime from "../src/shopify/runtime/product-form";
 
 function quantityOffer(): EditorSection {
@@ -27,7 +28,7 @@ function quantityOffer(): EditorSection {
         product_handle: "serum",
         variant_id: "445566",
         preselected: true,
-        show_variant_picker: false,
+        show_variant_picker: true,
       },
     }],
   };
@@ -43,6 +44,12 @@ describe("section Offre quantité", () => {
     expect(web).toContain('value="2"');
     expect(web).toContain('type="radio"');
     expect(web).toContain('Le plus choisi');
+    expect(web).toContain('class="wf-quantity-offer__tiers-layout"');
+    expect(web).toContain('class="wf-quantity-offer__tier');
+    expect(web).toContain('class="wf-quantity-offer__tier-subtitle"');
+    expect(web).toContain('class="wf-quantity-offer__badge"');
+    expect(web).toContain('class="wf-quantity-offer__discount"');
+    expect(web).toContain('class="wf-quantity-offer__variant"');
   });
 
   it("keeps tier data block-aware in Liquid and its Shopify schema", () => {
@@ -56,6 +63,14 @@ describe("section Offre quantité", () => {
     expect(liquid).toContain("selected_product");
     expect(liquid).toContain("section.settings.subtitle");
     expect(liquid).toContain("section.settings.text");
+    expect(liquid).toContain('class="wf-quantity-offer__tiers-layout"');
+    expect(liquid).toContain('class="wf-quantity-offer__tier');
+    expect(liquid).toContain('class="wf-quantity-offer__tier-subtitle"');
+    expect(liquid).toContain('class="wf-quantity-offer__badge"');
+    expect(liquid).toContain('class="wf-quantity-offer__discount"');
+    expect(liquid).toContain("block.settings.show_variant_picker");
+    expect(liquid).toContain("data-wf-tier-variant-select");
+    expect(liquid).toContain("weflo-quantity-offer.css");
     expect(liquid).not.toMatch(/{%\s*if[^%]*\(/);
     expect(schema.blocks[0].type).toBe("offer-tier");
     expect(schema.blocks[0].settings.map((setting) => setting.id)).toEqual(expect.arrayContaining([
@@ -94,15 +109,44 @@ describe("section Offre quantité", () => {
     const web = definition.renderWeb({ section, pageName: "Sérum" });
     const liquid = definition.renderLiquid(section);
     const status = "Une application Shopify est requise pour les offres multi-produits.";
-    const guardSelector = productRuntime.mixedOfferRuntimeGuardSource.match(/querySelector\('([^']+)'\)/)?.[1];
-    expect(guardSelector).toBe(".wf-quantity-offer__app-required");
-    const appRequiredClass = guardSelector!.slice(1);
+    const appRequiredClass = "wf-quantity-offer__app-required";
     expect(web).toContain(status);
     expect(web).toContain(`class="${appRequiredClass}"`);
-    expect(web).toContain('type="submit" disabled');
+    expect(web).toMatch(/<button[^>]*type="submit"[^>]*disabled/);
+    expect(web).toContain("data-wf-native-checkout-lock");
     expect(liquid).toContain(status);
     expect(liquid).toContain(`class="${appRequiredClass}"`);
     expect(liquid).toContain("wf_mixed_product_offer");
+    expect(liquid).toContain("data-wf-native-checkout-lock");
+  });
+
+  it("disables an empty offer instead of exposing a non-functional checkout", () => {
+    const definition = getSectionDefinition("quantity-offer")!;
+    const section = quantityOffer();
+    section.blocks = [];
+
+    const web = definition.renderWeb({ section, pageName: "Sérum" });
+    const liquid = definition.renderLiquid(section);
+
+    expect(web).toContain('class="wf-quantity-offer__unavailable"');
+    expect(web).toMatch(/<button[^>]*type="submit"[^>]*disabled/);
+    expect(liquid).toContain("wf_tier_count == 0");
+    expect(liquid).toContain('class="wf-quantity-offer__unavailable"');
+    expect(normalizeQuantityOfferSection(section).blocks).toEqual([]);
+  });
+
+  it("resolves configured variant ids only through variants owned by the tier product", () => {
+    const definition = getSectionDefinition("quantity-offer")!;
+    const liquid = definition.renderLiquid(quantityOffer());
+    const web = definition.renderWeb({ section: quantityOffer(), pageName: "Sérum" });
+
+    expect(liquid).toContain("for product_variant in tier_product.variants");
+    expect(liquid).toContain("product_variant.id | append: ''");
+    expect(liquid).toContain("wf_requested_variant_id");
+    expect(liquid).toContain("tier_variant.available == false");
+    expect(liquid).toContain('data-wf-variant-id="{{ tier_variant.id | escape }}"');
+    expect(liquid).not.toContain("block.settings.variant_id | default: selected_product");
+    expect(web).not.toContain('data-wf-variant-id="445566"');
   });
 
   it("synchronizes the chosen tier variant into the submitted Shopify id", () => {

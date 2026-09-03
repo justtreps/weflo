@@ -14,7 +14,7 @@ export type EditorCommand =
   | { type: "moveBlock"; sectionId: string; blockId: string; toIndex: number }
   | { type: "removeBlock"; sectionId: string; blockId: string }
   | { type: "updateBlockSetting"; sectionId: string; blockId: string; key: string; value: SettingValue }
-  | { type: "setExclusiveBlockSetting"; sectionId: string; blockId: string; key: string }
+  | { type: "setExclusiveBlockSetting"; sectionId: string; blockId: string; key: string; blockIds?: string[] }
   | { type: "duplicateBlock"; sectionId: string; blockId: string; newBlockId: string; index?: number }
   | { type: "transaction"; commands: EditorCommand[] }
   | { type: "restoreDocument"; document: EditorDocument };
@@ -159,8 +159,12 @@ export function applyCommand(document: EditorDocument, command: EditorCommand): 
       const { section } = editableSection(next, command.sectionId);
       const selected = section.blocks.find((block) => block.id === command.blockId);
       if (!selected) throw new EditorCommandError(`Block not found: ${command.blockId}`);
+      const eligible = command.blockIds
+        ? new Set(command.blockIds)
+        : new Set(section.blocks.filter((block) => block.type === selected.type).map((block) => block.id));
+      if (!eligible.has(selected.id)) throw new EditorCommandError(`Selected block is outside the exclusive group: ${command.blockId}`);
       for (const block of section.blocks) {
-        block.settings[command.key] = block.id === selected.id;
+        if (eligible.has(block.id)) block.settings[command.key] = block.id === selected.id;
       }
       break;
     }

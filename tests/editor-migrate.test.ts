@@ -78,5 +78,82 @@ describe("legacy editor document migration", () => {
     expect(block.type).toBe("offer-tier");
     expect(block.settings).toMatchObject({ title: "Duo", subtitle: "Deux sérums", text: "Deux sérums", price: "49 €", quantity: 1, product_handle: "serum" });
     expect(migrated.pages[0].sections[0].settings.variant).toBe("horizontal-cards");
+    expect(migrated.pages[0].sections[0].variantId).toBe("horizontal-cards");
+  });
+
+  it("materializes normalized tiers from legacy quantity breaks when blocks are absent", () => {
+    const document = migrateDocument(initialDocument("Offres", "sell"));
+    document.pages[0].sections = [{
+      id: "quantity",
+      type: "quantity-offer",
+      name: "Offre quantité",
+      hidden: false,
+      locked: false,
+      settings: {
+        product_handle: "serum",
+        quantity_breaks: "0, 2.6, 140",
+        text: "Format économique",
+        price: "49 €",
+      },
+      style: {},
+      responsive: {},
+      blocks: [],
+      packVersion: 1,
+      variantId: "volume-ladder",
+    }];
+
+    const migrated = migrateDocument(document).pages[0].sections[0];
+
+    expect(migrated.settings.variant).toBe("stacked-premium");
+    expect(migrated.variantId).toBe("stacked-premium");
+    expect(migrated.blocks.map((block) => block.id)).toEqual(["quantity-tier-1", "quantity-tier-2", "quantity-tier-3"]);
+    expect(migrated.blocks.map((block) => block.settings.quantity)).toEqual([1, 3, 99]);
+    expect(migrated.blocks[0].settings).toMatchObject({ text: "Format économique", subtitle: "Format économique", price: "49 €", product_handle: "serum", preselected: true });
+  });
+
+  it("materializes tiers while converting a pre-v2 page document", () => {
+    const legacy = initialDocument("Offres historiques", "sell");
+    legacy.sections = [{
+      id: "legacy-quantity",
+      type: "quantity-offer",
+      settings: { quantity_breaks: "1,3", product_handle: "serum", text: "Ancienne offre", variant: "single-duo-trio" },
+    }];
+
+    const migrated = migrateDocument(legacy, "product").pages[0].sections[0];
+
+    expect(migrated.blocks.map((block) => block.settings.quantity)).toEqual([1, 3]);
+    expect(migrated.blocks[0].settings).toMatchObject({ subtitle: "Ancienne offre", product_handle: "serum" });
+    expect(migrated.settings.variant).toBe("horizontal-cards");
+    expect(migrated.variantId).toBe("horizontal-cards");
+  });
+
+  it("uses the actual offer ordinal when legacy blocks mix explicit and inherited quantities", () => {
+    const document = migrateDocument(initialDocument("Offres", "sell"));
+    document.pages[0].sections = [{
+      id: "quantity",
+      type: "quantity-offer",
+      name: "Offre quantité",
+      hidden: false,
+      locked: false,
+      settings: { quantity_breaks: "1,4", variant: "tier-table" },
+      style: {},
+      responsive: {},
+      blocks: [
+        { id: "solo", type: "offer", settings: { title: "Solo", quantity: 2 } },
+        { id: "note", type: "benefit", settings: { title: "Livraison" } },
+        { id: "family", type: "offer", settings: { title: "Famille", discount_type: "amount", discount_value: -2 } },
+      ],
+      packVersion: 1,
+      variantId: "single-duo-trio",
+    }];
+
+    const migrated = migrateDocument(document).pages[0].sections[0];
+    const tiers = migrated.blocks.filter((block) => block.type === "offer-tier");
+
+    expect(tiers.map((block) => block.settings.quantity)).toEqual([2, 4]);
+    expect(tiers[1].settings).toMatchObject({ discount_type: "fixed", discount_value: 0 });
+    expect(migrated.blocks.find((block) => block.id === "note")?.settings.title).toBe("Livraison");
+    expect(migrated.settings.variant).toBe("tier-table");
+    expect(migrated.variantId).toBe("tier-table");
   });
 });

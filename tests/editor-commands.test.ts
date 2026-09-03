@@ -56,16 +56,17 @@ describe("editor commands", () => {
     expect(() => applyCommand(document(), { type: "insertSection", pageId: "p1", index: 0, section: section("s2") })).toThrow("Duplicate section id: s2");
   });
 
-  it("sets one exclusive block setting without mutating the source", () => {
+  it("sets one exclusive tier setting without touching unrelated blocks", () => {
     const before = document();
     before.pages[0].sections[0].blocks[0].settings.preselected = true;
     before.pages[0].sections[0].blocks[1].settings.preselected = true;
     before.pages[0].sections[0].blocks[1].type = "offer-tier";
+    before.pages[0].sections[0].blocks.push({ id: "s1-b3", type: "offer-tier", settings: { preselected: true } });
 
-    const after = applyCommand(before, { type: "setExclusiveBlockSetting", sectionId: "s1", blockId: "s1-b2", key: "preselected" } as EditorCommand);
+    const after = applyCommand(before, { type: "setExclusiveBlockSetting", sectionId: "s1", blockId: "s1-b2", key: "preselected", blockIds: ["s1-b2", "s1-b3"] } as EditorCommand);
 
-    expect(after.pages[0].sections[0].blocks.map((block) => block.settings.preselected)).toEqual([false, true]);
-    expect(before.pages[0].sections[0].blocks.map((block) => block.settings.preselected)).toEqual([true, true]);
+    expect(after.pages[0].sections[0].blocks.map((block) => block.settings.preselected)).toEqual([true, true, false]);
+    expect(before.pages[0].sections[0].blocks.map((block) => block.settings.preselected)).toEqual([true, true, true]);
   });
 
   it("applies a command transaction as one reversible history entry", async () => {
@@ -81,5 +82,35 @@ describe("editor commands", () => {
 
     expect(history.present.pages[0].sections[0].blocks.map((block) => block.id)).toEqual(["s1-b1", "s1-b3", "s1-b2"]);
     expect(undo(history).present).toEqual(before);
+  });
+
+  it("reconciles section and block selection after dispatch, undo, and redo", async () => {
+    const { createEditorStore } = await import("../src/editor/ui/store");
+    const initial = document();
+    const store = createEditorStore({
+      document: initial,
+      pageId: "p1",
+      selectedId: "s1",
+      selectedBlockId: "s1-b1",
+      activePanel: "structure",
+      breakpoint: "desktop",
+      mode: "edit",
+      leftCollapsed: false,
+      rightCollapsed: false,
+      saveStatus: "saved",
+    });
+
+    store.dispatch({ type: "removeBlock", sectionId: "s1", blockId: "s1-b1" });
+    expect(store.getState().selectedId).toBe("s1");
+    expect(store.getState().selectedBlockId).toBeNull();
+
+    store.undo();
+    store.setState({ selectedBlockId: "s1-b1" });
+    store.redo();
+    expect(store.getState().selectedBlockId).toBeNull();
+
+    store.dispatch({ type: "removeSection", sectionId: "s1" });
+    expect(store.getState().selectedId).toBeNull();
+    expect(store.getState().selectedBlockId).toBeNull();
   });
 });

@@ -5,9 +5,11 @@ import { shopifySectionType } from "./compile-section";
 import type { CustomSectionPublication } from "../custom-sections/service";
 import { shopifyHandle } from "./names";
 import { assertPublishCapabilities, buildCapabilityReport, type ShopifyCapabilityReport } from "./capability-report";
-import { mixedOfferRuntimeGuardSource, quantityOfferRuntimeExtensionSource, wefloProductRuntimeSource } from "./runtime/product-form";
+import { wefloProductRuntimeSource } from "./runtime/product-form";
 import { designTokenStyle } from "../design/tokens";
 import { getSectionDefinition } from "../sections";
+import { normalizeQuantityOfferSection } from "../sections/quantity-offer";
+import { quantityOfferStyles } from "../sections/quantity-offer-styles";
 
 export type ShopifyCompileTarget = { resource: "page" | "product" | "collection" | "home"; replaceGlobalTemplate?: boolean; capabilityReport?: ShopifyCapabilityReport; enforceCapabilities?: boolean; customSections?: readonly CustomSectionPublication[] };
 export type CompiledThemeFile = { key: string; value: string; checksum: string; operation: "upsert" };
@@ -21,7 +23,8 @@ function sectionKey(section: EditorSection, index: number): string { return `${s
 export function compileShopifyPage(document: EditorDocument, target: ShopifyCompileTarget): CompiledThemeFile[] {
   const report = target.capabilityReport ?? buildCapabilityReport({ sections: document.pages.flatMap((page) => page.sections) });
   if (target.enforceCapabilities || target.capabilityReport) assertPublishCapabilities(report);
-  const page = document.pages[0];
+  const sourcePage = document.pages[0];
+  const page = { ...sourcePage, sections: sourcePage.sections.map((section) => section.type === "quantity-offer" ? normalizeQuantityOfferSection(section) : section) };
   const slug = shopifyHandle(page.slug || document.modelId || page.name);
   const liquidFiles = [...new Map(page.sections.map((section) => {
     const compiled = compileShopifySection(section, target.customSections);
@@ -44,5 +47,6 @@ export function compileShopifyPage(document: EditorDocument, target: ShopifyComp
   const commerceCapabilities = new Set(["product-form", "variant-selection", "quantity-breaks", "fixed-bundle", "selling-plan", "preorder"]);
   const needsProductRuntime = page.sections.some((section) => (getSectionDefinition(section.type)?.capabilities ?? []).some((capability) => commerceCapabilities.has(capability)))
     || (target.customSections ?? []).some((custom) => custom.section.spec.requiredCapabilities.some((capability) => commerceCapabilities.has(capability)));
-  return [...liquidFiles.map((entry) => file(entry.key, entry.value)), file(`assets/weflo-${slug}.css`, css), ...(needsProductRuntime ? [file("assets/weflo-product-form.js", wefloProductRuntimeSource + quantityOfferRuntimeExtensionSource + mixedOfferRuntimeGuardSource)] : []), file(templateKey, templateValue)];
+  const needsQuantityOfferStyles = page.sections.some((section) => section.type === "quantity-offer");
+  return [...liquidFiles.map((entry) => file(entry.key, entry.value)), file(`assets/weflo-${slug}.css`, css), ...(needsQuantityOfferStyles ? [file("assets/weflo-quantity-offer.css", quantityOfferStyles)] : []), ...(needsProductRuntime ? [file("assets/weflo-product-form.js", wefloProductRuntimeSource)] : []), file(templateKey, templateValue)];
 }

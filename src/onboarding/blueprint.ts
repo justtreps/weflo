@@ -3,7 +3,7 @@ import type { SectionCapability } from "../sections/types";
 import type { BlueprintSection, StoreBlueprint } from "./types";
 
 const CAPABILITIES = new Set<SectionCapability>([
-  "product-form", "variant-selection", "quantity-breaks", "collection-binding", "recommendations", "fixed-bundle", "custom-bundle", "selling-plan", "preorder", "cart-drawer", "app-blocks", "markets", "localization",
+  "product-form", "variant-selection", "quantity-breaks", "collection-binding", "recommendations", "fixed-bundle", "custom-bundle", "discount-rules", "selling-plan", "preorder", "cart-drawer", "app-blocks", "markets", "localization",
 ]);
 
 function settingValue(value: unknown): boolean {

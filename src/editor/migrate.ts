@@ -50,7 +50,7 @@ function legacyBlocks(section: Section): EditorBlock[] {
 }
 
 function migrateSection(section: Section, index: number): EditorSection {
-  return {
+  const migrated: EditorSection = {
     id: section.id || `${section.type}-${index + 1}`,
     type: section.type,
     name: typeof section.settings.title === "string" && section.settings.title.trim()
@@ -65,6 +65,7 @@ function migrateSection(section: Section, index: number): EditorSection {
     packVersion: 1,
     variantId: typeof section.settings.variant === "string" ? section.settings.variant : "default",
   };
+  return getSectionDefinition(migrated.type)?.migrate(migrated, 0) ?? migrated;
 }
 
 export function editorKind(type: PageType | EditorPageKind): EditorPageKind {

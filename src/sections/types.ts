@@ -4,7 +4,7 @@ import type { InspectorControl } from "../editor/section-schema";
 export type SectionCapability =
   | "product-form" | "variant-selection" | "quantity-breaks"
   | "collection-binding" | "recommendations" | "fixed-bundle"
-  | "custom-bundle" | "selling-plan" | "preorder" | "cart-drawer"
+  | "custom-bundle" | "discount-rules" | "selling-plan" | "preorder" | "cart-drawer"
   | "app-blocks" | "markets" | "localization";
 
 export type SectionFamily =

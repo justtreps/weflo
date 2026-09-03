@@ -17,7 +17,7 @@ const offerSection = (overrides: Partial<EditorSection> = {}): EditorSection => 
   blocks: [
     { id: "solo", type: "offer-tier", settings: { title: "Solo", quantity: 1, discount_type: "none", discount_value: 0, product_handle: "serum", variant_id: "101", badge: "", preselected: true, show_variant_picker: false } },
     { id: "duo", type: "offer-tier", settings: { title: "Duo", quantity: 2, discount_type: "percentage", discount_value: 10, product_handle: "serum", variant_id: "102", badge: "Le plus choisi", preselected: false, show_variant_picker: true } },
-    { id: "trio", type: "offer-tier", settings: { title: "Trio", quantity: 3, discount_type: "amount", discount_value: 8, product_handle: "serum", variant_id: "103", badge: "", preselected: false, show_variant_picker: false } },
+    { id: "trio", type: "offer-tier", settings: { title: "Trio", quantity: 3, discount_type: "fixed", discount_value: 8, product_handle: "serum", variant_id: "103", badge: "", preselected: false, show_variant_picker: false } },
   ],
   packVersion: 1,
   variantId: "horizontal-cards",
@@ -60,7 +60,7 @@ class FakeRoot {
   }
 }
 
-function offerTarget(dataset: Record<string, string>, values: Record<string, unknown> = {}) {
+function offerTarget(dataset: Record<string, string | undefined>, values: Record<string, unknown> = {}) {
   const target = {
     dataset,
     value: "",
@@ -85,18 +85,33 @@ function offerTarget(dataset: Record<string, string>, values: Record<string, unk
 
 describe("offer editor", () => {
   it("renders contextual tier controls and native Shopify capability", () => {
-    const state = editor().getState();
+    const native = offerSection({ blocks: offerSection().blocks.map((block) => ({ ...block, settings: { ...block.settings, discount_type: "none", discount_value: 0 } })) });
+    const state = editor(native).getState();
     const markup = offerEditorMarkup(state);
 
     expect(markup).toContain("Offres et bundles");
     expect(markup).toContain('data-offer-tier="duo"');
     expect(markup).toContain('data-offer-action="add"');
     expect(markup).toContain('data-offer-setting="discount_value"');
+    expect(markup).toContain('data-offer-setting="subtitle"');
+    expect(markup).toContain('data-offer-section-setting="show_savings"');
+    expect(markup).toContain('data-offer-section-setting="delivery_note"');
     expect(markup).toContain('data-offer-composition="horizontal-cards"');
     expect(markup).toContain('data-offer-capability="native"');
-    expect(markup).toContain("Compatible avec le panier Shopify natif");
+    expect(markup).toContain("Compatible nativement à la publication Shopify");
     expect(markup).toContain('aria-label="Diminuer la quantité du palier Duo"');
     expect(markup).toContain('aria-label="Déplacer le palier Duo"');
+    expect(markup).toContain('max="99"');
+  });
+
+  it("reports app-required discounts and unavailable empty offers truthfully", () => {
+    expect(offerEditorMarkup(editor().getState())).toContain('data-offer-capability="app-required"');
+    expect(offerEditorMarkup(editor().getState())).toContain("règle de remise Shopify");
+
+    const empty = offerSection({ blocks: [] });
+    const markup = offerEditorMarkup(editor(empty).getState());
+    expect(markup).toContain('data-offer-capability="unavailable"');
+    expect(markup).toContain("Ajoute au moins un palier");
   });
 
   it("warns when tiers bind to more than one Shopify product", () => {
@@ -134,6 +149,24 @@ describe("offer editor", () => {
     expect(section.blocks.find((block) => block.id === "duo")?.settings.discount_value).toBe(15);
     expect(section.blocks.filter((block) => block.settings.preselected === true).map((block) => block.id)).toEqual(["duo"]);
     expect(original.pages[0].sections.at(-1)?.blocks.find((block) => block.id === "solo")?.settings.preselected).toBe(true);
+  });
+
+  it("normalizes direct editor mutations and makes section settings undoable", () => {
+    const store = editor();
+
+    runOfferEditorAction(store, { action: "setting", sectionId: "quantity-offer-1", blockId: "duo", key: "quantity", value: 200.4 });
+    runOfferEditorAction(store, { action: "setting", sectionId: "quantity-offer-1", blockId: "duo", key: "discount_type", value: "amount" });
+    runOfferEditorAction(store, { action: "setting", sectionId: "quantity-offer-1", blockId: "duo", key: "discount_value", value: -12 });
+    runOfferEditorAction(store, { action: "section-setting", sectionId: "quantity-offer-1", key: "delivery_note", value: "Expédition sous 48 h" });
+
+    const tier = store.getState().document.pages[0].sections.at(-1)!.blocks.find((block) => block.id === "duo")!;
+    expect(tier.settings).toMatchObject({ quantity: 99, discount_type: "fixed", discount_value: 0 });
+    expect(store.getState().document.pages[0].sections.at(-1)?.settings.delivery_note).toBe("Expédition sous 48 h");
+
+    store.undo();
+    expect(store.getState().document.pages[0].sections.at(-1)?.settings.delivery_note).toBeUndefined();
+    store.redo();
+    expect(store.getState().document.pages[0].sections.at(-1)?.settings.delivery_note).toBe("Expédition sous 48 h");
   });
 
   it("selects tiers in locked sections while rejecting their mutations", () => {
@@ -272,5 +305,28 @@ describe("offer editor", () => {
     expect(fieldTransfer.value).toBe("");
     expect(handleTransfer.value).toBe("quantity-offer-1:duo");
     unbind();
+  });
+
+  it("asks for confirmation before removing a tier from the bound editor", () => {
+    const store = editor();
+    const root = new FakeRoot();
+    const prompts: string[] = [];
+    const unbind = bindOfferEditor(root as unknown as HTMLElement, store, {
+      confirmRemove(message) {
+        prompts.push(message);
+        return false;
+      },
+    });
+
+    root.emit("click", offerTarget({ sectionId: "quantity-offer-1", blockId: "duo", offerAction: "remove" }));
+    expect(prompts).toEqual(["Supprimer le palier « Duo » ?"]);
+    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toContain("duo");
+    unbind();
+
+    const confirmingRoot = new FakeRoot();
+    const unbindConfirming = bindOfferEditor(confirmingRoot as unknown as HTMLElement, store, { confirmRemove: () => true });
+    confirmingRoot.emit("click", offerTarget({ sectionId: "quantity-offer-1", blockId: "duo", offerAction: "remove" }));
+    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).not.toContain("duo");
+    unbindConfirming();
   });
 });

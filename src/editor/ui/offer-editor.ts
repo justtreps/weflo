@@ -1,5 +1,13 @@
 import type { EditorBlock, EditorSection, SettingValue } from "../document";
 import type { EditorCommand } from "../commands";
+import {
+  hasConfiguredOfferDiscount,
+  isMixedProductOffer,
+  normalizeOfferDiscountType,
+  normalizeOfferQuantity,
+  normalizeOfferSetting,
+  offerTierBlocks,
+} from "../../sections/quantity-offer-domain";
 import type { EditorState, EditorStore } from "./store";
 
 const TIER_DEFAULTS: EditorBlock["settings"] = {
@@ -26,6 +34,7 @@ export type OfferEditorAction =
   | { action: "add"; sectionId: string }
   | { action: "move"; sectionId: string; blockId: string; toIndex: number }
   | { action: "setting"; sectionId: string; blockId: string; key: string; value: SettingValue }
+  | { action: "section-setting"; sectionId: string; key: "show_savings" | "delivery_note"; value: SettingValue }
   | { action: "composition"; sectionId: string; value: string };
 
 function escapeHtml(value: unknown): string {
@@ -43,16 +52,11 @@ function selectedOfferSection(state: EditorState): EditorSection | undefined {
 }
 
 function offerTiers(section: EditorSection): EditorBlock[] {
-  return section.blocks.filter((block) => block.type === "offer-tier" || block.type === "offer");
+  return offerTierBlocks(section);
 }
 
 function effectivePreselectedId(tiers: EditorBlock[]): string | undefined {
   return tiers.find((tier) => tier.settings.preselected === true)?.id ?? tiers[0]?.id;
-}
-
-function effectiveProductHandles(section: EditorSection, tiers: EditorBlock[]): string[] {
-  const sectionHandle = String(section.settings.product_handle ?? "").trim().toLowerCase();
-  return [...new Set(tiers.map((tier) => (String(tier.settings.product_handle ?? "").trim() || sectionHandle).toLowerCase()).filter(Boolean))];
 }
 
 function setting(block: EditorBlock, key: string, fallback: SettingValue = ""): SettingValue {
@@ -66,6 +70,8 @@ function tierMarkup(section: EditorSection, block: EditorBlock, selectedBlockId:
   const attributes = `data-section-id="${sectionId}" data-block-id="${blockId}"`;
   const selected = block.id === selectedBlockId;
   const checked = block.id === preselectedId;
+  const quantity = normalizeOfferQuantity(setting(block, "quantity", 1));
+  const discountType = normalizeOfferDiscountType(setting(block, "discount_type", "none"));
   return `<article class="editor-offer-tier" data-offer-tier="${blockId}" ${attributes} tabindex="0" aria-label="Modifier le palier ${escapeHtml(title)}" aria-selected="${selected}">
     <header class="editor-offer-tier__header">
       <button type="button" class="editor-offer-tier__handle" data-offer-drag-handle ${attributes} draggable="${!section.locked}" aria-label="Déplacer le palier ${escapeHtml(title)}"${section.locked ? " disabled" : ""}><span aria-hidden="true">⠿</span></button>
@@ -74,9 +80,10 @@ function tierMarkup(section: EditorSection, block: EditorBlock, selectedBlockId:
     </header>
     <div class="editor-offer-tier__fields">
       <label><span>Nom</span><input type="text" value="${escapeHtml(title)}" data-offer-setting="title" ${attributes}${section.locked ? " disabled" : ""}></label>
+      <label><span>Sous-titre</span><input type="text" value="${escapeHtml(setting(block, "subtitle"))}" placeholder="2 unités · meilleur rapport" data-offer-setting="subtitle" ${attributes}${section.locked ? " disabled" : ""}></label>
       <label><span>Badge</span><input type="text" value="${escapeHtml(setting(block, "badge"))}" placeholder="Le plus choisi" data-offer-setting="badge" ${attributes}${section.locked ? " disabled" : ""}></label>
-      <div class="editor-offer-quantity"><span>Quantité</span><div><button type="button" data-offer-action="quantity-down" ${attributes} aria-label="Diminuer la quantité du palier ${escapeHtml(title)}"${Number(setting(block, "quantity", 1)) <= 1 || section.locked ? " disabled" : ""}>−</button><input type="number" min="1" step="1" value="${escapeHtml(setting(block, "quantity", 1))}" data-offer-setting="quantity" ${attributes} aria-label="Quantité du palier ${escapeHtml(title)}"${section.locked ? " disabled" : ""}><button type="button" data-offer-action="quantity-up" ${attributes} aria-label="Augmenter la quantité du palier ${escapeHtml(title)}"${section.locked ? " disabled" : ""}>+</button></div></div>
-      <label><span>Remise</span><select data-offer-setting="discount_type" ${attributes}${section.locked ? " disabled" : ""}>${[["none", "Aucune"], ["percentage", "Pourcentage"], ["amount", "Montant fixe"]].map(([value, label]) => `<option value="${value}"${setting(block, "discount_type", "none") === value ? " selected" : ""}>${label}</option>`).join("")}</select></label>
+      <div class="editor-offer-quantity"><span>Quantité</span><div><button type="button" data-offer-action="quantity-down" ${attributes} aria-label="Diminuer la quantité du palier ${escapeHtml(title)}"${quantity <= 1 || section.locked ? " disabled" : ""}>−</button><input type="number" min="1" max="99" step="1" value="${quantity}" data-offer-setting="quantity" ${attributes} aria-label="Quantité du palier ${escapeHtml(title)}"${section.locked ? " disabled" : ""}><button type="button" data-offer-action="quantity-up" ${attributes} aria-label="Augmenter la quantité du palier ${escapeHtml(title)}"${quantity >= 99 || section.locked ? " disabled" : ""}>+</button></div></div>
+      <label><span>Remise</span><select data-offer-setting="discount_type" ${attributes}${section.locked ? " disabled" : ""}>${[["none", "Aucune"], ["percentage", "Pourcentage"], ["fixed", "Montant fixe"]].map(([value, label]) => `<option value="${value}"${discountType === value ? " selected" : ""}>${label}</option>`).join("")}</select></label>
       <label><span>Valeur</span><input type="number" min="0" step="0.01" value="${escapeHtml(setting(block, "discount_value", 0))}" data-offer-setting="discount_value" ${attributes}${section.locked ? " disabled" : ""}></label>
       <label><span>Produit Shopify</span><input type="text" value="${escapeHtml(setting(block, "product_handle"))}" placeholder="handle-produit" data-offer-setting="product_handle" ${attributes}${section.locked ? " disabled" : ""}></label>
       <label><span>Variante Shopify</span><input type="text" value="${escapeHtml(setting(block, "variant_id"))}" placeholder="ID de variante" data-offer-setting="variant_id" ${attributes}${section.locked ? " disabled" : ""}></label>
@@ -91,12 +98,24 @@ export function offerEditorMarkup(state: EditorState): string {
   if (!section) return "";
   const tiers = offerTiers(section);
   const preselectedId = effectivePreselectedId(tiers);
-  const mixedProducts = effectiveProductHandles(section, tiers).length > 1;
+  const mixedProducts = isMixedProductOffer(section);
+  const discounted = hasConfiguredOfferDiscount(section);
+  const capability = tiers.length === 0
+    ? { state: "unavailable", title: "Offre incomplète", message: "Ajoute au moins un palier avant de publier cette offre." }
+    : mixedProducts
+      ? { state: "app-required", title: "Offre multi-produits", message: "Une application Shopify est requise, avec une Cart Transform attestée, pour combiner plusieurs produits." }
+      : discounted
+        ? { state: "app-required", title: "Remise à configurer", message: "Une règle de remise Shopify réelle et attestée est requise avant publication." }
+        : { state: "native", title: "Offre quantité native", message: "Compatible nativement à la publication Shopify." };
   const composition = String(section.settings.variant ?? section.variantId ?? "horizontal-cards");
   return `<section class="editor-offer" data-offer-editor data-section-id="${escapeHtml(section.id)}">
     <header class="editor-offer__heading"><div><h2>Offres et bundles</h2><p>Compose tes paliers de quantité et relie-les à Shopify.</p></div><button type="button" data-offer-action="add" data-section-id="${escapeHtml(section.id)}"${section.locked ? " disabled" : ""}>Ajouter un palier</button></header>
     <label class="editor-offer__composition"><span>Composition</span><select data-offer-composition="${escapeHtml(composition)}" data-section-id="${escapeHtml(section.id)}"${section.locked ? " disabled" : ""}>${COMPOSITIONS.map(([value, label]) => `<option value="${value}"${composition === value ? " selected" : ""}>${label}</option>`).join("")}</select></label>
-    <aside class="editor-offer__capability" data-offer-capability="${mixedProducts ? "app-required" : "native"}" role="status"><strong>${mixedProducts ? "Offre multi-produits" : "Offre quantité native"}</strong><span>${mixedProducts ? "Une application Shopify est requise pour combiner plusieurs produits." : "Compatible avec le panier Shopify natif."}</span></aside>
+    <div class="editor-offer__section-settings">
+      <label class="editor-offer-tier__toggle"><input type="checkbox" data-offer-section-setting="show_savings" data-section-id="${escapeHtml(section.id)}"${section.settings.show_savings !== false ? " checked" : ""}${section.locked ? " disabled" : ""}>Afficher les économies</label>
+      <label><span>Note de livraison</span><input type="text" value="${escapeHtml(section.settings.delivery_note ?? "")}" placeholder="Expédition sous 24 à 48 h" data-offer-section-setting="delivery_note" data-section-id="${escapeHtml(section.id)}"${section.locked ? " disabled" : ""}></label>
+    </div>
+    <aside class="editor-offer__capability" data-offer-capability="${capability.state}" role="status"><strong>${capability.title}</strong><span>${capability.message}</span></aside>
     <div class="editor-offer__tiers" role="list">${tiers.map((block, index) => tierMarkup(section, block, state.selectedBlockId, preselectedId, index, tiers.length)).join("")}</div>
     ${tiers.length ? "" : '<p class="editor-offer__empty">Ajoute un palier pour commencer ton offre.</p>'}
   </section>`;
@@ -114,12 +133,12 @@ function sectionById(state: EditorState, sectionId: string): EditorSection | und
   return state.document.pages.flatMap((page) => page.sections).find((section) => section.id === sectionId);
 }
 
-function exclusivePreselection(section: EditorSection, preferredId?: string): EditorCommand | undefined {
+function exclusivePreselection(section: EditorSection, preferredId?: string, additionalIds: string[] = []): EditorCommand | undefined {
   const tiers = offerTiers(section);
   const chosen = preferredId && tiers.some((tier) => tier.id === preferredId)
     ? preferredId
     : effectivePreselectedId(tiers);
-  return chosen ? { type: "setExclusiveBlockSetting", sectionId: section.id, blockId: chosen, key: "preselected" } : undefined;
+  return chosen ? { type: "setExclusiveBlockSetting", sectionId: section.id, blockId: chosen, key: "preselected", blockIds: [...tiers.map((tier) => tier.id), ...additionalIds] } : undefined;
 }
 
 function transaction(commands: Array<EditorCommand | undefined>): EditorCommand {
@@ -138,16 +157,20 @@ export function runOfferEditorAction(store: EditorStore, action: OfferEditorActi
     if (COMPOSITIONS.some(([value]) => value === action.value)) store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: "variant", value: action.value });
     return;
   }
+  if (action.action === "section-setting") {
+    store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: action.key, value: normalizeOfferSetting(action.key, action.value) });
+    return;
+  }
   if (action.action === "setting") {
     if (action.key === "preselected") {
-      store.dispatch({ type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: "preselected" });
+      store.dispatch({ type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: "preselected", blockIds: offerTiers(section).map((tier) => tier.id) });
       return;
     }
-    store.dispatch({ type: "updateBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: action.key, value: action.value });
+    store.dispatch({ type: "updateBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: action.key, value: normalizeOfferSetting(action.key, action.value) });
     return;
   }
   if (action.action === "preselect") {
-    store.dispatch({ type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: "preselected" });
+    store.dispatch({ type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: "preselected", blockIds: offerTiers(section).map((tier) => tier.id) });
     store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId });
     return;
   }
@@ -157,7 +180,7 @@ export function runOfferEditorAction(store: EditorStore, action: OfferEditorActi
     const chosen = effectivePreselectedId(tiers) ?? id;
     store.dispatch(transaction([
       { type: "insertBlock", sectionId: action.sectionId, index: section.blocks.length, block: { id, type: "offer-tier", settings: { ...TIER_DEFAULTS, preselected: false } } },
-      { type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: chosen, key: "preselected" },
+      { type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: chosen, key: "preselected", blockIds: [...tiers.map((tier) => tier.id), id] },
     ]));
     store.setState({ selectedId: action.sectionId, selectedBlockId: id, rightCollapsed: false });
     return;
@@ -168,7 +191,7 @@ export function runOfferEditorAction(store: EditorStore, action: OfferEditorActi
     const id = uniqueBlockId(store.getState(), `${action.blockId}-copy`);
     store.dispatch(transaction([
       { type: "duplicateBlock", sectionId: action.sectionId, blockId: action.blockId, newBlockId: id, index: sourceIndex + 1 },
-      exclusivePreselection(section),
+      exclusivePreselection(section, undefined, [id]),
     ]));
     store.setState({ selectedId: action.sectionId, selectedBlockId: id, rightCollapsed: false });
     return;
@@ -183,7 +206,7 @@ export function runOfferEditorAction(store: EditorStore, action: OfferEditorActi
     const chosen = effectivePreselectedId(remaining) ?? nextId;
     store.dispatch(transaction([
       { type: "removeBlock", sectionId: action.sectionId, blockId: action.blockId },
-      chosen ? { type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: chosen, key: "preselected" } : undefined,
+      chosen ? { type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: chosen, key: "preselected", blockIds: remaining.map((tier) => tier.id) } : undefined,
     ]));
     if (wasSelected) store.setState({ selectedBlockId: nextId ?? null });
     return;
@@ -206,7 +229,10 @@ function blockLocation(store: EditorStore, sectionId: string, blockId: string) {
   return section && index >= 0 ? { section, index, block: section.blocks[index] } : undefined;
 }
 
-export function bindOfferEditor(root: HTMLElement, store: EditorStore): () => void {
+export type OfferEditorBindingOptions = { confirmRemove?: (message: string) => boolean };
+
+export function bindOfferEditor(root: HTMLElement, store: EditorStore, options: OfferEditorBindingOptions = {}): () => void {
+  const confirmRemove = options.confirmRemove ?? ((message: string) => typeof window === "undefined" || window.confirm(message));
   const click = (event: Event) => {
     const target = eventTarget(event, "[data-offer-action],[data-offer-tier]");
     if (!target) return;
@@ -219,14 +245,18 @@ export function bindOfferEditor(root: HTMLElement, store: EditorStore): () => vo
       return;
     }
     if (action === "add") runOfferEditorAction(store, { action, sectionId });
+    if (action === "remove" && blockId) {
+      const location = blockLocation(store, sectionId, blockId);
+      if (!location || !confirmRemove(`Supprimer le palier « ${String(location.block.settings.title ?? "Palier")} » ?`)) return;
+    }
     if ((action === "select" || action === "duplicate" || action === "remove") && blockId) {
       runOfferEditorAction(store, { action, sectionId, blockId });
     }
     if ((action === "quantity-up" || action === "quantity-down") && blockId) {
       const location = blockLocation(store, sectionId, blockId);
       if (!location) return;
-      const current = Math.max(1, Math.round(Number(location.block.settings.quantity) || 1));
-      runOfferEditorAction(store, { action: "setting", sectionId, blockId, key: "quantity", value: Math.max(1, current + (action === "quantity-up" ? 1 : -1)) });
+      const current = normalizeOfferQuantity(location.block.settings.quantity);
+      runOfferEditorAction(store, { action: "setting", sectionId, blockId, key: "quantity", value: normalizeOfferQuantity(current + (action === "quantity-up" ? 1 : -1)) });
     }
     if ((action === "move-up" || action === "move-down") && blockId) {
       const location = blockLocation(store, sectionId, blockId);
@@ -242,6 +272,15 @@ export function bindOfferEditor(root: HTMLElement, store: EditorStore): () => vo
       runOfferEditorAction(store, { action: "composition", sectionId: composition.dataset.sectionId, value: composition.value });
       return;
     }
+    const sectionControl = eventTarget(event, "[data-offer-section-setting]") as HTMLInputElement | null;
+    if (sectionControl?.dataset.sectionId && sectionControl.dataset.offerSectionSetting) {
+      const key = sectionControl.dataset.offerSectionSetting;
+      if (key === "show_savings" || key === "delivery_note") {
+        const value: SettingValue = sectionControl.type === "checkbox" ? sectionControl.checked : sectionControl.value;
+        runOfferEditorAction(store, { action: "section-setting", sectionId: sectionControl.dataset.sectionId, key, value });
+      }
+      return;
+    }
     const control = eventTarget(event, "[data-offer-setting]") as HTMLInputElement | HTMLSelectElement | null;
     const sectionId = control?.dataset.sectionId;
     const blockId = control?.dataset.blockId;
@@ -253,11 +292,7 @@ export function bindOfferEditor(root: HTMLElement, store: EditorStore): () => vo
     }
     const value: SettingValue = control.type === "checkbox"
       ? (control as HTMLInputElement).checked
-      : key === "quantity"
-        ? Math.max(1, Math.round(Number(control.value) || 1))
-        : key === "discount_value"
-          ? Math.max(0, Number(control.value) || 0)
-          : control.value;
+      : normalizeOfferSetting(key, control.value);
     runOfferEditorAction(store, { action: "setting", sectionId, blockId, key, value });
   };
 
