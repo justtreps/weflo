@@ -53,4 +53,21 @@ describe("dashboard home view", () => {
     expect(html).toContain('src="/assets/brands/shopify.svg"');
     expect(html).toContain('alt="Shopify"');
   });
+
+  it("renders an accessible new-page dialog with every format", () => {
+    const model: DashboardHomeModel = {
+      greeting: "Bonjour Théo",
+      workspace: { id: "ws_1", name: "Studio", slug: "studio" },
+      totalProjects: 0,
+      projects: [],
+    };
+
+    const html = renderDashboardHome(model);
+    expect(html).toContain("data-new-page");
+    expect(html).toContain("data-format-dialog");
+    for (const id of ["store", "product", "landing", "advertorial", "quiz", "home", "blog", "blank"]) {
+      expect(html).toContain(`/creer?format=${id}`);
+    }
+    expect(html).toContain("Nouvelle page");
+  });
 });

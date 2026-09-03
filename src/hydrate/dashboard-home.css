@@ -23,7 +23,25 @@ body:has(#weflo-dashboard-home:not(:empty))>x-dc{display:none!important}
 #weflo-dashboard-home .empty-project span{font-size:32px}.empty-project small{color:var(--muted)}
 #weflo-dashboard-home .section-heading>button,#weflo-dashboard-home .section-heading>a{border:0;background:transparent;color:inherit;font-weight:700;cursor:pointer;text-decoration:none}
 #weflo-dashboard-home .pro-button{display:grid;place-items:center;text-decoration:none}
+#weflo-dashboard-home .new-page-button{height:38px;border:1px solid var(--ink);border-radius:10px;background:var(--yellow);color:var(--ink);padding:0 14px;font-weight:750;cursor:pointer}
 #weflo-dashboard-home .shopify-brand{display:inline-grid!important;place-items:center;background:transparent!important;color:inherit!important}
 #weflo-dashboard-home .brand-logo{display:block;width:25px;height:25px;object-fit:contain}
 #weflo-dashboard-home .shopify-brand.large .brand-logo{width:44px;height:44px}
+#weflo-dashboard-home .format-dialog{width:min(1040px,calc(100vw - 32px));max-height:90vh;overflow:auto;border:0;border-radius:18px;padding:clamp(22px,4vw,42px);background:var(--paper);color:var(--ink);box-shadow:0 28px 90px rgba(20,19,16,.32)}
+#weflo-dashboard-home .format-dialog::backdrop{background:rgba(20,19,16,.58);backdrop-filter:blur(4px)}
+#weflo-dashboard-home .format-dialog__header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:25px}
+#weflo-dashboard-home .format-dialog__eyebrow{margin:0 0 8px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+#weflo-dashboard-home .format-dialog h2{margin:0;font:650 clamp(30px,4vw,46px)/1 Syne,Inter,sans-serif;letter-spacing:-.07em}
+#weflo-dashboard-home .format-dialog h2+p{margin:10px 0 0;color:var(--muted);font-size:15px}
+#weflo-dashboard-home .format-dialog__close{width:38px;height:38px;flex:0 0 auto;border:1px solid var(--line);border-radius:50%;background:var(--white);color:var(--ink);font-size:26px;line-height:1;cursor:pointer}
+#weflo-dashboard-home .format-card-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+#weflo-dashboard-home .format-card{position:relative;min-height:185px;display:flex;flex-direction:column;padding:19px;border:1px solid var(--line);border-radius:18px;background:var(--white);color:var(--ink);text-decoration:none;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}
+#weflo-dashboard-home .format-card:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:0 12px 25px rgba(20,19,16,.09)}
+#weflo-dashboard-home .format-card__count{align-self:flex-start;border-radius:999px;padding:4px 7px;background:#fff3c8;font-size:10px;font-weight:750}
+#weflo-dashboard-home .format-card h3{margin:18px 0 7px;font:650 18px/1.1 Syne,Inter,sans-serif;letter-spacing:-.04em}
+#weflo-dashboard-home .format-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+#weflo-dashboard-home .format-card__arrow{margin-top:auto;padding-top:12px;color:#bd8500;font-size:19px;font-weight:800}
+#weflo-dashboard-home .new-page-button:focus-visible,#weflo-dashboard-home .format-dialog__close:focus-visible,#weflo-dashboard-home .format-card:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+@media(max-width:900px){#weflo-dashboard-home .format-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#weflo-dashboard-home .format-dialog{width:calc(100vw - 20px);padding:22px 16px}#weflo-dashboard-home .format-dialog__header{gap:12px}#weflo-dashboard-home .format-card-grid{grid-template-columns:1fr}#weflo-dashboard-home .format-card{min-height:155px}}
 @media(max-width:760px){#weflo-dashboard-home .project-menu>div{right:0}.dashboard-shell main{padding-bottom:70px}}

@@ -398,6 +398,67 @@ function shopifyLogo(variant = "mark") {
   return `<img class="${className}" src="/assets/brands/shopify.svg" alt="Shopify" loading="lazy">`;
 }
 
+// src/create/format-flow.ts
+var TEMPLATE_IDS = {
+  store: ["store-editorial-commerce", "store-conversion-modern", "store-maison-premium"],
+  product: ["product-buybox-premium", "product-demonstration", "product-bundle-first"],
+  landing: ["landing-direct-response", "landing-editorial-premium", "landing-visual-demo"],
+  advertorial: ["advertorial-journal", "advertorial-founder-story", "advertorial-comparison"],
+  quiz: ["quiz-diagnostic", "quiz-routine", "quiz-recommendation"],
+  home: ["home-brand-editorial", "home-catalogue-premium", "home-story-first"],
+  blog: ["blog-magazine", "blog-guide", "blog-study"],
+  blank: []
+};
+var templateDetails = {
+  "store-editorial-commerce": { name: "Commerce \xE9ditorial", description: "Une boutique guid\xE9e par l\u2019univers de marque.", artProfile: "editorial", sectionVariants: { hero: "editorial", collectionGrid: "curated" } },
+  "store-conversion-modern": { name: "Conversion moderne", description: "Une boutique pens\xE9e pour guider rapidement vers l\u2019achat.", artProfile: "conversion", sectionVariants: { hero: "conversion", productMain: "buybox" } },
+  "store-maison-premium": { name: "Maison premium", description: "Une composition raffin\xE9e pour les collections haut de gamme.", artProfile: "minimal", sectionVariants: { hero: "split", collectionGrid: "premium" } },
+  "product-buybox-premium": { name: "Fiche produit premium", description: "Une fiche produit d\xE9taill\xE9e avec une offre claire.", artProfile: "conversion", sectionVariants: { productMain: "premium", reviews: "featured" } },
+  "product-demonstration": { name: "D\xE9monstration produit", description: "Une fiche centr\xE9e sur l\u2019usage et les b\xE9n\xE9fices.", artProfile: "editorial", sectionVariants: { hero: "demonstration", benefits: "visual" } },
+  "product-bundle-first": { name: "Offre group\xE9e", description: "Une fiche qui met les packs et quantit\xE9s en avant.", artProfile: "conversion", sectionVariants: { productMain: "bundle-led", bundle: "quantity-break" } },
+  "landing-direct-response": { name: "R\xE9ponse directe", description: "Une page de campagne focalis\xE9e sur une action.", artProfile: "conversion", sectionVariants: { hero: "direct-response", cta: "repeated" } },
+  "landing-editorial-premium": { name: "\xC9ditorial premium", description: "Une landing page narrative et haut de gamme.", artProfile: "editorial", sectionVariants: { hero: "editorial", imageText: "story" } },
+  "landing-visual-demo": { name: "D\xE9monstration visuelle", description: "Une page qui rend le m\xE9canisme visible d\xE8s le d\xE9part.", artProfile: "minimal", sectionVariants: { hero: "visual", benefits: "diagram" } },
+  "advertorial-journal": { name: "Journal", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne naturellement vers l\u2019offre.", artProfile: "editorial", sectionVariants: { richText: "journal", press: "inline" } },
+  "advertorial-founder-story": { name: "Histoire du fondateur", description: "Un t\xE9moignage de marque personnel et cr\xE9dible.", artProfile: "editorial", sectionVariants: { hero: "founder", richText: "narrative" } },
+  "advertorial-comparison": { name: "Comparatif", description: "Une argumentation structur\xE9e autour des diff\xE9rences produit.", artProfile: "conversion", sectionVariants: { comparison: "feature-led", productMain: "inline" } },
+  "quiz-diagnostic": { name: "Diagnostic", description: "Un parcours de questions pour qualifier un besoin.", artProfile: "minimal", sectionVariants: { quiz: "diagnostic", form: "stepper" } },
+  "quiz-routine": { name: "Routine", description: "Un questionnaire qui compose une routine personnalis\xE9e.", artProfile: "editorial", sectionVariants: { quiz: "routine", productMain: "recommendation" } },
+  "quiz-recommendation": { name: "Recommandation", description: "Un funnel qui m\xE8ne vers une recommandation utile.", artProfile: "conversion", sectionVariants: { quiz: "recommendation", cta: "result" } },
+  "home-brand-editorial": { name: "\xC9ditorial de marque", description: "Une vitrine de marque riche en histoire et en collections.", artProfile: "editorial", sectionVariants: { hero: "editorial", imageText: "brand-story" } },
+  "home-catalogue-premium": { name: "Catalogue premium", description: "Une page d\u2019accueil qui donne la priorit\xE9 aux collections.", artProfile: "minimal", sectionVariants: { hero: "catalogue", collectionGrid: "premium" } },
+  "home-story-first": { name: "L\u2019histoire d\u2019abord", description: "Une page d\u2019accueil qui pr\xE9sente d\u2019abord le r\xE9cit de marque.", artProfile: "editorial", sectionVariants: { hero: "story", richText: "manifesto" } },
+  "blog-magazine": { name: "Magazine", description: "Un article de marque avec une lecture \xE9ditoriale forte.", artProfile: "editorial", sectionVariants: { hero: "magazine", richText: "longform" } },
+  "blog-guide": { name: "Guide", description: "Un contenu pratique, structur\xE9 pour \xEAtre facilement consult\xE9.", artProfile: "minimal", sectionVariants: { richText: "guide", faq: "inline" } },
+  "blog-study": { name: "\xC9tude", description: "Une analyse approfondie avec preuves et sources.", artProfile: "editorial", sectionVariants: { hero: "study", press: "sources" } }
+};
+function template(id, format) {
+  const details = templateDetails[id];
+  if (!details) throw new Error(`Missing creation template details for ${id}`);
+  return {
+    id,
+    format,
+    ...details,
+    previewDesktop: `/template-previews/${id}-desktop.webp`,
+    previewMobile: `/template-previews/${id}-mobile.webp`
+  };
+}
+function fields(...intake) {
+  return intake;
+}
+var field = (id, label, placeholder, kind = "text", required = true) => ({ id, label, placeholder, kind, required });
+var sources = ["link", "image", "description", "shopify"];
+var FORMAT_FLOWS = [
+  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: sources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id) => template(id, "store")) },
+  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: sources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id) => template(id, "product")) },
+  { id: "landing", title: "Landing page", description: "Une campagne, une promesse, une action", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("campaign", "Campagne", "Le nom ou contexte de la campagne"), field("audience", "Audience", "\xC0 qui la page doit-elle parler ?", "textarea"), field("promise", "Promesse", "Le r\xE9sultat principal propos\xE9", "textarea"), field("traffic", "Source du trafic", "Ex. Meta Ads, email, recherche"), field("cta", "Action attendue", "Ex. D\xE9couvrir l\u2019offre")), templates: TEMPLATE_IDS.landing.map((id) => template(id, "landing")) },
+  { id: "advertorial", title: "Advertorial", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne vers l\u2019offre", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("angle", "Angle narratif", "L\u2019id\xE9e centrale de l\u2019article", "textarea"), field("author", "Auteur", "Qui porte ce r\xE9cit ?"), field("proof", "Niveau de preuve", "\xC9tudes, exp\xE9rience ou d\xE9monstration", "textarea"), field("product", "Produit final", "Le produit ou l\u2019offre vers lequel conduire")), templates: TEMPLATE_IDS.advertorial.map((id) => template(id, "advertorial")) },
+  { id: "quiz", title: "Quiz et funnel", description: "Questions, recommandation et capture", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("objective", "Objectif", "Le r\xE9sultat que doit produire le quiz", "textarea"), field("segments", "Segments", "Les profils ou besoins \xE0 distinguer", "list"), field("result", "Recommandation", "Ce que chaque profil doit recevoir", "textarea"), field("steps", "Nombre d\u2019\xE9tapes", "Ex. 5", "text", false), field("destination", "Destination des r\xE9ponses", "Ex. une recommandation produit", "textarea", false)), templates: TEMPLATE_IDS.quiz.map((id) => template(id, "quiz")) },
+  { id: "home", title: "Page d\u2019accueil", description: "La vitrine compl\xE8te d\u2019une marque", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("brand", "Nom de la marque", "Le nom affich\xE9 sur votre page"), field("activity", "Activit\xE9", "Ex. objets durables pour la maison"), field("promise", "Promesse", "La promesse principale de la marque", "textarea"), field("collections", "Collections principales", "Ex. Nouveaut\xE9s, best-sellers, cadeaux", "list"), field("story", "Histoire de la marque", "Ce que vous voulez raconter", "textarea")), templates: TEMPLATE_IDS.home.map((id) => template(id, "home")) },
+  { id: "blog", title: "Article de blog", description: "Contenu de marque structur\xE9 et lisible", pageType: "write", allowedSources: ["description", "shopify"], intake: fields(field("topic", "Sujet", "Le th\xE8me de l\u2019article"), field("intent", "Intention de recherche", "La question \xE0 laquelle r\xE9pondre", "textarea"), field("angle", "Angle", "Votre point de vue ou approche", "textarea"), field("relatedProducts", "Produits li\xE9s", "Les produits \xE0 citer si n\xE9cessaire", "list", false)), templates: TEMPLATE_IDS.blog.map((id) => template(id, "blog")) },
+  { id: "blank", title: "Page vierge", description: "Construire librement dans l\u2019\xE9diteur", pageType: "blank", allowedSources: [], intake: [], templates: [] }
+];
+
 // src/dashboard/home-view.ts
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -412,6 +473,11 @@ function projectCard(project) {
     </div>
   </article>`;
 }
+function formatCard(flow) {
+  const templateCount = flow.templates.length;
+  const templateLabel = templateCount === 1 ? "mod\xE8le" : "mod\xE8les";
+  return `<a class="format-card" href="/creer?format=${encodeURIComponent(flow.id)}"><span class="format-card__count">${templateCount} ${templateLabel}</span><h3>${escapeHtml(flow.title)}</h3><p>${escapeHtml(flow.description)}</p><span class="format-card__arrow" aria-hidden="true">\u2192</span></a>`;
+}
 function renderDashboardHome(model) {
   const cards = model.projects.length ? model.projects.map(projectCard).join("") : `<button class="empty-project" data-dashboard-action="generate"><span>\uFF0B</span><strong>Ta premi\xE8re boutique commence ici</strong><small>Ajoute un produit et Weflo construit chaque section.</small></button>`;
   return `<div class="shell dashboard-shell">
@@ -420,7 +486,7 @@ function renderDashboardHome(model) {
       <nav class="main-nav"><a class="nav-item is-active" href="/dashboard"><span>\u2302</span>Accueil</a><a class="nav-item" href="/creations"><span>\u25A3</span>Mes cr\xE9ations <b>${model.totalProjects}</b></a><a class="nav-item" href="/studio"><span>\u2726</span>Studio images</a><a class="nav-item" href="/boutique"><span>\u25C6</span>Ma boutique</a><a class="nav-item" href="/facturation"><span>\u25C8</span>Abonnement</a></nav>
       <div class="sidebar-bottom"><a class="nav-item" href="/parrainage"><span>\u2667</span>Parrainage</a><a class="nav-item" href="/facturation"><span>\u2699</span>R\xE9glages</a><div class="profile"><span class="avatar">${escapeHtml(model.greeting.replace("Bonjour", "").trim().charAt(0) || "W")}</span><span><strong>${escapeHtml(model.workspace.name)}</strong><small>Ton espace</small></span></div></div>
     </aside>
-    <main><header class="topbar"><div><p class="hello">${escapeHtml(model.greeting)}</p><p class="subhello">Transforme ton prochain produit en boutique.</p></div><a class="pro-button" href="/facturation">Passer Pro</a></header>
+    <main><header class="topbar"><div><p class="hello">${escapeHtml(model.greeting)}</p><p class="subhello">Transforme ton prochain produit en boutique.</p></div><div class="top-actions"><button class="new-page-button" data-new-page>\uFF0B Nouvelle page</button><a class="pro-button" href="/facturation">Passer Pro</a></div></header>
       <section class="creation-desk"><div class="duck" aria-hidden="true">\u{1F425}</div><div class="desk-copy"><h1>Que veux-tu vendre ?</h1><p>Donne-moi un produit. Je m\u2019occupe de l\u2019offre, des mots et de la boutique.</p></div>
         <form class="prompt" data-dashboard-prompt><textarea aria-label="D\xE9crire le produit ou coller son lien" placeholder="Colle un lien produit ou d\xE9cris ce que tu veux vendre\u2026"></textarea><div class="prompt-footer"><span>Amazon, AliExpress, Shopify ou n\u2019importe quel site</span><button type="submit" data-dashboard-action="generate">G\xE9n\xE9rer ma boutique <span>\u2197</span></button></div></form>
         <div class="start-modes"><button data-dashboard-action="link"><span>\u2197</span><strong>Importer un lien</strong><small>Produit et images</small></button><button data-dashboard-action="image"><span>\u25A7</span><strong>Ajouter une image</strong><small>On reconna\xEEt le produit</small></button><button data-dashboard-action="shopify"><span class="shopify-brand">${shopifyLogo()}</span><strong>Depuis Shopify</strong><small>Choisir dans le catalogue</small></button><button data-dashboard-action="blank"><span>\uFF0B</span><strong>Partir de z\xE9ro</strong><small>Une page vraiment vierge</small></button></div>
@@ -429,10 +495,22 @@ function renderDashboardHome(model) {
       <section class="workbench"><div class="next-actions"><div class="section-heading compact"><div><h2>Le prochain geste</h2><p>Publie sans casser ton th\xE8me Shopify.</p></div></div><button class="task-row" data-dashboard-action="shopify"><span class="task-icon shopify-brand">${shopifyLogo()}</span><span><strong>Connecter Shopify</strong><small>Choisir le th\xE8me au moment de publier</small></span><b>Configurer \u2192</b></button><button class="task-row" data-dashboard-action="generate"><span class="task-icon">Aa</span><span><strong>Cr\xE9er une nouvelle offre</strong><small>Canardo adapte le message au produit</small></span><b>Commencer \u2192</b></button></div>
         <aside class="shopify-card"><span class="shopify-brand large">${shopifyLogo()}</span><p class="mini-title">Publication Shopify</p><h2>Ta boutique, dans ton vrai th\xE8me.</h2><p>Sections modifiables, copie s\xE9curis\xE9e et retour arri\xE8re inclus.</p><button data-dashboard-action="shopify">Connecter ma boutique</button></aside></section>
     </main></div>
+    <dialog class="format-dialog" data-format-dialog aria-labelledby="format-dialog-title"><div class="format-dialog__header"><div><p class="format-dialog__eyebrow">Choisis un point de d\xE9part</p><h2 id="format-dialog-title">Nouvelle page</h2><p>Pars d\u2019un format adapt\xE9 \xE0 ce que tu veux cr\xE9er.</p></div><button class="format-dialog__close" type="button" data-format-dialog-close aria-label="Fermer la s\xE9lection de format">\xD7</button></div><div class="format-card-grid">${FORMAT_FLOWS.map(formatCard).join("")}</div></dialog>
     <nav class="mobile-nav"><a href="/dashboard">\u2302<span>Accueil</span></a><a href="/creations">\u25A3<span>Cr\xE9ations</span></a><a href="/studio">\u2726<span>Studio</span></a><a href="/boutique">\u25C6<span>Boutique</span></a><a href="/facturation">\u2699<span>R\xE9glages</span></a></nav>`;
 }
 
 // src/create/workspace.ts
+var formatIcons = {
+  store: "\u25C6",
+  product: "\u25A3",
+  landing: "\u2197",
+  advertorial: "\xB6",
+  quiz: "?",
+  home: "\u2302",
+  blog: "\u2261",
+  blank: "\uFF0B"
+};
+var creationFormats = FORMAT_FLOWS.map(({ id, title, description }) => ({ id, title, description, icon: formatIcons[id] }));
 function creationActionUrl(action, prompt = "") {
   if (action === "link") return "/creer?source=link";
   if (action === "image") return "/creer?source=image";
@@ -821,6 +899,20 @@ async function hydrateDashboard() {
   const mountHome = () => {
     if (!home) return;
     home.innerHTML = renderDashboardHome(dashboardHomeModel({ pages, workspace, userName: me.name }));
+    const newPageButton = home.querySelector("[data-new-page]");
+    const formatDialog = home.querySelector("[data-format-dialog]");
+    newPageButton?.addEventListener("click", () => {
+      if (formatDialog && !formatDialog.open) formatDialog.showModal();
+    });
+    home.querySelector("[data-format-dialog-close]")?.addEventListener("click", () => {
+      formatDialog?.close();
+    });
+    formatDialog?.addEventListener("click", (event) => {
+      if (event.target === formatDialog) formatDialog.close();
+    });
+    formatDialog?.addEventListener("close", () => {
+      newPageButton?.focus();
+    });
     home.querySelector("[data-dashboard-prompt]")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const value = home.querySelector("textarea")?.value.trim() ?? "";

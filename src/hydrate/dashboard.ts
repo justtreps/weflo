@@ -433,6 +433,20 @@ export async function hydrateDashboard() {
   const mountHome = () => {
     if (!home) return;
     home.innerHTML = renderDashboardHome(dashboardHomeModel({ pages, workspace: workspace as Workspace, userName: me.name }));
+    const newPageButton = home.querySelector<HTMLButtonElement>("[data-new-page]");
+    const formatDialog = home.querySelector<HTMLDialogElement>("[data-format-dialog]");
+    newPageButton?.addEventListener("click", () => {
+      if (formatDialog && !formatDialog.open) formatDialog.showModal();
+    });
+    home.querySelector<HTMLButtonElement>("[data-format-dialog-close]")?.addEventListener("click", () => {
+      formatDialog?.close();
+    });
+    formatDialog?.addEventListener("click", (event) => {
+      if (event.target === formatDialog) formatDialog.close();
+    });
+    formatDialog?.addEventListener("close", () => {
+      newPageButton?.focus();
+    });
     home.querySelector<HTMLFormElement>("[data-dashboard-prompt]")?.addEventListener("submit", (event) => {
       event.preventDefault();
       const value = home.querySelector<HTMLTextAreaElement>("textarea")?.value.trim() ?? "";

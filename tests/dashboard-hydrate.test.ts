@@ -26,4 +26,11 @@ describe("dashboard loading state", () => {
     expect(source).toContain("mountHome();\n  await reload();");
     expect(html).toContain('class="dashboard-boot"');
   });
+
+  it("uses a native format dialog and restores focus to its trigger", () => {
+    const source = readFileSync("src/hydrate/dashboard.ts", "utf8");
+    expect(source).toContain("showModal");
+    expect(source).toContain("data-format-dialog");
+    expect(source).toContain('[data-new-page]');
+  });
 });
