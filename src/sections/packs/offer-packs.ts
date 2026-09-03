@@ -4,11 +4,6 @@ import type { InspectorControl } from "../../editor/section-schema";
 const select = (key: string, label: string, options: string[]): InspectorControl => ({ key, label, type: "select", scope: "settings", options });
 
 export const offerPacks = [
-  premiumPack({ type: "quantity-offer", name: "Offre quantité", category: "commerce", family: "quantity-offer", tags: ["quantité", "volume", "économie"], capabilities: ["product-form", "quantity-breaks"], layout: "product", extraDefaults: { quantity_breaks: "1,2,3", quantity_label: "Choisir la quantité", quantity_suffix: "unités" }, variants: [
-    ["single-duo-trio", "Solo, duo, trio", "Trois offres égales et immédiatement comparables."],
-    ["tier-table", "Table de paliers", "Lecture par niveau de quantité et économie."],
-    ["volume-ladder", "Échelle de volume", "Progression verticale guidant vers le meilleur volume."],
-  ] }),
   premiumPack({ type: "fixed-bundle", name: "Bundle fixe", category: "commerce", family: "fixed-bundle", tags: ["bundle", "multipack", "offre"], capabilities: ["product-form", "fixed-bundle"], layout: "product", extraDefaults: { bundle_note: "Ce produit correspond à un bundle fixe Shopify." }, variants: [
     ["routine", "Routine complète", "Produits complémentaires ordonnés par usage."],
     ["multipack", "Multipack", "Même produit décliné en quantité avec économie."],

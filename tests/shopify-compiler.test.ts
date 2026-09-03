@@ -71,4 +71,30 @@ describe("Shopify document compiler", () => {
     expect(liquid).toContain("for product in selected_collection.products");
     expect(liquid).toContain("for block in section.blocks");
   });
+
+  it("publishes quantity offer tiers as Shopify blocks without preview prices", () => {
+    const document = buildModelDocument("proteo", "Offres");
+    const definition = getSectionDefinition("quantity-offer")!;
+    document.pages[0].sections.push({
+      id: "quantity-offer",
+      type: definition.type,
+      name: definition.name,
+      hidden: false,
+      locked: false,
+      settings: { ...definition.defaults, product_handle: "proteo-serum" },
+      style: {},
+      responsive: {},
+      blocks: [{ id: "duo", type: "offer-tier", settings: { title: "Duo", quantity: 2, discount_type: "percentage", discount_value: 15, variant_id: "445566" } }],
+    });
+
+    const files = compileShopifyPage(document, { resource: "product" });
+    const liquid = files.find((file) => file.key.includes("quantity-offer.liquid"))!.value;
+    const template = JSON.parse(files.find((file) => file.key.startsWith("templates/product."))!.value);
+    const published = Object.values(template.sections as Record<string, { blocks?: Record<string, { type: string; settings: Record<string, unknown> }> }>).find((section) => section.blocks?.duo);
+
+    expect(liquid).toContain("block.settings.quantity");
+    expect(liquid).toContain("selected_product");
+    expect(liquid).not.toContain("15% de réduction");
+    expect(published?.blocks?.duo.type).toBe("offer-tier");
+  });
 });
