@@ -33,4 +33,16 @@ describe("dashboard loading state", () => {
     expect(source).toContain("data-format-dialog");
     expect(source).toContain('[data-new-page]');
   });
+
+  it("serves generated template previews through the same Hono app as the dashboard", async () => {
+    const app = createApp({
+      store: new MemoryStore(),
+      session: async () => ({ id: "u1", email: "amir@test.com", name: "Amir" }),
+    });
+    const response = await app.request("/template-previews/home-brand-editorial-desktop.webp");
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("image/webp");
+    expect((await response.arrayBuffer()).byteLength).toBeGreaterThan(1_000);
+  });
 });

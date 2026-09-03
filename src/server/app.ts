@@ -120,6 +120,22 @@ export function createApp(deps: AppDeps) {
     }
   });
 
+  app.get("/template-previews/*", async (c) => {
+    const name = c.req.path.replace("/template-previews/", "");
+    const root = join(process.cwd(), "public", "template-previews");
+    const target = normalize(join(root, name));
+    const rootWithSep = root.endsWith(sep) ? root : root + sep;
+    if (name.includes("..") || (!target.startsWith(rootWithSep) && target !== root)) {
+      return c.body("Not found", 404);
+    }
+    try {
+      const data = await readFile(target);
+      return c.body(data, 200, { "content-type": assetType(name) });
+    } catch {
+      return c.body("Not found", 404);
+    }
+  });
+
   app.route("/api", authRoutes(deps));
   app.route("/api", onboardingRoutes(deps));
   app.route("/api", imageRoutes(deps));

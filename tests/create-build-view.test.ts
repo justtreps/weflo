@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { renderBuildExperience } from "../src/create/build-view";
 import { initialCreationState, transitionCreationFlow } from "../src/create/flow-state";
 import { renderCreateWorkspace, renderStrategyBackControl } from "../src/create/workspace";
+import { MemoryStore } from "../src/repos/memory";
+import { createApp } from "../src/server/app";
 import type { BuildStage } from "../src/onboarding/types";
 
 const stages: BuildStage[] = [
@@ -44,5 +46,38 @@ describe("premium creation build view", () => {
 
   it("renders a French strategy back control", () => {
     expect(renderStrategyBackControl()).toBe('<button type="button" class="back-template" data-back-strategy>← Retour aux informations</button>');
+  });
+
+  it("starts a truthful non-product draft for the strategy and build views", async () => {
+    const app = createApp({ store: new MemoryStore(), session: async () => null });
+    const response = await app.request("/api/onboarding/start", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        creationFormat: "home",
+        templateId: "home-brand-editorial",
+        language: "fr",
+        prompt: "Une vitrine calme et éditoriale",
+        answers: {
+          brand: "Maison Aube",
+          activity: "Objets durables",
+          promise: "Habiter plus doucement",
+          collections: "Lumière\nTextile",
+          story: "Une maison indépendante née à Lyon.",
+        },
+      }),
+    });
+
+    expect(response.status).toBe(201);
+    const body = await response.json();
+    expect(body.claimToken).toEqual(expect.any(String));
+    expect(body.draft).toMatchObject({
+      status: "questions",
+      product: null,
+      creationFormat: "home",
+      templateId: "home-brand-editorial",
+      brandName: "Maison Aube",
+    });
+    expect(JSON.stringify(body.draft)).not.toMatch(/previewOnly|previewFixtureId|template-preview-fixture|demo\.weflo\.app|Atelier fictif/i);
   });
 });

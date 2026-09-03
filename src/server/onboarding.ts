@@ -98,6 +98,49 @@ async function uniqueSlug(deps: AppDeps, workspaceId: string, name: string): Pro
 export function onboardingRoutes(deps: AppDeps) {
   const app = new Hono();
 
+  app.post("/onboarding/start", async (c) => {
+    const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
+    if (!isCreationFormat(body.creationFormat) || body.creationFormat === "blank" || isProductLedCreationFormat(body.creationFormat)) {
+      return c.json({ error: "invalid_creation_format", message: "Choisis un format compatible avant de continuer." }, 400);
+    }
+    const creationFormat = body.creationFormat;
+    if (typeof body.templateId !== "string") {
+      return c.json({ error: "invalid_template", message: "Choisis un modèle avant de continuer." }, 400);
+    }
+    let templateId: string;
+    try {
+      const recipe = recipeForTemplate(body.templateId);
+      if (recipe.format !== creationFormat) throw new Error("incompatible template");
+      templateId = recipe.id;
+    } catch {
+      return c.json({ error: "invalid_template", message: "Ce modèle n’est pas compatible avec le format choisi." }, 400);
+    }
+    const answers = intakeAnswers(creationFormat, body.answers);
+    const missing = flowForFormat(creationFormat).intake.filter((field) => field.required && !answers[field.id]).map((field) => field.id);
+    if (missing.length) {
+      return c.json({ error: "missing_answers", message: "Complète les informations obligatoires avant de continuer.", fields: missing }, 400);
+    }
+    const prompt = typeof body.prompt === "string" ? body.prompt.trim().slice(0, 4_000) : "";
+    const brandName = answers.brand || answers.topic || answers.campaign || answers.author || answers.objective || flowForFormat(creationFormat).title;
+    const audience = answers.audience || answers.activity || answers.segments || answers.intent || "Audience à préciser";
+    const promise = answers.promise || answers.objective || answers.angle || prompt || "Direction à préciser";
+    const claim = createClaimToken();
+    let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl: "" }));
+    draft = await deps.store.updateOnboardingDraft(draft.id, {
+      status: "questions",
+      language: typeof body.language === "string" && body.language.trim() ? body.language.trim().slice(0, 40) : "fr",
+      creationFormat,
+      templateId,
+      answers,
+      brandName,
+      brandNames: [brandName],
+      modelId: "template",
+      personas: [{ id: "submitted-audience", title: audience, insight: promise, icon: "◎", tags: [], selected: true }],
+      angles: [{ id: "submitted-direction", title: promise, description: prompt || answers.story || answers.result || "Direction issue des informations fournies.", icon: "↗", tags: [], selected: true }],
+    });
+    return c.json({ draft: publicDraft(draft), claimToken: claim.token }, 201);
+  });
+
   app.post("/onboarding/import", async (c) => {
     if (!deps.productFetch) return c.json({ error: "import_unavailable", message: "L’importation de produits n’est pas configurée." }, 503);
     const body = await c.req.json<{ sourceUrl?: unknown; language?: unknown }>().catch(() => ({} as { sourceUrl?: unknown; language?: unknown }));

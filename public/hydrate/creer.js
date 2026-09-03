@@ -490,7 +490,7 @@ function renderTemplateGallery(flow, selectedTemplateId, templateUrl = (template
   <dialog class="template-preview-dialog" data-template-dialog aria-labelledby="template-dialog-title">
     <form method="dialog"><button class="template-dialog-close" aria-label="Fermer l\u2019aper\xE7u">\xD7</button></form>
     <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc2(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aper\xE7u du mod\xE8le</h2><span data-template-dialog-description>Choisis ce mod\xE8le si cette composition te ressemble.</span><small class="template-dialog-fixture">Exemple fictif \xB7 la structure sera adapt\xE9e \xE0 ta marque.</small><a data-template-dialog-select href="${esc2(templateUrl(flow.templates[0]))}">Choisir ce mod\xE8le</a></div>
-      <div class="template-dialog-preview"><div class="template-dialog-device-switch" role="group" aria-label="Format de l\u2019aper\xE7u agrandi"><button type="button" data-template-dialog-device="desktop" aria-pressed="true">Ordinateur</button><button type="button" data-template-dialog-device="mobile" aria-pressed="false">Mobile</button></div><div class="template-dialog-stage" data-preview-device="desktop"><img data-template-dialog-image alt="" onerror="this.classList.add('is-missing')"><div class="template-preview-fallback" aria-hidden="true"><span data-template-dialog-fallback>Mod\xE8le Weflo</span><i></i><i></i><i></i></div></div></div>
+      <div class="template-dialog-preview"><div class="template-dialog-device-switch" role="group" aria-label="Format de l\u2019aper\xE7u agrandi"><button type="button" data-template-dialog-device="desktop" aria-pressed="true">Ordinateur</button><button type="button" data-template-dialog-device="mobile" aria-pressed="false">Mobile</button></div><div class="template-dialog-stage" data-template-dialog-stage data-preview-device="desktop"><img data-template-dialog-image alt="" onerror="this.classList.add('is-missing')"><div class="template-preview-fallback" aria-hidden="true"><span data-template-dialog-fallback>Mod\xE8le Weflo</span><i></i><i></i><i></i></div></div></div>
     </div>
   </dialog>`;
 }
@@ -930,6 +930,18 @@ async function guardSession() {
 }
 
 // src/hydrate/onboarding-request.ts
+async function fetchWithDeadline(input, init, timeoutMs = 3e4, fetchImpl = fetch) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetchImpl(input, { ...init, signal: controller.signal });
+  } catch (error2) {
+    if (controller.signal.aborted) throw new Error("L\u2019importation prend trop de temps. R\xE9essaie ou importe directement une image.");
+    throw error2;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 async function readApiJson(response) {
   const contentType = response.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
@@ -1035,7 +1047,7 @@ function esc5(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 async function request(url, init) {
-  const response = await fetch(url, init);
+  const response = await fetchWithDeadline(url, init);
   const body = await readApiJson(response);
   if (!response.ok) throw new Error(body.message || "Cette \xE9tape n\u2019a pas abouti.");
   return body;
@@ -1053,13 +1065,20 @@ function persistState() {
   } catch {
   }
 }
-function replaceWorkspaceUrl() {
-  history.replaceState({}, "", creationWorkspaceUrl(state.format, state.templateId, { source: state.source, prompt: state.prompt }));
+function workspaceHistoryState() {
+  return { ...history.state && typeof history.state === "object" ? history.state : {}, wefloCreationDraft: serializeCreationDraft(state) };
 }
-function commitState(next, shouldRender = true) {
+function replaceWorkspaceUrl() {
+  history.replaceState(workspaceHistoryState(), "", creationWorkspaceUrl(state.format, state.templateId, { source: state.source, prompt: state.prompt }));
+}
+function pushWorkspaceUrl() {
+  history.pushState(workspaceHistoryState(), "", creationWorkspaceUrl(state.format, state.templateId, { source: state.source, prompt: state.prompt }));
+}
+function commitState(next, shouldRender = true, historyMode = "push") {
   state = next;
   persistState();
-  replaceWorkspaceUrl();
+  if (historyMode === "push") pushWorkspaceUrl();
+  else replaceWorkspaceUrl();
   if (shouldRender) render();
 }
 function render() {
@@ -1071,7 +1090,7 @@ function render() {
 }
 function renderStrategy() {
   const choices = [...draft.personas.map((item) => ({ ...item, kind: "persona" })), ...draft.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<div class="create-heading"><p>${esc5(creationFormats.find((item) => item.id === state.format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc5(item.id)}" aria-pressed="${item.selected}"><strong>${esc5(item.icon)} ${esc5(item.title)}</strong><small>${esc5(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc5(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<div class="create-heading"><p>${esc5(creationFormats.find((item) => item.id === state.format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a pr\xE9par\xE9 ces pistes \xE0 partir de tes informations. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc5(item.id)}" aria-pressed="${item.selected}"><strong>${esc5(item.icon)} ${esc5(item.title)}</strong><small>${esc5(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc5(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
 }
 function renderBuild() {
   if (!root || !draft) return;
@@ -1101,6 +1120,11 @@ async function importImage(file) {
   draft = body.draft;
   token = body.claimToken;
   await syncDraft();
+}
+async function startFromAnswers() {
+  const body = await request("/api/onboarding/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ creationFormat: state.format, templateId: state.templateId, answers: state.answers, prompt: state.prompt, language: "fr" }) });
+  draft = body.draft;
+  token = body.claimToken;
 }
 async function createSimple() {
   const type = state.format === "blog" ? "write" : state.format === "blank" ? "blank" : "sell";
@@ -1205,7 +1229,7 @@ function bind() {
     const data = new FormData(event.currentTarget);
     let updated = transitionCreationFlow(state, { type: "UPDATE_INTAKE", answers: answersFromFormData(data), prompt: String(data.get("prompt") ?? "").trim() });
     missingFieldIds = updated.format ? validateFormatIntake(flowForFormat(updated.format), updated.answers) : [];
-    commitState(updated, false);
+    commitState(updated, false, "replace");
     if (missingFieldIds.length) {
       submissionLock.release();
       render();
@@ -1219,7 +1243,7 @@ function bind() {
     }
     if (!updated.prompt) {
       updated = transitionCreationFlow(updated, { type: "UPDATE_INTAKE", answers: updated.answers, prompt: firstAnswer });
-      commitState(updated, false);
+      commitState(updated, false, "replace");
     }
     const action = submissionActionForState(updated);
     if (action === "image" && !draft) {
@@ -1233,13 +1257,7 @@ function bind() {
       error = "";
       if (action === "link") await importLink(updated.prompt);
       if (action === "image") await syncDraft();
-      if (action === "simple") {
-        state = transitionCreationFlow(updated, { type: "CONTINUE" });
-        persistState();
-        replaceWorkspaceUrl();
-        await createSimple();
-        return;
-      }
+      if (action === "simple") await startFromAnswers();
       submissionLock.release();
       commitState(transitionCreationFlow(updated, { type: "CONTINUE" }));
     } catch (reason) {
@@ -1284,6 +1302,7 @@ function bind() {
     const device = button.dataset.templateDialogDevice;
     if (device === "desktop" || device === "mobile") setDialogDevice(device);
   }));
+  let dialogTrigger = null;
   root?.querySelectorAll("[data-template-open]").forEach((button) => button.addEventListener("click", () => {
     const id = button.dataset.templateOpen;
     const card = id ? root.querySelector(`[data-template-card="${id}"]`) : null;
@@ -1306,8 +1325,10 @@ function bind() {
       select.href = creationWorkspaceUrl(state.format, id, { source: state.source, prompt: state.prompt });
       select.dataset.templateId = id;
     }
+    dialogTrigger = button;
     dialog.showModal();
   }));
+  dialog?.addEventListener("close", () => dialogTrigger?.focus());
   dialog?.querySelector("[data-template-dialog-select]")?.addEventListener("click", (event) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const id = event.currentTarget.dataset.templateId;
@@ -1338,9 +1359,10 @@ function bind() {
     render();
   }));
 }
-window.addEventListener("popstate", () => {
+window.addEventListener("popstate", (event) => {
   const url = new URL(location.href);
-  state = mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
+  const historyDraft = event.state && typeof event.state.wefloCreationDraft === "string" ? restoreCreationDraft(event.state.wefloCreationDraft) : null;
+  state = historyDraft ?? mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
   persistState();
   replaceWorkspaceUrl();
   if (creationStartupAction(state) === "create-blank") void createSimple().catch((reason) => {

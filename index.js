@@ -30129,6 +30129,48 @@ async function uniqueSlug2(deps, workspaceId, name) {
 }
 function onboardingRoutes(deps) {
   const app2 = new Hono9();
+  app2.post("/onboarding/start", async (c) => {
+    const body = await c.req.json().catch(() => ({}));
+    if (!isCreationFormat(body.creationFormat) || body.creationFormat === "blank" || isProductLedCreationFormat(body.creationFormat)) {
+      return c.json({ error: "invalid_creation_format", message: "Choisis un format compatible avant de continuer." }, 400);
+    }
+    const creationFormat = body.creationFormat;
+    if (typeof body.templateId !== "string") {
+      return c.json({ error: "invalid_template", message: "Choisis un mod\xE8le avant de continuer." }, 400);
+    }
+    let templateId;
+    try {
+      const recipe = recipeForTemplate(body.templateId);
+      if (recipe.format !== creationFormat) throw new Error("incompatible template");
+      templateId = recipe.id;
+    } catch {
+      return c.json({ error: "invalid_template", message: "Ce mod\xE8le n\u2019est pas compatible avec le format choisi." }, 400);
+    }
+    const answers = intakeAnswers(creationFormat, body.answers);
+    const missing = flowForFormat(creationFormat).intake.filter((field2) => field2.required && !answers[field2.id]).map((field2) => field2.id);
+    if (missing.length) {
+      return c.json({ error: "missing_answers", message: "Compl\xE8te les informations obligatoires avant de continuer.", fields: missing }, 400);
+    }
+    const prompt = typeof body.prompt === "string" ? body.prompt.trim().slice(0, 4e3) : "";
+    const brandName = answers.brand || answers.topic || answers.campaign || answers.author || answers.objective || flowForFormat(creationFormat).title;
+    const audience = answers.audience || answers.activity || answers.segments || answers.intent || "Audience \xE0 pr\xE9ciser";
+    const promise = answers.promise || answers.objective || answers.angle || prompt || "Direction \xE0 pr\xE9ciser";
+    const claim = createClaimToken();
+    let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl: "" }));
+    draft = await deps.store.updateOnboardingDraft(draft.id, {
+      status: "questions",
+      language: typeof body.language === "string" && body.language.trim() ? body.language.trim().slice(0, 40) : "fr",
+      creationFormat,
+      templateId,
+      answers,
+      brandName,
+      brandNames: [brandName],
+      modelId: "template",
+      personas: [{ id: "submitted-audience", title: audience, insight: promise, icon: "\u25CE", tags: [], selected: true }],
+      angles: [{ id: "submitted-direction", title: promise, description: prompt || answers.story || answers.result || "Direction issue des informations fournies.", icon: "\u2197", tags: [], selected: true }]
+    });
+    return c.json({ draft: publicDraft(draft), claimToken: claim.token }, 201);
+  });
   app2.post("/onboarding/import", async (c) => {
     if (!deps.productFetch) return c.json({ error: "import_unavailable", message: "L\u2019importation de produits n\u2019est pas configur\xE9e." }, 503);
     const body = await c.req.json().catch(() => ({}));
@@ -30440,6 +30482,21 @@ function createApp(deps) {
   app2.get("/assets/*", async (c) => {
     const name = c.req.path.replace("/assets/", "");
     const root = join3(process.cwd(), "public", "assets");
+    const target = normalize(join3(root, name));
+    const rootWithSep = root.endsWith(sep2) ? root : root + sep2;
+    if (name.includes("..") || !target.startsWith(rootWithSep) && target !== root) {
+      return c.body("Not found", 404);
+    }
+    try {
+      const data = await readFile(target);
+      return c.body(data, 200, { "content-type": assetType(name) });
+    } catch {
+      return c.body("Not found", 404);
+    }
+  });
+  app2.get("/template-previews/*", async (c) => {
+    const name = c.req.path.replace("/template-previews/", "");
+    const root = join3(process.cwd(), "public", "template-previews");
     const target = normalize(join3(root, name));
     const rootWithSep = root.endsWith(sep2) ? root : root + sep2;
     if (name.includes("..") || !target.startsWith(rootWithSep) && target !== root) {
