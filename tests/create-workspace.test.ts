@@ -27,11 +27,12 @@ describe("connected creation workspace", () => {
   });
 
   it("shows the template gallery before the format intake and resumes intake after selection", () => {
-    const gallery = renderCreateWorkspace({ workspaceName: "Studio", selectedFormat: "landing", selectedTemplateId: null, source: null, prompt: "", answers: {} });
+    const gallery = renderCreateWorkspace({ workspaceName: "Studio", selectedFormat: "landing", selectedTemplateId: null, source: "description", prompt: "une lampe", answers: {} });
     const intake = renderCreateWorkspace({ workspaceName: "Studio", selectedFormat: "landing", selectedTemplateId: "landing-direct-response", source: null, prompt: "", answers: {} });
 
     expect(gallery).toContain('data-template-preview="landing-direct-response"');
     expect(gallery).not.toContain('data-create-source="description"');
+    expect(gallery).toContain('/creer?format=landing&amp;template=landing-direct-response&amp;source=description&amp;prompt=une+lampe');
     expect(intake).toContain('data-create-source="description"');
     expect(intake).toContain('name="campaign"');
   });

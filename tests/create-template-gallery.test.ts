@@ -25,4 +25,10 @@ describe("creation template gallery", () => {
 
     expect(html).not.toContain("data-create-source");
   });
+
+  it("links each template to its own format and template id", () => {
+    const html = renderTemplateGallery(flowForFormat("landing"), null);
+
+    expect(html).toContain('/creer?format=landing&amp;template=landing-direct-response');
+  });
 });

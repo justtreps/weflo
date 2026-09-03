@@ -19,12 +19,12 @@ function renderPreview(template: CreationTemplate): string {
   </div>`;
 }
 
-export function renderTemplateGallery(flow: FormatFlow, selectedTemplateId: string | null): string {
+export function renderTemplateGallery(flow: FormatFlow, selectedTemplateId: string | null, templateUrl = (template: CreationTemplate) => `/creer?format=${flow.id}&template=${template.id}`): string {
   const selected = flow.templates.some((template) => template.id === selectedTemplateId) ? selectedTemplateId : null;
   const cards = flow.templates.map((template) => `<article class="template-card" data-template-card="${esc(template.id)}" ${template.id === selected ? 'data-selected="true"' : ""}>
     ${renderPreview(template)}
     <div class="template-card-copy"><div><h2>${esc(template.name)}</h2><p>${esc(template.description)}</p></div>
-      <div class="template-card-actions"><button type="button" class="template-preview-button" data-template-open="${esc(template.id)}">Aperçu</button><a href="/creer?format=${esc(flow.id)}&template=${esc(template.id)}" data-template-select="${esc(template.id)}">Choisir ce modèle</a></div>
+      <div class="template-card-actions"><button type="button" class="template-preview-button" data-template-open="${esc(template.id)}">Aperçu</button><a href="${esc(templateUrl(template))}" data-template-select="${esc(template.id)}">Choisir ce modèle</a></div>
     </div>
   </article>`).join("");
 
@@ -34,7 +34,7 @@ export function renderTemplateGallery(flow: FormatFlow, selectedTemplateId: stri
   </section>
   <dialog class="template-preview-dialog" data-template-dialog aria-labelledby="template-dialog-title">
     <form method="dialog"><button class="template-dialog-close" aria-label="Fermer l’aperçu">×</button></form>
-    <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aperçu du modèle</h2><span data-template-dialog-description>Choisis ce modèle si cette composition te ressemble.</span><a data-template-dialog-select href="/creer?format=${esc(flow.id)}">Choisir ce modèle</a></div>
+    <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aperçu du modèle</h2><span data-template-dialog-description>Choisis ce modèle si cette composition te ressemble.</span><a data-template-dialog-select href="${esc(templateUrl(flow.templates[0]!))}">Choisir ce modèle</a></div>
       <div class="template-dialog-stage" data-preview-device="desktop"><img data-template-dialog-image alt="" onerror="this.classList.add('is-missing')"><div class="template-preview-fallback" aria-hidden="true"><span data-template-dialog-fallback>Modèle Weflo</span><i></i><i></i><i></i></div></div>
     </div>
   </dialog>`;
