@@ -16,9 +16,13 @@ describe("GET / landing", () => {
     expect(html).toMatch(/href="#formats"/);
     expect(html).toMatch(/href="#exemples"/);
     expect(html).toMatch(/href="#tarifs"/);
-    expect(html).toContain('<a class="button" href="/start">Créer ma première page</a>');
-    expect(html).toContain('<a class="button" href="/start">Parler à Canardo');
+    expect(html).toContain('<a class="nav-cta" href="/connexion">Créer une page</a>');
+    expect(html).toContain('<a class="button" href="/connexion">Créer une page');
+    expect(html).toContain('<a class="button button--light" href="/start">Générer une boutique</a>');
+    expect(html).toContain('<a class="button" href="/connexion">Créer ma première page</a>');
+    expect(html).toContain('<a class="button" href="/connexion">Parler à Canardo');
     expect(html).toContain('<a class="nav-login" data-nav-cta href="/connexion">Se connecter</a>');
+    expect(html.match(/href="\/start"/g)?.length).toBe(1);
     expect(html).not.toContain("Comment ça marche");
   });
 
