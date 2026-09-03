@@ -97,4 +97,19 @@ describe("anonymous onboarding API", () => {
     expect(body.draft.personas).toHaveLength(4);
     expect(body.claimToken).toBeTruthy();
   });
+
+  it("defaults omitted onboarding language to French", async () => {
+    const app = createApp({
+      store: new MemoryStore(),
+      session: async () => null,
+    });
+    const response = await app.request("/api/onboarding/import-image", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ imageDataUrl: "data:image/png;base64,iVBORw0KGgo=", fileName: "lampe.png" }),
+    });
+
+    expect(response.status).toBe(201);
+    expect((await response.json()).draft.language).toBe("fr");
+  });
 });

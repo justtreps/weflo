@@ -34,13 +34,14 @@ describe("legacy editor document migration", () => {
   it("returns a normalized document only when the v2 API format is requested", async () => {
     const store = new MemoryStore();
     const ws = await store.createWorkspace({ name: "Weflo", ownerUserId: "u1" });
+    const original = initialDocument("Produit", "sell");
     const page = await store.createPage({
       workspaceId: ws.id,
       name: "Produit",
       slug: "produit",
       type: "sell",
       status: "draft",
-      document: initialDocument("Produit", "sell"),
+      document: original,
     });
     const app = createApp({ store, session: async () => ({ id: "u1", email: "user@example.com" }) });
 
@@ -49,7 +50,7 @@ describe("legacy editor document migration", () => {
 
     expect(legacy.document.version).toBeUndefined();
     expect(normalized.document.version).toBe(2);
-    expect(normalized.document.pages[0].sections).toHaveLength(page.document.sections.length);
+    expect(normalized.document.pages[0].sections).toHaveLength(original.sections.length);
     expect((await store.getPage(page.id))?.document).toEqual(page.document);
   });
 

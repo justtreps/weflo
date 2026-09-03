@@ -103,6 +103,75 @@ describe("onboarding store compiler", () => {
     expect(JSON.stringify(document)).toContain("Créée à Lyon");
   });
 
+  it("does not leak product analysis into a non-product page", () => {
+    const document = buildStoreDocument({
+      language: "fr",
+      brandName: "Campagne",
+      modelId: "template",
+      personas: [{ id: "derived-persona", title: "Persona produit", insight: "FUITE PERSONA PRODUIT", icon: "x", tags: [], selected: true }],
+      angles: [{ id: "derived-angle", title: "Angle produit", description: "FUITE ANGLE PRODUIT", icon: "x", tags: [], selected: true }],
+      brandKit,
+      creationFormat: "landing",
+      templateId: "landing-direct-response",
+      answers: { promise: "Habiter doucement" },
+    });
+
+    expect(JSON.stringify(document)).not.toMatch(/FUITE (PERSONA|ANGLE) PRODUIT/);
+  });
+
+  it("creates exactly the submitted number of neutral quiz questions", () => {
+    const document = buildStoreDocument({
+      language: "fr", brandName: "Diagnostic", modelId: "template", personas: [], angles: [], brandKit,
+      creationFormat: "quiz", templateId: "quiz-diagnostic",
+      answers: { ...answersByFormat.quiz, objective: "Trouver la bonne lumière", segments: "Lecture\nAmbiance", steps: "4" },
+    });
+    const quiz = document.pages[0].sections.find((section) => section.type === "quiz")!;
+
+    expect(quiz.blocks).toHaveLength(4);
+    expect(quiz.blocks.map((block) => block.settings.title)).toEqual([
+      "[Question 1 à personnaliser]",
+      "[Question 2 à personnaliser]",
+      "[Question 3 à personnaliser]",
+      "[Question 4 à personnaliser]",
+    ]);
+    expect(quiz.blocks.every((block) => block.settings.title !== "Trouver la bonne lumière")).toBe(true);
+  });
+
+  it("renders submitted home collections without product purchase controls", () => {
+    const document = buildStoreDocument({
+      language: "fr", brandName: "Aube", modelId: "template", personas: [], angles: [], brandKit,
+      creationFormat: "home", templateId: "home-catalogue-premium",
+      answers: { brand: "Aube", activity: "Maison", promise: "Habiter doucement", collections: "Linge\nLumière", story: "Créée à Lyon" },
+    });
+    const web = renderEditorDocument(document, { mode: "preview", breakpoint: "desktop" });
+    const liquid = compileShopifyPage(document, { resource: "home" }).map((file) => file.value).join("\n");
+
+    expect(web).toContain("Linge");
+    expect(web).toContain("Lumière");
+    expect(liquid).toContain("block.settings.title");
+    expect(`${web}\n${liquid}`).not.toMatch(/name=["'](?:id|quantity)["']|action=["']\/cart\/add/);
+  });
+
+  it.each(TEMPLATE_RECIPES.filter((recipe) => recipe.sections.includes("productHero")))("keeps $id product hero free of unsupported fixed claims", (recipe) => {
+    const document = buildStoreDocument({
+      product, language: "fr", brandName: "LumiWall", modelId: "template", personas: strategy.personas, angles: strategy.angles, brandKit,
+      creationFormat: recipe.format as "store" | "product", templateId: recipe.id, answers: answersByFormat[recipe.format],
+    });
+    const web = renderEditorDocument(document, { mode: "preview", breakpoint: "desktop" });
+
+    expect(web).not.toMatch(/Le problème, résolu|Simple à choisir|Pensé pour le quotidien/i);
+  });
+
+  it("uses the French product CTA fallback regardless of language", () => {
+    const document = buildStoreDocument({
+      product, language: "en", brandName: "LumiWall", modelId: "template", personas: [], angles: [], brandKit,
+      creationFormat: "product", templateId: "product-buybox-premium", answers: answersByFormat.product,
+    });
+    const productHero = document.pages[0].sections.find((section) => section.type === "productHero")!;
+
+    expect(productHero.settings.cta_label).toBe("Ajouter au panier");
+  });
+
   it("does not manufacture bundle discounts when the source contains only unit prices", () => {
     const document = buildStoreDocument({
       product: { ...product, reviews: [] },

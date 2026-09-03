@@ -58,6 +58,23 @@ describe("dashboard home model", () => {
     expect(projectPreviewImage(product)).toBe("data:image/webp;base64,AAAA");
   });
 
+  it("uses the first image asset from a v2 product document", () => {
+    const product = page({
+      document: {
+        version: 2,
+        name: "Produit v2",
+        path: "/produit-v2",
+        kind: "product",
+        theme: { background: "#ffffff", surface: "#f4f1ec", ink: "#111111", muted: "#666666", accent: "#111111", display: "sans", radius: "soft" },
+        pages: [{ id: "page-produit", name: "Produit v2", slug: "produit-v2", sections: [] }],
+        assets: [{ id: "asset-1", type: "image", url: "https://cdn.example/product-v2.webp", alt: "Produit v2" }],
+      },
+      documentVersion: 2,
+    });
+
+    expect(projectPreviewImage(product)).toBe("https://cdn.example/product-v2.webp");
+  });
+
   it("sorts recent projects and maps publication states in French", () => {
     const draft = page({ id: "draft", updatedAt: "2026-09-01T12:00:00.000Z" });
     const ready = page({ id: "ready", status: "published_hosted", updatedAt: "2026-09-02T12:00:00.000Z" });

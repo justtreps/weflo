@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import type { LlmPort, PageDocument, SectionType } from "../types";
+import type { LlmPort, PageDocument, SectionType, StoredPageDocument } from "../types";
 import { SECTION_TYPES } from "./catalog";
 import { CANARDO_SYSTEM_PROMPT } from "../canardo/prompt";
 
@@ -50,10 +50,10 @@ export function isReferralPrompt(prompt: string): boolean {
   return REFERRAL_RE.test(prompt);
 }
 
-export function refuseReferralHelp(
+export function refuseReferralHelp<T extends StoredPageDocument>(
   prompt: string,
-  document: PageDocument,
-): { message: string; document: PageDocument } | null {
+  document: T,
+): { message: string; document: T } | null {
   if (!isReferralPrompt(prompt)) return null;
   return { message: CANARDO_REFUSAL, document };
 }

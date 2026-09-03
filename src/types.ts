@@ -1,3 +1,5 @@
+import type { EditorDocument } from "./editor/document";
+
 export type User = { id: string; email: string; name?: string | null };
 
 export type PageType = "sell" | "write" | "blank";
@@ -26,6 +28,8 @@ export type PageDocument = {
   referencePreviews?: { desktop: string; mobile: string };
 };
 
+export type StoredPageDocument = PageDocument | EditorDocument;
+
 export type Workspace = { id: string; name: string; slug: string; ownerUserId: string; createdAt: string };
 export type WorkspaceRole = "owner" | "member" | "viewer";
 export type Membership = { userId: string; workspaceId: string; role: WorkspaceRole };
@@ -37,7 +41,7 @@ export type Page = {
   slug: string;
   type: PageType;
   status: PageStatus;
-  document: PageDocument;
+  document: StoredPageDocument;
   documentVersion: number;
   updatedAt: string;
 };

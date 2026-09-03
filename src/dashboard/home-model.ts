@@ -1,4 +1,5 @@
 import type { Page, PageStatus, PageType, Workspace } from "../types";
+import { isEditorDocument } from "../editor/document";
 
 export type DashboardProject = {
   id: string;
@@ -55,6 +56,10 @@ function findMedia(value: unknown, parentKey = ""): string | null {
 }
 
 export function projectPreviewImage(page: Page): string | null {
+  if (isEditorDocument(page.document)) {
+    const asset = page.document.assets.find((candidate) => candidate.type === "image" && validMedia(candidate.url));
+    return asset?.url ?? findMedia(page.document.pages.flatMap((candidate) => candidate.sections));
+  }
   return findMedia(page.document.sections);
 }
 

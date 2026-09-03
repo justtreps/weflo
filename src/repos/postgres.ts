@@ -4,12 +4,12 @@ import type {
   CreditLedger,
   Membership,
   Page,
-  PageDocument,
   PageStatus,
   PageType,
   ReferralAttribution,
   ShopifyConnection,
   ShopifyStatus,
+  StoredPageDocument,
   User,
   WhopLink,
   Workspace,
@@ -525,7 +525,7 @@ type PageRow = {
   slug: string;
   type: PageType;
   status: PageStatus;
-  document: PageDocument;
+  document: StoredPageDocument;
   updatedAt: Date | string;
 };
 
@@ -549,13 +549,13 @@ type WhopRow = {
 type ImageGenerationRow = Omit<ImageGeneration, "createdAt"> & { createdAt: Date | string };
 
 function mapPage(row: PageRow): Page {
-  const stored = row.document as PageDocument & { __wefloDocumentVersion?: unknown };
+  const stored = row.document as StoredPageDocument & { __wefloDocumentVersion?: unknown };
   const documentVersion = typeof stored.__wefloDocumentVersion === "number" ? stored.__wefloDocumentVersion : 1;
   const { __wefloDocumentVersion: _version, ...document } = stored;
-  return { ...row, document: document as PageDocument, documentVersion, updatedAt: iso(row.updatedAt) };
+  return { ...row, document: document as StoredPageDocument, documentVersion, updatedAt: iso(row.updatedAt) };
 }
 
-function storedPageDocument(document: PageDocument, version: number): PageDocument & { __wefloDocumentVersion: number } {
+function storedPageDocument(document: StoredPageDocument, version: number): StoredPageDocument & { __wefloDocumentVersion: number } {
   return { ...document, __wefloDocumentVersion: version };
 }
 

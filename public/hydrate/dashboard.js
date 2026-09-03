@@ -332,6 +332,13 @@ async function guardSession() {
   return await res.json();
 }
 
+// src/editor/document.ts
+function isEditorDocument(value) {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value;
+  return candidate.version === 2 && Array.isArray(candidate.pages);
+}
+
 // src/dashboard/home-model.ts
 var MEDIA_KEY = /(image|media|poster|thumbnail)/i;
 var TYPE_LABEL = {
@@ -363,6 +370,10 @@ function findMedia(value, parentKey = "") {
   return null;
 }
 function projectPreviewImage(page) {
+  if (isEditorDocument(page.document)) {
+    const asset = page.document.assets.find((candidate) => candidate.type === "image" && validMedia(candidate.url));
+    return asset?.url ?? findMedia(page.document.pages.flatMap((candidate) => candidate.sections));
+  }
   return findMedia(page.document.sections);
 }
 function updatedLabel(iso) {

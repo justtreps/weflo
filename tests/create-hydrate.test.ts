@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { creationWorkspaceUrl } from "../src/create/workspace";
 import { createSubmissionLock } from "../src/create/submission-lock";
 import { creationStartupAction, initialCreationState } from "../src/create/flow-state";
+import { onboardingDraftPatch } from "../src/create/onboarding-sync";
 
 describe("creation hydration URL state", () => {
   it("rejects a second synchronous submit until the first navigation or failure releases the lock", () => {
@@ -41,5 +42,24 @@ describe("creation hydration URL state", () => {
 
     expect(bundle).toContain("data-template-open");
     expect(bundle).toContain("creationWorkspaceUrl");
+  });
+
+  it("synchronizes intake edits made after an image was selected", () => {
+    const selectedAtImport = {
+      ...initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium")),
+      answers: { benefits: "Bénéfice initial", objections: "Frein initial" },
+    };
+    const editedBeforeStrategy = {
+      ...selectedAtImport,
+      templateId: "product-demonstration",
+      answers: { benefits: "Bénéfice final", objections: "Frein final" },
+    };
+
+    expect(onboardingDraftPatch(editedBeforeStrategy)).toEqual({
+      creationFormat: "product",
+      templateId: "product-demonstration",
+      answers: { benefits: "Bénéfice final", objections: "Frein final" },
+      language: "fr",
+    });
   });
 });

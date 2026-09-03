@@ -6770,16 +6770,16 @@ var require_helpers = __commonJS({
     }
     function appendFlowIdToRedirectTo(redirectTo, flowId) {
       const hashIndex = redirectTo.indexOf("#");
-      let base7 = hashIndex === -1 ? redirectTo : redirectTo.slice(0, hashIndex);
+      let base8 = hashIndex === -1 ? redirectTo : redirectTo.slice(0, hashIndex);
       const fragment2 = hashIndex === -1 ? "" : redirectTo.slice(hashIndex);
-      const queryIndex = base7.indexOf("?");
+      const queryIndex = base8.indexOf("?");
       if (queryIndex !== -1) {
-        const path3 = base7.slice(0, queryIndex);
-        const remaining = base7.slice(queryIndex + 1).split("&").filter((pair) => pair !== "" && pair !== constants_1.PKCE_FLOW_ID_PARAM && !pair.startsWith(`${constants_1.PKCE_FLOW_ID_PARAM}=`));
-        base7 = remaining.length > 0 ? `${path3}?${remaining.join("&")}` : path3;
+        const path3 = base8.slice(0, queryIndex);
+        const remaining = base8.slice(queryIndex + 1).split("&").filter((pair) => pair !== "" && pair !== constants_1.PKCE_FLOW_ID_PARAM && !pair.startsWith(`${constants_1.PKCE_FLOW_ID_PARAM}=`));
+        base8 = remaining.length > 0 ? `${path3}?${remaining.join("&")}` : path3;
       }
-      const separator = base7.includes("?") ? "&" : "?";
-      return `${base7}${separator}${constants_1.PKCE_FLOW_ID_PARAM}=${encodeURIComponent(flowId)}${fragment2}`;
+      const separator = base8.includes("?") ? "&" : "?";
+      return `${base8}${separator}${constants_1.PKCE_FLOW_ID_PARAM}=${encodeURIComponent(flowId)}${fragment2}`;
     }
     async function getCodeChallengeAndMethod(storage, storageKey, isPasswordRecovery = false, onEvictFlow) {
       const codeVerifier = generatePKCEVerifier();
@@ -19826,8 +19826,8 @@ function fixtureById(id2) {
 
 // src/section-preview/manifests.ts
 var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds) => {
-  const base7 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
-  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base7}-desktop.webp`, mobile: `${base7}-mobile.webp` }, previewVersion: 1 };
+  const base8 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
+  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base8}-desktop.webp`, mobile: `${base8}-mobile.webp` }, previewVersion: 1 };
 };
 var SECTION_PREVIEW_MANIFESTS = [
   item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"]),
@@ -20007,7 +20007,7 @@ var productHeroSection = {
     const action = `<a class="wf-section__button" href="${safeLink(section2.settings.cta_link)}">${escapeHtml(cta2)}</a>`;
     const requested = value(section2, "variant", "ambient-editorial");
     const variant = (/* @__PURE__ */ new Set(["ambient-editorial", "problem-solution", "clinical-evidence", "beauty-editorial", "object-editorial"])).has(requested) ? requested : "ambient-editorial";
-    if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy"><span>Le probl\xE8me, r\xE9solu.</span>${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-hero__proof">\u2713 Simple \xE0 choisir \xB7 \u2713 Pens\xE9 pour le quotidien</div>${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media3}<figcaption>${escapeHtml(subtitle)}</figcaption></figure></section>`;
+    if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy">${subtitle ? `<span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>` : ""}${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media3}</figure></section>`;
     if (variant === "clinical-evidence") return `<section class="wf-section wf-hero wf-hero__clinical" data-wf-variant="clinical-evidence"><div><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}<dl><div><dt>Usage</dt><dd>Clair</dd></div><div><dt>Choix</dt><dd>Guid\xE9</dd></div></dl>${action}</div><figure>${media3}</figure></section>`;
     return `<section class="wf-section wf-hero wf-hero__atmosphere wf-product-hero--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><figure>${media3}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
   },
@@ -20064,20 +20064,42 @@ var productGridSection = {
 };
 
 // src/sections/collection-grid.ts
+var base3 = createSectionDefinition(
+  "collectionGrid",
+  "Grille de collections",
+  "commerce",
+  "cards",
+  { collection_handle: "" },
+  [textControl("collection_handle", "Collection Shopify", "text")]
+);
 var collectionGridSection = {
-  ...createSectionDefinition("collectionGrid", "Grille de collections", "commerce", "product", { collection_handle: "" }, [textControl("collection_handle", "Collection Shopify", "text")]),
-  renderLiquid: () => `<section class="weflo-collection-grid"><h2>{{ section.settings.title | escape }}</h2>{% assign selected_collection = collections[section.settings.collection_handle] %}<div>{% for product in selected_collection.products %}<a href="{{ product.url }}"><h3>{{ product.title | escape }}</h3>{{ product.price | money }}</a>{% endfor %}</div></section>`
+  ...base3,
+  renderWeb: ({ section: section2, pageName }) => {
+    const title = value(section2, "title", pageName);
+    const subtitle = value(section2, "subtitle");
+    const copy = value(section2, "text");
+    const cards = section2.blocks.map((block) => {
+      const name = blockValue(block, "title", "[Nom de la collection]");
+      const description = blockValue(block, "text");
+      const media3 = safeMediaUrl(block.settings.image);
+      const content = `${media3 ? `<img src="${media3}" alt="${escapeHtml(blockValue(block, "image_alt", name))}" loading="lazy">` : ""}<h3>${escapeHtml(name)}</h3>${description ? `<p>${escapeHtml(description)}</p>` : ""}`;
+      const link = blockValue(block, "link");
+      return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block.id)}">${link ? `<a href="${safeLink(link)}">${content}</a>` : content}</article>`;
+    }).join("");
+    return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards}</div></section>`;
+  },
+  renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header><div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div></section>`
 };
 
 // src/sections/bundle.ts
-var base3 = createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" });
+var base4 = createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" });
 var bundleSection = {
-  ...base3,
+  ...base4,
   previewVariants: ["routine-set", "quantity-break"],
   renderWeb: (context) => {
     const requested = value(context.section, "variant", "routine-set");
     const variant = (/* @__PURE__ */ new Set(["routine-set", "quantity-break"])).has(requested) ? requested : "routine-set";
-    return base3.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant)}"`);
+    return base4.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant)}"`);
   },
   renderLiquid: () => `<section class="weflo-bundle"><h2>{{ section.settings.title | escape }}</h2><fieldset><legend>{{ section.settings.text }}</legend>{% for block in section.blocks %}<label {{ block.shopify_attributes }}><input type="checkbox" name="items[]" value="{{ block.settings.variant.id }}">{{ block.settings.title | escape }}</label>{% endfor %}</fieldset><button type="button">{{ section.settings.cta_label | escape }}</button></section>`
 };
@@ -20093,11 +20115,11 @@ var commerceSections = [productMainSection, productGridSection, collectionGridSe
 for (const definition of commerceSections) registerSection(definition);
 
 // src/sections/benefits.ts
-var base4 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
-var benefitsSection = { ...base4, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
+var base5 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var benefitsSection = { ...base5, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "ritual-cards");
   const variant = (/* @__PURE__ */ new Set(["ritual-cards", "technical-grid"])).has(requested) ? requested : "ritual-cards";
-  return base4.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
+  return base5.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/steps.ts
@@ -20107,11 +20129,11 @@ var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "car
 var statsSection = createSectionDefinition("stats", "Chiffres cl\xE9s", "conversion", "cards");
 
 // src/sections/testimonials.ts
-var base5 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
-var testimonialsSection = { ...base5, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
+var base6 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var testimonialsSection = { ...base6, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "editorial-stories");
   const variant = (/* @__PURE__ */ new Set(["editorial-stories", "ugc-grid"])).has(requested) ? requested : "editorial-stories";
-  return base5.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
+  return base6.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/reviews.ts
@@ -20127,11 +20149,11 @@ var guaranteesSection = createSectionDefinition("guarantees", "Garanties", "conv
 var shippingSection = createSectionDefinition("shipping", "Livraison", "conversion", "cards");
 
 // src/sections/faq.ts
-var base6 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
-var faqSection = { ...base6, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
+var base7 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var faqSection = { ...base7, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "editorial-accordion");
   const variant = (/* @__PURE__ */ new Set(["editorial-accordion", "support-columns"])).has(requested) ? requested : "editorial-accordion";
-  return base6.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
+  return base7.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/newsletter.ts
@@ -27787,6 +27809,11 @@ function answer(answers, key) {
 function listAnswer(answers, key) {
   return answer(answers, key).split(/\r?\n|[,;]+/).map((value2) => value2.trim()).filter(Boolean);
 }
+function boundedStepCount(value2, fallback) {
+  const parsed = Number.parseInt(value2, 10);
+  const count = Number.isFinite(parsed) ? parsed : fallback;
+  return Math.min(10, Math.max(1, count));
+}
 function first(...values2) {
   return values2.find((value2) => value2?.trim())?.trim() ?? "";
 }
@@ -27851,8 +27878,8 @@ function chooseRecipe(input, format, product) {
 }
 function contentForSection(type, index, input, product) {
   const answers = input.answers;
-  const selectedPersonas = input.personas.filter((persona) => persona.selected);
-  const selectedAngles = input.angles.filter((angle) => angle.selected);
+  const selectedPersonas = product ? input.personas.filter((persona) => persona.selected) : [];
+  const selectedAngles = product ? input.angles.filter((angle) => angle.selected) : [];
   const productTitle = product?.title ?? "";
   const productText = product?.description ?? "";
   const price = product ? money(product.price, product.currency) : "";
@@ -27866,7 +27893,7 @@ function contentForSection(type, index, input, product) {
   const submittedVariants = listAnswer(answers, "variants");
   const primaryTitle = first(productTitle, answer(answers, "promise"), answer(answers, "topic"), answer(answers, "objective"), answer(answers, "angle"), answer(answers, "campaign"), answer(answers, "positioning"), input.brandName);
   const primaryText = first(productText, answer(answers, "story"), answer(answers, "intent"), answer(answers, "audience"), answer(answers, "result"), answer(answers, "positioning"), answer(answers, "angle"));
-  const cta2 = first(answer(answers, "cta"), product ? input.language.toLowerCase().startsWith("fr") ? "Ajouter au panier" : "Add to cart" : "");
+  const cta2 = first(answer(answers, "cta"), product ? "Ajouter au panier" : "");
   const settings2 = {};
   let blocks2 = [];
   switch (type) {
@@ -27922,8 +27949,13 @@ function contentForSection(type, index, input, product) {
     }
     case "quiz": {
       const objective = answer(answers, "objective");
+      const stepCount = boundedStepCount(answer(answers, "steps"), segments.length || 3);
       Object.assign(settings2, { title: objective || "[Ajoutez l\u2019objectif du quiz]", subtitle: answer(answers, "steps"), text: answer(answers, "result") });
-      blocks2 = segments.map((segment, blockIndex) => item2(`quiz-${index + 1}-${blockIndex + 1}`, objective || `[Question ${blockIndex + 1}]`, segment));
+      blocks2 = Array.from({ length: stepCount }, (_, blockIndex) => item2(
+        `quiz-${index + 1}-${blockIndex + 1}`,
+        `[Question ${blockIndex + 1} \xE0 personnaliser]`,
+        segments[blockIndex] ?? "[Ajoutez les choix ou le contexte de cette question]"
+      ));
       break;
     }
     case "form":
@@ -28359,12 +28391,12 @@ function slugify2(value2) {
   const slug2 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return slug2 || "page";
 }
-async function uniqueSlug(store, workspaceId, base7) {
+async function uniqueSlug(store, workspaceId, base8) {
   const taken = new Set((await store.listPages(workspaceId)).map((p) => p.slug));
-  if (!taken.has(base7)) return base7;
+  if (!taken.has(base8)) return base8;
   let n = 2;
-  while (taken.has(`${base7}-${n}`)) n += 1;
-  return `${base7}-${n}`;
+  while (taken.has(`${base8}-${n}`)) n += 1;
+  return `${base8}-${n}`;
 }
 function isPageType(value2) {
   return typeof value2 === "string" && PAGE_TYPES.includes(value2);
@@ -28436,7 +28468,22 @@ function pagesRoutes(deps) {
       return c.json({ error: "invalid creation format" }, 400);
     } else {
       const format = body.creationFormat;
-      const templateId = body.templateId === null ? null : typeof body.templateId === "string" ? body.templateId : null;
+      if (body.type !== flowForFormat(format).pageType) return c.json({ error: "incompatible type" }, 400);
+      const suppliedTemplate = Object.prototype.hasOwnProperty.call(body, "templateId");
+      const invalidSuppliedTemplate = format === "blank" ? suppliedTemplate && body.templateId !== null : suppliedTemplate && (typeof body.templateId !== "string" || !body.templateId.trim());
+      if (invalidSuppliedTemplate) {
+        return c.json({ error: "invalid template" }, 400);
+      }
+      let templateId = null;
+      if (typeof body.templateId === "string") templateId = body.templateId.trim();
+      if (templateId) {
+        try {
+          const template2 = recipeForTemplate(templateId);
+          if (template2.format !== format) return c.json({ error: "invalid template" }, 400);
+        } catch {
+          return c.json({ error: "invalid template" }, 400);
+        }
+      }
       if (isProductLedCreationFormat(format)) return c.json({ error: "product_source_required" }, 409);
       const answers = safeAnswers(format, body.answers);
       try {
@@ -28496,13 +28543,15 @@ function pagesRoutes(deps) {
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
     const name = `${loaded.page.name} copy`;
     const slug2 = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify2(name));
+    const document2 = migrateDocument(loaded.page.document, loaded.page.type);
+    if (!validateEditorDocument(document2).ok) return c.json({ error: "invalid editor document" }, 500);
     const copy = await deps.store.createPage({
       workspaceId: loaded.page.workspaceId,
       name,
       slug: slug2,
       type: loaded.page.type,
       status: "draft",
-      document: loaded.page.document
+      document: document2
     });
     return c.json(copy, 201);
   });
@@ -28570,11 +28619,10 @@ function pagesRoutes(deps) {
       });
     }
     const token = resolveShopifyToken(shopify.tokenEncrypted, deps.encryptionKey);
-    const possibleEditor = updated.document;
-    if (possibleEditor.version === 2 && Array.isArray(possibleEditor.pages)) {
+    if (isEditorDocument(updated.document)) {
       if (!deps.shopify.publishEditor) return c.json({ error: "editor_publish_unavailable", status: "draft", previewUrl }, 503);
       try {
-        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: possibleEditor, pageName: updated.name, strategy, ...typeof body.themeId === "string" ? { themeId: body.themeId } : {}, replaceGlobalTemplate: body.replaceGlobalTemplate === true });
+        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: updated.document, pageName: updated.name, strategy, ...typeof body.themeId === "string" ? { themeId: body.themeId } : {}, replaceGlobalTemplate: body.replaceGlobalTemplate === true });
         const published2 = await deps.store.updatePage(loaded.page.id, { status: "published_shopify" });
         return c.json({ status: published2.status, shopify: "published", previewUrl, shopifyPreviewUrl: result.previewUrl, themeId: result.themeId, message: "Page publi\xE9e dans le th\xE8me Shopify choisi." });
       } catch {
@@ -28619,9 +28667,8 @@ function pagesRoutes(deps) {
     if (totalCredits(ledger) === 0) {
       return c.json({ error: "credits", message: "Tu n\u2019as plus assez de cr\xE9dits Canardo.", cta: "Ajouter des cr\xE9dits" }, 402);
     }
-    const possibleEditor = loaded.page.document;
-    if (possibleEditor.version === 2 && Array.isArray(possibleEditor.pages)) {
-      const editorDocument = possibleEditor;
+    if (isEditorDocument(loaded.page.document)) {
+      const editorDocument = loaded.page.document;
       const selectedId = typeof body.selectedId === "string" ? body.selectedId : null;
       let proposal = body.confirm === true && body.response ? body.response : null;
       if (!proposal) {
@@ -29112,7 +29159,7 @@ function renderKnownSection(section2, pageName) {
     case "footer":
       return `<footer class="wf-v2-wrap wf-v2-footer"><strong>${title}</strong><span>Con\xE7u avec Weflo</span>${blockMarkup}</footer>`;
     case "productHero":
-      return `<div class="wf-v2-wrap wf-v2-split wf-v2-hero--${variant}">${variant === "problem-solution" ? '<span class="wf-v2-problem-label">Le probl\xE8me, r\xE9solu.</span>' : ""}${media3}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta2}</a>${blockMarkup}</div></div>`;
+      return `<div class="wf-v2-wrap wf-v2-split wf-v2-hero--${variant}">${media3}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta2}</a>${blockMarkup}</div></div>`;
     case "productMain":
       return `<div class="wf-v2-wrap wf-v2-product wf-v2-product--${variant}"><div class="wf-v2-product__gallery">${media3}<div class="wf-v2-product__thumbs"><button>Image 1</button><button>Image 2</button></div></div><div class="wf-v2-product__buy-box">${editable("h1", "title", title)}${editable("p", "text", body)}<div class="wf-v2-product__prices">${editable("strong", "price", price, "wf-v2-price")}<s data-wf-edit-key="compare_at_price">${text(section2, "compare_at_price")}</s></div>${blockMarkup}<label>Quantit\xE9<input type="number" value="1" min="1"></label><div class="wf-v2-product__bundle">Solo \xB7 Duo \xB7 Pack</div><button class="wf-v2-button">${cta2}</button><p>Paiement s\xE9curis\xE9 \xB7 Commande suivie</p></div><div class="wf-v2-product__sticky"><span>${title}</span><strong>${price}</strong><button>${cta2}</button></div></div>`;
     case "hero":
@@ -29369,11 +29416,11 @@ function number(value2) {
   const parsed = Number(value2);
   return Number.isFinite(parsed) ? parsed : null;
 }
-function resolveUrl(value2, base7) {
+function resolveUrl(value2, base8) {
   const raw = text3(value2);
   if (!raw) return null;
   try {
-    const url = new URL(raw, base7);
+    const url = new URL(raw, base8);
     return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
   } catch {
     return null;
@@ -29525,10 +29572,10 @@ function stem(product) {
   return words[0] || product.vendor || "Nova";
 }
 function fallbackOnboardingAnalysis(product, language) {
-  const base7 = stem(product);
+  const base8 = stem(product);
   const french = language.toLowerCase().startsWith("fr");
   const light = /lamp|light|lumi|éclair/i.test(`${product.title} ${product.description}`);
-  const names = light ? ["LumiWall", "AuraMount", "HaloBeam", "GlowMount", "Everlight", "Radiant Wall", "Beam & Base", "Zenith Glow"] : [`${base7} Studio`, `${base7} House`, `Maison ${base7}`, `${base7} & Co`, `${base7} Lab`, `The ${base7}`, `${base7} Daily`, `${base7} Works`];
+  const names = light ? ["LumiWall", "AuraMount", "HaloBeam", "GlowMount", "Everlight", "Radiant Wall", "Beam & Base", "Zenith Glow"] : [`${base8} Studio`, `${base8} House`, `Maison ${base8}`, `${base8} & Co`, `${base8} Lab`, `The ${base8}`, `${base8} Daily`, `${base8} Works`];
   const personas2 = [
     { title: french ? "Locataire qui veut am\xE9liorer son int\xE9rieur" : "Renter upgrading their space", insight: french ? `Veut profiter de ${product.title} sans installation compliqu\xE9e.` : `Wants ${product.title} without a complicated installation.`, icon: "\u{1F511}", tags: ["Problem-aware", "Researches first"] },
     { title: french ? "Passionn\xE9 de d\xE9coration" : "Design-conscious decorator", insight: french ? "Cherche une finition coh\xE9rente avec un int\xE9rieur soign\xE9." : "Looks for a finish that belongs in a considered interior.", icon: "\u2728", tags: ["Style-led", "Impulse buyer"] },
@@ -29599,7 +29646,7 @@ function createOnboardingDraftInput(input) {
     claimTokenHash: input.claimTokenHash,
     sourceUrl: input.sourceUrl,
     product: null,
-    language: "en",
+    language: "fr",
     modelId: null,
     creationFormat: "store",
     templateId: null,
@@ -29701,12 +29748,12 @@ function neutralBrandKit() {
   };
 }
 async function uniqueSlug2(deps, workspaceId, name) {
-  const base7 = slugify3(name);
+  const base8 = slugify3(name);
   const used = new Set((await deps.store.listPages(workspaceId)).map((page) => page.slug));
-  if (!used.has(base7)) return base7;
+  if (!used.has(base8)) return base8;
   let index = 2;
-  while (used.has(`${base7}-${index}`)) index += 1;
-  return `${base7}-${index}`;
+  while (used.has(`${base8}-${index}`)) index += 1;
+  return `${base8}-${index}`;
 }
 function onboardingRoutes(deps) {
   const app2 = new Hono9();
@@ -29714,7 +29761,7 @@ function onboardingRoutes(deps) {
     if (!deps.productFetch) return c.json({ error: "import_unavailable", message: "L\u2019importation de produits n\u2019est pas configur\xE9e." }, 503);
     const body = await c.req.json().catch(() => ({}));
     const sourceUrl = typeof body.sourceUrl === "string" ? body.sourceUrl.trim() : "";
-    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "en";
+    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "fr";
     const claim = createClaimToken();
     let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl }));
     try {
@@ -29744,7 +29791,7 @@ function onboardingRoutes(deps) {
       return c.json({ error: "invalid_image", message: "Choisis une image PNG, JPG ou WebP. Weflo doit pouvoir l\u2019optimiser sous 450 Ko." }, 400);
     }
     const fileName = typeof body.fileName === "string" ? body.fileName.trim().slice(0, 120) : "produit.jpg";
-    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "en";
+    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "fr";
     const claim = createClaimToken();
     let product = imageProduct(body.imageDataUrl, fileName);
     let analysis = fallbackOnboardingAnalysis(product, language);

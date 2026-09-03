@@ -659,6 +659,17 @@ function createSubmissionLock() {
   };
 }
 
+// src/create/onboarding-sync.ts
+function onboardingDraftPatch(state2, strategy) {
+  return {
+    creationFormat: state2.format ?? "store",
+    templateId: state2.templateId,
+    answers: { ...state2.answers },
+    language: "fr",
+    ...strategy ? { personas: strategy.personas, angles: strategy.angles } : {}
+  };
+}
+
 // src/hydrate/creer.ts
 var CREATION_DRAFT_KEY = "weflo-create-draft-v2";
 var root = document.querySelector("#create-app");
@@ -718,11 +729,16 @@ function renderBuild() {
   const formatTitle = creationFormats.find((item) => item.id === state.format)?.title ?? "Boutique";
   root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
 }
+async function syncDraft(includeStrategy = false) {
+  if (!draft) return;
+  const strategy = includeStrategy ? { personas: draft.personas, angles: draft.angles } : void 0;
+  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify(onboardingDraftPatch(state, strategy)) });
+}
 async function importLink(value) {
   const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });
   draft = body.draft;
   token = body.claimToken;
-  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", templateId: state.templateId, answers: state.answers, language: "fr" }) });
+  await syncDraft();
 }
 async function importImage(file) {
   if (file.size > 45e4) throw new Error("Choisis une image de moins de 450 Ko.");
@@ -735,7 +751,7 @@ async function importImage(file) {
   const body = await request("/api/onboarding/import-image", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ imageDataUrl: data, fileName: file.name, language: "fr" }) });
   draft = body.draft;
   token = body.claimToken;
-  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", templateId: state.templateId, answers: state.answers, language: "fr" }) });
+  await syncDraft();
 }
 async function createSimple() {
   const type = state.format === "blog" ? "write" : state.format === "blank" ? "blank" : "sell";
@@ -754,7 +770,7 @@ async function build() {
   renderBuild();
   let timer;
   try {
-    await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", personas: draft.personas, angles: draft.angles, language: "fr" }) });
+    await syncDraft(true);
     buildStageIndex = 1;
     renderBuild();
     timer = setInterval(() => {
@@ -867,6 +883,7 @@ function bind() {
     try {
       error = "";
       if (action === "link") await importLink(updated.prompt);
+      if (action === "image") await syncDraft();
       if (action === "simple") {
         state = transitionCreationFlow(updated, { type: "CONTINUE" });
         persistState();

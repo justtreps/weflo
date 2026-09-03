@@ -24,7 +24,7 @@ describe("Canardo vibecode", () => {
     const store = new MemoryStore();
     const workspace = await store.createWorkspace({ name: "Shop", ownerUserId: "u1" });
     const editorDocument = buildModelDocument("proteo", "Shop");
-    const page = await store.createPage({ workspaceId: workspace.id, name: "Shop", slug: "shop", type: "sell", status: "draft", document: editorDocument as never });
+    const page = await store.createPage({ workspaceId: workspace.id, name: "Shop", slug: "shop", type: "sell", status: "draft", document: editorDocument });
     const beforeCredits = (await store.getCredits(workspace.id)).monthlyRemaining;
     const app = createApp({ store, session: async () => ({ id: "u1", email: "a@b.c" }) });
     const preview = await app.request(`/api/pages/${page.id}/canardo`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: "Ajoute un accordéon interactif" }) });
@@ -36,7 +36,8 @@ describe("Canardo vibecode", () => {
     const accepted = await app.request(`/api/pages/${page.id}/canardo`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt: "Ajoute un accordéon interactif", confirm: true, response: { message: proposal.message, summary: proposal.summary, commands: proposal.commands } }) });
     expect(accepted.status).toBe(200);
     expect((await accepted.json()).requiresConfirmation).toBe(false);
-    expect(((await store.getPage(page.id))!.document as never as typeof editorDocument).pages[0].sections.at(-1)?.type).toBe("customCode");
+    const stored = (await store.getPage(page.id))!.document;
+    expect("pages" in stored ? stored.pages[0].sections.at(-1)?.type : "").toBe("customCode");
     expect((await store.getCredits(workspace.id)).monthlyRemaining).toBe(beforeCredits - 1);
   });
 });

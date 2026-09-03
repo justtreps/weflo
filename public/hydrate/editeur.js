@@ -288,8 +288,8 @@ function fixtureById(id2) {
 
 // src/section-preview/manifests.ts
 var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds) => {
-  const base7 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
-  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base7}-desktop.webp`, mobile: `${base7}-mobile.webp` }, previewVersion: 1 };
+  const base8 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
+  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base8}-desktop.webp`, mobile: `${base8}-mobile.webp` }, previewVersion: 1 };
 };
 var SECTION_PREVIEW_MANIFESTS = [
   item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"]),
@@ -537,7 +537,7 @@ var productHeroSection = {
     const action = `<a class="wf-section__button" href="${safeLink(section2.settings.cta_link)}">${escapeHtml(cta2)}</a>`;
     const requested = value(section2, "variant", "ambient-editorial");
     const variant = (/* @__PURE__ */ new Set(["ambient-editorial", "problem-solution", "clinical-evidence", "beauty-editorial", "object-editorial"])).has(requested) ? requested : "ambient-editorial";
-    if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy"><span>Le probl\xE8me, r\xE9solu.</span>${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-hero__proof">\u2713 Simple \xE0 choisir \xB7 \u2713 Pens\xE9 pour le quotidien</div>${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media3}<figcaption>${escapeHtml(subtitle)}</figcaption></figure></section>`;
+    if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy">${subtitle ? `<span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>` : ""}${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media3}</figure></section>`;
     if (variant === "clinical-evidence") return `<section class="wf-section wf-hero wf-hero__clinical" data-wf-variant="clinical-evidence"><div><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}<dl><div><dt>Usage</dt><dd>Clair</dd></div><div><dt>Choix</dt><dd>Guid\xE9</dd></div></dl>${action}</div><figure>${media3}</figure></section>`;
     return `<section class="wf-section wf-hero wf-hero__atmosphere wf-product-hero--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><figure>${media3}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
   },
@@ -594,20 +594,42 @@ var productGridSection = {
 };
 
 // src/sections/collection-grid.ts
+var base3 = createSectionDefinition(
+  "collectionGrid",
+  "Grille de collections",
+  "commerce",
+  "cards",
+  { collection_handle: "" },
+  [textControl("collection_handle", "Collection Shopify", "text")]
+);
 var collectionGridSection = {
-  ...createSectionDefinition("collectionGrid", "Grille de collections", "commerce", "product", { collection_handle: "" }, [textControl("collection_handle", "Collection Shopify", "text")]),
-  renderLiquid: () => `<section class="weflo-collection-grid"><h2>{{ section.settings.title | escape }}</h2>{% assign selected_collection = collections[section.settings.collection_handle] %}<div>{% for product in selected_collection.products %}<a href="{{ product.url }}"><h3>{{ product.title | escape }}</h3>{{ product.price | money }}</a>{% endfor %}</div></section>`
+  ...base3,
+  renderWeb: ({ section: section2, pageName }) => {
+    const title = value(section2, "title", pageName);
+    const subtitle = value(section2, "subtitle");
+    const copy = value(section2, "text");
+    const cards = section2.blocks.map((block3) => {
+      const name = blockValue(block3, "title", "[Nom de la collection]");
+      const description = blockValue(block3, "text");
+      const media3 = safeMediaUrl(block3.settings.image);
+      const content = `${media3 ? `<img src="${media3}" alt="${escapeHtml(blockValue(block3, "image_alt", name))}" loading="lazy">` : ""}<h3>${escapeHtml(name)}</h3>${description ? `<p>${escapeHtml(description)}</p>` : ""}`;
+      const link = blockValue(block3, "link");
+      return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block3.id)}">${link ? `<a href="${safeLink(link)}">${content}</a>` : content}</article>`;
+    }).join("");
+    return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards}</div></section>`;
+  },
+  renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header><div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div></section>`
 };
 
 // src/sections/bundle.ts
-var base3 = createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" });
+var base4 = createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" });
 var bundleSection = {
-  ...base3,
+  ...base4,
   previewVariants: ["routine-set", "quantity-break"],
   renderWeb: (context) => {
     const requested = value(context.section, "variant", "routine-set");
     const variant = (/* @__PURE__ */ new Set(["routine-set", "quantity-break"])).has(requested) ? requested : "routine-set";
-    return base3.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant)}"`);
+    return base4.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant)}"`);
   },
   renderLiquid: () => `<section class="weflo-bundle"><h2>{{ section.settings.title | escape }}</h2><fieldset><legend>{{ section.settings.text }}</legend>{% for block in section.blocks %}<label {{ block.shopify_attributes }}><input type="checkbox" name="items[]" value="{{ block.settings.variant.id }}">{{ block.settings.title | escape }}</label>{% endfor %}</fieldset><button type="button">{{ section.settings.cta_label | escape }}</button></section>`
 };
@@ -623,11 +645,11 @@ var commerceSections = [productMainSection, productGridSection, collectionGridSe
 for (const definition of commerceSections) registerSection(definition);
 
 // src/sections/benefits.ts
-var base4 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
-var benefitsSection = { ...base4, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
+var base5 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var benefitsSection = { ...base5, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "ritual-cards");
   const variant = (/* @__PURE__ */ new Set(["ritual-cards", "technical-grid"])).has(requested) ? requested : "ritual-cards";
-  return base4.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
+  return base5.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/steps.ts
@@ -637,11 +659,11 @@ var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "car
 var statsSection = createSectionDefinition("stats", "Chiffres cl\xE9s", "conversion", "cards");
 
 // src/sections/testimonials.ts
-var base5 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
-var testimonialsSection = { ...base5, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
+var base6 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var testimonialsSection = { ...base6, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "editorial-stories");
   const variant = (/* @__PURE__ */ new Set(["editorial-stories", "ugc-grid"])).has(requested) ? requested : "editorial-stories";
-  return base5.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
+  return base6.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/reviews.ts
@@ -657,11 +679,11 @@ var guaranteesSection = createSectionDefinition("guarantees", "Garanties", "conv
 var shippingSection = createSectionDefinition("shipping", "Livraison", "conversion", "cards");
 
 // src/sections/faq.ts
-var base6 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
-var faqSection = { ...base6, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
+var base7 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var faqSection = { ...base7, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "editorial-accordion");
   const variant = (/* @__PURE__ */ new Set(["editorial-accordion", "support-columns"])).has(requested) ? requested : "editorial-accordion";
-  return base6.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
+  return base7.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/newsletter.ts
@@ -864,7 +886,7 @@ function renderKnownSection(section2, pageName) {
     case "footer":
       return `<footer class="wf-v2-wrap wf-v2-footer"><strong>${title}</strong><span>Con\xE7u avec Weflo</span>${blockMarkup}</footer>`;
     case "productHero":
-      return `<div class="wf-v2-wrap wf-v2-split wf-v2-hero--${variant}">${variant === "problem-solution" ? '<span class="wf-v2-problem-label">Le probl\xE8me, r\xE9solu.</span>' : ""}${media3}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta2}</a>${blockMarkup}</div></div>`;
+      return `<div class="wf-v2-wrap wf-v2-split wf-v2-hero--${variant}">${media3}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta2}</a>${blockMarkup}</div></div>`;
     case "productMain":
       return `<div class="wf-v2-wrap wf-v2-product wf-v2-product--${variant}"><div class="wf-v2-product__gallery">${media3}<div class="wf-v2-product__thumbs"><button>Image 1</button><button>Image 2</button></div></div><div class="wf-v2-product__buy-box">${editable("h1", "title", title)}${editable("p", "text", body)}<div class="wf-v2-product__prices">${editable("strong", "price", price, "wf-v2-price")}<s data-wf-edit-key="compare_at_price">${text(section2, "compare_at_price")}</s></div>${blockMarkup}<label>Quantit\xE9<input type="number" value="1" min="1"></label><div class="wf-v2-product__bundle">Solo \xB7 Duo \xB7 Pack</div><button class="wf-v2-button">${cta2}</button><p>Paiement s\xE9curis\xE9 \xB7 Commande suivie</p></div><div class="wf-v2-product__sticky"><span>${title}</span><strong>${price}</strong><button>${cta2}</button></div></div>`;
     case "hero":
@@ -1067,11 +1089,11 @@ function runPanelAction(store, action) {
   if (action.action === "selectPage") store.setState({ pageId: action.pageId, selectedId: null });
   if (action.action === "addPage") {
     const name = action.name.trim() || "Nouvelle page";
-    const base7 = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
+    const base8 = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
     const slugs = new Set(state.document.pages.map((page2) => page2.slug));
-    let slug2 = base7;
+    let slug2 = base8;
     let suffix = 2;
-    while (slugs.has(slug2)) slug2 = `${base7}-${suffix++}`;
+    while (slugs.has(slug2)) slug2 = `${base8}-${suffix++}`;
     const page = { id: `page-${slug2}`, name, slug: slug2, sections: [] };
     store.setState({ document: { ...state.document, pages: [...state.document.pages, page] }, pageId: page.id, selectedId: null, saveStatus: "modified" });
   }
@@ -2091,14 +2113,14 @@ function fillSettings(type, name, model) {
 function documentFromModel(modelId, pageName) {
   const model = PAGE_MODELS.find((m) => m.id === modelId) ?? PAGE_MODELS[0];
   const name = pageName.trim() || model.name;
-  const base7 = initialDocument(name, model.type);
+  const base8 = initialDocument(name, model.type);
   return {
-    ...base7,
+    ...base8,
     name,
     modelId: model.id,
     theme: { ...model.themeConfig },
     referencePreviews: { desktop: model.previewDesktop, mobile: model.previewMobile },
-    sections: base7.sections.map((section2) => ({
+    sections: base8.sections.map((section2) => ({
       ...section2,
       settings: fillSettings(section2.type, name, model)
     }))

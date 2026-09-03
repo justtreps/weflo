@@ -127,7 +127,8 @@ describe("POST /api/pages/:id/canardo", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.message).toBe("Fait.");
-    expect((await store.getPage(page.id))!.document.sections[1].settings.title).toMatch(/Nantes/);
+    const stored = (await store.getPage(page.id))!.document;
+    expect("sections" in stored ? stored.sections[1].settings.title : "").toMatch(/Nantes/);
     expect((await store.getCredits(ws.id)).monthlyRemaining).toBeLessThan(40);
   });
 

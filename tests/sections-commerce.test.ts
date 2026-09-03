@@ -27,6 +27,24 @@ describe("commerce sections", () => {
     expect(html).toContain("wf-bundle__total");
   });
 
+  it("renders collection blocks as navigation cards without product commerce controls", () => {
+    const definition = commerceSections.find((item) => item.type === "collectionGrid")!;
+    const blocks: EditorSection["blocks"] = [
+      { id: "linge", type: "item", settings: { title: "Linge", text: "Maison douce", image: "https://cdn.example/linge.jpg", link: "/collections/linge" } },
+      { id: "lumiere", type: "item", settings: { title: "Lumière", text: "Objets lumineux", image: "", link: "/collections/lumiere" } },
+    ];
+    const web = render("collectionGrid", blocks);
+    const liquid = definition.renderLiquid();
+
+    expect(web).toContain("Linge");
+    expect(web).toContain("Lumière");
+    expect(web).toContain("/collections/linge");
+    expect(web).not.toMatch(/<form|name=["'](?:id|quantity)["']|\/cart\/add/);
+    expect(liquid).toContain("for block in section.blocks");
+    expect(liquid).toContain("block.settings.title");
+    expect(liquid).not.toMatch(/selected_collection\.products|name=["'](?:id|quantity)["']/);
+  });
+
   it("ships Shopify Liquid bindings without credentials", () => {
     for (const definition of commerceSections) {
       const liquid = definition.renderLiquid();

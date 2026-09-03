@@ -66,6 +66,12 @@ function listAnswer(answers: Record<string, string>, key: string): string[] {
   return answer(answers, key).split(/\r?\n|[,;]+/).map((value) => value.trim()).filter(Boolean);
 }
 
+function boundedStepCount(value: string, fallback: number): number {
+  const parsed = Number.parseInt(value, 10);
+  const count = Number.isFinite(parsed) ? parsed : fallback;
+  return Math.min(10, Math.max(1, count));
+}
+
 function first(...values: Array<string | undefined>): string {
   return values.find((value) => value?.trim())?.trim() ?? "";
 }
@@ -135,8 +141,8 @@ function chooseRecipe(input: NormalizedBuildStoreInput, format: CreationFormatId
 
 function contentForSection(type: string, index: number, input: NormalizedBuildStoreInput, product: ImportedProduct | undefined): { settings: Record<string, SettingValue>; blocks: EditorBlock[] } {
   const answers = input.answers;
-  const selectedPersonas = input.personas.filter((persona) => persona.selected);
-  const selectedAngles = input.angles.filter((angle) => angle.selected);
+  const selectedPersonas = product ? input.personas.filter((persona) => persona.selected) : [];
+  const selectedAngles = product ? input.angles.filter((angle) => angle.selected) : [];
   const productTitle = product?.title ?? "";
   const productText = product?.description ?? "";
   const price = product ? money(product.price, product.currency) : "";
@@ -150,7 +156,7 @@ function contentForSection(type: string, index: number, input: NormalizedBuildSt
   const submittedVariants = listAnswer(answers, "variants");
   const primaryTitle = first(productTitle, answer(answers, "promise"), answer(answers, "topic"), answer(answers, "objective"), answer(answers, "angle"), answer(answers, "campaign"), answer(answers, "positioning"), input.brandName);
   const primaryText = first(productText, answer(answers, "story"), answer(answers, "intent"), answer(answers, "audience"), answer(answers, "result"), answer(answers, "positioning"), answer(answers, "angle"));
-  const cta = first(answer(answers, "cta"), product ? (input.language.toLowerCase().startsWith("fr") ? "Ajouter au panier" : "Add to cart") : "");
+  const cta = first(answer(answers, "cta"), product ? "Ajouter au panier" : "");
   const settings: Record<string, SettingValue> = {};
   let blocks: EditorBlock[] = [];
 
@@ -209,8 +215,13 @@ function contentForSection(type: string, index: number, input: NormalizedBuildSt
     }
     case "quiz": {
       const objective = answer(answers, "objective");
+      const stepCount = boundedStepCount(answer(answers, "steps"), segments.length || 3);
       Object.assign(settings, { title: objective || "[Ajoutez l’objectif du quiz]", subtitle: answer(answers, "steps"), text: answer(answers, "result") });
-      blocks = segments.map((segment, blockIndex) => item(`quiz-${index + 1}-${blockIndex + 1}`, objective || `[Question ${blockIndex + 1}]`, segment));
+      blocks = Array.from({ length: stepCount }, (_, blockIndex) => item(
+        `quiz-${index + 1}-${blockIndex + 1}`,
+        `[Question ${blockIndex + 1} à personnaliser]`,
+        segments[blockIndex] ?? "[Ajoutez les choix ou le contexte de cette question]",
+      ));
       break;
     }
     case "form":

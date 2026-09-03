@@ -8,12 +8,14 @@ import { publishAccessForBilling } from "../lib/publishing";
 import { resolveShopifyToken } from "../lib/shopify";
 import type { Store } from "../repos/types";
 import { PageVersionConflictError } from "../repos/types";
-import type { Page, PageStatus, PageType, User, WhopPort } from "../types";
+import type { Page, PageDocument, PageStatus, PageType, User, WhopPort } from "../types";
 import type { AppDeps } from "./app";
 import type { EditorDocument } from "../editor/document";
+import { isEditorDocument } from "../editor/document";
 import { buildStoreDocument } from "../onboarding/compile-store";
 import { isCreationFormat, isProductLedCreationFormat, type CreationFormatId } from "../onboarding/creation-recipe";
 import { flowForFormat } from "../create/format-flow";
+import { recipeForTemplate } from "../onboarding/template-recipe";
 import { buildCanardoContext } from "../canardo/context";
 import { planCanardoLocally } from "../canardo/local-planner";
 import { applyCanardoOperations } from "../canardo/apply";
@@ -154,7 +156,24 @@ export function pagesRoutes(deps: AppDeps) {
       return c.json({ error: "invalid creation format" }, 400);
     } else {
       const format = body.creationFormat;
-      const templateId = body.templateId === null ? null : typeof body.templateId === "string" ? body.templateId : null;
+      if (body.type !== flowForFormat(format).pageType) return c.json({ error: "incompatible type" }, 400);
+      const suppliedTemplate = Object.prototype.hasOwnProperty.call(body, "templateId");
+      const invalidSuppliedTemplate = format === "blank"
+        ? suppliedTemplate && body.templateId !== null
+        : suppliedTemplate && (typeof body.templateId !== "string" || !body.templateId.trim());
+      if (invalidSuppliedTemplate) {
+        return c.json({ error: "invalid template" }, 400);
+      }
+      let templateId: string | null = null;
+      if (typeof body.templateId === "string") templateId = body.templateId.trim();
+      if (templateId) {
+        try {
+          const template = recipeForTemplate(templateId);
+          if (template.format !== format) return c.json({ error: "invalid template" }, 400);
+        } catch {
+          return c.json({ error: "invalid template" }, 400);
+        }
+      }
       if (isProductLedCreationFormat(format)) return c.json({ error: "product_source_required" }, 409);
       const answers = safeAnswers(format, body.answers);
       try {
@@ -180,7 +199,7 @@ export function pagesRoutes(deps: AppDeps) {
       slug,
       type: body.type,
       status: "draft",
-      document: document as never,
+      document,
     });
     return c.json(page, 201);
   });
@@ -218,13 +237,15 @@ export function pagesRoutes(deps: AppDeps) {
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
     const name = `${loaded.page.name} copy`;
     const slug = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify(name));
+    const document = migrateDocument(loaded.page.document, loaded.page.type);
+    if (!validateEditorDocument(document).ok) return c.json({ error: "invalid editor document" }, 500);
     const copy = await deps.store.createPage({
       workspaceId: loaded.page.workspaceId,
       name,
       slug,
       type: loaded.page.type,
       status: "draft",
-      document: loaded.page.document,
+      document,
     });
     return c.json(copy, 201);
   });
@@ -292,11 +313,10 @@ export function pagesRoutes(deps: AppDeps) {
     }
 
     const token = resolveShopifyToken(shopify.tokenEncrypted, deps.encryptionKey);
-    const possibleEditor = updated.document as unknown as Partial<EditorDocument>;
-    if (possibleEditor.version === 2 && Array.isArray(possibleEditor.pages)) {
+    if (isEditorDocument(updated.document)) {
       if (!deps.shopify.publishEditor) return c.json({ error: "editor_publish_unavailable", status: "draft", previewUrl }, 503);
       try {
-        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: possibleEditor, pageName: updated.name, strategy, ...(typeof body.themeId === "string" ? { themeId: body.themeId } : {}), replaceGlobalTemplate: body.replaceGlobalTemplate === true });
+        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: updated.document, pageName: updated.name, strategy, ...(typeof body.themeId === "string" ? { themeId: body.themeId } : {}), replaceGlobalTemplate: body.replaceGlobalTemplate === true });
         const published = await deps.store.updatePage(loaded.page.id, { status: "published_shopify" });
         return c.json({ status: published.status, shopify: "published", previewUrl, shopifyPreviewUrl: result.previewUrl, themeId: result.themeId, message: "Page publiée dans le thème Shopify choisi." });
       } catch {
@@ -343,9 +363,8 @@ export function pagesRoutes(deps: AppDeps) {
     if (totalCredits(ledger) === 0) {
       return c.json({ error: "credits", message: "Tu n’as plus assez de crédits Canardo.", cta: "Ajouter des crédits" }, 402);
     }
-    const possibleEditor = loaded.page.document as unknown as Partial<EditorDocument>;
-    if (possibleEditor.version === 2 && Array.isArray(possibleEditor.pages)) {
-      const editorDocument = possibleEditor as EditorDocument;
+    if (isEditorDocument(loaded.page.document)) {
+      const editorDocument = loaded.page.document;
       const selectedId = typeof body.selectedId === "string" ? body.selectedId : null;
       let proposal: unknown = body.confirm === true && body.response ? body.response : null;
       if (!proposal) {
@@ -366,7 +385,7 @@ export function pagesRoutes(deps: AppDeps) {
       const cost = /\b(image|photo|visuel)\b/i.test(prompt) ? 3 : 1;
       let nextLedger;
       try { nextLedger = spendCredits(ledger, cost); } catch { return c.json({ error: "credits", cta: "Ajouter des crédits" }, 402); }
-      const page = await deps.store.updatePage(loaded.page.id, { document: applied.document as never });
+      const page = await deps.store.updatePage(loaded.page.id, { document: applied.document });
       await deps.store.saveCredits(nextLedger);
       return c.json({ message: response.message, summary: response.summary, commands: response.commands, document: page.document, credits: nextLedger, requiresConfirmation: false });
     }
@@ -379,7 +398,7 @@ export function pagesRoutes(deps: AppDeps) {
     } catch {
       return c.json({ error: "generation", message: "Canardo n’a pas pu terminer la génération. Ta page est conservée." }, 502);
     }
-    let applied: { message: string; document: Page["document"] };
+    let applied: { message: string; document: PageDocument };
     try {
       applied = applyCanardo(loaded.page.document, raw);
     } catch (err) {

@@ -31,7 +31,7 @@ export function createOnboardingDraftInput(input: { claimTokenHash: string; sour
     claimTokenHash: input.claimTokenHash,
     sourceUrl: input.sourceUrl,
     product: null,
-    language: "en",
+    language: "fr",
     modelId: null,
     creationFormat: "store",
     templateId: null,

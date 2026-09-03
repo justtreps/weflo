@@ -102,7 +102,7 @@ export function onboardingRoutes(deps: AppDeps) {
     if (!deps.productFetch) return c.json({ error: "import_unavailable", message: "L’importation de produits n’est pas configurée." }, 503);
     const body = await c.req.json<{ sourceUrl?: unknown; language?: unknown }>().catch(() => ({} as { sourceUrl?: unknown; language?: unknown }));
     const sourceUrl = typeof body.sourceUrl === "string" ? body.sourceUrl.trim() : "";
-    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "en";
+    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "fr";
     const claim = createClaimToken();
     let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl }));
     try {
@@ -134,7 +134,7 @@ export function onboardingRoutes(deps: AppDeps) {
       return c.json({ error: "invalid_image", message: "Choisis une image PNG, JPG ou WebP. Weflo doit pouvoir l’optimiser sous 450 Ko." }, 400);
     }
     const fileName = typeof body.fileName === "string" ? body.fileName.trim().slice(0, 120) : "produit.jpg";
-    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "en";
+    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim() : "fr";
     const claim = createClaimToken();
     let product = imageProduct(body.imageDataUrl, fileName);
     let analysis = fallbackOnboardingAnalysis(product, language);
@@ -251,7 +251,7 @@ export function onboardingRoutes(deps: AppDeps) {
     if (draft.claimedPageId) return c.json({ pageId: draft.claimedPageId, alreadyClaimed: true });
     const workspace = await ensureWorkspace(deps.store, user.id, { whop: deps.whop, email: user.email });
     const pageType = draft.creationFormat === "blog" ? "write" : draft.creationFormat === "blank" ? "blank" : "sell";
-    const page = await deps.store.createPage({ workspaceId: workspace.id, name: draft.brandName, slug: await uniqueSlug(deps, workspace.id, draft.brandName), type: pageType, status: "draft", document: draft.document as never });
+    const page = await deps.store.createPage({ workspaceId: workspace.id, name: draft.brandName, slug: await uniqueSlug(deps, workspace.id, draft.brandName), type: pageType, status: "draft", document: draft.document });
     await deps.store.claimOnboardingDraft(draft.id, draft.claimTokenHash, user.id, page.id);
     return c.json({ pageId: page.id }, 201);
   });
