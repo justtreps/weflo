@@ -7,7 +7,9 @@ import { createOnboardingDraftInput, initialBuildStages } from "../onboarding/sc
 import { claimTokenMatches, createClaimToken } from "../onboarding/token";
 import type { ImportedProduct, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
 import type { AppDeps } from "./app";
-import { isCreationFormat } from "../onboarding/creation-recipe";
+import { isCreationFormat, isProductLedCreationFormat } from "../onboarding/creation-recipe";
+import { recipeForTemplate } from "../onboarding/template-recipe";
+import { flowForFormat } from "../create/format-flow";
 import { ensureWorkspace, requireUser } from "./pages";
 
 function publicDraft(draft: OnboardingDraft): Omit<OnboardingDraft, "claimTokenHash"> {
@@ -66,6 +68,22 @@ async function authorizedDraft(deps: AppDeps, id: string, req: Request): Promise
 
 function slugify(value: string): string {
   return value.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "store";
+}
+
+function intakeAnswers(format: OnboardingDraft["creationFormat"], value: unknown): Record<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const raw = value as Record<string, unknown>;
+  const allowed = new Set(flowForFormat(format).intake.map((field) => field.id));
+  return Object.fromEntries(Object.entries(raw).flatMap(([key, answer]) => allowed.has(key) && typeof answer === "string" ? [[key, answer.trim().slice(0, 4_000)] as const] : []));
+}
+
+function neutralBrandKit() {
+  return {
+    palette: ["#ffffff", "#111111", "#f4f1ec", "#ffffff"],
+    headingFont: "Inter",
+    bodyFont: "Inter",
+    schemes: [{ name: "Default", background: "#ffffff", text: "#111111", accent: "#111111" }],
+  };
 }
 
 async function uniqueSlug(deps: AppDeps, workspaceId: string, name: string): Promise<string> {
@@ -174,7 +192,23 @@ export function onboardingRoutes(deps: AppDeps) {
       }
     }
     if (typeof body.modelId === "string") patch.modelId = body.modelId.slice(0, 60);
+    const nextFormat = isCreationFormat(body.creationFormat) ? body.creationFormat : draft.creationFormat;
     if (isCreationFormat(body.creationFormat)) patch.creationFormat = body.creationFormat;
+    if (body.templateId === null) patch.templateId = null;
+    else if (typeof body.templateId === "string") {
+      try {
+        const recipe = recipeForTemplate(body.templateId);
+        if (recipe.format !== nextFormat) return c.json({ error: "invalid_template" }, 400);
+        patch.templateId = recipe.id;
+      } catch {
+        return c.json({ error: "invalid_template" }, 400);
+      }
+    } else if (patch.creationFormat && draft.templateId) {
+      try {
+        if (recipeForTemplate(draft.templateId).format !== nextFormat) patch.templateId = null;
+      } catch { patch.templateId = null; }
+    }
+    if (body.answers !== undefined) patch.answers = intakeAnswers(nextFormat, body.answers);
     if (typeof body.brandName === "string") patch.brandName = body.brandName.trim().slice(0, 60);
     if (Array.isArray(body.personas)) patch.personas = body.personas as OnboardingDraft["personas"];
     if (Array.isArray(body.angles)) patch.angles = body.angles as OnboardingDraft["angles"];
@@ -185,12 +219,25 @@ export function onboardingRoutes(deps: AppDeps) {
   app.post("/onboarding/:id/build", async (c) => {
     const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
     if (!draft) return c.json({ error: "unauthorized" }, 401);
-    if (!draft.product) return c.json({ error: "missing_product" }, 409);
+    if (isProductLedCreationFormat(draft.creationFormat) && !draft.product) return c.json({ error: "missing_product" }, 409);
     const stages = initialBuildStages().map((stage) => ({ ...stage, state: "complete" as const }));
-    const brandName = draft.brandName || draft.brandNames[0] || draft.product.vendor || "Weflo Store";
+    const brandName = draft.brandName || draft.brandNames[0] || draft.answers?.brand || draft.answers?.topic || draft.product?.vendor || "Nouvelle page";
     const modelId = draft.modelId || "proteo";
-    const brandKit = draft.brandKit ?? createBrandKit(draft.product, modelId);
-    const document = buildStoreDocument({ product: draft.product, language: draft.language, brandName, modelId, personas: draft.personas, angles: draft.angles, brandKit, creationFormat: draft.creationFormat });
+    const brandKit = draft.brandKit ?? (draft.product ? createBrandKit(draft.product, modelId) : neutralBrandKit());
+    const buildInput = {
+      language: draft.language,
+      brandName,
+      modelId,
+      personas: draft.personas,
+      angles: draft.angles,
+      brandKit,
+      creationFormat: draft.creationFormat,
+      templateId: draft.templateId ?? null,
+      answers: draft.answers ?? {},
+    };
+    const document = isProductLedCreationFormat(draft.creationFormat)
+      ? buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat, product: draft.product! })
+      : buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat });
     const updated = await deps.store.updateOnboardingDraft(draft.id, { status: "ready", stages, brandKit, document, brandName, modelId, error: null });
     return c.json({ draft: publicDraft(updated) });
   });

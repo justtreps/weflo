@@ -243,18 +243,141 @@ function renderCreateWorkspace(input) {
   return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc3(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }
 
+// src/onboarding/template-recipe.ts
+var TEMPLATE_RECIPES = [
+  {
+    id: "store-editorial-commerce",
+    format: "store",
+    sections: ["announcement", "navigation", "hero", "imageText", "collectionGrid", "productMain", "benefits", "reviews", "newsletter", "footer"],
+    variants: { hero: "editorial", imageText: "story", collectionGrid: "curated", productMain: "calm-buy-box", reviews: "editorial-stories" }
+  },
+  {
+    id: "store-conversion-modern",
+    format: "store",
+    sections: ["announcement", "navigation", "productHero", "productMain", "benefits", "bundle", "reviews", "shipping", "faq", "cta", "footer"],
+    variants: { productHero: "problem-solution", productMain: "conversion-split", benefits: "icon-grid", bundle: "quantity-break", reviews: "results-wall" }
+  },
+  {
+    id: "store-maison-premium",
+    format: "store",
+    sections: ["announcement", "navigation", "hero", "collectionGrid", "imageText", "press", "benefits", "productMain", "newsletter", "footer"],
+    variants: { hero: "split", collectionGrid: "premium", imageText: "brand-story", press: "press-quotes", productMain: "luxury-buy-box" }
+  },
+  {
+    id: "product-buybox-premium",
+    format: "product",
+    sections: ["announcement", "navigation", "productHero", "gallery", "productMain", "benefits", "reviews", "shipping", "faq", "cta", "footer"],
+    variants: { productHero: "ambient-editorial", productMain: "premium", reviews: "featured" }
+  },
+  {
+    id: "product-demonstration",
+    format: "product",
+    sections: ["navigation", "productHero", "gallery", "imageText", "benefits", "comparison", "productMain", "reviews", "faq", "cta", "footer"],
+    variants: { productHero: "problem-solution", gallery: "demonstration", benefits: "visual", comparison: "feature-led", productMain: "technical-buy-box" }
+  },
+  {
+    id: "product-bundle-first",
+    format: "product",
+    sections: ["announcement", "navigation", "productHero", "productMain", "bundle", "benefits", "shipping", "reviews", "faq", "cta", "footer"],
+    variants: { productHero: "conversion-split", productMain: "bundle-led", bundle: "quantity-break", benefits: "icon-grid" }
+  },
+  {
+    id: "landing-direct-response",
+    format: "landing",
+    sections: ["announcement", "navigation", "hero", "benefits", "comparison", "faq", "form", "cta", "footer"],
+    variants: { hero: "direct-response", benefits: "icon-grid", comparison: "feature-led", form: "lead-capture", cta: "repeated" }
+  },
+  {
+    id: "landing-editorial-premium",
+    format: "landing",
+    sections: ["navigation", "hero", "imageText", "richText", "benefits", "faq", "cta", "footer"],
+    variants: { hero: "editorial", imageText: "story", richText: "longform", benefits: "editorial" }
+  },
+  {
+    id: "landing-visual-demo",
+    format: "landing",
+    sections: ["navigation", "hero", "gallery", "benefits", "steps", "comparison", "form", "cta", "footer"],
+    variants: { hero: "visual", gallery: "demonstration", benefits: "diagram", steps: "process", comparison: "feature-led" }
+  },
+  {
+    id: "advertorial-journal",
+    format: "advertorial",
+    sections: ["navigation", "hero", "press", "richText", "imageText", "comparison", "faq", "cta", "footer"],
+    variants: { hero: "editorial", press: "inline", richText: "journal", imageText: "story" }
+  },
+  {
+    id: "advertorial-founder-story",
+    format: "advertorial",
+    sections: ["navigation", "hero", "richText", "imageText", "benefits", "form", "cta", "footer"],
+    variants: { hero: "founder", richText: "narrative", imageText: "founder", benefits: "editorial" }
+  },
+  {
+    id: "advertorial-comparison",
+    format: "advertorial",
+    sections: ["navigation", "hero", "comparison", "richText", "benefits", "faq", "cta", "footer"],
+    variants: { hero: "comparison", comparison: "feature-led", richText: "evidence", benefits: "icon-grid" }
+  },
+  {
+    id: "quiz-diagnostic",
+    format: "quiz",
+    sections: ["navigation", "hero", "benefits", "quiz", "form", "faq", "cta", "footer"],
+    variants: { hero: "diagnostic", quiz: "diagnostic", form: "stepper", benefits: "icon-grid" }
+  },
+  {
+    id: "quiz-routine",
+    format: "quiz",
+    sections: ["navigation", "hero", "richText", "quiz", "benefits", "form", "newsletter", "footer"],
+    variants: { hero: "editorial", richText: "routine", quiz: "routine", benefits: "editorial" }
+  },
+  {
+    id: "quiz-recommendation",
+    format: "quiz",
+    sections: ["announcement", "navigation", "hero", "quiz", "comparison", "form", "cta", "footer"],
+    variants: { hero: "recommendation", quiz: "recommendation", comparison: "result", form: "stepper", cta: "result" }
+  },
+  {
+    id: "home-brand-editorial",
+    format: "home",
+    sections: ["announcement", "navigation", "hero", "imageText", "collectionGrid", "testimonials", "newsletter", "footer"],
+    variants: { hero: "editorial", imageText: "brand-story", collectionGrid: "curated", testimonials: "editorial-stories" }
+  },
+  {
+    id: "home-catalogue-premium",
+    format: "home",
+    sections: ["announcement", "navigation", "hero", "collectionGrid", "benefits", "imageText", "newsletter", "footer"],
+    variants: { hero: "catalogue", collectionGrid: "premium", benefits: "icon-grid", imageText: "editorial" }
+  },
+  {
+    id: "home-story-first",
+    format: "home",
+    sections: ["navigation", "hero", "richText", "imageText", "press", "collectionGrid", "newsletter", "footer"],
+    variants: { hero: "story", richText: "manifesto", imageText: "brand-story", press: "press-quotes", collectionGrid: "curated" }
+  },
+  {
+    id: "blog-magazine",
+    format: "blog",
+    sections: ["navigation", "hero", "richText", "imageText", "press", "newsletter", "footer"],
+    variants: { hero: "magazine", richText: "longform", imageText: "editorial", press: "inline" }
+  },
+  {
+    id: "blog-guide",
+    format: "blog",
+    sections: ["navigation", "hero", "richText", "benefits", "faq", "newsletter", "footer"],
+    variants: { hero: "guide", richText: "guide", benefits: "steps", faq: "inline" }
+  },
+  {
+    id: "blog-study",
+    format: "blog",
+    sections: ["navigation", "hero", "richText", "comparison", "press", "newsletter", "footer"],
+    variants: { hero: "study", richText: "analysis", comparison: "evidence", press: "sources" }
+  }
+];
+var recipesById = new Map(TEMPLATE_RECIPES.map((recipe) => [recipe.id, recipe]));
+
 // src/onboarding/creation-recipe.ts
-var FORMAT_RECIPES = {
-  product: ["announcement", "navigation", "productHero", "gallery", "productMain", "benefits", "reviews", "bundle", "shipping", "faq", "cta", "footer"],
-  landing: ["announcement", "navigation", "hero", "benefits", "imageText", "comparison", "reviews", "productMain", "guarantees", "faq", "cta", "footer"],
-  advertorial: ["navigation", "hero", "press", "richText", "imageText", "benefits", "reviews", "comparison", "productMain", "guarantees", "faq", "cta", "footer"],
-  quiz: ["navigation", "hero", "benefits", "quiz", "form", "testimonials", "productMain", "guarantees", "faq", "cta", "footer"],
-  home: ["announcement", "navigation", "hero", "collectionGrid", "imageText", "benefits", "testimonials", "newsletter", "footer"],
-  blog: ["navigation", "hero", "richText", "imageText", "press", "newsletter", "footer"],
-  blank: ["navigation", "hero", "footer"]
-};
+var CREATION_FORMATS = /* @__PURE__ */ new Set(["store", "product", "landing", "advertorial", "quiz", "home", "blog", "blank"]);
 function isCreationFormat(value) {
-  return typeof value === "string" && (value === "store" || value in FORMAT_RECIPES);
+  return typeof value === "string" && CREATION_FORMATS.has(value);
 }
 
 // src/create/flow-state.ts
@@ -599,7 +722,7 @@ async function importLink(value) {
   const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });
   draft = body.draft;
   token = body.claimToken;
-  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", language: "fr" }) });
+  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", templateId: state.templateId, answers: state.answers, language: "fr" }) });
 }
 async function importImage(file) {
   if (file.size > 45e4) throw new Error("Choisis une image de moins de 450 Ko.");
@@ -612,12 +735,12 @@ async function importImage(file) {
   const body = await request("/api/onboarding/import-image", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ imageDataUrl: data, fileName: file.name, language: "fr" }) });
   draft = body.draft;
   token = body.claimToken;
-  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", language: "fr" }) });
+  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", templateId: state.templateId, answers: state.answers, language: "fr" }) });
 }
 async function createSimple() {
   const type = state.format === "blog" ? "write" : state.format === "blank" ? "blank" : "sell";
-  const name = state.prompt.trim() || creationFormats.find((item) => item.id === state.format)?.title || "Nouvelle page";
-  const page = await request("/api/pages", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type, name }) });
+  const name = state.prompt.trim() || Object.values(state.answers).find((value) => value.trim()) || creationFormats.find((item) => item.id === state.format)?.title || "Nouvelle page";
+  const page = await request("/api/pages", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type, name, creationFormat: state.format, templateId: state.templateId, answers: state.answers }) });
   location.assign(`/editeur?page=${page.id}`);
 }
 async function build() {

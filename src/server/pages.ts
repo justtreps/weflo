@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { migrateDocument } from "../editor/migrate";
+import { validateEditorDocument } from "../editor/schema";
 import { applyCanardo, canardoCreditCost, refuseReferralHelp } from "../lib/canardo";
-import { initialDocument } from "../lib/catalog";
+import { DEFAULT_PAGE_THEME } from "../lib/catalog";
 import { spendCredits, totalCredits } from "../lib/credits";
 import { publishAccessForBilling } from "../lib/publishing";
 import { resolveShopifyToken } from "../lib/shopify";
@@ -10,6 +11,9 @@ import { PageVersionConflictError } from "../repos/types";
 import type { Page, PageStatus, PageType, User, WhopPort } from "../types";
 import type { AppDeps } from "./app";
 import type { EditorDocument } from "../editor/document";
+import { buildStoreDocument } from "../onboarding/compile-store";
+import { isCreationFormat, isProductLedCreationFormat, type CreationFormatId } from "../onboarding/creation-recipe";
+import { flowForFormat } from "../create/format-flow";
 import { buildCanardoContext } from "../canardo/context";
 import { planCanardoLocally } from "../canardo/local-planner";
 import { applyCanardoOperations } from "../canardo/apply";
@@ -80,6 +84,28 @@ function isPageStatus(value: unknown): value is PageStatus {
   return typeof value === "string" && PAGE_STATUSES.includes(value as PageStatus);
 }
 
+function safeAnswers(format: CreationFormatId, value: unknown): Record<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const raw = value as Record<string, unknown>;
+  const allowed = new Set(flowForFormat(format).intake.map((field) => field.id));
+  return Object.fromEntries(Object.entries(raw).flatMap(([key, answer]) => allowed.has(key) && typeof answer === "string" ? [[key, answer.trim().slice(0, 4_000)] as const] : []));
+}
+
+function emptyEditorDocument(name: string, type: PageType): EditorDocument {
+  const slug = slugify(name);
+  return {
+    version: 2,
+    name,
+    path: "/",
+    kind: type === "sell" ? "product" : "landing",
+    templateId: null,
+    templateVersion: 1,
+    theme: { ...DEFAULT_PAGE_THEME },
+    pages: [{ id: `page-${slug}`, name, slug, sections: [] }],
+    assets: [],
+  };
+}
+
 async function loadOwnedPage(deps: AppDeps, userId: string, id: string) {
   const page = await deps.store.getPage(id);
   if (!page) return { error: "not found" as const, status: 404 as const };
@@ -116,18 +142,45 @@ export function pagesRoutes(deps: AppDeps) {
   app.post("/pages", async (c) => {
     const user = await requireUser(deps, c.req.raw);
     if (!user) return c.json({ error: "unauthorized" }, 401);
-    const body = await c.req.json<{ type?: unknown; name?: unknown }>().catch(() => ({} as { type?: unknown; name?: unknown }));
+    const body = await c.req.json<{ type?: unknown; name?: unknown; creationFormat?: unknown; templateId?: unknown; answers?: unknown }>().catch(() => ({} as { type?: unknown; name?: unknown; creationFormat?: unknown; templateId?: unknown; answers?: unknown }));
     if (!isPageType(body.type)) return c.json({ error: "invalid type" }, 400);
     const name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Page";
     const workspace = await ensureWorkspace(deps.store, user.id);
     const slug = await uniqueSlug(deps.store, workspace.id, slugify(name));
+    let document: EditorDocument;
+    if (body.creationFormat === undefined) {
+      document = emptyEditorDocument(name, body.type);
+    } else if (!isCreationFormat(body.creationFormat)) {
+      return c.json({ error: "invalid creation format" }, 400);
+    } else {
+      const format = body.creationFormat;
+      const templateId = body.templateId === null ? null : typeof body.templateId === "string" ? body.templateId : null;
+      if (isProductLedCreationFormat(format)) return c.json({ error: "product_source_required" }, 409);
+      const answers = safeAnswers(format, body.answers);
+      try {
+        document = buildStoreDocument({
+          language: "fr",
+          brandName: answers.brand || answers.topic || name,
+          modelId: format === "blank" ? "blank" : "template",
+          personas: [],
+          angles: [],
+          brandKit: { palette: ["#ffffff", "#111111", "#f4f1ec", "#ffffff"], headingFont: "Inter", bodyFont: "Inter", schemes: [{ name: "Default", background: "#ffffff", text: "#111111", accent: "#111111" }] },
+          creationFormat: format,
+          templateId,
+          answers,
+        });
+      } catch {
+        return c.json({ error: "invalid template" }, 400);
+      }
+    }
+    if (!validateEditorDocument(document).ok) return c.json({ error: "invalid editor document" }, 500);
     const page = await deps.store.createPage({
       workspaceId: workspace.id,
       name,
       slug,
       type: body.type,
       status: "draft",
-      document: initialDocument(name, body.type),
+      document: document as never,
     });
     return c.json(page, 201);
   });

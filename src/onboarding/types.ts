@@ -60,6 +60,8 @@ export type OnboardingDraft = {
   language: string;
   modelId: string | null;
   creationFormat: CreationFormatId;
+  templateId: string | null;
+  answers: Record<string, string>;
   brandNames: string[];
   brandName: string;
   personas: BuyerPersona[];

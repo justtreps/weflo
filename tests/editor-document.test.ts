@@ -52,6 +52,12 @@ describe("EditorDocument validation", () => {
     if (result.ok) expect(result.value.version).toBe(2);
   });
 
+  it("accepts template provenance on a v2 document", () => {
+    const input = { ...fixtureDocument(), templateId: "home-brand-editorial", templateVersion: 1 };
+    const result = validateEditorDocument(input);
+    expect(result).toMatchObject({ ok: true });
+  });
+
   it("rejects duplicate section and block identifiers", () => {
     const input = fixtureDocument();
     input.pages[0].sections.push({ ...input.pages[0].sections[0] });

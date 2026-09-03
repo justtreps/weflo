@@ -118,6 +118,8 @@ export function validateEditorDocument(value: unknown): ValidationResult<EditorD
   if (!nonEmptyString(value.name)) errors.push("Editor document name is required");
   if (typeof value.path !== "string" || !value.path.startsWith("/")) errors.push("Editor document path must start with /");
   if (!PAGE_KINDS.has(String(value.kind))) errors.push("Invalid editor document kind");
+  if (value.templateId !== undefined && value.templateId !== null && !nonEmptyString(value.templateId)) errors.push("Invalid editor document template id");
+  if (value.templateVersion !== undefined && (typeof value.templateVersion !== "number" || !Number.isInteger(value.templateVersion) || value.templateVersion < 1)) errors.push("Invalid editor document template version");
   if (!validTheme(value.theme)) errors.push("Invalid editor document theme");
 
   const pageIds = new Set<string>();
@@ -131,4 +133,3 @@ export function validateEditorDocument(value: unknown): ValidationResult<EditorD
 
   return errors.length ? { ok: false, errors } : { ok: true, value: value as EditorDocument };
 }
-

@@ -78,6 +78,8 @@ export function migrateDocument(document: PageDocument | EditorDocument, kind: P
     path: document.path.startsWith("/") ? document.path : `/${document.path}`,
     kind: editorKind(kind),
     ...(document.modelId ? { modelId: document.modelId } : {}),
+    templateId: null,
+    templateVersion: 1,
     theme: { ...(document.theme ?? DEFAULT_PAGE_THEME) },
     pages: [{
       id: `page-${pageSlug}`,

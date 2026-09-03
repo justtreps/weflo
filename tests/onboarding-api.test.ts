@@ -24,7 +24,7 @@ describe("anonymous onboarding API", () => {
     expect(importedBody.draft.personas).toHaveLength(4);
 
     const headers = { "content-type": "application/json", "x-weflo-claim-token": importedBody.claimToken };
-    const changed = await app.request(`/api/onboarding/${importedBody.draft.id}`, { method: "PATCH", headers, body: JSON.stringify({ brandName: "LumiWall", modelId: "proteo" }) });
+    const changed = await app.request(`/api/onboarding/${importedBody.draft.id}`, { method: "PATCH", headers, body: JSON.stringify({ brandName: "LumiWall", modelId: "proteo", creationFormat: "product", templateId: "product-bundle-first", answers: { benefits: "Sans perçage", objections: "Autonomie", offer: "Offre de la fiche source", variants: "Noir" } }) });
     expect(changed.status).toBe(200);
 
     const built = await app.request(`/api/onboarding/${importedBody.draft.id}/build`, { method: "POST", headers });
@@ -32,6 +32,7 @@ describe("anonymous onboarding API", () => {
     expect(builtBody.draft.status).toBe("ready");
     expect(builtBody.draft.stages.every((stage: { state: string }) => stage.state === "complete")).toBe(true);
     expect(builtBody.draft.document.pages[0].sections.length).toBeGreaterThan(10);
+    expect(builtBody.draft.document.templateId).toBe("product-bundle-first");
 
     const claimed = await app.request(`/api/onboarding/${importedBody.draft.id}/claim`, { method: "POST", headers });
     const claimBody = await claimed.json();

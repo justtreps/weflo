@@ -34,6 +34,8 @@ export function createOnboardingDraftInput(input: { claimTokenHash: string; sour
     language: "en",
     modelId: null,
     creationFormat: "store",
+    templateId: null,
+    answers: {},
     brandNames: [],
     brandName: "",
     personas: [],

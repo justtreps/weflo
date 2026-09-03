@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createApp } from "../src/server/app";
 import { MemoryStore } from "../src/repos/memory";
+import { validateEditorDocument } from "../src/editor/schema";
 
 function appAs(userId: string | null) {
   const store = new MemoryStore();
@@ -27,12 +28,45 @@ describe("pages API", () => {
     expect(created.status).toBe(201);
     const page = await created.json();
     expect(page.type).toBe("sell");
-    expect(page.document.sections.some((s: { type: string }) => s.type === "productHero")).toBe(true);
+    expect(page.document.version).toBe(2);
+    expect(validateEditorDocument(page.document)).toMatchObject({ ok: true });
 
     const list = await app.request("/api/pages");
     const body = await list.json();
     expect(body.pages).toHaveLength(1);
     expect(body.workspace.name).toBeTruthy();
+  });
+
+  it("compiles description creation through the selected template recipe", async () => {
+    const { app } = appAs("u1");
+    const created = await app.request("/api/pages", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: "sell",
+        name: "Aube",
+        creationFormat: "home",
+        templateId: "home-story-first",
+        answers: { brand: "Aube", activity: "Maison", promise: "Habiter plus doucement", collections: "Linge\nLumière", story: "Créée à Lyon" },
+      }),
+    });
+    expect(created.status).toBe(201);
+    const page = await created.json();
+    expect(page.document.templateId).toBe("home-story-first");
+    expect(page.document.pages[0].sections.map((section: { type: string }) => section.type)).toEqual([
+      "navigation", "hero", "richText", "imageText", "press", "collectionGrid", "newsletter", "footer",
+    ]);
+    expect(validateEditorDocument(page.document)).toMatchObject({ ok: true });
+  });
+
+  it("creates a genuinely empty structured blank page", async () => {
+    const { app } = appAs("u1");
+    const page = await (await app.request("/api/pages", {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "blank", name: "Libre", creationFormat: "blank", templateId: null, answers: {} }),
+    })).json();
+    expect(page.document.version).toBe(2);
+    expect(page.document.pages[0].sections).toEqual([]);
+    expect(validateEditorDocument(page.document)).toMatchObject({ ok: true });
   });
 
   it("renames, duplicates, deletes", async () => {

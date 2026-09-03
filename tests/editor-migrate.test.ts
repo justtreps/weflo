@@ -15,6 +15,8 @@ describe("legacy editor document migration", () => {
     expect(migrated.name).toBe("Accueil");
     expect(migrated.pages[0].sections[1].settings).toEqual({ title: "Produit phare", price: "49 €", enabled: true });
     expect(migrated.pages[0].sections.map((section) => section.type)).toEqual(legacy.sections.map((section) => section.type));
+    expect(migrated.templateId).toBeNull();
+    expect(migrated.templateVersion).toBe(1);
   });
 
   it("builds all gallery models as structured v2 documents", () => {
@@ -53,6 +55,11 @@ describe("legacy editor document migration", () => {
 
   it("keeps an already migrated document unchanged on reload", () => {
     const migrated = migrateDocument(initialDocument("Déjà v2", "blank"));
+    expect(migrateDocument(migrated)).toEqual(migrated);
+  });
+
+  it("preserves provenance on an already structured document", () => {
+    const migrated = { ...migrateDocument(initialDocument("Accueil", "sell")), templateId: "home-brand-editorial", templateVersion: 1 };
     expect(migrateDocument(migrated)).toEqual(migrated);
   });
 });

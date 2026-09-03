@@ -67,6 +67,8 @@ export type EditorDocument = {
   path: string;
   kind: EditorPageKind;
   modelId?: string;
+  templateId?: string | null;
+  templateVersion?: number;
   theme: PageTheme;
   pages: EditorPage[];
   assets: AssetReference[];

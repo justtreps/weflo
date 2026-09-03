@@ -8929,11 +8929,11 @@ var require_webauthn = __commonJS({
       hints: ["security-key"],
       attestation: "direct"
     };
-    function deepMerge(...sources) {
+    function deepMerge(...sources2) {
       const isObject2 = (val) => val !== null && typeof val === "object" && !Array.isArray(val);
       const isArrayBufferLike = (val) => val instanceof ArrayBuffer || ArrayBuffer.isView(val);
       const result = {};
-      for (const source of sources) {
+      for (const source of sources2) {
         if (!source)
           continue;
         for (const key in source) {
@@ -19683,21 +19683,6 @@ var SECTION_TYPES = [
   "atelier",
   "article"
 ];
-var TEMPLATES = {
-  sell: [
-    "navigation",
-    "productHero",
-    "benefits",
-    "bundle",
-    "guarantees",
-    "reviews",
-    "faq",
-    "cta",
-    "footer"
-  ],
-  write: ["navigation", "article", "footer"],
-  blank: ["navigation", "hero", "footer"]
-};
 var THEMES = {
   "Nutrition": { background: "#F4F1DD", surface: "#FFFDF3", ink: "#182116", muted: "#66705D", accent: "#B8D865", display: "sans", radius: "round" },
   "Caf\xE9 & \xE9picerie": { background: "#EFE3D3", surface: "#FFF9EF", ink: "#2B1B13", muted: "#786152", accent: "#D56A35", display: "serif", radius: "soft" },
@@ -19776,14 +19761,6 @@ var PAGE_MODELS = [
   pageModel("denivele", "Randonn\xE9e l\xE9g\xE8re", "D\xE9nivel\xE9", "Sport & plein air", "Moins de poids sur le dos, plus de kilom\xE8tres et de libert\xE9 devant soi.", "149 \u20AC", "Pr\xE9parer ma sortie"),
   pageModel("prise", "Escalade", "Prise Franche", "Sport & plein air", "Du mat\xE9riel pr\xE9cis pour grimper concentr\xE9, du premier mouvement au relais.", "74 \u20AC", "Choisir mon \xE9quipement")
 ];
-function initialDocument(name, type) {
-  const sections = TEMPLATES[type].map((sectionType, i) => ({
-    id: `${sectionType}-${i}`,
-    type: sectionType,
-    settings: { title: name }
-  }));
-  return { name, path: "/", sections };
-}
 
 // src/editor/document.ts
 function isEditorDocument(value2) {
@@ -19957,12 +19934,12 @@ function button(section2) {
 function web(layout, section2, pageName) {
   const title = value(section2, "title", pageName);
   const subtitle = value(section2, "subtitle");
-  const copy2 = value(section2, "text");
+  const copy = value(section2, "text");
   const variant = value(section2, "variant", "default");
   const heading = edit(layout === "hero" || layout === "productHero" || layout === "videoHero" ? "h1" : "h2", "title", title);
-  const intro = `${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${heading}${copy2 ? edit("p", "text", copy2, "wf-section__copy") : ""}`;
+  const intro = `${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}`;
   if (layout === "navigation") return `<nav class="wf-section wf-navigation" aria-label="Navigation principale"><a class="wf-navigation__brand" href="/">${escapeHtml(title)}</a><div>${section2.blocks.map((block) => `<a href="${safeLink(block.settings.link)}">${escapeHtml(blockValue(block, "label", "Lien"))}</a>`).join("")}</div>${button(section2)}</nav>`;
-  if (layout === "announcement") return `<aside class="wf-section wf-announcement">${edit("p", "text", copy2 || title)}${button(section2)}</aside>`;
+  if (layout === "announcement") return `<aside class="wf-section wf-announcement">${edit("p", "text", copy || title)}${button(section2)}</aside>`;
   if (layout === "hero" || layout === "productHero") return `<div class="wf-section wf-hero wf-hero--${layout}"><div class="wf-hero__content">${intro}${layout === "productHero" ? `<strong class="wf-section__price">${escapeHtml(value(section2, "price", "49,00 \u20AC"))}</strong>` : ""}${button(section2)}</div><figure>${image(section2, "image", value(section2, "image_alt", title))}</figure></div>`;
   if (layout === "videoHero") {
     const source = safeMediaUrl(section2.settings.video);
@@ -19982,11 +19959,11 @@ function web(layout, section2, pageName) {
   if (layout === "quiz") return `<div class="wf-section wf-quiz">${intro}<form>${section2.blocks.map((block, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block, "title", `\xC9tape ${index + 1}`))}</legend><label><input type="radio" name="step-${index}" value="yes"> ${escapeHtml(blockValue(block, "text", "Oui"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form></div>`;
   if (layout === "cta") return `<div class="wf-section wf-cta">${intro}${button(section2)}</div>`;
   if (layout === "richText") return `<article class="wf-section wf-rich-text">${intro}${renderBlocks(section2.blocks)}</article>`;
-  if (layout === "footer") return `<footer class="wf-section wf-footer"><div>${heading}${copy2 ? `<p>${escapeHtml(copy2)}</p>` : ""}</div><nav aria-label="Pied de page">${renderBlocks(section2.blocks, "div")}</nav></footer>`;
+  if (layout === "footer") return `<footer class="wf-section wf-footer"><div>${heading}${copy ? `<p>${escapeHtml(copy)}</p>` : ""}</div><nav aria-label="Pied de page">${renderBlocks(section2.blocks, "div")}</nav></footer>`;
   if (layout === "spacer") return `<div class="wf-spacer" aria-hidden="true" style="height:${Number(section2.settings.height) || 48}px"></div>`;
   if (layout === "divider") return `<hr class="wf-divider">`;
   if (variant === "home-stories" || variant === "beauty-journal" || variant === "press-quotes") return `<section class="wf-section wf-cards wf-proof__stories" data-wf-variant="${escapeHtml(variant)}"><header>${intro}</header><div class="wf-proof__editorial-flow">${renderBlocks(section2.blocks)}</div>${button(section2)}</section>`;
-  if (variant === "results-wall" || variant === "measured-proof" || variant === "field-tests") return `<section class="wf-section wf-cards wf-proof__results" data-wf-variant="${escapeHtml(variant)}"><div class="wf-proof__score">${escapeHtml(value(section2, "subtitle", "5/5"))}</div><header>${heading}${copy2 ? edit("p", "text", copy2, "wf-section__copy") : ""}</header><div class="wf-section__grid">${renderBlocks(section2.blocks)}</div>${button(section2)}</section>`;
+  if (variant === "results-wall" || variant === "measured-proof" || variant === "field-tests") return `<section class="wf-section wf-cards wf-proof__results" data-wf-variant="${escapeHtml(variant)}"><div class="wf-proof__score">${escapeHtml(value(section2, "subtitle", "5/5"))}</div><header>${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${renderBlocks(section2.blocks)}</div>${button(section2)}</section>`;
   return `<div class="wf-section wf-cards" data-wf-variant="${escapeHtml(variant)}">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks)}</div>${button(section2)}</div>`;
 }
 function createSectionDefinition(type, name, category, layout, extraDefaults = {}, extraSettings = [], blocks2 = [itemBlock]) {
@@ -20072,11 +20049,11 @@ var productMainSection = {
     const variant = (/* @__PURE__ */ new Set(["calm-buy-box", "beauty-buy-box", "technical-buy-box", "luxury-buy-box", "tasting-buy-box", "conversion-split", "bundle-led"])).has(requested) ? requested : "calm-buy-box";
     const variants = section2.blocks.filter((block) => block.type === "variant");
     const options = variants.length ? variants.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
-    return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section2, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box"><div class="wf-product__rating">\u2605\u2605\u2605\u2605\u2605 <span>Les avis import\xE9s apparaissent ici</span></div>${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><fieldset class="wf-product__bundle"><legend>Bundle & \xE9conomies</legend><label><input type="radio" name="properties[Offre]" value="Solo" checked> Solo</label><label><input type="radio" name="properties[Offre]" value="Duo"> Duo \u2014 meilleur choix</label></fieldset><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust">Paiement s\xE9curis\xE9 \xB7 Commande suivie \xB7 Assistance disponible</p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
+    return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section2, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box">${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><div class="wf-product__bundle"></div><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust"></p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
   },
   renderLiquid: (section2) => {
     const variant = section2 ? value(section2, "variant", "calm-buy-box") : "calm-buy-box";
-    return `<section class="weflo-product-main wf-product--${escapeHtml(variant)}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}<div class="wf-product__gallery">{{ selected_product.featured_image | image_url: width: 1600 | image_tag }}{% for image in selected_product.images limit: 4 %}{{ image | image_url: width: 500 | image_tag }}{% endfor %}</div><div class="wf-product__buy-box"><h1>{{ selected_product.title | default: section.settings.title | escape }}</h1><div>{{ selected_product.description | default: section.settings.text }}</div><div class="wf-product__prices"><strong>{{ selected_product.price | money }}</strong>{% if selected_product.compare_at_price > selected_product.price %}<s>{{ selected_product.compare_at_price | money }}</s>{% endif %}</div>{% form 'product', selected_product %}<label>Option<select name="id">{% for variant in selected_product.variants %}<option value="{{ variant.id }}">{{ variant.title }} \u2014 {{ variant.price | money }}</option>{% endfor %}</select></label><label>Quantit\xE9<input name="quantity" type="number" min="1" value="1"></label><fieldset class="wf-product__bundle"><legend>Bundle & \xE9conomies</legend><label><input type="radio" name="properties[Offre]" value="Solo" checked>Solo</label><label><input type="radio" name="properties[Offre]" value="Duo">Duo</label></fieldset><button type="submit">{{ section.settings.cta_label | escape }}</button>{% endform %}<p class="wf-product__trust">Paiement s\xE9curis\xE9 \xB7 Commande suivie \xB7 Assistance disponible</p></div><div class="wf-product__sticky"><span>{{ selected_product.title }}</span><strong>{{ selected_product.price | money }}</strong><button type="submit" form="product-form-{{ section.id }}">{{ section.settings.cta_label | escape }}</button></div></section>`;
+    return `<section class="weflo-product-main wf-product--${escapeHtml(variant)}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}<div class="wf-product__gallery">{{ selected_product.featured_image | image_url: width: 1600 | image_tag }}{% for image in selected_product.images limit: 4 %}{{ image | image_url: width: 500 | image_tag }}{% endfor %}</div><div class="wf-product__buy-box"><h1>{{ selected_product.title | default: section.settings.title | escape }}</h1><div>{{ selected_product.description | default: section.settings.text }}</div><div class="wf-product__prices"><strong>{{ selected_product.price | money }}</strong>{% if selected_product.compare_at_price > selected_product.price %}<s>{{ selected_product.compare_at_price | money }}</s>{% endif %}</div>{% form 'product', selected_product %}<label>Option<select name="id">{% for variant in selected_product.variants %}<option value="{{ variant.id }}">{{ variant.title }} \u2014 {{ variant.price | money }}</option>{% endfor %}</select></label><label>Quantit\xE9<input name="quantity" type="number" min="1" value="1"></label><button type="submit">{{ section.settings.cta_label | escape }}</button>{% endform %}</div><div class="wf-product__sticky"><span>{{ selected_product.title }}</span><strong>{{ selected_product.price | money }}</strong><button type="submit" form="product-form-{{ section.id }}">{{ section.settings.cta_label | escape }}</button></div></section>`;
   }
 };
 
@@ -20315,6 +20292,8 @@ function migrateDocument(document2, kind = "landing") {
     path: document2.path.startsWith("/") ? document2.path : `/${document2.path}`,
     kind: editorKind(kind),
     ...document2.modelId ? { modelId: document2.modelId } : {},
+    templateId: null,
+    templateVersion: 1,
     theme: { ...document2.theme ?? DEFAULT_PAGE_THEME },
     pages: [{
       id: `page-${pageSlug}`,
@@ -20324,6 +20303,113 @@ function migrateDocument(document2, kind = "landing") {
     }],
     assets: []
   };
+}
+
+// src/editor/schema.ts
+var BREAKPOINTS = /* @__PURE__ */ new Set(["desktop", "tablet", "mobile"]);
+var PAGE_KINDS = /* @__PURE__ */ new Set(["landing", "product", "collection", "home"]);
+var ASSET_TYPES = /* @__PURE__ */ new Set(["image", "video"]);
+function object(value2) {
+  return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
+}
+function nonEmptyString(value2) {
+  return typeof value2 === "string" && value2.trim().length > 0;
+}
+function settingValue(value2) {
+  if (value2 === null || ["string", "number", "boolean"].includes(typeof value2)) return true;
+  return Array.isArray(value2) && value2.every((item3) => item3 === null || ["string", "number", "boolean"].includes(typeof item3));
+}
+function styleSettings(value2) {
+  return object(value2) && Object.values(value2).every(settingValue);
+}
+function responsiveSettings(value2) {
+  if (!object(value2)) return false;
+  return Object.entries(value2).every(([breakpoint, styles]) => BREAKPOINTS.has(breakpoint) && styleSettings(styles));
+}
+function unsafeCustomCode(section2) {
+  if (section2.type !== "customCode" || !object(section2.settings)) return false;
+  const html = typeof section2.settings.html === "string" ? section2.settings.html : "";
+  const js = typeof section2.settings.js === "string" ? section2.settings.js : "";
+  return /<script\b[^>]*\bsrc\s*=|\bimport\s*\(|\bdocument\.cookie\b|\bwindow\.top\b|\bparent\.location\b/i.test(`${html}
+${js}`);
+}
+function validateBlock(value2, errors, blockIds2) {
+  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.type) || !object(value2.settings)) {
+    errors.push("Invalid editor block");
+    return false;
+  }
+  if (blockIds2.has(value2.id)) errors.push(`Duplicate block id: ${value2.id}`);
+  blockIds2.add(value2.id);
+  for (const [key, setting3] of Object.entries(value2.settings)) {
+    if (!settingValue(setting3)) errors.push(`Invalid setting value at ${value2.id}.${key}`);
+  }
+  return true;
+}
+function validateSection(value2, errors, sectionIds2, blockIds2) {
+  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.type)) {
+    errors.push("Invalid editor section");
+    return false;
+  }
+  const id2 = value2.id;
+  if (sectionIds2.has(id2)) errors.push(`Duplicate section id: ${id2}`);
+  sectionIds2.add(id2);
+  if (!nonEmptyString(value2.name) || typeof value2.hidden !== "boolean" || typeof value2.locked !== "boolean") {
+    errors.push(`Invalid section metadata: ${id2}`);
+  }
+  if (!object(value2.settings)) errors.push(`Invalid section settings: ${id2}`);
+  else for (const [key, setting3] of Object.entries(value2.settings)) {
+    if (!settingValue(setting3)) errors.push(`Invalid setting value at ${id2}.${key}`);
+  }
+  if (!styleSettings(value2.style)) errors.push(`Invalid style settings in section: ${id2}`);
+  if (!responsiveSettings(value2.responsive)) errors.push(`Invalid responsive settings in section: ${id2}`);
+  if (!Array.isArray(value2.blocks)) errors.push(`Invalid blocks in section: ${id2}`);
+  else value2.blocks.forEach((block) => validateBlock(block, errors, blockIds2));
+  if (unsafeCustomCode(value2)) errors.push(`Unsafe custom code in section: ${id2}`);
+  return true;
+}
+function validatePage(value2, errors, pageIds, sectionIds2, blockIds2) {
+  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.name) || !nonEmptyString(value2.slug) || !Array.isArray(value2.sections)) {
+    errors.push("Invalid editor page");
+    return false;
+  }
+  if (pageIds.has(value2.id)) errors.push(`Duplicate page id: ${value2.id}`);
+  pageIds.add(value2.id);
+  value2.sections.forEach((section2) => validateSection(section2, errors, sectionIds2, blockIds2));
+  return true;
+}
+function validateAsset(value2, errors, assetIds) {
+  if (!object(value2) || !nonEmptyString(value2.id) || !ASSET_TYPES.has(String(value2.type)) || !nonEmptyString(value2.url)) {
+    errors.push("Invalid asset reference");
+    return false;
+  }
+  if (assetIds.has(value2.id)) errors.push(`Duplicate asset id: ${value2.id}`);
+  assetIds.add(value2.id);
+  if (value2.alt !== void 0 && typeof value2.alt !== "string") errors.push(`Invalid asset alt: ${value2.id}`);
+  return true;
+}
+function validTheme(value2) {
+  if (!object(value2)) return false;
+  return ["background", "surface", "ink", "muted", "accent"].every((key) => typeof value2[key] === "string") && ["sans", "serif", "condensed"].includes(String(value2.display)) && ["none", "soft", "round"].includes(String(value2.radius));
+}
+function validateEditorDocument(value2) {
+  const errors = [];
+  if (!object(value2)) return { ok: false, errors: ["Editor document must be an object"] };
+  if (value2.version !== 2) errors.push("Unsupported editor document version");
+  if (!nonEmptyString(value2.name)) errors.push("Editor document name is required");
+  if (typeof value2.path !== "string" || !value2.path.startsWith("/")) errors.push("Editor document path must start with /");
+  if (!PAGE_KINDS.has(String(value2.kind))) errors.push("Invalid editor document kind");
+  if (value2.templateId !== void 0 && value2.templateId !== null && !nonEmptyString(value2.templateId)) errors.push("Invalid editor document template id");
+  if (value2.templateVersion !== void 0 && (typeof value2.templateVersion !== "number" || !Number.isInteger(value2.templateVersion) || value2.templateVersion < 1)) errors.push("Invalid editor document template version");
+  if (!validTheme(value2.theme)) errors.push("Invalid editor document theme");
+  const pageIds = /* @__PURE__ */ new Set();
+  const sectionIds2 = /* @__PURE__ */ new Set();
+  const blockIds2 = /* @__PURE__ */ new Set();
+  const assetIds = /* @__PURE__ */ new Set();
+  if (!Array.isArray(value2.pages) || value2.pages.length === 0) errors.push("Editor document needs at least one page");
+  else value2.pages.forEach((page) => validatePage(page, errors, pageIds, sectionIds2, blockIds2));
+  if (!Array.isArray(value2.assets)) errors.push("Editor document assets must be an array");
+  else value2.assets.forEach((asset) => validateAsset(asset, errors, assetIds));
+  return errors.length ? { ok: false, errors } : { ok: true, value: value2 };
 }
 
 // node_modules/openai/internal/tslib.mjs
@@ -27192,11 +27278,11 @@ function validateThemeOutput(files) {
       }
     }
   }
-  for (const template of templates) {
-    for (const section2 of Object.values(template.value.sections ?? {})) {
+  for (const template2 of templates) {
+    for (const section2 of Object.values(template2.value.sections ?? {})) {
       if (typeof section2?.type !== "string" || !section2.type.startsWith("weflo-")) continue;
       const expectedKey = `sections/${section2.type}.liquid`;
-      if (!keys2.has(expectedKey)) errors.push(`La section ${expectedKey}, r\xE9f\xE9renc\xE9e par ${template.key}, est introuvable.`);
+      if (!keys2.has(expectedKey)) errors.push(`La section ${expectedKey}, r\xE9f\xE9renc\xE9e par ${template2.key}, est introuvable.`);
     }
   }
   return { ok: errors.length === 0, errors };
@@ -27451,6 +27537,545 @@ var PageVersionConflictError = class extends Error {
   }
 };
 
+// src/onboarding/art-direction.ts
+var PROFILES = {
+  "warm-home": { id: "warm-home", label: "Maison chaleureuse", headingFont: "Manrope", bodyFont: "Inter", mediaRatio: "landscape", spacing: "airy", radius: "soft", proofMode: "editorial", buttonStyle: "solid", palette: ["#F5F0E8", "#273126", "#C0784C", "#FFFFFF"] },
+  "editorial-beauty": { id: "editorial-beauty", label: "Beaut\xE9 \xE9ditoriale", headingFont: "DM Sans", bodyFont: "Inter", mediaRatio: "portrait", spacing: "airy", radius: "none", proofMode: "editorial", buttonStyle: "solid", palette: ["#F8F2EF", "#241B1C", "#C47B76", "#FFFFFF"] },
+  "clinical-wellness": { id: "clinical-wellness", label: "Soin clinique", headingFont: "Inter", bodyFont: "Inter", mediaRatio: "square", spacing: "balanced", radius: "soft", proofMode: "clinical", buttonStyle: "solid", palette: ["#F2F7F5", "#18332D", "#70A99B", "#FFFFFF"] },
+  "technical-performance": { id: "technical-performance", label: "Performance technique", headingFont: "Space Grotesk", bodyFont: "Inter", mediaRatio: "square", spacing: "compact", radius: "soft", proofMode: "technical", buttonStyle: "solid", palette: ["#F2F3F5", "#11151B", "#356AE6", "#FFFFFF"] },
+  "direct-response": { id: "direct-response", label: "R\xE9solution directe", headingFont: "Arial", bodyFont: "Arial", mediaRatio: "square", spacing: "compact", radius: "soft", proofMode: "community", buttonStyle: "solid", palette: ["#FFFFFF", "#171717", "#FFDB3D", "#F3F3F3"] },
+  "playful-gifting": { id: "playful-gifting", label: "Cadeau joyeux", headingFont: "Syne", bodyFont: "Inter", mediaRatio: "square", spacing: "balanced", radius: "round", proofMode: "community", buttonStyle: "pill", palette: ["#FFF6D8", "#2A2040", "#FF7657", "#FFFFFF"] },
+  "premium-accessories": { id: "premium-accessories", label: "Accessoires premium", headingFont: "Cormorant Garamond", bodyFont: "Inter", mediaRatio: "portrait", spacing: "airy", radius: "none", proofMode: "editorial", buttonStyle: "outline", palette: ["#F5F1E8", "#171512", "#A38152", "#FFFFFF"] },
+  "food-craft": { id: "food-craft", label: "Savoir-faire gourmand", headingFont: "Fraunces", bodyFont: "Inter", mediaRatio: "landscape", spacing: "balanced", radius: "soft", proofMode: "community", buttonStyle: "solid", palette: ["#F7F0E2", "#382719", "#C65D32", "#FFFFFF"] }
+};
+var KEYWORDS = {
+  "warm-home": /(lamp|light|lumi|éclair|maison|home|decor|intérieur)/i,
+  "editorial-beauty": /(beaut|maquill|cosmétique|parfum|hair|cheveu)/i,
+  "clinical-wellness": /(serum|sérum|skin|peau|soin|wellness|vitamin|nutrition)/i,
+  "technical-performance": /(tech|device|outil|performance|sport|battery|batterie|ergonom)/i,
+  "direct-response": /(posture|correct|douleur|pain|support|solution|anti)/i,
+  "playful-gifting": /(gift|cadeau|enfant|kid|toy|jouet|fun)/i,
+  "premium-accessories": /(bag|sac|montre|watch|bijou|jewel|accessoire|cuir|leather)/i,
+  "food-craft": /(café|coffee|thé|tea|chocolat|food|épice|spice|graine)/i
+};
+var PRIORITY = ["warm-home", "clinical-wellness", "editorial-beauty", "direct-response", "technical-performance", "premium-accessories", "food-craft", "playful-gifting"];
+function selectArtDirection(truth) {
+  const scored = PRIORITY.map((id2, index) => ({ id: id2, index, score: (truth.searchText.match(new RegExp(KEYWORDS[id2].source, "gi")) ?? []).length }));
+  scored.sort((a, b2) => b2.score - a.score || a.index - b2.index);
+  return PROFILES[scored[0].score ? scored[0].id : "direct-response"];
+}
+function artDirectionById(id2) {
+  return typeof id2 === "string" && id2 in PROFILES ? PROFILES[id2] : null;
+}
+
+// src/onboarding/template-recipe.ts
+var TEMPLATE_RECIPE_VERSION = 1;
+var TEMPLATE_RECIPES = [
+  {
+    id: "store-editorial-commerce",
+    format: "store",
+    sections: ["announcement", "navigation", "hero", "imageText", "collectionGrid", "productMain", "benefits", "reviews", "newsletter", "footer"],
+    variants: { hero: "editorial", imageText: "story", collectionGrid: "curated", productMain: "calm-buy-box", reviews: "editorial-stories" }
+  },
+  {
+    id: "store-conversion-modern",
+    format: "store",
+    sections: ["announcement", "navigation", "productHero", "productMain", "benefits", "bundle", "reviews", "shipping", "faq", "cta", "footer"],
+    variants: { productHero: "problem-solution", productMain: "conversion-split", benefits: "icon-grid", bundle: "quantity-break", reviews: "results-wall" }
+  },
+  {
+    id: "store-maison-premium",
+    format: "store",
+    sections: ["announcement", "navigation", "hero", "collectionGrid", "imageText", "press", "benefits", "productMain", "newsletter", "footer"],
+    variants: { hero: "split", collectionGrid: "premium", imageText: "brand-story", press: "press-quotes", productMain: "luxury-buy-box" }
+  },
+  {
+    id: "product-buybox-premium",
+    format: "product",
+    sections: ["announcement", "navigation", "productHero", "gallery", "productMain", "benefits", "reviews", "shipping", "faq", "cta", "footer"],
+    variants: { productHero: "ambient-editorial", productMain: "premium", reviews: "featured" }
+  },
+  {
+    id: "product-demonstration",
+    format: "product",
+    sections: ["navigation", "productHero", "gallery", "imageText", "benefits", "comparison", "productMain", "reviews", "faq", "cta", "footer"],
+    variants: { productHero: "problem-solution", gallery: "demonstration", benefits: "visual", comparison: "feature-led", productMain: "technical-buy-box" }
+  },
+  {
+    id: "product-bundle-first",
+    format: "product",
+    sections: ["announcement", "navigation", "productHero", "productMain", "bundle", "benefits", "shipping", "reviews", "faq", "cta", "footer"],
+    variants: { productHero: "conversion-split", productMain: "bundle-led", bundle: "quantity-break", benefits: "icon-grid" }
+  },
+  {
+    id: "landing-direct-response",
+    format: "landing",
+    sections: ["announcement", "navigation", "hero", "benefits", "comparison", "faq", "form", "cta", "footer"],
+    variants: { hero: "direct-response", benefits: "icon-grid", comparison: "feature-led", form: "lead-capture", cta: "repeated" }
+  },
+  {
+    id: "landing-editorial-premium",
+    format: "landing",
+    sections: ["navigation", "hero", "imageText", "richText", "benefits", "faq", "cta", "footer"],
+    variants: { hero: "editorial", imageText: "story", richText: "longform", benefits: "editorial" }
+  },
+  {
+    id: "landing-visual-demo",
+    format: "landing",
+    sections: ["navigation", "hero", "gallery", "benefits", "steps", "comparison", "form", "cta", "footer"],
+    variants: { hero: "visual", gallery: "demonstration", benefits: "diagram", steps: "process", comparison: "feature-led" }
+  },
+  {
+    id: "advertorial-journal",
+    format: "advertorial",
+    sections: ["navigation", "hero", "press", "richText", "imageText", "comparison", "faq", "cta", "footer"],
+    variants: { hero: "editorial", press: "inline", richText: "journal", imageText: "story" }
+  },
+  {
+    id: "advertorial-founder-story",
+    format: "advertorial",
+    sections: ["navigation", "hero", "richText", "imageText", "benefits", "form", "cta", "footer"],
+    variants: { hero: "founder", richText: "narrative", imageText: "founder", benefits: "editorial" }
+  },
+  {
+    id: "advertorial-comparison",
+    format: "advertorial",
+    sections: ["navigation", "hero", "comparison", "richText", "benefits", "faq", "cta", "footer"],
+    variants: { hero: "comparison", comparison: "feature-led", richText: "evidence", benefits: "icon-grid" }
+  },
+  {
+    id: "quiz-diagnostic",
+    format: "quiz",
+    sections: ["navigation", "hero", "benefits", "quiz", "form", "faq", "cta", "footer"],
+    variants: { hero: "diagnostic", quiz: "diagnostic", form: "stepper", benefits: "icon-grid" }
+  },
+  {
+    id: "quiz-routine",
+    format: "quiz",
+    sections: ["navigation", "hero", "richText", "quiz", "benefits", "form", "newsletter", "footer"],
+    variants: { hero: "editorial", richText: "routine", quiz: "routine", benefits: "editorial" }
+  },
+  {
+    id: "quiz-recommendation",
+    format: "quiz",
+    sections: ["announcement", "navigation", "hero", "quiz", "comparison", "form", "cta", "footer"],
+    variants: { hero: "recommendation", quiz: "recommendation", comparison: "result", form: "stepper", cta: "result" }
+  },
+  {
+    id: "home-brand-editorial",
+    format: "home",
+    sections: ["announcement", "navigation", "hero", "imageText", "collectionGrid", "testimonials", "newsletter", "footer"],
+    variants: { hero: "editorial", imageText: "brand-story", collectionGrid: "curated", testimonials: "editorial-stories" }
+  },
+  {
+    id: "home-catalogue-premium",
+    format: "home",
+    sections: ["announcement", "navigation", "hero", "collectionGrid", "benefits", "imageText", "newsletter", "footer"],
+    variants: { hero: "catalogue", collectionGrid: "premium", benefits: "icon-grid", imageText: "editorial" }
+  },
+  {
+    id: "home-story-first",
+    format: "home",
+    sections: ["navigation", "hero", "richText", "imageText", "press", "collectionGrid", "newsletter", "footer"],
+    variants: { hero: "story", richText: "manifesto", imageText: "brand-story", press: "press-quotes", collectionGrid: "curated" }
+  },
+  {
+    id: "blog-magazine",
+    format: "blog",
+    sections: ["navigation", "hero", "richText", "imageText", "press", "newsletter", "footer"],
+    variants: { hero: "magazine", richText: "longform", imageText: "editorial", press: "inline" }
+  },
+  {
+    id: "blog-guide",
+    format: "blog",
+    sections: ["navigation", "hero", "richText", "benefits", "faq", "newsletter", "footer"],
+    variants: { hero: "guide", richText: "guide", benefits: "steps", faq: "inline" }
+  },
+  {
+    id: "blog-study",
+    format: "blog",
+    sections: ["navigation", "hero", "richText", "comparison", "press", "newsletter", "footer"],
+    variants: { hero: "study", richText: "analysis", comparison: "evidence", press: "sources" }
+  }
+];
+var recipesById = new Map(TEMPLATE_RECIPES.map((recipe) => [recipe.id, recipe]));
+function recipeForTemplate(id2) {
+  const recipe = recipesById.get(id2);
+  if (!recipe) throw new Error(`Unknown template recipe: ${id2}`);
+  return recipe;
+}
+function defaultRecipeForFormat(format) {
+  const recipe = TEMPLATE_RECIPES.find((candidate) => candidate.format === format);
+  if (!recipe) throw new Error(`No template recipe registered for ${format}`);
+  return recipe;
+}
+
+// src/onboarding/creation-recipe.ts
+var CREATION_FORMATS = /* @__PURE__ */ new Set(["store", "product", "landing", "advertorial", "quiz", "home", "blog", "blank"]);
+function isCreationFormat(value2) {
+  return typeof value2 === "string" && CREATION_FORMATS.has(value2);
+}
+function isProductLedCreationFormat(format) {
+  return format === "store" || format === "product";
+}
+
+// src/onboarding/product-truth.ts
+function sentences(value2) {
+  return value2.split(/(?<=[.!?])\s+/).map((item3) => item3.trim()).filter(Boolean).slice(0, 12);
+}
+function buildProductTruthSheet(product) {
+  const searchText = [product.title, product.description, product.vendor, ...product.variants.map((variant) => variant.title)].join(" ").toLowerCase();
+  const inferences = [];
+  if (/(lamp|light|lumi|éclair|maison|home|decor)/i.test(searchText)) inferences.push("Le contexte sugg\xE8re un achat li\xE9 \xE0 l\u2019ambiance ou \xE0 la d\xE9coration.");
+  if (/(serum|sérum|skin|peau|beaut|soin|cosm)/i.test(searchText)) inferences.push("Le contexte sugg\xE8re un parcours de r\xE9assurance beaut\xE9 ou soin.");
+  if (/(posture|ergonom|support|correct|douleur|pain)/i.test(searchText)) inferences.push("Le contexte sugg\xE8re un achat motiv\xE9 par la r\xE9solution d\u2019un probl\xE8me.");
+  if (!inferences.length) inferences.push("Le b\xE9n\xE9fice principal doit \xEAtre confirm\xE9 par le marchand avant publication.");
+  return {
+    observedFacts: {
+      sourceUrl: product.sourceUrl,
+      title: product.title,
+      description: product.description,
+      vendor: product.vendor,
+      currency: product.currency,
+      price: product.price,
+      compareAtPrice: product.compareAtPrice,
+      images: [...product.images],
+      variants: product.variants.map((variant) => ({ ...variant })),
+      rating: product.rating,
+      reviewCount: product.reviewCount,
+      reviews: product.reviews.map((review) => ({ ...review }))
+    },
+    supplierClaims: sentences(product.description),
+    inferences,
+    searchText
+  };
+}
+
+// src/onboarding/store-recipe.ts
+var section = (type, variant, purpose) => ({ type, variant, purpose });
+function buildStoreRecipe(input) {
+  const proof = input.product.reviews.length ? "reviews" : "testimonials";
+  const schemes = {
+    "warm-home": [section("announcement", "quiet-trust", "Rassurer"), section("navigation", "editorial", "Installer la marque"), section("productHero", "ambient-editorial", "Projeter dans un int\xE9rieur"), section("gallery", "lifestyle-grid", "Montrer les ambiances"), section("productMain", "calm-buy-box", "Faciliter l\u2019achat"), section("imageText", "room-story", "Raconter l\u2019usage"), section("benefits", "material-cards", "Expliquer les b\xE9n\xE9fices"), section(proof, "home-stories", "Apporter la preuve"), section("bundle", "room-set", "Augmenter le panier"), section("shipping", "assurance-strip", "Rassurer sur la commande"), section("faq", "quiet-accordion", "Lever les objections"), section("cta", "editorial-close", "Conclure"), section("footer", "editorial", "Signer")],
+    "editorial-beauty": [section("navigation", "minimal", "Installer la marque"), section("productHero", "beauty-split", "Cr\xE9er le d\xE9sir"), section("benefits", "ritual-strip", "Promettre une routine"), section("productMain", "beauty-buy-box", "Convertir"), section("imageText", "ingredient-story", "Expliquer la formule"), section("gallery", "editorial-mosaic", "Montrer la texture"), section(proof, "beauty-journal", "Prouver"), section("bundle", "ritual-set", "Augmenter le panier"), section("faq", "editorial", "Lever les objections"), section("cta", "beauty-close", "Conclure"), section("footer", "minimal", "Signer")],
+    "clinical-wellness": [section("announcement", "clinical-proof", "Rassurer"), section("navigation", "clinical", "Installer la marque"), section("productHero", "clinical-evidence", "Clarifier la promesse"), section("productMain", "clinical-buy-box", "Convertir"), section("benefits", "evidence-grid", "D\xE9tailler les b\xE9n\xE9fices"), section("imageText", "formula-focus", "Expliquer"), section(proof, "measured-proof", "Prouver"), section("bundle", "protocol", "Structurer la cure"), section("shipping", "assurance-strip", "R\xE9duire le risque"), section("faq", "clinical", "Lever les objections"), section("cta", "clinical-close", "Conclure"), section("footer", "clinical", "Signer")],
+    "technical-performance": [section("navigation", "technical", "Installer la marque"), section("productHero", "spec-led", "D\xE9montrer"), section("productMain", "technical-buy-box", "Convertir"), section("benefits", "spec-grid", "Expliquer les performances"), section("comparison", "benchmark", "Comparer"), section("gallery", "detail-grid", "Montrer les d\xE9tails"), section(proof, "field-tests", "Prouver"), section("bundle", "performance-pack", "Augmenter le panier"), section("shipping", "service-bar", "Rassurer"), section("guarantees", "technical-assurance", "R\xE9duire le risque"), section("faq", "technical", "Lever les objections"), section("cta", "performance-close", "Conclure"), section("footer", "technical", "Signer")],
+    "direct-response": [section("announcement", "benefit-bar", "Capter"), section("navigation", "compact", "Orienter"), section("productHero", "problem-solution", "Nommer le probl\xE8me"), section("benefits", "outcome-stack", "Montrer la transformation"), section("productMain", "conversion-buy-box", "Convertir"), section("comparison", "before-after", "Faire comparer"), section(proof, "results-wall", "Prouver"), section("bundle", "best-value", "Augmenter le panier"), section("guarantees", "risk-reversal", "R\xE9duire le risque"), section("faq", "objection-led", "Lever les objections"), section("cta", "direct-close", "Conclure"), section("footer", "compact", "Signer")],
+    "playful-gifting": [section("announcement", "gift-note", "Capter"), section("navigation", "playful", "Installer la marque"), section("productHero", "giftable-story", "Cr\xE9er l\u2019envie d\u2019offrir"), section("gallery", "color-pop", "Montrer le produit"), section("productMain", "gift-buy-box", "Convertir"), section("benefits", "occasion-cards", "Donner des occasions"), section(proof, "community-grid", "Prouver"), section("bundle", "gift-sets", "Augmenter le panier"), section("faq", "friendly", "Lever les objections"), section("cta", "gift-close", "Conclure"), section("footer", "playful", "Signer")],
+    "premium-accessories": [section("navigation", "luxury", "Installer la marque"), section("productHero", "object-editorial", "Cr\xE9er le d\xE9sir"), section("gallery", "lookbook", "Montrer le savoir-faire"), section("productMain", "luxury-buy-box", "Convertir"), section("imageText", "craft-story", "Raconter le d\xE9tail"), section("benefits", "detail-led", "Justifier la valeur"), section(proof, "press-quotes", "Prouver"), section("bundle", "curated-set", "Augmenter le panier"), section("guarantees", "concierge", "Rassurer"), section("faq", "minimal", "Lever les objections"), section("cta", "luxury-close", "Conclure"), section("footer", "luxury", "Signer")],
+    "food-craft": [section("announcement", "origin-note", "Capter"), section("navigation", "craft", "Installer la marque"), section("productHero", "maker-led", "Cr\xE9er l\u2019app\xE9tit"), section("productMain", "tasting-buy-box", "Convertir"), section("imageText", "origin-story", "Raconter la provenance"), section("benefits", "tasting-notes", "Expliquer"), section("gallery", "table-mosaic", "Montrer les usages"), section(proof, "community-table", "Prouver"), section("bundle", "discovery-box", "Augmenter le panier"), section("faq", "craft", "Lever les objections"), section("cta", "tasting-close", "Conclure"), section("footer", "craft", "Signer")]
+  };
+  return { id: `recipe-${input.artDirection.id}`, profileId: input.artDirection.id, sections: schemes[input.artDirection.id] };
+}
+
+// src/onboarding/compile-store.ts
+function slugify(value2) {
+  return value2.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "page";
+}
+function money(value2, currency) {
+  if (value2 === null) return "";
+  try {
+    return new Intl.NumberFormat("en", { style: "currency", currency }).format(value2);
+  } catch {
+    return `${value2.toFixed(2)} ${currency}`;
+  }
+}
+function answer(answers, key) {
+  const value2 = answers[key];
+  return typeof value2 === "string" ? value2.trim() : "";
+}
+function listAnswer(answers, key) {
+  return answer(answers, key).split(/\r?\n|[,;]+/).map((value2) => value2.trim()).filter(Boolean);
+}
+function first(...values2) {
+  return values2.find((value2) => value2?.trim())?.trim() ?? "";
+}
+function item2(id2, title, text5 = "", extra = {}) {
+  return { id: id2, type: "item", settings: { title, text: text5, ...extra } };
+}
+function makeSection(type, index, settings2, blocks2 = []) {
+  const definition = getSectionDefinition(type);
+  if (!definition) throw new Error(`Unknown section type: ${type}`);
+  return {
+    id: `${type}-${index + 1}`,
+    type,
+    name: definition.name,
+    hidden: false,
+    locked: false,
+    settings: {
+      ...definition.defaults,
+      title: "[Ajoutez un titre]",
+      subtitle: "",
+      text: "",
+      cta_label: "",
+      cta_link: "#",
+      image: "",
+      image_alt: "",
+      price: "",
+      compare_at_price: "",
+      ...settings2
+    },
+    style: {},
+    responsive: {},
+    blocks: blocks2
+  };
+}
+function pageKind(format) {
+  if (format === "home") return "home";
+  if (format === "store" || format === "product") return "product";
+  return "landing";
+}
+function chooseRecipe(input, format, product) {
+  if (format === "blank") {
+    if (input.templateId !== null) throw new Error("Blank documents cannot use a template recipe");
+    return { id: null, sections: [], variants: {}, purposes: {} };
+  }
+  if (input.templateId) {
+    const recipe2 = recipeForTemplate(input.templateId);
+    if (recipe2.format !== format) throw new Error(`Template ${recipe2.id} is not compatible with ${format}`);
+    return { id: recipe2.id, sections: [...recipe2.sections], variants: { ...recipe2.variants }, purposes: {} };
+  }
+  if (format === "store" && product) {
+    const truth = buildProductTruthSheet(product);
+    const direction = selectArtDirection(truth);
+    const legacy = buildStoreRecipe({ product, truth, artDirection: direction, personas: input.personas, angles: input.angles });
+    return {
+      id: null,
+      sections: legacy.sections.map((section2) => section2.type),
+      variants: Object.fromEntries(legacy.sections.map((section2) => [section2.type, section2.variant])),
+      purposes: Object.fromEntries(legacy.sections.map((section2) => [section2.type, section2.purpose]))
+    };
+  }
+  const recipe = defaultRecipeForFormat(format);
+  return { id: null, sections: [...recipe.sections], variants: { ...recipe.variants }, purposes: {} };
+}
+function contentForSection(type, index, input, product) {
+  const answers = input.answers;
+  const selectedPersonas = input.personas.filter((persona) => persona.selected);
+  const selectedAngles = input.angles.filter((angle) => angle.selected);
+  const productTitle = product?.title ?? "";
+  const productText = product?.description ?? "";
+  const price = product ? money(product.price, product.currency) : "";
+  const compareAtPrice = product ? money(product.compareAtPrice, product.currency) : "";
+  const brand = first(answer(answers, "brand"), input.brandName, product?.vendor);
+  const collections = listAnswer(answers, "collections");
+  const benefits = listAnswer(answers, "benefits");
+  const objections = listAnswer(answers, "objections");
+  const segments = listAnswer(answers, "segments");
+  const relatedProducts = listAnswer(answers, "relatedProducts");
+  const submittedVariants = listAnswer(answers, "variants");
+  const primaryTitle = first(productTitle, answer(answers, "promise"), answer(answers, "topic"), answer(answers, "objective"), answer(answers, "angle"), answer(answers, "campaign"), answer(answers, "positioning"), input.brandName);
+  const primaryText = first(productText, answer(answers, "story"), answer(answers, "intent"), answer(answers, "audience"), answer(answers, "result"), answer(answers, "positioning"), answer(answers, "angle"));
+  const cta2 = first(answer(answers, "cta"), product ? input.language.toLowerCase().startsWith("fr") ? "Ajouter au panier" : "Add to cart" : "");
+  const settings2 = {};
+  let blocks2 = [];
+  switch (type) {
+    case "announcement":
+      Object.assign(settings2, { title: "[Ajoutez une annonce]", text: answer(answers, "offer") });
+      break;
+    case "navigation":
+      Object.assign(settings2, { title: brand || "[Ajoutez le nom de la marque]", cta_label: "" });
+      blocks2 = collections.map((title, blockIndex) => item2(`navigation-${index + 1}-${blockIndex + 1}`, title, "", { label: title, link: `#${slugify(title)}` }));
+      break;
+    case "hero":
+      Object.assign(settings2, { title: primaryTitle || "[Ajoutez votre titre principal]", subtitle: [answer(answers, "activity"), answer(answers, "campaign"), answer(answers, "traffic"), answer(answers, "author"), answer(answers, "angle"), product?.vendor ?? ""].filter(Boolean).join(" \xB7 "), text: primaryText, image: product?.images[0] ?? "", image_alt: productTitle, cta_label: cta2, cta_link: cta2 ? "#action" : "#" });
+      break;
+    case "productHero":
+      Object.assign(settings2, { title: productTitle, subtitle: product?.vendor ?? "", text: productText, price, compare_at_price: compareAtPrice, image: product?.images[0] ?? "", image_alt: productTitle, cta_label: cta2, cta_link: "#product" });
+      break;
+    case "gallery":
+      Object.assign(settings2, { title: product ? productTitle : "[Ajoutez vos visuels]" });
+      blocks2 = (product?.images ?? []).map((url, blockIndex) => item2(`gallery-${index + 1}-${blockIndex + 1}`, productTitle, "", { image: url, image_alt: productTitle }));
+      break;
+    case "productMain":
+      Object.assign(settings2, { title: productTitle, text: first(selectedAngles[0]?.description, productText), price, compare_at_price: compareAtPrice, image: product?.images[0] ?? "", cta_label: cta2, product_handle: slugify(productTitle) });
+      blocks2 = product?.variants.length ? product.variants.map((variant, blockIndex) => ({ id: `variant-${index + 1}-${blockIndex + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } })) : submittedVariants.map((title, blockIndex) => ({ id: `variant-${index + 1}-${blockIndex + 1}`, type: "variant", settings: { title, variant_id: "", price: "", image: "" } }));
+      break;
+    case "bundle":
+      Object.assign(settings2, { title: answer(answers, "offer") || "[D\xE9crivez votre offre group\xE9e]", text: answer(answers, "offer"), price: "", cta_label: cta2 });
+      break;
+    case "benefits": {
+      const submitted = first(answer(answers, "promise"), answer(answers, "positioning"), answer(answers, "angle"));
+      const values2 = benefits.length ? benefits : submitted ? [submitted] : [];
+      Object.assign(settings2, { title: answer(answers, "objective") || "[Pr\xE9sentez les b\xE9n\xE9fices]", subtitle: answer(answers, "proof"), text: "" });
+      blocks2 = values2.map((value2, blockIndex) => item2(`benefit-${index + 1}-${blockIndex + 1}`, value2));
+      break;
+    }
+    case "imageText":
+      Object.assign(settings2, { title: first(answer(answers, "story"), answer(answers, "angle"), answer(answers, "topic"), productTitle) || "[Ajoutez votre histoire]", text: first(answer(answers, "story"), answer(answers, "angle"), answer(answers, "intent"), productText), image: product?.images[1] ?? "", image_alt: productTitle });
+      break;
+    case "comparison": {
+      const values2 = objections.length ? objections : benefits.length ? benefits : segments;
+      Object.assign(settings2, { title: first(answer(answers, "angle"), answer(answers, "objective")) || "[Ajoutez votre comparaison]", text: answer(answers, "proof") });
+      blocks2 = values2.map((value2, blockIndex) => item2(`comparison-${index + 1}-${blockIndex + 1}`, value2));
+      break;
+    }
+    case "richText":
+      Object.assign(settings2, { title: first(answer(answers, "topic"), answer(answers, "angle"), answer(answers, "story"), primaryTitle) || "[Ajoutez le titre de l\u2019article]", subtitle: answer(answers, "author"), text: [answer(answers, "intent"), answer(answers, "angle"), answer(answers, "story"), answer(answers, "proof")].filter(Boolean).join("\n\n") || primaryText });
+      blocks2 = relatedProducts.map((value2, blockIndex) => item2(`related-${index + 1}-${blockIndex + 1}`, value2));
+      break;
+    case "press": {
+      const proof = answer(answers, "proof");
+      Object.assign(settings2, { title: proof ? "\xC9l\xE9ments de preuve fournis" : "[Ajoutez vos sources ou mentions]", text: "" });
+      blocks2 = proof ? [item2(`proof-${index + 1}-1`, "Preuve fournie", proof)] : [];
+      break;
+    }
+    case "quiz": {
+      const objective = answer(answers, "objective");
+      Object.assign(settings2, { title: objective || "[Ajoutez l\u2019objectif du quiz]", subtitle: answer(answers, "steps"), text: answer(answers, "result") });
+      blocks2 = segments.map((segment, blockIndex) => item2(`quiz-${index + 1}-${blockIndex + 1}`, objective || `[Question ${blockIndex + 1}]`, segment));
+      break;
+    }
+    case "form":
+      Object.assign(settings2, { title: first(answer(answers, "destination"), answer(answers, "result")) || "[Ajoutez le titre du formulaire]", text: "", cta_label: cta2 || "[Ajoutez le libell\xE9 du bouton]" });
+      break;
+    case "collectionGrid":
+      Object.assign(settings2, { title: answer(answers, "activity") || "[Pr\xE9sentez vos collections]", subtitle: answer(answers, "products"), text: answer(answers, "positioning") });
+      blocks2 = collections.map((title, blockIndex) => item2(`collection-${index + 1}-${blockIndex + 1}`, title));
+      break;
+    case "newsletter":
+      Object.assign(settings2, { title: "[Ajoutez le titre de votre newsletter]", text: "", cta_label: "[Ajoutez le libell\xE9 d\u2019inscription]" });
+      break;
+    case "testimonials":
+      Object.assign(settings2, { title: "[Ajoutez uniquement des t\xE9moignages r\xE9els]", text: "" });
+      blocks2 = [];
+      break;
+    case "reviews":
+      Object.assign(settings2, { title: "Avis clients", subtitle: product?.rating === null || product?.rating === void 0 ? "" : `${product.rating}/5`, text: "" });
+      blocks2 = (product?.reviews ?? []).map((review, blockIndex) => item2(`review-${index + 1}-${blockIndex + 1}`, review.title || review.author, review.text, { author: review.author, rating: review.rating, image: review.image ?? "" }));
+      break;
+    case "shipping":
+      Object.assign(settings2, { title: "[Ajoutez vos informations de livraison]", text: "" });
+      break;
+    case "guarantees":
+      Object.assign(settings2, { title: "[Ajoutez uniquement vos garanties confirm\xE9es]", text: "" });
+      break;
+    case "faq":
+      Object.assign(settings2, { title: "Questions fr\xE9quentes", text: "" });
+      blocks2 = objections.map((objection, blockIndex) => item2(`faq-${index + 1}-${blockIndex + 1}`, objection, "[Ajoutez votre r\xE9ponse]"));
+      break;
+    case "steps": {
+      const values2 = segments.length ? segments : benefits;
+      Object.assign(settings2, { title: answer(answers, "objective") || "[Ajoutez les \xE9tapes]", text: "" });
+      blocks2 = values2.map((value2, blockIndex) => item2(`step-${index + 1}-${blockIndex + 1}`, value2));
+      break;
+    }
+    case "cta":
+      Object.assign(settings2, { title: first(answer(answers, "product"), answer(answers, "promise"), answer(answers, "objective"), answer(answers, "result"), productTitle) || "[Ajoutez votre appel \xE0 l\u2019action]", text: first(answer(answers, "audience"), selectedPersonas[0]?.insight, productText), cta_label: cta2 || "[Ajoutez le libell\xE9 du bouton]", cta_link: "#action" });
+      break;
+    case "footer":
+      Object.assign(settings2, { title: brand || "[Ajoutez le nom de la marque]", text: answer(answers, "identity"), cta_label: "" });
+      blocks2 = collections.map((title, blockIndex) => item2(`footer-${index + 1}-${blockIndex + 1}`, title, "", { label: title, link: `#${slugify(title)}` }));
+      break;
+    default:
+      Object.assign(settings2, { title: primaryTitle || "[Ajoutez un titre]", text: primaryText });
+  }
+  return { settings: settings2, blocks: blocks2 };
+}
+function buildStoreDocument(rawInput) {
+  const input = { ...rawInput, templateId: rawInput.templateId ?? null, answers: rawInput.answers ?? {} };
+  const format = input.creationFormat ?? "store";
+  const product = isProductLedCreationFormat(format) ? input.product : void 0;
+  if (isProductLedCreationFormat(format) && !product) throw new Error(`A source product is required for ${format} creation`);
+  const selected = chooseRecipe(input, format, product);
+  const truth = product ? buildProductTruthSheet(product) : void 0;
+  const artDirection = truth ? selectArtDirection(truth) : void 0;
+  const firstScheme = input.brandKit.schemes[0];
+  const secondScheme = input.brandKit.schemes[1];
+  const sections = selected.sections.map((type, index) => {
+    const content = contentForSection(type, index, input, product);
+    return makeSection(type, index, { ...content.settings, variant: selected.variants[type] ?? "default", purpose: selected.purposes[type] ?? "" }, content.blocks);
+  });
+  const name = input.brandName.trim() || answer(input.answers, "brand") || answer(input.answers, "topic") || "Nouvelle page";
+  return {
+    version: 2,
+    name,
+    path: "/",
+    kind: pageKind(format),
+    modelId: input.modelId,
+    templateId: selected.id,
+    templateVersion: TEMPLATE_RECIPE_VERSION,
+    theme: {
+      background: artDirection?.palette[0] ?? firstScheme?.background ?? input.brandKit.palette[0] ?? "#ffffff",
+      surface: artDirection?.palette[3] ?? secondScheme?.background ?? input.brandKit.palette[3] ?? "#f4f1ec",
+      ink: artDirection?.palette[1] ?? firstScheme?.text ?? "#111111",
+      muted: "#6d6963",
+      accent: artDirection?.palette[2] ?? firstScheme?.accent ?? input.brandKit.palette[1] ?? "#111111",
+      display: "sans",
+      radius: "soft"
+    },
+    pages: [{ id: `page-${slugify(name)}`, name, slug: slugify(name), sections }],
+    assets: (product?.images ?? []).map((url, index) => ({ id: `source-image-${index + 1}`, type: "image", url, alt: `${product?.title ?? ""} ${index + 1}`.trim() })),
+    ...product && truth && artDirection ? { commerce: { sourceProduct: product, personas: input.personas, angles: input.angles, brandKit: input.brandKit, storefrontLanguage: input.language, productTruth: truth, artDirection, recipeId: selected.id ?? `recipe-${artDirection.id}` } } : {}
+  };
+}
+
+// src/create/format-flow.ts
+var TEMPLATE_IDS = {
+  store: ["store-editorial-commerce", "store-conversion-modern", "store-maison-premium"],
+  product: ["product-buybox-premium", "product-demonstration", "product-bundle-first"],
+  landing: ["landing-direct-response", "landing-editorial-premium", "landing-visual-demo"],
+  advertorial: ["advertorial-journal", "advertorial-founder-story", "advertorial-comparison"],
+  quiz: ["quiz-diagnostic", "quiz-routine", "quiz-recommendation"],
+  home: ["home-brand-editorial", "home-catalogue-premium", "home-story-first"],
+  blog: ["blog-magazine", "blog-guide", "blog-study"],
+  blank: []
+};
+var templateDetails = {
+  "store-editorial-commerce": { name: "Commerce \xE9ditorial", description: "Une boutique guid\xE9e par l\u2019univers de marque.", artProfile: "editorial", sectionVariants: { hero: "editorial", collectionGrid: "curated" } },
+  "store-conversion-modern": { name: "Conversion moderne", description: "Une boutique pens\xE9e pour guider rapidement vers l\u2019achat.", artProfile: "conversion", sectionVariants: { hero: "conversion", productMain: "buybox" } },
+  "store-maison-premium": { name: "Maison premium", description: "Une composition raffin\xE9e pour les collections haut de gamme.", artProfile: "minimal", sectionVariants: { hero: "split", collectionGrid: "premium" } },
+  "product-buybox-premium": { name: "Fiche produit premium", description: "Une fiche produit d\xE9taill\xE9e avec une offre claire.", artProfile: "conversion", sectionVariants: { productMain: "premium", reviews: "featured" } },
+  "product-demonstration": { name: "D\xE9monstration produit", description: "Une fiche centr\xE9e sur l\u2019usage et les b\xE9n\xE9fices.", artProfile: "editorial", sectionVariants: { hero: "demonstration", benefits: "visual" } },
+  "product-bundle-first": { name: "Offre group\xE9e", description: "Une fiche qui met les packs et quantit\xE9s en avant.", artProfile: "conversion", sectionVariants: { productMain: "bundle-led", bundle: "quantity-break" } },
+  "landing-direct-response": { name: "R\xE9ponse directe", description: "Une page de campagne focalis\xE9e sur une action.", artProfile: "conversion", sectionVariants: { hero: "direct-response", cta: "repeated" } },
+  "landing-editorial-premium": { name: "\xC9ditorial premium", description: "Une landing page narrative et haut de gamme.", artProfile: "editorial", sectionVariants: { hero: "editorial", imageText: "story" } },
+  "landing-visual-demo": { name: "D\xE9monstration visuelle", description: "Une page qui rend le m\xE9canisme visible d\xE8s le d\xE9part.", artProfile: "minimal", sectionVariants: { hero: "visual", benefits: "diagram" } },
+  "advertorial-journal": { name: "Journal", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne naturellement vers l\u2019offre.", artProfile: "editorial", sectionVariants: { richText: "journal", press: "inline" } },
+  "advertorial-founder-story": { name: "Histoire du fondateur", description: "Un t\xE9moignage de marque personnel et cr\xE9dible.", artProfile: "editorial", sectionVariants: { hero: "founder", richText: "narrative" } },
+  "advertorial-comparison": { name: "Comparatif", description: "Une argumentation structur\xE9e autour des diff\xE9rences produit.", artProfile: "conversion", sectionVariants: { comparison: "feature-led", productMain: "inline" } },
+  "quiz-diagnostic": { name: "Diagnostic", description: "Un parcours de questions pour qualifier un besoin.", artProfile: "minimal", sectionVariants: { quiz: "diagnostic", form: "stepper" } },
+  "quiz-routine": { name: "Routine", description: "Un questionnaire qui compose une routine personnalis\xE9e.", artProfile: "editorial", sectionVariants: { quiz: "routine", productMain: "recommendation" } },
+  "quiz-recommendation": { name: "Recommandation", description: "Un funnel qui m\xE8ne vers une recommandation utile.", artProfile: "conversion", sectionVariants: { quiz: "recommendation", cta: "result" } },
+  "home-brand-editorial": { name: "\xC9ditorial de marque", description: "Une vitrine de marque riche en histoire et en collections.", artProfile: "editorial", sectionVariants: { hero: "editorial", imageText: "brand-story" } },
+  "home-catalogue-premium": { name: "Catalogue premium", description: "Une page d\u2019accueil qui donne la priorit\xE9 aux collections.", artProfile: "minimal", sectionVariants: { hero: "catalogue", collectionGrid: "premium" } },
+  "home-story-first": { name: "L\u2019histoire d\u2019abord", description: "Une page d\u2019accueil qui pr\xE9sente d\u2019abord le r\xE9cit de marque.", artProfile: "editorial", sectionVariants: { hero: "story", richText: "manifesto" } },
+  "blog-magazine": { name: "Magazine", description: "Un article de marque avec une lecture \xE9ditoriale forte.", artProfile: "editorial", sectionVariants: { hero: "magazine", richText: "longform" } },
+  "blog-guide": { name: "Guide", description: "Un contenu pratique, structur\xE9 pour \xEAtre facilement consult\xE9.", artProfile: "minimal", sectionVariants: { richText: "guide", faq: "inline" } },
+  "blog-study": { name: "\xC9tude", description: "Une analyse approfondie avec preuves et sources.", artProfile: "editorial", sectionVariants: { hero: "study", press: "sources" } }
+};
+function template(id2, format) {
+  const details = templateDetails[id2];
+  if (!details) throw new Error(`Missing creation template details for ${id2}`);
+  return {
+    id: id2,
+    format,
+    ...details,
+    previewDesktop: `/template-previews/${id2}-desktop.webp`,
+    previewMobile: `/template-previews/${id2}-mobile.webp`
+  };
+}
+function fields(...intake) {
+  return intake;
+}
+var field = (id2, label, placeholder, kind = "text", required = true) => ({ id: id2, label, placeholder, kind, required });
+var sources = ["link", "image", "description", "shopify"];
+var FORMAT_FLOWS = [
+  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: sources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id2) => template(id2, "store")) },
+  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: sources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id2) => template(id2, "product")) },
+  { id: "landing", title: "Landing page", description: "Une campagne, une promesse, une action", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("campaign", "Campagne", "Le nom ou contexte de la campagne"), field("audience", "Audience", "\xC0 qui la page doit-elle parler ?", "textarea"), field("promise", "Promesse", "Le r\xE9sultat principal propos\xE9", "textarea"), field("traffic", "Source du trafic", "Ex. Meta Ads, email, recherche"), field("cta", "Action attendue", "Ex. D\xE9couvrir l\u2019offre")), templates: TEMPLATE_IDS.landing.map((id2) => template(id2, "landing")) },
+  { id: "advertorial", title: "Advertorial", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne vers l\u2019offre", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("angle", "Angle narratif", "L\u2019id\xE9e centrale de l\u2019article", "textarea"), field("author", "Auteur", "Qui porte ce r\xE9cit ?"), field("proof", "Niveau de preuve", "\xC9tudes, exp\xE9rience ou d\xE9monstration", "textarea"), field("product", "Produit final", "Le produit ou l\u2019offre vers lequel conduire")), templates: TEMPLATE_IDS.advertorial.map((id2) => template(id2, "advertorial")) },
+  { id: "quiz", title: "Quiz et funnel", description: "Questions, recommandation et capture", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("objective", "Objectif", "Le r\xE9sultat que doit produire le quiz", "textarea"), field("segments", "Segments", "Les profils ou besoins \xE0 distinguer", "list"), field("result", "Recommandation", "Ce que chaque profil doit recevoir", "textarea"), field("steps", "Nombre d\u2019\xE9tapes", "Ex. 5", "text", false), field("destination", "Destination des r\xE9ponses", "Ex. une recommandation produit", "textarea", false)), templates: TEMPLATE_IDS.quiz.map((id2) => template(id2, "quiz")) },
+  { id: "home", title: "Page d\u2019accueil", description: "La vitrine compl\xE8te d\u2019une marque", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("brand", "Nom de la marque", "Le nom affich\xE9 sur votre page"), field("activity", "Activit\xE9", "Ex. objets durables pour la maison"), field("promise", "Promesse", "La promesse principale de la marque", "textarea"), field("collections", "Collections principales", "Ex. Nouveaut\xE9s, best-sellers, cadeaux", "list"), field("story", "Histoire de la marque", "Ce que vous voulez raconter", "textarea")), templates: TEMPLATE_IDS.home.map((id2) => template(id2, "home")) },
+  { id: "blog", title: "Article de blog", description: "Contenu de marque structur\xE9 et lisible", pageType: "write", allowedSources: ["description", "shopify"], intake: fields(field("topic", "Sujet", "Le th\xE8me de l\u2019article"), field("intent", "Intention de recherche", "La question \xE0 laquelle r\xE9pondre", "textarea"), field("angle", "Angle", "Votre point de vue ou approche", "textarea"), field("relatedProducts", "Produits li\xE9s", "Les produits \xE0 citer si n\xE9cessaire", "list", false)), templates: TEMPLATE_IDS.blog.map((id2) => template(id2, "blog")) },
+  { id: "blank", title: "Page vierge", description: "Construire librement dans l\u2019\xE9diteur", pageType: "blank", allowedSources: [], intake: [], templates: [] }
+];
+function flowForFormat(id2) {
+  const flow = FORMAT_FLOWS.find((candidate) => candidate.id === id2);
+  if (!flow) throw new Error(`Unknown creation format: ${id2}`);
+  return flow;
+}
+
 // src/canardo/context.ts
 function buildCanardoContext(document2, selectedId, shopify) {
   const page = document2.pages.find((item3) => item3.sections.some((section2) => section2.id === selectedId)) ?? document2.pages[0];
@@ -27574,12 +28199,12 @@ function applyCommand(document2, command) {
     case "duplicateSection": {
       const from = editableSection(next, command.sectionId);
       if (sectionIds(next).has(command.newSectionId)) throw new EditorCommandError(`Duplicate section id: ${command.newSectionId}`);
-      const copy2 = clone(from.section);
-      copy2.id = command.newSectionId;
-      copy2.name = `${copy2.name} copy`;
-      copy2.blocks = copy2.blocks.map((block, index) => ({ ...block, id: `${command.newSectionId}-block-${index + 1}` }));
+      const copy = clone(from.section);
+      copy.id = command.newSectionId;
+      copy.name = `${copy.name} copy`;
+      copy.blocks = copy.blocks.map((block, index) => ({ ...block, id: `${command.newSectionId}-block-${index + 1}` }));
       const insertion = command.index ?? from.sectionIndex + 1;
-      next.pages[from.pageIndex].sections.splice(checkedIndex(insertion, next.pages[from.pageIndex].sections.length), 0, copy2);
+      next.pages[from.pageIndex].sections.splice(checkedIndex(insertion, next.pages[from.pageIndex].sections.length), 0, copy);
       break;
     }
     case "removeSection": {
@@ -27623,111 +28248,6 @@ function applyCommand(document2, command) {
     }
   }
   return next;
-}
-
-// src/editor/schema.ts
-var BREAKPOINTS = /* @__PURE__ */ new Set(["desktop", "tablet", "mobile"]);
-var PAGE_KINDS = /* @__PURE__ */ new Set(["landing", "product", "collection", "home"]);
-var ASSET_TYPES = /* @__PURE__ */ new Set(["image", "video"]);
-function object(value2) {
-  return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
-}
-function nonEmptyString(value2) {
-  return typeof value2 === "string" && value2.trim().length > 0;
-}
-function settingValue(value2) {
-  if (value2 === null || ["string", "number", "boolean"].includes(typeof value2)) return true;
-  return Array.isArray(value2) && value2.every((item3) => item3 === null || ["string", "number", "boolean"].includes(typeof item3));
-}
-function styleSettings(value2) {
-  return object(value2) && Object.values(value2).every(settingValue);
-}
-function responsiveSettings(value2) {
-  if (!object(value2)) return false;
-  return Object.entries(value2).every(([breakpoint, styles]) => BREAKPOINTS.has(breakpoint) && styleSettings(styles));
-}
-function unsafeCustomCode(section2) {
-  if (section2.type !== "customCode" || !object(section2.settings)) return false;
-  const html = typeof section2.settings.html === "string" ? section2.settings.html : "";
-  const js = typeof section2.settings.js === "string" ? section2.settings.js : "";
-  return /<script\b[^>]*\bsrc\s*=|\bimport\s*\(|\bdocument\.cookie\b|\bwindow\.top\b|\bparent\.location\b/i.test(`${html}
-${js}`);
-}
-function validateBlock(value2, errors, blockIds2) {
-  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.type) || !object(value2.settings)) {
-    errors.push("Invalid editor block");
-    return false;
-  }
-  if (blockIds2.has(value2.id)) errors.push(`Duplicate block id: ${value2.id}`);
-  blockIds2.add(value2.id);
-  for (const [key, setting3] of Object.entries(value2.settings)) {
-    if (!settingValue(setting3)) errors.push(`Invalid setting value at ${value2.id}.${key}`);
-  }
-  return true;
-}
-function validateSection(value2, errors, sectionIds2, blockIds2) {
-  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.type)) {
-    errors.push("Invalid editor section");
-    return false;
-  }
-  const id2 = value2.id;
-  if (sectionIds2.has(id2)) errors.push(`Duplicate section id: ${id2}`);
-  sectionIds2.add(id2);
-  if (!nonEmptyString(value2.name) || typeof value2.hidden !== "boolean" || typeof value2.locked !== "boolean") {
-    errors.push(`Invalid section metadata: ${id2}`);
-  }
-  if (!object(value2.settings)) errors.push(`Invalid section settings: ${id2}`);
-  else for (const [key, setting3] of Object.entries(value2.settings)) {
-    if (!settingValue(setting3)) errors.push(`Invalid setting value at ${id2}.${key}`);
-  }
-  if (!styleSettings(value2.style)) errors.push(`Invalid style settings in section: ${id2}`);
-  if (!responsiveSettings(value2.responsive)) errors.push(`Invalid responsive settings in section: ${id2}`);
-  if (!Array.isArray(value2.blocks)) errors.push(`Invalid blocks in section: ${id2}`);
-  else value2.blocks.forEach((block) => validateBlock(block, errors, blockIds2));
-  if (unsafeCustomCode(value2)) errors.push(`Unsafe custom code in section: ${id2}`);
-  return true;
-}
-function validatePage(value2, errors, pageIds, sectionIds2, blockIds2) {
-  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.name) || !nonEmptyString(value2.slug) || !Array.isArray(value2.sections)) {
-    errors.push("Invalid editor page");
-    return false;
-  }
-  if (pageIds.has(value2.id)) errors.push(`Duplicate page id: ${value2.id}`);
-  pageIds.add(value2.id);
-  value2.sections.forEach((section2) => validateSection(section2, errors, sectionIds2, blockIds2));
-  return true;
-}
-function validateAsset(value2, errors, assetIds) {
-  if (!object(value2) || !nonEmptyString(value2.id) || !ASSET_TYPES.has(String(value2.type)) || !nonEmptyString(value2.url)) {
-    errors.push("Invalid asset reference");
-    return false;
-  }
-  if (assetIds.has(value2.id)) errors.push(`Duplicate asset id: ${value2.id}`);
-  assetIds.add(value2.id);
-  if (value2.alt !== void 0 && typeof value2.alt !== "string") errors.push(`Invalid asset alt: ${value2.id}`);
-  return true;
-}
-function validTheme(value2) {
-  if (!object(value2)) return false;
-  return ["background", "surface", "ink", "muted", "accent"].every((key) => typeof value2[key] === "string") && ["sans", "serif", "condensed"].includes(String(value2.display)) && ["none", "soft", "round"].includes(String(value2.radius));
-}
-function validateEditorDocument(value2) {
-  const errors = [];
-  if (!object(value2)) return { ok: false, errors: ["Editor document must be an object"] };
-  if (value2.version !== 2) errors.push("Unsupported editor document version");
-  if (!nonEmptyString(value2.name)) errors.push("Editor document name is required");
-  if (typeof value2.path !== "string" || !value2.path.startsWith("/")) errors.push("Editor document path must start with /");
-  if (!PAGE_KINDS.has(String(value2.kind))) errors.push("Invalid editor document kind");
-  if (!validTheme(value2.theme)) errors.push("Invalid editor document theme");
-  const pageIds = /* @__PURE__ */ new Set();
-  const sectionIds2 = /* @__PURE__ */ new Set();
-  const blockIds2 = /* @__PURE__ */ new Set();
-  const assetIds = /* @__PURE__ */ new Set();
-  if (!Array.isArray(value2.pages) || value2.pages.length === 0) errors.push("Editor document needs at least one page");
-  else value2.pages.forEach((page) => validatePage(page, errors, pageIds, sectionIds2, blockIds2));
-  if (!Array.isArray(value2.assets)) errors.push("Editor document assets must be an array");
-  else value2.assets.forEach((asset) => validateAsset(asset, errors, assetIds));
-  return errors.length ? { ok: false, errors } : { ok: true, value: value2 };
 }
 
 // src/canardo/validate.ts
@@ -27835,7 +28355,7 @@ async function ensureWorkspace(store, ownerUserId, opts) {
   }
   return ws;
 }
-function slugify(value2) {
+function slugify2(value2) {
   const slug2 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return slug2 || "page";
 }
@@ -27851,6 +28371,26 @@ function isPageType(value2) {
 }
 function isPageStatus(value2) {
   return typeof value2 === "string" && PAGE_STATUSES.includes(value2);
+}
+function safeAnswers(format, value2) {
+  if (!value2 || typeof value2 !== "object" || Array.isArray(value2)) return {};
+  const raw = value2;
+  const allowed = new Set(flowForFormat(format).intake.map((field2) => field2.id));
+  return Object.fromEntries(Object.entries(raw).flatMap(([key, answer2]) => allowed.has(key) && typeof answer2 === "string" ? [[key, answer2.trim().slice(0, 4e3)]] : []));
+}
+function emptyEditorDocument(name, type) {
+  const slug2 = slugify2(name);
+  return {
+    version: 2,
+    name,
+    path: "/",
+    kind: type === "sell" ? "product" : "landing",
+    templateId: null,
+    templateVersion: 1,
+    theme: { ...DEFAULT_PAGE_THEME },
+    pages: [{ id: `page-${slug2}`, name, slug: slug2, sections: [] }],
+    assets: []
+  };
 }
 async function loadOwnedPage(deps, userId, id2) {
   const page = await deps.store.getPage(id2);
@@ -27888,14 +28428,41 @@ function pagesRoutes(deps) {
     if (!isPageType(body.type)) return c.json({ error: "invalid type" }, 400);
     const name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Page";
     const workspace = await ensureWorkspace(deps.store, user.id);
-    const slug2 = await uniqueSlug(deps.store, workspace.id, slugify(name));
+    const slug2 = await uniqueSlug(deps.store, workspace.id, slugify2(name));
+    let document2;
+    if (body.creationFormat === void 0) {
+      document2 = emptyEditorDocument(name, body.type);
+    } else if (!isCreationFormat(body.creationFormat)) {
+      return c.json({ error: "invalid creation format" }, 400);
+    } else {
+      const format = body.creationFormat;
+      const templateId = body.templateId === null ? null : typeof body.templateId === "string" ? body.templateId : null;
+      if (isProductLedCreationFormat(format)) return c.json({ error: "product_source_required" }, 409);
+      const answers = safeAnswers(format, body.answers);
+      try {
+        document2 = buildStoreDocument({
+          language: "fr",
+          brandName: answers.brand || answers.topic || name,
+          modelId: format === "blank" ? "blank" : "template",
+          personas: [],
+          angles: [],
+          brandKit: { palette: ["#ffffff", "#111111", "#f4f1ec", "#ffffff"], headingFont: "Inter", bodyFont: "Inter", schemes: [{ name: "Default", background: "#ffffff", text: "#111111", accent: "#111111" }] },
+          creationFormat: format,
+          templateId,
+          answers
+        });
+      } catch {
+        return c.json({ error: "invalid template" }, 400);
+      }
+    }
+    if (!validateEditorDocument(document2).ok) return c.json({ error: "invalid editor document" }, 500);
     const page = await deps.store.createPage({
       workspaceId: workspace.id,
       name,
       slug: slug2,
       type: body.type,
       status: "draft",
-      document: initialDocument(name, body.type)
+      document: document2
     });
     return c.json(page, 201);
   });
@@ -27907,7 +28474,7 @@ function pagesRoutes(deps) {
     const body = await c.req.json().catch(() => ({}));
     const patch = {};
     if (typeof body.name === "string") patch.name = body.name;
-    if (typeof body.slug === "string") patch.slug = slugify(body.slug);
+    if (typeof body.slug === "string") patch.slug = slugify2(body.slug);
     if (isPageStatus(body.status)) patch.status = body.status;
     if (body.document && typeof body.document === "object") {
       patch.document = body.document;
@@ -27928,8 +28495,8 @@ function pagesRoutes(deps) {
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
     const name = `${loaded.page.name} copy`;
-    const slug2 = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify(name));
-    const copy2 = await deps.store.createPage({
+    const slug2 = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify2(name));
+    const copy = await deps.store.createPage({
       workspaceId: loaded.page.workspaceId,
       name,
       slug: slug2,
@@ -27937,7 +28504,7 @@ function pagesRoutes(deps) {
       status: "draft",
       document: loaded.page.document
     });
-    return c.json(copy2, 201);
+    return c.json(copy, 201);
   });
   app2.delete("/pages/:id", async (c) => {
     const user = await requireUser(deps, c.req.raw);
@@ -28952,69 +29519,6 @@ async function importProduct(rawUrl, port) {
   return extractProductFromHtml(result.html, result.finalUrl);
 }
 
-// src/onboarding/product-truth.ts
-function sentences(value2) {
-  return value2.split(/(?<=[.!?])\s+/).map((item3) => item3.trim()).filter(Boolean).slice(0, 12);
-}
-function buildProductTruthSheet(product) {
-  const searchText = [product.title, product.description, product.vendor, ...product.variants.map((variant) => variant.title)].join(" ").toLowerCase();
-  const inferences = [];
-  if (/(lamp|light|lumi|éclair|maison|home|decor)/i.test(searchText)) inferences.push("Le contexte sugg\xE8re un achat li\xE9 \xE0 l\u2019ambiance ou \xE0 la d\xE9coration.");
-  if (/(serum|sérum|skin|peau|beaut|soin|cosm)/i.test(searchText)) inferences.push("Le contexte sugg\xE8re un parcours de r\xE9assurance beaut\xE9 ou soin.");
-  if (/(posture|ergonom|support|correct|douleur|pain)/i.test(searchText)) inferences.push("Le contexte sugg\xE8re un achat motiv\xE9 par la r\xE9solution d\u2019un probl\xE8me.");
-  if (!inferences.length) inferences.push("Le b\xE9n\xE9fice principal doit \xEAtre confirm\xE9 par le marchand avant publication.");
-  return {
-    observedFacts: {
-      sourceUrl: product.sourceUrl,
-      title: product.title,
-      description: product.description,
-      vendor: product.vendor,
-      currency: product.currency,
-      price: product.price,
-      compareAtPrice: product.compareAtPrice,
-      images: [...product.images],
-      variants: product.variants.map((variant) => ({ ...variant })),
-      rating: product.rating,
-      reviewCount: product.reviewCount,
-      reviews: product.reviews.map((review) => ({ ...review }))
-    },
-    supplierClaims: sentences(product.description),
-    inferences,
-    searchText
-  };
-}
-
-// src/onboarding/art-direction.ts
-var PROFILES = {
-  "warm-home": { id: "warm-home", label: "Maison chaleureuse", headingFont: "Manrope", bodyFont: "Inter", mediaRatio: "landscape", spacing: "airy", radius: "soft", proofMode: "editorial", buttonStyle: "solid", palette: ["#F5F0E8", "#273126", "#C0784C", "#FFFFFF"] },
-  "editorial-beauty": { id: "editorial-beauty", label: "Beaut\xE9 \xE9ditoriale", headingFont: "DM Sans", bodyFont: "Inter", mediaRatio: "portrait", spacing: "airy", radius: "none", proofMode: "editorial", buttonStyle: "solid", palette: ["#F8F2EF", "#241B1C", "#C47B76", "#FFFFFF"] },
-  "clinical-wellness": { id: "clinical-wellness", label: "Soin clinique", headingFont: "Inter", bodyFont: "Inter", mediaRatio: "square", spacing: "balanced", radius: "soft", proofMode: "clinical", buttonStyle: "solid", palette: ["#F2F7F5", "#18332D", "#70A99B", "#FFFFFF"] },
-  "technical-performance": { id: "technical-performance", label: "Performance technique", headingFont: "Space Grotesk", bodyFont: "Inter", mediaRatio: "square", spacing: "compact", radius: "soft", proofMode: "technical", buttonStyle: "solid", palette: ["#F2F3F5", "#11151B", "#356AE6", "#FFFFFF"] },
-  "direct-response": { id: "direct-response", label: "R\xE9solution directe", headingFont: "Arial", bodyFont: "Arial", mediaRatio: "square", spacing: "compact", radius: "soft", proofMode: "community", buttonStyle: "solid", palette: ["#FFFFFF", "#171717", "#FFDB3D", "#F3F3F3"] },
-  "playful-gifting": { id: "playful-gifting", label: "Cadeau joyeux", headingFont: "Syne", bodyFont: "Inter", mediaRatio: "square", spacing: "balanced", radius: "round", proofMode: "community", buttonStyle: "pill", palette: ["#FFF6D8", "#2A2040", "#FF7657", "#FFFFFF"] },
-  "premium-accessories": { id: "premium-accessories", label: "Accessoires premium", headingFont: "Cormorant Garamond", bodyFont: "Inter", mediaRatio: "portrait", spacing: "airy", radius: "none", proofMode: "editorial", buttonStyle: "outline", palette: ["#F5F1E8", "#171512", "#A38152", "#FFFFFF"] },
-  "food-craft": { id: "food-craft", label: "Savoir-faire gourmand", headingFont: "Fraunces", bodyFont: "Inter", mediaRatio: "landscape", spacing: "balanced", radius: "soft", proofMode: "community", buttonStyle: "solid", palette: ["#F7F0E2", "#382719", "#C65D32", "#FFFFFF"] }
-};
-var KEYWORDS = {
-  "warm-home": /(lamp|light|lumi|éclair|maison|home|decor|intérieur)/i,
-  "editorial-beauty": /(beaut|maquill|cosmétique|parfum|hair|cheveu)/i,
-  "clinical-wellness": /(serum|sérum|skin|peau|soin|wellness|vitamin|nutrition)/i,
-  "technical-performance": /(tech|device|outil|performance|sport|battery|batterie|ergonom)/i,
-  "direct-response": /(posture|correct|douleur|pain|support|solution|anti)/i,
-  "playful-gifting": /(gift|cadeau|enfant|kid|toy|jouet|fun)/i,
-  "premium-accessories": /(bag|sac|montre|watch|bijou|jewel|accessoire|cuir|leather)/i,
-  "food-craft": /(café|coffee|thé|tea|chocolat|food|épice|spice|graine)/i
-};
-var PRIORITY = ["warm-home", "clinical-wellness", "editorial-beauty", "direct-response", "technical-performance", "premium-accessories", "food-craft", "playful-gifting"];
-function selectArtDirection(truth) {
-  const scored = PRIORITY.map((id2, index) => ({ id: id2, index, score: (truth.searchText.match(new RegExp(KEYWORDS[id2].source, "gi")) ?? []).length }));
-  scored.sort((a, b2) => b2.score - a.score || a.index - b2.index);
-  return PROFILES[scored[0].score ? scored[0].id : "direct-response"];
-}
-function artDirectionById(id2) {
-  return typeof id2 === "string" && id2 in PROFILES ? PROFILES[id2] : null;
-}
-
 // src/onboarding/fallback-analysis.ts
 function stem(product) {
   const words = product.title.replace(/[^a-zA-ZÀ-ÿ0-9 ]/g, " ").split(/\s+/).filter((word) => word.length > 3);
@@ -29065,205 +29569,6 @@ function createBrandKit(product, modelId) {
   };
 }
 
-// src/onboarding/store-recipe.ts
-var section = (type, variant, purpose) => ({ type, variant, purpose });
-function buildStoreRecipe(input) {
-  const proof = input.product.reviews.length ? "reviews" : "testimonials";
-  const schemes = {
-    "warm-home": [section("announcement", "quiet-trust", "Rassurer"), section("navigation", "editorial", "Installer la marque"), section("productHero", "ambient-editorial", "Projeter dans un int\xE9rieur"), section("gallery", "lifestyle-grid", "Montrer les ambiances"), section("productMain", "calm-buy-box", "Faciliter l\u2019achat"), section("imageText", "room-story", "Raconter l\u2019usage"), section("benefits", "material-cards", "Expliquer les b\xE9n\xE9fices"), section(proof, "home-stories", "Apporter la preuve"), section("bundle", "room-set", "Augmenter le panier"), section("shipping", "assurance-strip", "Rassurer sur la commande"), section("faq", "quiet-accordion", "Lever les objections"), section("cta", "editorial-close", "Conclure"), section("footer", "editorial", "Signer")],
-    "editorial-beauty": [section("navigation", "minimal", "Installer la marque"), section("productHero", "beauty-split", "Cr\xE9er le d\xE9sir"), section("benefits", "ritual-strip", "Promettre une routine"), section("productMain", "beauty-buy-box", "Convertir"), section("imageText", "ingredient-story", "Expliquer la formule"), section("gallery", "editorial-mosaic", "Montrer la texture"), section(proof, "beauty-journal", "Prouver"), section("bundle", "ritual-set", "Augmenter le panier"), section("faq", "editorial", "Lever les objections"), section("cta", "beauty-close", "Conclure"), section("footer", "minimal", "Signer")],
-    "clinical-wellness": [section("announcement", "clinical-proof", "Rassurer"), section("navigation", "clinical", "Installer la marque"), section("productHero", "clinical-evidence", "Clarifier la promesse"), section("productMain", "clinical-buy-box", "Convertir"), section("benefits", "evidence-grid", "D\xE9tailler les b\xE9n\xE9fices"), section("imageText", "formula-focus", "Expliquer"), section(proof, "measured-proof", "Prouver"), section("bundle", "protocol", "Structurer la cure"), section("shipping", "assurance-strip", "R\xE9duire le risque"), section("faq", "clinical", "Lever les objections"), section("cta", "clinical-close", "Conclure"), section("footer", "clinical", "Signer")],
-    "technical-performance": [section("navigation", "technical", "Installer la marque"), section("productHero", "spec-led", "D\xE9montrer"), section("productMain", "technical-buy-box", "Convertir"), section("benefits", "spec-grid", "Expliquer les performances"), section("comparison", "benchmark", "Comparer"), section("gallery", "detail-grid", "Montrer les d\xE9tails"), section(proof, "field-tests", "Prouver"), section("bundle", "performance-pack", "Augmenter le panier"), section("shipping", "service-bar", "Rassurer"), section("guarantees", "technical-assurance", "R\xE9duire le risque"), section("faq", "technical", "Lever les objections"), section("cta", "performance-close", "Conclure"), section("footer", "technical", "Signer")],
-    "direct-response": [section("announcement", "benefit-bar", "Capter"), section("navigation", "compact", "Orienter"), section("productHero", "problem-solution", "Nommer le probl\xE8me"), section("benefits", "outcome-stack", "Montrer la transformation"), section("productMain", "conversion-buy-box", "Convertir"), section("comparison", "before-after", "Faire comparer"), section(proof, "results-wall", "Prouver"), section("bundle", "best-value", "Augmenter le panier"), section("guarantees", "risk-reversal", "R\xE9duire le risque"), section("faq", "objection-led", "Lever les objections"), section("cta", "direct-close", "Conclure"), section("footer", "compact", "Signer")],
-    "playful-gifting": [section("announcement", "gift-note", "Capter"), section("navigation", "playful", "Installer la marque"), section("productHero", "giftable-story", "Cr\xE9er l\u2019envie d\u2019offrir"), section("gallery", "color-pop", "Montrer le produit"), section("productMain", "gift-buy-box", "Convertir"), section("benefits", "occasion-cards", "Donner des occasions"), section(proof, "community-grid", "Prouver"), section("bundle", "gift-sets", "Augmenter le panier"), section("faq", "friendly", "Lever les objections"), section("cta", "gift-close", "Conclure"), section("footer", "playful", "Signer")],
-    "premium-accessories": [section("navigation", "luxury", "Installer la marque"), section("productHero", "object-editorial", "Cr\xE9er le d\xE9sir"), section("gallery", "lookbook", "Montrer le savoir-faire"), section("productMain", "luxury-buy-box", "Convertir"), section("imageText", "craft-story", "Raconter le d\xE9tail"), section("benefits", "detail-led", "Justifier la valeur"), section(proof, "press-quotes", "Prouver"), section("bundle", "curated-set", "Augmenter le panier"), section("guarantees", "concierge", "Rassurer"), section("faq", "minimal", "Lever les objections"), section("cta", "luxury-close", "Conclure"), section("footer", "luxury", "Signer")],
-    "food-craft": [section("announcement", "origin-note", "Capter"), section("navigation", "craft", "Installer la marque"), section("productHero", "maker-led", "Cr\xE9er l\u2019app\xE9tit"), section("productMain", "tasting-buy-box", "Convertir"), section("imageText", "origin-story", "Raconter la provenance"), section("benefits", "tasting-notes", "Expliquer"), section("gallery", "table-mosaic", "Montrer les usages"), section(proof, "community-table", "Prouver"), section("bundle", "discovery-box", "Augmenter le panier"), section("faq", "craft", "Lever les objections"), section("cta", "tasting-close", "Conclure"), section("footer", "craft", "Signer")]
-  };
-  return { id: `recipe-${input.artDirection.id}`, profileId: input.artDirection.id, sections: schemes[input.artDirection.id] };
-}
-
-// src/onboarding/creation-recipe.ts
-var FORMAT_RECIPES = {
-  product: ["announcement", "navigation", "productHero", "gallery", "productMain", "benefits", "reviews", "bundle", "shipping", "faq", "cta", "footer"],
-  landing: ["announcement", "navigation", "hero", "benefits", "imageText", "comparison", "reviews", "productMain", "guarantees", "faq", "cta", "footer"],
-  advertorial: ["navigation", "hero", "press", "richText", "imageText", "benefits", "reviews", "comparison", "productMain", "guarantees", "faq", "cta", "footer"],
-  quiz: ["navigation", "hero", "benefits", "quiz", "form", "testimonials", "productMain", "guarantees", "faq", "cta", "footer"],
-  home: ["announcement", "navigation", "hero", "collectionGrid", "imageText", "benefits", "testimonials", "newsletter", "footer"],
-  blog: ["navigation", "hero", "richText", "imageText", "press", "newsletter", "footer"],
-  blank: ["navigation", "hero", "footer"]
-};
-function isCreationFormat(value2) {
-  return typeof value2 === "string" && (value2 === "store" || value2 in FORMAT_RECIPES);
-}
-function sectionTypesForCreation(format, _profile, proof) {
-  if (format === "store") return [];
-  return FORMAT_RECIPES[format].map((type) => type === "reviews" ? proof : type);
-}
-
-// src/onboarding/compile-store.ts
-var copy = {
-  fr: {
-    announcement: "Livraison suivie \xB7 Paiement s\xE9curis\xE9 \xB7 Retours simplifi\xE9s",
-    shop: "D\xE9couvrir",
-    story: "Notre histoire",
-    cart: "Panier",
-    heroEyebrow: "Pens\xE9 pour votre quotidien",
-    buy: "Ajouter au panier",
-    gallery: "D\xE9couvrez-le sous tous les angles",
-    product: "Choisissez votre option",
-    bundle: "Plus vous \xE9quipez, plus vous \xE9conomisez",
-    benefits: "Pourquoi vous allez l\u2019adopter",
-    detail: "Con\xE7u autour de ce qui compte vraiment",
-    reviews: "Ce qu\u2019en disent les clients",
-    reviewsIntro: "Retours import\xE9s depuis la page produit source.",
-    inspiration: "Pourquoi ce produit s\xE9duit",
-    shipping: "Votre commande, en toute s\xE9r\xE9nit\xE9",
-    guarantee: "Achetez en confiance",
-    faq: "Questions fr\xE9quentes",
-    cta: "Pr\xEAt \xE0 passer \xE0 l\u2019action ?",
-    footer: "Une exp\xE9rience claire, du choix \xE0 la livraison.",
-    single: "\xC0 l\u2019unit\xE9",
-    duo: "Duo \u2014 le plus populaire",
-    family: "Pack maison",
-    shippingItems: [["Commande suivie", "Recevez les informations de suivi d\xE8s l\u2019exp\xE9dition."], ["Paiement s\xE9curis\xE9", "Vos informations de paiement restent prot\xE9g\xE9es."], ["Assistance disponible", "Une question ? Notre \xE9quipe vous accompagne."]],
-    faqItems: [["Que contient ma commande ?", "Le contenu exact d\xE9pend de l\u2019option s\xE9lectionn\xE9e au moment de l\u2019achat."], ["Puis-je choisir une variante ?", "Oui, les options disponibles apparaissent directement dans la fiche produit."], ["Comment suivre mon colis ?", "Un lien de suivi est envoy\xE9 d\xE8s que la commande quitte l\u2019entrep\xF4t."]]
-  },
-  en: {
-    announcement: "Tracked shipping \xB7 Secure checkout \xB7 Easy returns",
-    shop: "Shop",
-    story: "Our story",
-    cart: "Cart",
-    heroEyebrow: "Designed for real life",
-    buy: "Add to cart",
-    gallery: "See it from every angle",
-    product: "Choose your option",
-    bundle: "Save more when you bundle",
-    benefits: "Why you\u2019ll love it",
-    detail: "Designed around what matters",
-    reviews: "What customers say",
-    reviewsIntro: "Feedback imported from the source product page.",
-    inspiration: "Why this product stands out",
-    shipping: "Your order, handled with care",
-    guarantee: "Shop with confidence",
-    faq: "Frequently asked questions",
-    cta: "Ready to make it yours?",
-    footer: "A clear experience, from choice to delivery.",
-    single: "Single",
-    duo: "Duo \u2014 most popular",
-    family: "Home set",
-    shippingItems: [["Tracked order", "Get tracking details as soon as your order ships."], ["Secure checkout", "Your payment information stays protected."], ["Helpful support", "Questions? Our team is here to help."]],
-    faqItems: [["What is included?", "The exact contents depend on the option selected at checkout."], ["Can I choose a variant?", "Yes. Available options appear directly in the product section."], ["How can I track my order?", "A tracking link is sent as soon as the order leaves the warehouse."]]
-  }
-};
-function slugify2(value2) {
-  return value2.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "store";
-}
-function money(value2, currency) {
-  if (value2 === null) return "";
-  try {
-    return new Intl.NumberFormat("en", { style: "currency", currency }).format(value2);
-  } catch {
-    return `${value2.toFixed(2)} ${currency}`;
-  }
-}
-function item2(id2, title, text5, extra = {}) {
-  return { id: id2, type: "item", settings: { title, text: text5, ...extra } };
-}
-function makeSection(type, index, settings2, blocks2 = []) {
-  const definition = getSectionDefinition(type);
-  if (!definition) throw new Error(`Unknown section type: ${type}`);
-  return {
-    id: `${type}-${index + 1}`,
-    type,
-    name: definition.name,
-    hidden: false,
-    locked: false,
-    settings: { ...definition.defaults, ...settings2 },
-    style: {},
-    responsive: {},
-    blocks: blocks2
-  };
-}
-function buildStoreDocument(input) {
-  const { product, brandKit } = input;
-  const strings = input.language.toLowerCase().startsWith("fr") ? copy.fr : copy.en;
-  const selectedPersonas = input.personas.filter((persona) => persona.selected);
-  const selectedAngles = input.angles.filter((angle) => angle.selected);
-  const heroImage = product.images[0] ?? "";
-  const price = money(product.price, product.currency);
-  const compareAt = money(product.compareAtPrice, product.currency);
-  const productTruth = buildProductTruthSheet(product);
-  const artDirection = selectArtDirection(productTruth);
-  const recipe = buildStoreRecipe({ product, truth: productTruth, artDirection, personas: input.personas, angles: input.angles });
-  const sectionInputs = [
-    ["announcement", { text: strings.announcement, cta_label: "" }],
-    ["navigation", { title: input.brandName, cta_label: strings.cart, cta_link: "#product" }, [
-      item2("navigation-shop", strings.shop, "", { label: strings.shop, link: "#product" }),
-      item2("navigation-story", strings.story, "", { label: strings.story, link: "#story" })
-    ]],
-    ["productHero", { title: product.title, subtitle: product.vendor || strings.heroEyebrow, text: product.description, price, compare_at_price: compareAt, image: heroImage, image_alt: product.title, cta_label: strings.buy, cta_link: "#product" }],
-    ["gallery", { title: strings.gallery, text: "" }, product.images.map((url, index) => item2(`gallery-image-${index + 1}`, `${product.title} \u2014 ${index + 1}`, "", { image: url, image_alt: `${product.title} ${index + 1}` }))],
-    ["productMain", { title: strings.product, text: selectedAngles[0]?.description ?? strings.heroEyebrow, price, compare_at_price: compareAt, image: heroImage, cta_label: strings.buy, product_handle: slugify2(product.title) }, product.variants.map((variant, index) => ({ id: `variant-${index + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } }))],
-    ["bundle", { title: strings.bundle, text: product.title, price, cta_label: strings.buy, cta_link: "#product" }, [
-      item2("bundle-single", strings.single, "", { price }),
-      item2("bundle-duo", strings.duo, "", { price: product.price === null ? "" : money(product.price * 1.8, product.currency) }),
-      item2("bundle-family", strings.family, "", { price: product.price === null ? "" : money(product.price * 2.55, product.currency) })
-    ]],
-    ["benefits", { title: strings.benefits, text: selectedAngles.map((angle) => angle.title).slice(0, 3).join(" \xB7 ") || strings.detail }, selectedAngles.slice(0, 4).map((angle, index) => item2(`benefit-${index + 1}`, `${angle.icon} ${angle.title}`.trim(), angle.description, { tags: angle.tags }))],
-    ["imageText", { title: strings.detail, subtitle: selectedPersonas[0]?.title ?? "", text: selectedPersonas[0]?.insight ?? product.description, image: product.images[1] ?? heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
-    ["hero", { title: selectedAngles[0]?.title ?? product.title, subtitle: product.vendor || strings.heroEyebrow, text: selectedAngles[0]?.description ?? product.description, image: heroImage, image_alt: product.title, cta_label: strings.shop, cta_link: "#product" }],
-    ["comparison", { title: "Pourquoi cette solution change la donne", text: product.description }, selectedAngles.slice(0, 4).map((angle, index) => item2(`comparison-${index + 1}`, angle.title, angle.description))],
-    ["richText", { title: `L\u2019histoire derri\xE8re ${product.title}`, text: `${product.description}
-
-${selectedPersonas[0]?.insight ?? "Une r\xE9ponse pens\xE9e pour un besoin concret, expliqu\xE9e simplement."}` }],
-    ["press", { title: "Vu, analys\xE9 et recommand\xE9", text: "Les points qui distinguent vraiment cette offre." }, selectedAngles.slice(0, 3).map((angle, index) => item2(`press-${index + 1}`, angle.title, angle.description))],
-    ["quiz", { title: "Trouvons la bonne option pour vous", text: "R\xE9pondez \xE0 quelques questions pour obtenir une recommandation." }, selectedPersonas.slice(0, 4).map((persona, index) => item2(`quiz-${index + 1}`, persona.title, persona.insight))],
-    ["form", { title: "Recevez votre recommandation", text: "Indiquez votre e-mail pour d\xE9couvrir le r\xE9sultat.", cta_label: "Voir ma recommandation" }],
-    ["collectionGrid", { title: `D\xE9couvrir ${input.brandName}`, text: "Les essentiels de la marque, r\xE9unis au m\xEAme endroit." }, product.images.slice(0, 6).map((url, index) => item2(`collection-${index + 1}`, `${product.title} ${index + 1}`, product.description, { image: url }))],
-    ["newsletter", { title: "Restez au courant", text: "Nouveaut\xE9s, conseils et offres de la marque.", cta_label: "S\u2019inscrire" }]
-  ];
-  sectionInputs.push(["testimonials", { title: strings.inspiration, subtitle: "", text: "" }, selectedPersonas.slice(0, 3).map((persona, index) => item2(`persona-proof-${index + 1}`, persona.title, persona.insight, { tags: persona.tags }))]);
-  if (product.reviews.length) {
-    sectionInputs.push(["reviews", { title: strings.reviews, subtitle: product.rating ? `${product.rating}/5` : "", text: strings.reviewsIntro }, product.reviews.slice(0, 8).map((review, index) => item2(`review-${index + 1}`, review.title || review.author, review.text, { author: review.author, rating: review.rating, image: review.image ?? "" }))]);
-  }
-  sectionInputs.push(
-    ["shipping", { title: strings.shipping, text: "" }, strings.shippingItems.map(([title, text5], index) => item2(`shipping-${index + 1}`, title, text5))],
-    ["guarantees", { title: strings.guarantee, text: "" }, selectedAngles.slice(0, 3).map((angle, index) => item2(`guarantee-${index + 1}`, angle.title, angle.description))],
-    ["faq", { title: strings.faq, text: "" }, strings.faqItems.map(([title, text5], index) => item2(`faq-${index + 1}`, title, text5))],
-    ["cta", { title: strings.cta, text: selectedPersonas[0]?.insight ?? strings.footer, cta_label: strings.buy, cta_link: "#product" }],
-    ["footer", { title: input.brandName, text: strings.footer, cta_label: "" }, [item2("footer-shop", strings.shop, "", { label: strings.shop, link: "#product" })]]
-  );
-  const proof = product.reviews.length ? "reviews" : "testimonials";
-  const requestedTypes = sectionTypesForCreation(input.creationFormat ?? "store", artDirection.id, proof);
-  const selectedRecipe = requestedTypes.length ? requestedTypes.map((type) => ({ type, variant: `${input.creationFormat ?? "store"}-${type}`, purpose: "Adapter la section au format" })) : recipe.sections;
-  const recipeSections = selectedRecipe.map((recipeItem) => {
-    const source = sectionInputs.find(([type]) => type === recipeItem.type);
-    if (!source) throw new Error(`Recipe uses unavailable section: ${recipeItem.type}`);
-    return [source[0], { ...source[1], variant: recipeItem.variant, purpose: recipeItem.purpose }, source[2]];
-  });
-  const firstScheme = brandKit.schemes[0];
-  const secondScheme = brandKit.schemes[1];
-  return {
-    version: 2,
-    name: input.brandName,
-    path: "/",
-    kind: input.creationFormat === "home" ? "home" : input.creationFormat === "product" || input.creationFormat === "store" || !input.creationFormat ? "product" : "landing",
-    modelId: input.modelId,
-    theme: {
-      background: artDirection.palette[0] ?? firstScheme?.background ?? "#ffffff",
-      surface: artDirection.palette[3] ?? secondScheme?.background ?? brandKit.palette[3] ?? "#f4f1ec",
-      ink: artDirection.palette[1] ?? firstScheme?.text ?? "#111111",
-      muted: "#6d6963",
-      accent: artDirection.palette[2] ?? firstScheme?.accent ?? brandKit.palette[1] ?? "#111111",
-      display: "sans",
-      radius: "soft"
-    },
-    pages: [{ id: `page-${slugify2(input.brandName)}`, name: input.brandName, slug: slugify2(input.brandName), sections: recipeSections.map(([type, settings2, blocks2], index) => makeSection(type, index, settings2, blocks2)) }],
-    assets: product.images.map((url, index) => ({ id: `source-image-${index + 1}`, type: "image", url, alt: `${product.title} ${index + 1}` })),
-    commerce: { sourceProduct: product, personas: input.personas, angles: input.angles, brandKit, storefrontLanguage: input.language, productTruth, artDirection, recipeId: recipe.id }
-  };
-}
-
 // src/onboarding/schema.ts
 var BUILD_STAGE_LABELS = [
   "Analyse des avis",
@@ -29297,6 +29602,8 @@ function createOnboardingDraftInput(input) {
     language: "en",
     modelId: null,
     creationFormat: "store",
+    templateId: null,
+    answers: {},
     brandNames: [],
     brandName: "",
     personas: [],
@@ -29378,6 +29685,20 @@ async function authorizedDraft(deps, id2, req) {
 }
 function slugify3(value2) {
   return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "store";
+}
+function intakeAnswers(format, value2) {
+  if (!value2 || typeof value2 !== "object" || Array.isArray(value2)) return {};
+  const raw = value2;
+  const allowed = new Set(flowForFormat(format).intake.map((field2) => field2.id));
+  return Object.fromEntries(Object.entries(raw).flatMap(([key, answer2]) => allowed.has(key) && typeof answer2 === "string" ? [[key, answer2.trim().slice(0, 4e3)]] : []));
+}
+function neutralBrandKit() {
+  return {
+    palette: ["#ffffff", "#111111", "#f4f1ec", "#ffffff"],
+    headingFont: "Inter",
+    bodyFont: "Inter",
+    schemes: [{ name: "Default", background: "#ffffff", text: "#111111", accent: "#111111" }]
+  };
 }
 async function uniqueSlug2(deps, workspaceId, name) {
   const base7 = slugify3(name);
@@ -29479,7 +29800,25 @@ function onboardingRoutes(deps) {
       }
     }
     if (typeof body.modelId === "string") patch.modelId = body.modelId.slice(0, 60);
+    const nextFormat = isCreationFormat(body.creationFormat) ? body.creationFormat : draft.creationFormat;
     if (isCreationFormat(body.creationFormat)) patch.creationFormat = body.creationFormat;
+    if (body.templateId === null) patch.templateId = null;
+    else if (typeof body.templateId === "string") {
+      try {
+        const recipe = recipeForTemplate(body.templateId);
+        if (recipe.format !== nextFormat) return c.json({ error: "invalid_template" }, 400);
+        patch.templateId = recipe.id;
+      } catch {
+        return c.json({ error: "invalid_template" }, 400);
+      }
+    } else if (patch.creationFormat && draft.templateId) {
+      try {
+        if (recipeForTemplate(draft.templateId).format !== nextFormat) patch.templateId = null;
+      } catch {
+        patch.templateId = null;
+      }
+    }
+    if (body.answers !== void 0) patch.answers = intakeAnswers(nextFormat, body.answers);
     if (typeof body.brandName === "string") patch.brandName = body.brandName.trim().slice(0, 60);
     if (Array.isArray(body.personas)) patch.personas = body.personas;
     if (Array.isArray(body.angles)) patch.angles = body.angles;
@@ -29489,12 +29828,23 @@ function onboardingRoutes(deps) {
   app2.post("/onboarding/:id/build", async (c) => {
     const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
     if (!draft) return c.json({ error: "unauthorized" }, 401);
-    if (!draft.product) return c.json({ error: "missing_product" }, 409);
+    if (isProductLedCreationFormat(draft.creationFormat) && !draft.product) return c.json({ error: "missing_product" }, 409);
     const stages = initialBuildStages().map((stage) => ({ ...stage, state: "complete" }));
-    const brandName = draft.brandName || draft.brandNames[0] || draft.product.vendor || "Weflo Store";
+    const brandName = draft.brandName || draft.brandNames[0] || draft.answers?.brand || draft.answers?.topic || draft.product?.vendor || "Nouvelle page";
     const modelId = draft.modelId || "proteo";
-    const brandKit = draft.brandKit ?? createBrandKit(draft.product, modelId);
-    const document2 = buildStoreDocument({ product: draft.product, language: draft.language, brandName, modelId, personas: draft.personas, angles: draft.angles, brandKit, creationFormat: draft.creationFormat });
+    const brandKit = draft.brandKit ?? (draft.product ? createBrandKit(draft.product, modelId) : neutralBrandKit());
+    const buildInput = {
+      language: draft.language,
+      brandName,
+      modelId,
+      personas: draft.personas,
+      angles: draft.angles,
+      brandKit,
+      creationFormat: draft.creationFormat,
+      templateId: draft.templateId ?? null,
+      answers: draft.answers ?? {}
+    };
+    const document2 = isProductLedCreationFormat(draft.creationFormat) ? buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat, product: draft.product }) : buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat });
     const updated = await deps.store.updateOnboardingDraft(draft.id, { status: "ready", stages, brandKit, document: document2, brandName, modelId, error: null });
     return c.json({ draft: publicDraft(updated) });
   });
@@ -38017,9 +38367,9 @@ var Parameter = class extends NotTagged {
   }
 };
 var Builder = class extends NotTagged {
-  constructor(first, rest) {
+  constructor(first2, rest) {
     super();
-    this.first = first;
+    this.first = first2;
     this.rest = rest;
   }
   build(before, parameters, types2, options) {
@@ -38053,26 +38403,26 @@ function fragment(q, parameters, types2, options) {
   q.fragment = true;
   return stringify3(q, q.strings[0], q.args[0], parameters, types2, options);
 }
-function valuesBuilder(first, parameters, types2, columns, options) {
-  return first.map(
+function valuesBuilder(first2, parameters, types2, columns, options) {
+  return first2.map(
     (row) => "(" + columns.map(
       (column) => stringifyValue("values", row[column], parameters, types2, options)
     ).join(",") + ")"
   ).join(",");
 }
-function values(first, rest, parameters, types2, options) {
-  const multi = Array.isArray(first[0]);
-  const columns = rest.length ? rest.flat() : Object.keys(multi ? first[0] : first);
-  return valuesBuilder(multi ? first : [first], parameters, types2, columns, options);
+function values(first2, rest, parameters, types2, options) {
+  const multi = Array.isArray(first2[0]);
+  const columns = rest.length ? rest.flat() : Object.keys(multi ? first2[0] : first2);
+  return valuesBuilder(multi ? first2 : [first2], parameters, types2, columns, options);
 }
-function select(first, rest, parameters, types2, options) {
-  typeof first === "string" && (first = [first].concat(rest));
-  if (Array.isArray(first))
-    return escapeIdentifiers(first, options);
+function select(first2, rest, parameters, types2, options) {
+  typeof first2 === "string" && (first2 = [first2].concat(rest));
+  if (Array.isArray(first2))
+    return escapeIdentifiers(first2, options);
   let value2;
-  const columns = rest.length ? rest.flat() : Object.keys(first);
+  const columns = rest.length ? rest.flat() : Object.keys(first2);
   return columns.map((x) => {
-    value2 = first[x];
+    value2 = first2[x];
     return (value2 instanceof Query ? fragment(value2, parameters, types2, options) : value2 instanceof Identifier ? value2.value : handleValue(value2, parameters, types2, options)) + " as " + escapeIdentifier(options.transform.column.to ? options.transform.column.to(x) : x);
   }).join(",");
 }
@@ -38086,14 +38436,14 @@ var builders = Object.entries({
   as: select,
   returning: select,
   "\\(": select,
-  update(first, rest, parameters, types2, options) {
-    return (rest.length ? rest.flat() : Object.keys(first)).map(
-      (x) => escapeIdentifier(options.transform.column.to ? options.transform.column.to(x) : x) + "=" + stringifyValue("values", first[x], parameters, types2, options)
+  update(first2, rest, parameters, types2, options) {
+    return (rest.length ? rest.flat() : Object.keys(first2)).map(
+      (x) => escapeIdentifier(options.transform.column.to ? options.transform.column.to(x) : x) + "=" + stringifyValue("values", first2[x], parameters, types2, options)
     );
   },
-  insert(first, rest, parameters, types2, options) {
-    const columns = rest.length ? rest.flat() : Object.keys(Array.isArray(first) ? first[0] : first);
-    return "(" + escapeIdentifiers(columns, options) + ")values" + valuesBuilder(Array.isArray(first) ? first : [first], parameters, types2, columns, options);
+  insert(first2, rest, parameters, types2, options) {
+    const columns = rest.length ? rest.flat() : Object.keys(Array.isArray(first2) ? first2[0] : first2);
+    return "(" + escapeIdentifiers(columns, options) + ")values" + valuesBuilder(Array.isArray(first2) ? first2 : [first2], parameters, types2, columns, options);
   }
 }).map(([x, fn]) => [new RegExp("((?:^|[\\s(])" + x + "(?:$|[\\s(]))(?![\\s\\S]*\\1)", "i"), fn]);
 function notTagged() {
@@ -38142,9 +38492,9 @@ var arraySerializer = function arraySerializer2(xs, serializer, options, typarra
     return xs;
   if (!xs.length)
     return "{}";
-  const first = xs[0];
+  const first2 = xs[0];
   const delimiter = typarray === 1020 ? ";" : ",";
-  if (Array.isArray(first) && !first.type)
+  if (Array.isArray(first2) && !first2.type)
     return "{" + xs.map((x) => arraySerializer2(x, serializer, options, typarray)).join(delimiter) + "}";
   return "{" + xs.map((x) => {
     if (x === void 0) {
