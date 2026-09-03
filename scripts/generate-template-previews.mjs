@@ -29,8 +29,10 @@ async function assertPreview(page, templateId, viewport) {
   if (qa.visibleText < 80) throw new Error(`Blank preview in ${templateId}:${viewport}`);
 }
 
-async function fitContinuousDocument(page) {
-  await page.evaluate(() => { const scale = Math.min(1, window.innerHeight / document.documentElement.scrollHeight); const style = document.createElement("style"); style.textContent = `.wf-section,.wf-v2-wrap{width:calc(100% - 56px);max-width:none}body{width:${100 / scale}%;transform:scale(${scale});transform-origin:top left;overflow:hidden}`; document.head.append(style); });
+async function fitContinuousDocument(context, source, fullDocument, viewport) {
+  const page = await context.newPage(); const errors = [];
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); }); page.on("pageerror", (error) => errors.push(error.message));
+  try { await page.setViewportSize(sizes[viewport]); await page.setContent(`<style>html,body{margin:0;width:100%;height:100%;background:#10100f}img{width:100%;height:100%;object-fit:contain;display:block}</style><img id="full" src="data:image/png;base64,${fullDocument.toString("base64")}">`); await page.evaluate(async()=>document.querySelector("#full").decode()); if(errors.length) throw new Error(`Final frame errors: ${errors.join(" | ")}`); return await page.screenshot({type:"webp",quality:86,animations:"disabled"}); } finally { await page.close(); }
 }
 
 async function assertFinalCapture(context, buffer, templateId, viewport) {
@@ -83,9 +85,12 @@ try {
         })));
       });
       await assertPreview(page, template.id, viewport);
-      await fitContinuousDocument(page);
-      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-      const buffer = await page.screenshot({ type: "webp", quality: 86, animations: "disabled" });
+      const last = page.locator("[data-wf-section-id]").last();
+      const lastBox = await last.boundingBox();
+      const fullHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+      if (!lastBox || lastBox.y + lastBox.height > fullHeight + 1) throw new Error(`Full page misses final section for ${template.id}:${viewport}`);
+      const fullDocument = await page.screenshot({ type: "png", fullPage: true, animations: "disabled" });
+      const buffer = await fitContinuousDocument(context, page, fullDocument, viewport);
       await assertFinalCapture(context, buffer, template.id, viewport);
       const assetPath = pathFor(template.id, viewport);
       await writeFile(join(root, "public", ...assetPath.split("/").filter(Boolean)), buffer);
