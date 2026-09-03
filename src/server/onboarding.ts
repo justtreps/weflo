@@ -11,6 +11,7 @@ import { isCreationFormat, isProductLedCreationFormat } from "../onboarding/crea
 import { recipeForTemplate } from "../onboarding/template-recipe";
 import { flowForFormat } from "../create/format-flow";
 import { ensureWorkspace, requireUser } from "./pages";
+import { loadShopifyCatalog } from "./shopify-catalog";
 
 function publicDraft(draft: OnboardingDraft): Omit<OnboardingDraft, "claimTokenHash"> {
   const { claimTokenHash: _private, ...safe } = draft;
@@ -169,6 +170,32 @@ export function onboardingRoutes(deps: AppDeps) {
       await deps.store.updateOnboardingDraft(draft.id, { status: "failed", error: message });
       return c.json({ error: "import_failed", message }, 422);
     }
+  });
+
+  app.post("/onboarding/import-shopify", async (c) => {
+    const body = await c.req.json<{ productId?: unknown; language?: unknown }>().catch(() => ({} as { productId?: unknown; language?: unknown }));
+    const productId = typeof body.productId === "string" ? body.productId.trim() : "";
+    if (!productId) return c.json({ error: "invalid_product", message: "Choisis un produit Shopify avant de continuer." }, 400);
+    const catalog = await loadShopifyCatalog(deps, c.req.raw);
+    if (!catalog.ok) return c.json(catalog.body, catalog.status);
+    const selected = catalog.products.find((product) => product.id === productId);
+    if (!selected) return c.json({ error: "product_not_found", message: "Ce produit n’est plus disponible dans le catalogue Shopify. Actualise la liste." }, 404);
+    const { id: _shopifyId, ...product } = selected;
+    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim().slice(0, 40) : "fr";
+    const claim = createClaimToken();
+    let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl: product.sourceUrl }));
+    const analysis = deps.onboardingAi
+      ? await deps.onboardingAi.analyse({ product, language }).catch(() => fallbackOnboardingAnalysis(product, language))
+      : fallbackOnboardingAnalysis(product, language);
+    draft = await deps.store.updateOnboardingDraft(draft.id, {
+      product,
+      ...analysis,
+      brandName: analysis.brandNames[0],
+      modelId: "proteo",
+      status: "questions",
+      language,
+    });
+    return c.json({ draft: publicDraft(draft), claimToken: claim.token }, 201);
   });
 
   app.post("/onboarding/import-image", async (c) => {

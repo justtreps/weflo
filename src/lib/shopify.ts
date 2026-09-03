@@ -6,6 +6,7 @@ import { compileShopifyPage } from "../shopify/compiler";
 import { publishToShopify } from "../shopify/publisher";
 import type { ShopifyTheme } from "../shopify/themes";
 import { bindingForDocument } from "../shopify/page-binding";
+import type { ShopifyCatalogProduct } from "../onboarding/types";
 
 export const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION?.trim() || "2026-07";
 
@@ -47,6 +48,50 @@ async function admin(
   if (res.status === 204) return null;
   const text = await res.text();
   return text ? (JSON.parse(text) as Record<string, unknown>) : null;
+}
+
+function optionalPrice(value: unknown): number | null {
+  const number = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : Number.NaN;
+  return Number.isFinite(number) ? number : null;
+}
+
+function productText(value: unknown): string {
+  return typeof value === "string"
+    ? value.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&quot;/gi, '"').replace(/&#39;/gi, "'").replace(/\s+/g, " ").trim()
+    : "";
+}
+
+function catalogProducts(payload: Record<string, unknown> | null, shop: string, currency: string): ShopifyCatalogProduct[] {
+  const products = Array.isArray(payload?.products) ? payload.products : [];
+  return products.flatMap((raw) => {
+    const item = raw as Record<string, unknown>;
+    if (item.id == null || typeof item.title !== "string") return [];
+    const rawImages = Array.isArray(item.images) ? item.images as Array<Record<string, unknown>> : [];
+    const images = rawImages.flatMap((image) => typeof image.src === "string" && image.src ? [image.src] : []);
+    const imageById = new Map(rawImages.flatMap((image) => image.id == null || typeof image.src !== "string" ? [] : [[String(image.id), image.src] as const]));
+    const variants = Array.isArray(item.variants) ? (item.variants as Array<Record<string, unknown>>).flatMap((variant) => {
+      if (variant.id == null || typeof variant.title !== "string") return [];
+      const image = variant.image_id == null ? undefined : imageById.get(String(variant.image_id));
+      return [{ id: String(variant.id), title: variant.title, price: optionalPrice(variant.price), ...(image ? { image } : {}) }];
+    }) : [];
+    const firstVariant = Array.isArray(item.variants) ? item.variants[0] as Record<string, unknown> | undefined : undefined;
+    const handle = typeof item.handle === "string" ? item.handle.trim() : "";
+    return [{
+      id: String(item.id),
+      sourceUrl: handle ? `https://${shopHost(shop)}/products/${encodeURIComponent(handle)}` : `https://${shopHost(shop)}`,
+      title: item.title,
+      description: productText(item.body_html),
+      vendor: typeof item.vendor === "string" ? item.vendor : "",
+      currency,
+      price: optionalPrice(firstVariant?.price),
+      compareAtPrice: optionalPrice(firstVariant?.compare_at_price),
+      images,
+      variants,
+      rating: null,
+      reviewCount: null,
+      reviews: [],
+    }];
+  });
 }
 
 async function graphql(shop: string, token: string, query: string, variables: Record<string, unknown>): Promise<Record<string, unknown>> {
@@ -96,6 +141,16 @@ export function createShopifyPort(): ShopifyPort {
           ? [{ id: String(theme.id), name: theme.name, role: theme.role as ShopifyTheme["role"] }]
           : [];
       });
+    },
+
+    async listProducts({ shop, token }) {
+      const [shopPayload, productPayload] = await Promise.all([
+        admin(shop, token, "/shop.json?fields=currency"),
+        admin(shop, token, "/products.json?limit=50&status=active&fields=id,title,body_html,vendor,handle,images,variants"),
+      ]);
+      const shopData = shopPayload?.shop as { currency?: unknown } | undefined;
+      const currency = typeof shopData?.currency === "string" && shopData.currency ? shopData.currency : "";
+      return catalogProducts(productPayload, shop, currency);
     },
 
     async publishEditor(input) {

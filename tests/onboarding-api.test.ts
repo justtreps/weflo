@@ -112,4 +112,54 @@ describe("anonymous onboarding API", () => {
     expect(response.status).toBe(201);
     expect((await response.json()).draft.language).toBe("fr");
   });
+
+  it("lists and imports a product from the authenticated connected Shopify catalog", async () => {
+    const store = new MemoryStore();
+    const workspace = await store.createWorkspace({ name: "Atelier Aube", ownerUserId: "user-1" });
+    await store.saveShopify({ workspaceId: workspace.id, shopDomain: "atelier-aube.myshopify.com", tokenEncrypted: "encrypted-token", status: "connected" });
+    const catalogProduct = { ...product, id: "gid://shopify/Product/731", sourceUrl: "https://atelier-aube.myshopify.com/products/lamp" };
+    const app = createApp({
+      store,
+      session: async () => ({ id: "user-1", email: "owner@example.com" }),
+      shopify: {
+        ping: async () => {},
+        publish: async () => ({ themeId: "theme-1", productId: "product-1" }),
+        rollback: async () => {},
+        listProducts: async () => [catalogProduct],
+      },
+    });
+
+    const listed = await app.request("/api/shopify/products");
+    expect(listed.status).toBe(200);
+    expect(await listed.json()).toMatchObject({
+      shopDomain: "atelier-aube.myshopify.com",
+      products: [{ id: catalogProduct.id, title: product.title, image: product.images[0] }],
+    });
+
+    const imported = await app.request("/api/onboarding/import-shopify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ productId: catalogProduct.id, language: "fr" }),
+    });
+    expect(imported.status).toBe(201);
+    const body = await imported.json();
+    expect(body.draft.product).toEqual({ ...product, sourceUrl: "https://atelier-aube.myshopify.com/products/lamp" });
+    expect(body.claimToken).toEqual(expect.any(String));
+  });
+
+  it("returns a French reconnect destination when no Shopify catalog is connected", async () => {
+    const app = createApp({
+      store: new MemoryStore(),
+      session: async () => ({ id: "user-1", email: "owner@example.com" }),
+    });
+
+    const response = await app.request("/api/shopify/products");
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({
+      error: "shopify_not_connected",
+      message: "Aucun catalogue Shopify n’est connecté à cet espace.",
+      actionUrl: "/boutique",
+    });
+  });
 });

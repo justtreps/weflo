@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { encryptSecret } from "../lib/encrypt";
 import { ensureWorkspace, requireUser } from "./pages";
 import type { AppDeps } from "./app";
+import { loadShopifyCatalog } from "./shopify-catalog";
 
 function normalizeShop(shop: string): string {
   return shop.replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
@@ -27,6 +28,22 @@ export function shopifyRoutes(deps: AppDeps) {
     return c.json({
       status: conn?.status ?? "none",
       shopDomain: conn?.shopDomain ?? null,
+    });
+  });
+
+  app.get("/shopify/products", async (c) => {
+    const result = await loadShopifyCatalog(deps, c.req.raw);
+    if (!result.ok) return c.json(result.body, result.status);
+    return c.json({
+      shopDomain: result.shopDomain,
+      products: result.products.map((product) => ({
+        id: product.id,
+        title: product.title,
+        vendor: product.vendor,
+        price: product.price,
+        currency: product.currency,
+        image: product.images[0] ?? null,
+      })),
     });
   });
 

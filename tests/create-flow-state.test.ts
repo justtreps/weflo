@@ -234,6 +234,12 @@ describe("creation flow state", () => {
     expect(submissionActionForState(linkedProduct)).toBe("link");
   });
 
+  it("keeps Shopify as a distinct catalog import action", () => {
+    const state = initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=shopify"));
+
+    expect(submissionActionForState(state)).toBe("shopify");
+  });
+
   it("returns from strategy to intake without losing the selected draft", () => {
     let state = initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=description"));
     state = transitionCreationFlow(state, {

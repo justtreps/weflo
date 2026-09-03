@@ -225,10 +225,11 @@ export function mergeCompatibleCreationDraft(urlState: CreationFlowState, saved:
   return merged;
 }
 
-export function submissionActionForState(state: CreationFlowState): "link" | "image" | "simple" {
+export function submissionActionForState(state: CreationFlowState): "link" | "image" | "shopify" | "simple" {
   assertState(state);
   if (state.source === "link") return "link";
   if (state.source === "image") return "image";
+  if (state.source === "shopify") return "shopify";
   return "simple";
 }
 

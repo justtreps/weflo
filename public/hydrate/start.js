@@ -1,17 +1,17 @@
 // src/hydrate/onboarding-request.ts
-async function fetchWithDeadline(input, init, timeoutMs = 3e4, fetchImpl = fetch) {
+async function fetchWithDeadline(input, init, timeoutMs = 3e4, fetchImpl = fetch, timeoutMessage = "Cette op\xE9ration prend trop de temps. R\xE9essaie.") {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetchImpl(input, { ...init, signal: controller.signal });
   } catch (error2) {
-    if (controller.signal.aborted) throw new Error("L\u2019importation prend trop de temps. R\xE9essaie ou importe directement une image.");
+    if (controller.signal.aborted) throw new Error(timeoutMessage);
     throw error2;
   } finally {
     clearTimeout(timeout);
   }
 }
-async function readApiJson(response) {
+async function readApiJson(response, fallbackMessage) {
   const contentType = response.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
     try {
@@ -20,7 +20,7 @@ async function readApiJson(response) {
     }
   }
   return {
-    message: response.status >= 500 ? "Le serveur a rencontr\xE9 une erreur. R\xE9essaie dans un instant." : "La r\xE9ponse du serveur est invalide. R\xE9essaie."
+    message: fallbackMessage ?? (response.status >= 500 ? "Le serveur a rencontr\xE9 une erreur. R\xE9essaie dans un instant." : "La r\xE9ponse du serveur est invalide. R\xE9essaie.")
   };
 }
 

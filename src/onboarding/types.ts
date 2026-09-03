@@ -20,6 +20,8 @@ export type ImportedProduct = {
   reviews: Array<{ author: string; rating: number | null; title: string; text: string; image?: string }>;
 };
 
+export type ShopifyCatalogProduct = ImportedProduct & { id: string };
+
 export type ProductTruthSheet = {
   observedFacts: Pick<ImportedProduct, "sourceUrl" | "title" | "description" | "vendor" | "currency" | "price" | "compareAtPrice" | "images" | "variants" | "rating" | "reviewCount" | "reviews">;
   supplierClaims: string[];

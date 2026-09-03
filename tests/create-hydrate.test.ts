@@ -67,7 +67,7 @@ describe("creation hydration URL state", () => {
     const calls: Array<{ url: string; init: RequestInit }> = [];
     const source = readFileSync("src/hydrate/creer.ts", "utf8");
 
-    expect(source).toContain('if(action==="image")await syncDraft();');
+    expect(source).toContain('if(action==="image"||action==="shopify")await syncDraft();');
     expect(source).toContain("try{await syncDraft(true);");
     expect(source).toContain("synchronizeOnboardingDraft({ draftId:draft.id, claimToken:token, state, strategy, request })");
 

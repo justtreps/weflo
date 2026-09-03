@@ -19,6 +19,21 @@ const homepageAnswers = {
   collections: "Lumière\nTextile",
   story: "Une maison indépendante née à Lyon.",
 };
+const shopifyProduct = {
+  id: "gid://shopify/Product/731",
+  sourceUrl: "https://atelier-aube.myshopify.com/products/lampe-magnetique",
+  title: "Lampe magnétique Aube",
+  description: "Une lampe murale sans perçage.",
+  vendor: "Atelier Aube",
+  currency: "EUR",
+  price: 49,
+  compareAtPrice: 69,
+  images: ["https://cdn.example/lampe-aube.webp"],
+  variants: [{ id: "gid://shopify/ProductVariant/991", title: "Sable", price: 49 }],
+  rating: null,
+  reviewCount: null,
+  reviews: [],
+};
 
 let browser: Browser;
 let server: ServerType;
@@ -62,10 +77,18 @@ async function fillHomepageIntake(page: Page): Promise<void> {
 describe("format-specific creation browser journeys", () => {
   beforeAll(async () => {
     const store = new MemoryStore();
+    const workspace = await store.createWorkspace({ name: "Atelier Aube", ownerUserId: user.id });
+    await store.saveShopify({ workspaceId: workspace.id, shopDomain: "atelier-aube.myshopify.com", tokenEncrypted: "catalog-token", status: "connected" });
     const app = createApp({
       store,
       session: async (request) => request.headers.get("cookie")?.includes(sessionCookie) ? user : null,
       productFetch: { fetch: async () => { throw new Error("Aucun import produit attendu dans ce parcours."); } },
+      shopify: {
+        ping: async () => {},
+        publish: async () => ({ themeId: "theme-1", productId: "product-1" }),
+        rollback: async () => {},
+        listProducts: async () => [shopifyProduct],
+      },
     });
     server = await new Promise<ServerType>((resolve) => {
       const instance = serve({ fetch: app.fetch, hostname: "127.0.0.1", port: 0 }, (info) => {
@@ -110,7 +133,7 @@ describe("format-specific creation browser journeys", () => {
     }
   }, 20_000);
 
-  it("moves from the dashboard to the bundle-first product intake with all product sources", async () => {
+  it("selects a real connected Shopify catalog product before entering product strategy", async () => {
     const { context, page } = await authenticatedPage();
     try {
       await openFormat(page, "product");
@@ -121,19 +144,79 @@ describe("format-specific creation browser journeys", () => {
       await chooseTemplate(page, "product-bundle-first");
       await playwrightExpect(page.locator('button[data-create-source="link"]')).toContainText("Importer un lien");
       await playwrightExpect(page.locator('label[data-create-source="image"]')).toContainText("Ajouter une image");
-      await playwrightExpect(page.locator('button[data-create-source="shopify"]')).toContainText("Depuis Shopify");
+      const shopify = page.locator('button[data-create-source="shopify"]');
+      await playwrightExpect(shopify).toContainText("Depuis Shopify");
+      await shopify.click();
+      await playwrightExpect(page.getByRole("heading", { name: "Choisis un produit Shopify" })).toBeVisible();
+      const catalogProduct = page.locator(`[data-shopify-product="${shopifyProduct.id}"]`);
+      await playwrightExpect(catalogProduct).toContainText(shopifyProduct.title);
+      await catalogProduct.click();
+      await playwrightExpect(page.getByText(`${shopifyProduct.title} est prêt à être utilisé.`)).toBeVisible();
+
+      for (const [field, value] of Object.entries({
+        benefits: "Installation sans perçage",
+        objections: "Autonomie de la batterie",
+        offer: "49 € avec garantie 30 jours",
+        variants: "Sable",
+      })) {
+        await page.locator(`[name="answers[${field}]"]`).fill(value);
+      }
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+      await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toBeVisible();
+      await playwrightExpect(page.getByText("Atelier Aube", { exact: false })).toBeVisible();
     } finally {
       await context.close();
     }
   }, 20_000);
 
-  it("opens a blank page directly in the editor with a valid empty document", async () => {
+  it("shows a bounded reconnect action when the Shopify catalog is unavailable", async () => {
     const { context, page } = await authenticatedPage();
+    await page.route("**/api/shopify/products", (route) => route.fulfill({
+      status: 409,
+      contentType: "application/json",
+      body: JSON.stringify({
+        error: "shopify_not_connected",
+        message: "Aucun catalogue Shopify n’est connecté à cet espace.",
+        actionUrl: "/boutique",
+      }),
+    }));
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-bundle-first");
+      await page.locator('button[data-create-source="shopify"]').click();
+      await playwrightExpect(page.getByRole("alert")).toContainText("Aucun catalogue Shopify n’est connecté à cet espace.");
+      await playwrightExpect(page.getByRole("link", { name: "Reconnecter Shopify" })).toHaveAttribute("href", "/boutique");
+      await playwrightExpect(page.locator("[data-shopify-catalog]")).toBeVisible();
+    } finally {
+      await context.close();
+    }
+  }, 20_000);
+
+  it("recovers from a failed direct blank startup and opens a valid empty document on retry", async () => {
+    const { context, page } = await authenticatedPage();
+    let createRequests = 0;
+    await page.route("**/api/pages", async (route) => {
+      if (route.request().method() !== "POST") return route.continue();
+      createRequests += 1;
+      if (createRequests === 1) {
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "blank_failed", message: "La page vierge n’a pas pu être créée." }),
+        });
+        return;
+      }
+      await route.continue();
+    });
     try {
       await openFormat(page, "blank");
+      await playwrightExpect(page.getByRole("heading", { name: "Impossible de créer la page vierge" })).toBeVisible();
+      await playwrightExpect(page.getByRole("alert")).toContainText("La page vierge n’a pas pu être créée.");
+      await page.locator("[data-blank-retry]").click();
       await page.waitForURL(/\/editeur\?page=/);
       await playwrightExpect(page.locator("[data-editor-shell]")).toBeVisible();
       await playwrightExpect(page.locator("[data-source-form]")).toHaveCount(0);
+      expect(createRequests).toBe(2);
 
       const pageId = new URL(page.url()).searchParams.get("page");
       expect(pageId).toBeTruthy();
@@ -183,6 +266,8 @@ describe("format-specific creation browser journeys", () => {
       expect(startRequests).toBe(1);
       await page.locator("[data-build]").click();
       await playwrightExpect(page.locator("[data-build-preview]")).toBeVisible();
+      await playwrightExpect(page.locator("aside")).toContainText("Informations");
+      await playwrightExpect(page.locator("aside")).not.toContainText("Produit");
       await playwrightExpect(page.getByText("La construction a échoué. Réessaie.")).toBeVisible({ timeout: 5_000 });
       await playwrightExpect(page.locator("[data-build]")).toHaveText("Construire la page");
 

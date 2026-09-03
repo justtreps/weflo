@@ -27393,6 +27393,45 @@ async function admin(shop, token, path3, init = {}) {
   const text5 = await res.text();
   return text5 ? JSON.parse(text5) : null;
 }
+function optionalPrice(value2) {
+  const number2 = typeof value2 === "number" ? value2 : typeof value2 === "string" && value2.trim() ? Number(value2) : Number.NaN;
+  return Number.isFinite(number2) ? number2 : null;
+}
+function productText(value2) {
+  return typeof value2 === "string" ? value2.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&quot;/gi, '"').replace(/&#39;/gi, "'").replace(/\s+/g, " ").trim() : "";
+}
+function catalogProducts(payload, shop, currency) {
+  const products = Array.isArray(payload?.products) ? payload.products : [];
+  return products.flatMap((raw) => {
+    const item3 = raw;
+    if (item3.id == null || typeof item3.title !== "string") return [];
+    const rawImages = Array.isArray(item3.images) ? item3.images : [];
+    const images2 = rawImages.flatMap((image2) => typeof image2.src === "string" && image2.src ? [image2.src] : []);
+    const imageById = new Map(rawImages.flatMap((image2) => image2.id == null || typeof image2.src !== "string" ? [] : [[String(image2.id), image2.src]]));
+    const variants = Array.isArray(item3.variants) ? item3.variants.flatMap((variant) => {
+      if (variant.id == null || typeof variant.title !== "string") return [];
+      const image2 = variant.image_id == null ? void 0 : imageById.get(String(variant.image_id));
+      return [{ id: String(variant.id), title: variant.title, price: optionalPrice(variant.price), ...image2 ? { image: image2 } : {} }];
+    }) : [];
+    const firstVariant = Array.isArray(item3.variants) ? item3.variants[0] : void 0;
+    const handle = typeof item3.handle === "string" ? item3.handle.trim() : "";
+    return [{
+      id: String(item3.id),
+      sourceUrl: handle ? `https://${shopHost(shop)}/products/${encodeURIComponent(handle)}` : `https://${shopHost(shop)}`,
+      title: item3.title,
+      description: productText(item3.body_html),
+      vendor: typeof item3.vendor === "string" ? item3.vendor : "",
+      currency,
+      price: optionalPrice(firstVariant?.price),
+      compareAtPrice: optionalPrice(firstVariant?.compare_at_price),
+      images: images2,
+      variants,
+      rating: null,
+      reviewCount: null,
+      reviews: []
+    }];
+  });
+}
 async function graphql(shop, token, query, variables) {
   const payload = await admin(shop, token, "/graphql.json", { method: "POST", body: JSON.stringify({ query, variables }) });
   if (!payload || Array.isArray(payload.errors)) throw new Error("shopify graphql");
@@ -27434,6 +27473,15 @@ function createShopifyPort() {
         const theme = raw;
         return theme.id != null && typeof theme.name === "string" && ["main", "unpublished", "development", "demo"].includes(String(theme.role)) ? [{ id: String(theme.id), name: theme.name, role: theme.role }] : [];
       });
+    },
+    async listProducts({ shop, token }) {
+      const [shopPayload, productPayload2] = await Promise.all([
+        admin(shop, token, "/shop.json?fields=currency"),
+        admin(shop, token, "/products.json?limit=50&status=active&fields=id,title,body_html,vendor,handle,images,variants")
+      ]);
+      const shopData = shopPayload?.shop;
+      const currency = typeof shopData?.currency === "string" && shopData.currency ? shopData.currency : "";
+      return catalogProducts(productPayload2, shop, currency);
     },
     async publishEditor(input) {
       const document2 = input.document;
@@ -27879,7 +27927,7 @@ function contentForSection(type, index, input, product) {
   const selectedPersonas = product ? input.personas.filter((persona) => persona.selected) : [];
   const selectedAngles = product ? input.angles.filter((angle) => angle.selected) : [];
   const productTitle = product?.title ?? "";
-  const productText = product?.description ?? "";
+  const productText2 = product?.description ?? "";
   const price = product ? money(product.price, product.currency) : "";
   const compareAtPrice = product ? money(product.compareAtPrice, product.currency) : "";
   const brand = first(answer(answers, "brand"), input.brandName, product?.vendor);
@@ -27890,7 +27938,7 @@ function contentForSection(type, index, input, product) {
   const relatedProducts = listAnswer(answers, "relatedProducts");
   const submittedVariants = listAnswer(answers, "variants");
   const primaryTitle = first(productTitle, answer(answers, "promise"), answer(answers, "topic"), answer(answers, "objective"), answer(answers, "angle"), answer(answers, "campaign"), answer(answers, "positioning"), input.brandName);
-  const primaryText = first(productText, answer(answers, "story"), answer(answers, "intent"), answer(answers, "audience"), answer(answers, "result"), answer(answers, "positioning"), answer(answers, "angle"));
+  const primaryText = first(productText2, answer(answers, "story"), answer(answers, "intent"), answer(answers, "audience"), answer(answers, "result"), answer(answers, "positioning"), answer(answers, "angle"));
   const cta2 = first(answer(answers, "cta"), product ? "Ajouter au panier" : "");
   const settings2 = {};
   let blocks2 = [];
@@ -27906,14 +27954,14 @@ function contentForSection(type, index, input, product) {
       Object.assign(settings2, { title: primaryTitle || "[Ajoutez votre titre principal]", subtitle: [answer(answers, "activity"), answer(answers, "campaign"), answer(answers, "traffic"), answer(answers, "author"), answer(answers, "angle"), product?.vendor ?? ""].filter(Boolean).join(" \xB7 "), text: primaryText, image: product?.images[0] ?? "", image_alt: productTitle, cta_label: cta2, cta_link: cta2 ? "#action" : "#" });
       break;
     case "productHero":
-      Object.assign(settings2, { title: productTitle, subtitle: product?.vendor ?? "", text: productText, price, compare_at_price: compareAtPrice, image: product?.images[0] ?? "", image_alt: productTitle, cta_label: cta2, cta_link: "#product" });
+      Object.assign(settings2, { title: productTitle, subtitle: product?.vendor ?? "", text: productText2, price, compare_at_price: compareAtPrice, image: product?.images[0] ?? "", image_alt: productTitle, cta_label: cta2, cta_link: "#product" });
       break;
     case "gallery":
       Object.assign(settings2, { title: product ? productTitle : "[Ajoutez vos visuels]" });
       blocks2 = (product?.images ?? []).map((url, blockIndex) => item2(`gallery-${index + 1}-${blockIndex + 1}`, productTitle, "", { image: url, image_alt: productTitle }));
       break;
     case "productMain":
-      Object.assign(settings2, { title: productTitle, text: first(selectedAngles[0]?.description, productText), price, compare_at_price: compareAtPrice, image: product?.images[0] ?? "", cta_label: cta2, product_handle: slugify(productTitle) });
+      Object.assign(settings2, { title: productTitle, text: first(selectedAngles[0]?.description, productText2), price, compare_at_price: compareAtPrice, image: product?.images[0] ?? "", cta_label: cta2, product_handle: slugify(productTitle) });
       blocks2 = product?.variants.length ? product.variants.map((variant, blockIndex) => ({ id: `variant-${index + 1}-${blockIndex + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } })) : submittedVariants.map((title, blockIndex) => ({ id: `variant-${index + 1}-${blockIndex + 1}`, type: "variant", settings: { title, variant_id: "", price: "", image: "" } }));
       break;
     case "bundle":
@@ -27927,7 +27975,7 @@ function contentForSection(type, index, input, product) {
       break;
     }
     case "imageText":
-      Object.assign(settings2, { title: first(answer(answers, "story"), answer(answers, "angle"), answer(answers, "topic"), productTitle) || "[Ajoutez votre histoire]", text: first(answer(answers, "story"), answer(answers, "angle"), answer(answers, "intent"), productText), image: product?.images[1] ?? "", image_alt: productTitle });
+      Object.assign(settings2, { title: first(answer(answers, "story"), answer(answers, "angle"), answer(answers, "topic"), productTitle) || "[Ajoutez votre histoire]", text: first(answer(answers, "story"), answer(answers, "angle"), answer(answers, "intent"), productText2), image: product?.images[1] ?? "", image_alt: productTitle });
       break;
     case "comparison": {
       const values2 = objections.length ? objections : benefits.length ? benefits : segments;
@@ -27991,7 +28039,7 @@ function contentForSection(type, index, input, product) {
       break;
     }
     case "cta":
-      Object.assign(settings2, { title: first(answer(answers, "product"), answer(answers, "promise"), answer(answers, "objective"), answer(answers, "result"), productTitle) || "[Ajoutez votre appel \xE0 l\u2019action]", text: first(answer(answers, "audience"), selectedPersonas[0]?.insight, productText), cta_label: cta2 || "[Ajoutez le libell\xE9 du bouton]", cta_link: "#action" });
+      Object.assign(settings2, { title: first(answer(answers, "product"), answer(answers, "promise"), answer(answers, "objective"), answer(answers, "result"), productTitle) || "[Ajoutez votre appel \xE0 l\u2019action]", text: first(answer(answers, "audience"), selectedPersonas[0]?.insight, productText2), cta_label: cta2 || "[Ajoutez le libell\xE9 du bouton]", cta_link: "#action" });
       break;
     case "footer":
       Object.assign(settings2, { title: brand || "[Ajoutez le nom de la marque]", text: answer(answers, "identity"), cta_label: "" });
@@ -29411,6 +29459,31 @@ function settingsRoutes(deps) {
 
 // src/server/shopify.ts
 import { Hono as Hono7 } from "hono";
+
+// src/server/shopify-catalog.ts
+async function loadShopifyCatalog(deps, request) {
+  const user = await requireUser(deps, request);
+  if (!user) return { ok: false, status: 401, body: { error: "unauthorized", message: "Reconnecte-toi pour acc\xE9der \xE0 Shopify." } };
+  const workspace = await ensureWorkspace(deps.store, user.id);
+  const connection2 = await deps.store.getShopify(workspace.id);
+  if (!connection2 || connection2.status !== "connected") {
+    return { ok: false, status: 409, body: { error: "shopify_not_connected", message: "Aucun catalogue Shopify n\u2019est connect\xE9 \xE0 cet espace.", actionUrl: "/boutique" } };
+  }
+  if (!deps.shopify?.listProducts) {
+    return { ok: false, status: 503, body: { error: "shopify_catalog_unavailable", message: "Le catalogue Shopify n\u2019est pas disponible sur cet environnement.", actionUrl: "/boutique" } };
+  }
+  try {
+    const products = await deps.shopify.listProducts({
+      shop: connection2.shopDomain,
+      token: resolveShopifyToken(connection2.tokenEncrypted, deps.encryptionKey)
+    });
+    return { ok: true, shopDomain: connection2.shopDomain, products };
+  } catch {
+    return { ok: false, status: 502, body: { error: "shopify_catalog_failed", message: "Impossible de charger le catalogue Shopify. V\xE9rifie la connexion puis r\xE9essaie.", actionUrl: "/boutique" } };
+  }
+}
+
+// src/server/shopify.ts
 function normalizeShop(shop) {
   return shop.replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
 }
@@ -29432,6 +29505,21 @@ function shopifyRoutes(deps) {
     return c.json({
       status: conn?.status ?? "none",
       shopDomain: conn?.shopDomain ?? null
+    });
+  });
+  app2.get("/shopify/products", async (c) => {
+    const result = await loadShopifyCatalog(deps, c.req.raw);
+    if (!result.ok) return c.json(result.body, result.status);
+    return c.json({
+      shopDomain: result.shopDomain,
+      products: result.products.map((product) => ({
+        id: product.id,
+        title: product.title,
+        vendor: product.vendor,
+        price: product.price,
+        currency: product.currency,
+        image: product.images[0] ?? null
+      }))
     });
   });
   app2.post("/shopify/connect", async (c) => {
@@ -30198,6 +30286,29 @@ function onboardingRoutes(deps) {
       await deps.store.updateOnboardingDraft(draft.id, { status: "failed", error: message2 });
       return c.json({ error: "import_failed", message: message2 }, 422);
     }
+  });
+  app2.post("/onboarding/import-shopify", async (c) => {
+    const body = await c.req.json().catch(() => ({}));
+    const productId = typeof body.productId === "string" ? body.productId.trim() : "";
+    if (!productId) return c.json({ error: "invalid_product", message: "Choisis un produit Shopify avant de continuer." }, 400);
+    const catalog = await loadShopifyCatalog(deps, c.req.raw);
+    if (!catalog.ok) return c.json(catalog.body, catalog.status);
+    const selected = catalog.products.find((product2) => product2.id === productId);
+    if (!selected) return c.json({ error: "product_not_found", message: "Ce produit n\u2019est plus disponible dans le catalogue Shopify. Actualise la liste." }, 404);
+    const { id: _shopifyId, ...product } = selected;
+    const language = typeof body.language === "string" && body.language.trim() ? body.language.trim().slice(0, 40) : "fr";
+    const claim = createClaimToken();
+    let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl: product.sourceUrl }));
+    const analysis = deps.onboardingAi ? await deps.onboardingAi.analyse({ product, language }).catch(() => fallbackOnboardingAnalysis(product, language)) : fallbackOnboardingAnalysis(product, language);
+    draft = await deps.store.updateOnboardingDraft(draft.id, {
+      product,
+      ...analysis,
+      brandName: analysis.brandNames[0],
+      modelId: "proteo",
+      status: "questions",
+      language
+    });
+    return c.json({ draft: publicDraft(draft), claimToken: claim.token }, 201);
   });
   app2.post("/onboarding/import-image", async (c) => {
     const body = await c.req.json().catch(() => ({}));

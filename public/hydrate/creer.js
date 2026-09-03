@@ -911,6 +911,7 @@ function submissionActionForState(state2) {
   assertState(state2);
   if (state2.source === "link") return "link";
   if (state2.source === "image") return "image";
+  if (state2.source === "shopify") return "shopify";
   return "simple";
 }
 function creationStartupAction(state2) {
@@ -930,19 +931,19 @@ async function guardSession() {
 }
 
 // src/hydrate/onboarding-request.ts
-async function fetchWithDeadline(input, init, timeoutMs = 3e4, fetchImpl = fetch) {
+async function fetchWithDeadline(input, init, timeoutMs = 3e4, fetchImpl = fetch, timeoutMessage = "Cette op\xE9ration prend trop de temps. R\xE9essaie.") {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetchImpl(input, { ...init, signal: controller.signal });
   } catch (error2) {
-    if (controller.signal.aborted) throw new Error("L\u2019importation prend trop de temps. R\xE9essaie ou importe directement une image.");
+    if (controller.signal.aborted) throw new Error(timeoutMessage);
     throw error2;
   } finally {
     clearTimeout(timeout);
   }
 }
-async function readApiJson(response) {
+async function readApiJson(response, fallbackMessage) {
   const contentType = response.headers.get("content-type") ?? "";
   if (contentType.includes("application/json")) {
     try {
@@ -951,7 +952,7 @@ async function readApiJson(response) {
     }
   }
   return {
-    message: response.status >= 500 ? "Le serveur a rencontr\xE9 une erreur. R\xE9essaie dans un instant." : "La r\xE9ponse du serveur est invalide. R\xE9essaie."
+    message: fallbackMessage ?? (response.status >= 500 ? "Le serveur a rencontr\xE9 une erreur. R\xE9essaie dans un instant." : "La r\xE9ponse du serveur est invalide. R\xE9essaie.")
   };
 }
 
@@ -1042,14 +1043,33 @@ var error = "";
 var busy = false;
 var workspaceName = "Ton espace";
 var buildStageIndex = 0;
+var shopifyCatalog = { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "" };
 var submissionLock = createSubmissionLock();
 function esc5(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
+function requestCopy(url) {
+  if (url === "/api/pages") return { timeout: "La cr\xE9ation de la page vierge prend trop de temps. R\xE9essaie.", failure: "Impossible de cr\xE9er la page vierge. R\xE9essaie." };
+  if (url.endsWith("/shopify/products")) return { timeout: "Le catalogue Shopify met trop de temps \xE0 r\xE9pondre. R\xE9essaie.", failure: "Impossible de charger le catalogue Shopify. R\xE9essaie." };
+  if (url.endsWith("/import-shopify")) return { timeout: "L\u2019importation du produit Shopify prend trop de temps. R\xE9essaie.", failure: "Impossible d\u2019importer ce produit Shopify. R\xE9essaie." };
+  if (url.endsWith("/import-image")) return { timeout: "L\u2019analyse de l\u2019image prend trop de temps. R\xE9essaie.", failure: "Impossible d\u2019analyser cette image. R\xE9essaie." };
+  if (url.endsWith("/import")) return { timeout: "L\u2019importation du lien prend trop de temps. R\xE9essaie ou importe une image.", failure: "Impossible d\u2019importer ce lien. R\xE9essaie." };
+  if (url.endsWith("/start")) return { timeout: "La pr\xE9paration de la strat\xE9gie prend trop de temps. R\xE9essaie.", failure: "Impossible de pr\xE9parer la strat\xE9gie. R\xE9essaie." };
+  if (url.endsWith("/build")) return { timeout: "La construction de la page prend trop de temps. R\xE9essaie.", failure: "Impossible de construire la page. R\xE9essaie." };
+  if (url.endsWith("/claim")) return { timeout: "L\u2019ouverture de l\u2019\xE9diteur prend trop de temps. R\xE9essaie.", failure: "Impossible d\u2019ouvrir la page dans l\u2019\xE9diteur. R\xE9essaie." };
+  return { timeout: "La mise \xE0 jour de la cr\xE9ation prend trop de temps. R\xE9essaie.", failure: "Impossible de mettre \xE0 jour la cr\xE9ation. R\xE9essaie." };
+}
 async function request(url, init) {
-  const response = await fetchWithDeadline(url, init);
-  const body = await readApiJson(response);
-  if (!response.ok) throw new Error(body.message || "Cette \xE9tape n\u2019a pas abouti.");
+  const copy = requestCopy(url);
+  let response;
+  try {
+    response = await fetchWithDeadline(url, init, 3e4, fetch, copy.timeout);
+  } catch (reason) {
+    if (reason instanceof Error && reason.message === copy.timeout) throw reason;
+    throw new Error(copy.failure);
+  }
+  const body = await readApiJson(response, copy.failure);
+  if (!response.ok) throw new Error(body.message || copy.failure);
   return body;
 }
 function readSavedState() {
@@ -1083,10 +1103,27 @@ function commitState(next, shouldRender = true, historyMode = "push") {
 }
 function render() {
   if (!root) return;
-  if (state.step === "strategy" && draft) root.innerHTML = renderStrategy();
+  if (state.step === "create-blank") root.innerHTML = renderBlankCreation();
+  else if (state.step === "strategy" && draft) root.innerHTML = renderStrategy();
   else if (state.step === "build" && draft) renderBuild();
   else root.innerHTML = renderCreateWorkspace({ workspaceName, state, missingFieldIds, busy: submissionLock.locked });
+  if (state.step === "intake" && state.source === "shopify") root.querySelector(".source-grid")?.insertAdjacentHTML("afterend", renderShopifyCatalog());
   bind();
+}
+function renderBlankCreation() {
+  const content = busy ? `<section class="blank-startup" data-blank-startup><p>Page vierge</p><h1>Cr\xE9ation de la page vierge\u2026</h1><span>Nous pr\xE9parons un document vide dans l\u2019\xE9diteur.</span></section>` : `<section class="blank-startup" data-blank-startup><p>Page vierge</p><h1>Impossible de cr\xE9er la page vierge</h1><div class="create-error" role="alert">${esc5(error || "La cr\xE9ation n\u2019a pas abouti.")}</div><div class="blank-startup-actions"><button type="button" data-blank-retry>R\xE9essayer</button><a href="/dashboard">Retour \xE0 l\u2019espace</a></div></section>`;
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li class="active">2 <span>Cr\xE9ation</span></li><li>3 <span>\xC9diteur</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${content}</main></div>`;
+}
+function shopifyPrice(product) {
+  return product.price == null ? "Prix non renseign\xE9" : new Intl.NumberFormat("fr-FR", { style: "currency", currency: product.currency || "EUR" }).format(product.price);
+}
+function renderShopifyCatalog() {
+  if (shopifyCatalog.status === "loading") return `<section class="shopify-catalog" data-shopify-catalog aria-live="polite"><h2>Choisis un produit Shopify</h2><p>Chargement du catalogue connect\xE9\u2026</p></section>`;
+  if (shopifyCatalog.status === "unavailable") return `<section class="shopify-catalog" data-shopify-catalog><h2>Catalogue Shopify indisponible</h2><p class="create-error" role="alert">${esc5(shopifyCatalog.message)}</p><div class="shopify-catalog-actions"><button type="button" data-shopify-load>R\xE9essayer</button><a href="/boutique">Reconnecter Shopify</a></div></section>`;
+  if (shopifyCatalog.status === "idle") return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2><p>Charge les produits actifs de la boutique connect\xE9e.</p><button type="button" data-shopify-load>Charger le catalogue</button></section>`;
+  if (!shopifyCatalog.products.length) return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2><p role="status">Aucun produit actif n\u2019est disponible dans le catalogue connect\xE9.</p><div class="shopify-catalog-actions"><button type="button" data-shopify-load>Actualiser</button><a href="/boutique">V\xE9rifier Shopify</a></div></section>`;
+  const selected = shopifyCatalog.selectedId ? `<p class="shopify-product-selected" role="status">${esc5(shopifyCatalog.selectedTitle)} est pr\xEAt \xE0 \xEAtre utilis\xE9.</p>` : "";
+  return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2>${selected}<div class="shopify-product-list">${shopifyCatalog.products.map((product) => `<button type="button" data-shopify-product="${esc5(product.id)}" aria-pressed="${product.id === shopifyCatalog.selectedId}">${product.image ? `<img src="${esc5(product.image)}" alt="">` : `<span aria-hidden="true">\u25A3</span>`}<strong>${esc5(product.title)}</strong><small>${esc5(product.vendor)} \xB7 ${esc5(shopifyPrice(product))}</small></button>`).join("")}</div><button type="button" class="shopify-refresh" data-shopify-load>Actualiser le catalogue</button></section>`;
 }
 function renderStrategy() {
   const choices = [...draft.personas.map((item) => ({ ...item, kind: "persona" })), ...draft.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
@@ -1095,7 +1132,7 @@ function renderStrategy() {
 function renderBuild() {
   if (!root || !draft) return;
   const formatTitle = creationFormats.find((item) => item.id === state.format)?.title ?? "Boutique";
-  root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
+  root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
 }
 async function syncDraft(includeStrategy = false) {
   if (!draft) return;
@@ -1126,11 +1163,52 @@ async function startFromAnswers() {
   draft = body.draft;
   token = body.claimToken;
 }
-async function createSimple() {
-  const type = state.format === "blog" ? "write" : state.format === "blank" ? "blank" : "sell";
-  const name = state.prompt.trim() || Object.values(state.answers).find((value) => value.trim()) || creationFormats.find((item) => item.id === state.format)?.title || "Nouvelle page";
-  const page = await request("/api/pages", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type, name, creationFormat: state.format, templateId: state.templateId, answers: state.answers }) });
-  location.assign(`/editeur?page=${page.id}`);
+async function loadShopifyProducts() {
+  shopifyCatalog = { ...shopifyCatalog, status: "loading", message: "" };
+  render();
+  try {
+    const body = await request("/api/shopify/products", { method: "GET" });
+    shopifyCatalog = { ...shopifyCatalog, status: "ready", products: Array.isArray(body.products) ? body.products : [], message: "" };
+  } catch (reason) {
+    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", products: [], message: reason instanceof Error ? reason.message : "Impossible de charger le catalogue Shopify. R\xE9essaie." };
+  }
+  render();
+}
+async function importShopifyProduct(productId) {
+  const product = shopifyCatalog.products.find((item) => item.id === productId);
+  if (!product) return;
+  const form = root?.querySelector("[data-source-form]");
+  if (form) {
+    const data = new FormData(form);
+    state = transitionCreationFlow(state, { type: "UPDATE_INTAKE", answers: answersFromFormData(data), prompt: String(data.get("prompt") ?? "") });
+    persistState();
+    replaceWorkspaceUrl();
+  }
+  shopifyCatalog = { ...shopifyCatalog, status: "loading", selectedId: productId, selectedTitle: product.title, message: "" };
+  render();
+  try {
+    const body = await request("/api/onboarding/import-shopify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ productId, language: "fr" }) });
+    draft = body.draft;
+    token = body.claimToken;
+    shopifyCatalog = { ...shopifyCatalog, status: "ready", selectedId: productId, selectedTitle: product.title, message: "" };
+  } catch (reason) {
+    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", message: reason instanceof Error ? reason.message : "Impossible d\u2019importer ce produit Shopify. R\xE9essaie." };
+  }
+  render();
+}
+async function createBlankPage() {
+  if (busy) return;
+  busy = true;
+  error = "";
+  render();
+  try {
+    const page = await request("/api/pages", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "blank", name: "Page vierge", creationFormat: "blank", templateId: null, answers: {} }) });
+    location.assign(`/editeur?page=${page.id}`);
+  } catch (reason) {
+    busy = false;
+    error = reason instanceof Error ? reason.message : "Impossible de cr\xE9er la page vierge. R\xE9essaie.";
+    render();
+  }
 }
 async function build() {
   if (!draft) return;
@@ -1173,11 +1251,9 @@ function bind() {
   root?.querySelectorAll("[data-create-format]").forEach((button) => button.addEventListener("click", () => {
     missingFieldIds = [];
     draft = null;
+    shopifyCatalog = { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "" };
     commitState(transitionCreationFlow(state, { type: "SELECT_FORMAT", format: button.dataset.createFormat }));
-    if (state.step === "create-blank") void createSimple().catch((reason) => {
-      error = reason instanceof Error ? reason.message : "Cr\xE9ation impossible";
-      render();
-    });
+    if (state.step === "create-blank") void createBlankPage();
   }));
   root?.querySelector("[data-back-format]")?.addEventListener("click", () => {
     missingFieldIds = [];
@@ -1189,9 +1265,17 @@ function bind() {
     commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
   root?.querySelectorAll("button[data-create-source]").forEach((button) => button.addEventListener("click", () => {
-    commitState(transitionCreationFlow(state, { type: "SELECT_SOURCE", source: button.dataset.createSource }));
-    root?.querySelector('[name="prompt"]')?.focus();
+    const source = button.dataset.createSource;
+    commitState(transitionCreationFlow(state, { type: "SELECT_SOURCE", source }));
+    if (source === "shopify") void loadShopifyProducts();
+    else root?.querySelector('[name="prompt"]')?.focus();
   }));
+  root?.querySelector("[data-shopify-load]")?.addEventListener("click", () => void loadShopifyProducts());
+  root?.querySelectorAll("[data-shopify-product]").forEach((button) => button.addEventListener("click", () => {
+    const id = button.dataset.shopifyProduct;
+    if (id) void importShopifyProduct(id);
+  }));
+  root?.querySelector("[data-blank-retry]")?.addEventListener("click", () => void createBlankPage());
   root?.querySelector("[data-create-image]")?.addEventListener("change", async (event) => {
     const file = event.currentTarget.files?.[0];
     if (!file) return;
@@ -1252,11 +1336,17 @@ function bind() {
       render();
       return;
     }
+    if (action === "shopify" && !draft) {
+      submissionLock.release();
+      shopifyCatalog = { ...shopifyCatalog, status: "unavailable", message: "Choisis un produit du catalogue Shopify avant de continuer." };
+      render();
+      return;
+    }
     render();
     try {
       error = "";
       if (action === "link") await importLink(updated.prompt);
-      if (action === "image") await syncDraft();
+      if (action === "image" || action === "shopify") await syncDraft();
       if (action === "simple") await startFromAnswers();
       submissionLock.release();
       commitState(transitionCreationFlow(updated, { type: "CONTINUE" }));
@@ -1265,7 +1355,7 @@ function bind() {
       if (state.step === "strategy" && !draft) state = transitionCreationFlow(state, { type: "BACK" });
       persistState();
       replaceWorkspaceUrl();
-      error = reason instanceof Error ? reason.message : "Import impossible";
+      error = reason instanceof Error ? reason.message : "Cette \xE9tape n\u2019a pas abouti. R\xE9essaie.";
       render();
     }
   });
@@ -1365,10 +1455,7 @@ window.addEventListener("popstate", (event) => {
   state = historyDraft ?? mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
   persistState();
   replaceWorkspaceUrl();
-  if (creationStartupAction(state) === "create-blank") void createSimple().catch((reason) => {
-    error = reason instanceof Error ? reason.message : "Cr\xE9ation impossible";
-    render();
-  });
+  if (creationStartupAction(state) === "create-blank") void createBlankPage();
   else render();
 });
 void (async () => {
@@ -1379,6 +1466,6 @@ void (async () => {
   state = mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
   persistState();
   replaceWorkspaceUrl();
-  if (creationStartupAction(state) === "create-blank") await createSimple();
+  if (creationStartupAction(state) === "create-blank") void createBlankPage();
   else render();
 })();

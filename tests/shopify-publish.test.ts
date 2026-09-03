@@ -1,9 +1,50 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { createApp } from "../src/server/app";
 import { MemoryStore } from "../src/repos/memory";
 import { initialDocument } from "../src/lib/catalog";
+import { createShopifyPort } from "../src/lib/shopify";
 
 describe("Shopify connect and publish", () => {
+  it("maps the connected Shopify catalog without inventing product facts", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/shop.json")) return Response.json({ shop: { currency: "CAD" } });
+      return Response.json({
+        products: [{
+          id: 731,
+          title: "Lampe magnétique",
+          body_html: "<p>Une lampe <strong>sans perçage</strong>.</p>",
+          vendor: "Atelier Aube",
+          handle: "lampe-magnetique",
+          images: [{ id: 81, src: "https://cdn.example/lampe.webp" }],
+          variants: [{ id: 991, title: "Sable", price: "49.00", compare_at_price: null, image_id: 81 }],
+        }],
+      });
+    });
+    try {
+      const products = await createShopifyPort().listProducts?.({ shop: "atelier-aube.myshopify.com", token: "secret" });
+
+      expect(products).toEqual([{
+        id: "731",
+        sourceUrl: "https://atelier-aube.myshopify.com/products/lampe-magnetique",
+        title: "Lampe magnétique",
+        description: "Une lampe sans perçage.",
+        vendor: "Atelier Aube",
+        currency: "CAD",
+        price: 49,
+        compareAtPrice: null,
+        images: ["https://cdn.example/lampe.webp"],
+        variants: [{ id: "991", title: "Sable", price: 49, image: "https://cdn.example/lampe.webp" }],
+        rating: null,
+        reviewCount: null,
+        reviews: [],
+      }]);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      fetchMock.mockRestore();
+    }
+  });
+
   it("stores connected without echoing the token", async () => {
     const store = new MemoryStore();
     const ws = await store.createWorkspace({ name: "ACAI", ownerUserId: "u1" });
