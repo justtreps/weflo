@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderBuildExperience } from "../src/create/build-view";
+import { initialCreationState, transitionCreationFlow } from "../src/create/flow-state";
+import { renderCreateWorkspace } from "../src/create/workspace";
 import type { BuildStage } from "../src/onboarding/types";
 
 const stages: BuildStage[] = [
@@ -18,5 +20,18 @@ describe("premium creation build view", () => {
     expect(html).toContain('data-stage-state="active"');
     expect(html).toContain("Construction de la buy box");
     expect(html).not.toContain("<ul>");
+  });
+
+  it("renders the template and intake views from the persistent flow state", () => {
+    const galleryState = initialCreationState(new URL("https://weflo.test/creer?format=landing&source=description&prompt=une%20lampe"));
+    const intakeState = transitionCreationFlow(galleryState, { type: "SELECT_TEMPLATE", templateId: "landing-direct-response" });
+
+    const gallery = renderCreateWorkspace({ workspaceName: "Studio", state: galleryState });
+    const intake = renderCreateWorkspace({ workspaceName: "Studio", state: intakeState });
+
+    expect(gallery).toContain('data-template-preview="landing-direct-response"');
+    expect(gallery).not.toContain('data-create-source="description"');
+    expect(intake).toContain('data-create-source="description"');
+    expect(intake).toContain('name="answers[campaign]"');
   });
 });

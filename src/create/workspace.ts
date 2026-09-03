@@ -2,6 +2,7 @@ import type { CreationFormatId } from "../onboarding/creation-recipe";
 import { FORMAT_FLOWS, flowForFormat, type CreationSource } from "./format-flow";
 import { renderFormatIntake } from "./format-intake";
 import { renderTemplateGallery } from "./template-gallery";
+import type { CreationFlowState } from "./flow-state";
 
 const formatIcons: Record<CreationFormatId, string> = {
   store: "◆", product: "▣", landing: "↗", advertorial: "¶",
@@ -40,7 +41,9 @@ export function creationWorkspaceUrl(format: CreationFormatId | null, templateId
 
 function esc(value: string): string { return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!); }
 
-type RenderCreateWorkspaceInput = { workspaceName: string; selectedFormat: CreationFormatId | null; selectedTemplateId: string | null; source: string | null; prompt: string; answers: Record<string, string>; missingFieldIds?: string[] };
+type RenderCreateWorkspaceInput =
+  | { workspaceName: string; state: CreationFlowState; missingFieldIds?: string[] }
+  | { workspaceName: string; selectedFormat: CreationFormatId | null; selectedTemplateId: string | null; source: string | null; prompt: string; answers: Record<string, string>; missingFieldIds?: string[] };
 
 function renderIntake(format: CreationFormatId, source: string | null, prompt: string, answers: Record<string, string>, missingFieldIds: string[] = []): string {
   const flow = flowForFormat(format);
@@ -48,11 +51,22 @@ function renderIntake(format: CreationFormatId, source: string | null, prompt: s
 }
 
 export function renderCreateWorkspace(input: RenderCreateWorkspaceInput): string {
+  const state: CreationFlowState = "state" in input ? input.state : {
+    format: input.selectedFormat,
+    templateId: input.selectedTemplateId,
+    source: sourceForFormat(input.selectedFormat, input.source),
+    prompt: input.prompt,
+    answers: input.answers,
+    step: input.selectedFormat === "blank" ? "create-blank" : !input.selectedFormat ? "format" : input.selectedTemplateId ? "intake" : "template",
+  };
   const cards = creationFormats.map((format) => `<button class="format-card" data-create-format="${format.id}"><span>${format.icon}</span><strong>${format.title}</strong><small>${format.description}</small></button>`).join("");
-  const selected = creationFormats.find((format) => format.id === input.selectedFormat);
-  const flow = input.selectedFormat ? flowForFormat(input.selectedFormat) : null;
-  const source = sourceForFormat(input.selectedFormat, input.source);
-  const hasTemplate = Boolean(flow?.templates.some((template) => template.id === input.selectedTemplateId));
-  const content = !selected ? `<div class="create-heading"><p>Nouvelle création</p><h1>Qu’est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : selected.id === "blank" ? "" : !hasTemplate ? `<button class="back-format" data-back-format>← Changer de format</button>${renderTemplateGallery(flow!, null, (template) => creationWorkspaceUrl(flow!.id, template.id, { source, prompt: input.prompt }))}` : renderIntake(selected.id, source, input.prompt, input.answers, input.missingFieldIds);
+  const selected = creationFormats.find((format) => format.id === state.format);
+  const flow = state.format ? flowForFormat(state.format) : null;
+  const source = sourceForFormat(state.format, state.source);
+  const content = state.step === "format" || !selected
+    ? `<div class="create-heading"><p>Nouvelle création</p><h1>Qu’est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>`
+    : state.step === "create-blank" ? ""
+    : state.step === "template" ? `<button class="back-format" data-back-format>← Changer de format</button>${renderTemplateGallery(flow!, null, (template) => creationWorkspaceUrl(flow!.id, template.id, { source, prompt: state.prompt }))}`
+    : renderIntake(selected.id, source, state.prompt, state.answers, input.missingFieldIds);
   return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">← Retour à l’espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Stratégie</span></li><li>4 <span>Construction</span></li></ol><small>${esc(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }

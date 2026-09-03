@@ -8,11 +8,13 @@ describe("creation hydration URL state", () => {
     expect(creationWorkspaceUrl("landing", null, { source: "credential", prompt: "une lampe murale" })).toBe("/creer?format=landing&prompt=une+lampe+murale");
   });
 
-  it("uses the safe URL builder for hydrated format, back, and dialog transitions", () => {
+  it("routes hydrated transitions through the persistent state and safe URL builder", () => {
     const source = readFileSync("src/hydrate/creer.ts", "utf8");
 
-    expect(source).toContain("creationWorkspaceUrl(format, null, { source, prompt })");
-    expect(source).toContain("creationWorkspaceUrl(format, id, { source, prompt })");
+    expect(source).toContain('const CREATION_DRAFT_KEY = "weflo-create-draft-v2"');
+    expect(source).toContain("transitionCreationFlow(state");
+    expect(source).toContain("creationWorkspaceUrl(state.format, state.templateId");
+    expect(source).toContain("mergeCompatibleCreationDraft(initialCreationState(url),readSavedState(),url)");
   });
 
   it("ships the gallery and URL transitions in the browser bundle", () => {

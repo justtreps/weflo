@@ -32,12 +32,12 @@ var templateDetails = {
   "blog-guide": { name: "Guide", description: "Un contenu pratique, structur\xE9 pour \xEAtre facilement consult\xE9.", artProfile: "minimal", sectionVariants: { richText: "guide", faq: "inline" } },
   "blog-study": { name: "\xC9tude", description: "Une analyse approfondie avec preuves et sources.", artProfile: "editorial", sectionVariants: { hero: "study", press: "sources" } }
 };
-function template(id, format2) {
+function template(id, format) {
   const details = templateDetails[id];
   if (!details) throw new Error(`Missing creation template details for ${id}`);
   return {
     id,
-    format: format2,
+    format,
     ...details,
     previewDesktop: `/template-previews/${id}-desktop.webp`,
     previewMobile: `/template-previews/${id}-mobile.webp`
@@ -63,6 +63,11 @@ function flowForFormat(id) {
   if (!flow) throw new Error(`Unknown creation format: ${id}`);
   return flow;
 }
+function templateById(id) {
+  const template2 = FORMAT_FLOWS.flatMap((flow) => flow.templates).find((candidate) => candidate.id === id);
+  if (!template2) throw new Error(`Unknown creation template: ${id}`);
+  return template2;
+}
 
 // src/create/format-intake.ts
 var sourceLabels = {
@@ -74,8 +79,8 @@ var sourceLabels = {
 function esc(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
-function renderField(field2, answers2, missingFields) {
-  const value = esc(answers2[field2.id] ?? "");
+function renderField(field2, answers, missingFields) {
+  const value = esc(answers[field2.id] ?? "");
   const required = field2.required ? " required" : "";
   const missing = missingFields.has(field2.id);
   const error2 = missing ? `<small class="intake-error" id="error-${esc(field2.id)}">Ce champ est obligatoire.</small>` : "";
@@ -87,15 +92,15 @@ function renderField(field2, answers2, missingFields) {
   }
   return `<label class="intake-field">${label}<input name="${name}" value="${value}" placeholder="${esc(field2.placeholder)}"${required}${accessibility}>${error2}</label>`;
 }
-function renderSource(source2) {
-  const item = sourceLabels[source2];
-  if (source2 === "image") {
+function renderSource(source) {
+  const item = sourceLabels[source];
+  if (source === "image") {
     return `<label data-create-source="image"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small><input type="file" accept="image/png,image/jpeg,image/webp" data-create-image hidden></label>`;
   }
-  return `<button type="button" data-create-source="${source2}"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small></button>`;
+  return `<button type="button" data-create-source="${source}"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small></button>`;
 }
-function validateFormatIntake(flow, answers2) {
-  return flow.intake.filter((field2) => field2.required && !(answers2[field2.id] ?? "").trim()).map((field2) => field2.id);
+function validateFormatIntake(flow, answers) {
+  return flow.intake.filter((field2) => field2.required && !(answers[field2.id] ?? "").trim()).map((field2) => field2.id);
 }
 function answersFromFormData(form) {
   return Object.fromEntries([...form.entries()].flatMap(([key, value]) => {
@@ -103,10 +108,10 @@ function answersFromFormData(form) {
     return fieldId ? [[fieldId, String(value)]] : [];
   }));
 }
-function renderFormatIntake(flow, answers2, source2, state = {}) {
-  const missingFields = new Set(state.missingFieldIds ?? []);
-  const promptPlaceholder = source2 === "link" ? "Colle le lien de ton produit\u2026" : "Ajoute une pr\xE9cision utile pour cette page\u2026";
-  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field2) => renderField(field2, answers2, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte \xE0 ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state.prompt ?? "")}</textarea></label><button>Analyser et continuer</button></form>`;
+function renderFormatIntake(flow, answers, source, state2 = {}) {
+  const missingFields = new Set(state2.missingFieldIds ?? []);
+  const promptPlaceholder = source === "link" ? "Colle le lien de ton produit\u2026" : "Ajoute une pr\xE9cision utile pour cette page\u2026";
+  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field2) => renderField(field2, answers, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte \xE0 ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state2.prompt ?? "")}</textarea></label><button>Analyser et continuer</button></form>`;
 }
 
 // src/create/template-gallery.ts
@@ -160,37 +165,44 @@ var formatIcons = {
 };
 var creationFormats = FORMAT_FLOWS.map(({ id, title, description }) => ({ id, title, description, icon: formatIcons[id] }));
 var creationSources = /* @__PURE__ */ new Set(["link", "image", "description", "shopify"]);
-function sourceForFormat(format2, source2) {
-  const selectedSource = source2 && creationSources.has(source2) ? source2 : null;
-  if (!format2 || !selectedSource) return selectedSource;
-  const allowedSources = flowForFormat(format2).allowedSources;
+function sourceForFormat(format, source) {
+  const selectedSource = source && creationSources.has(source) ? source : null;
+  if (!format || !selectedSource) return selectedSource;
+  const allowedSources = flowForFormat(format).allowedSources;
   if (allowedSources.includes(selectedSource)) return selectedSource;
   return allowedSources.includes("description") ? "description" : allowedSources[0] ?? null;
 }
-function creationWorkspaceUrl(format2, templateId2, state) {
-  const params2 = new URLSearchParams();
-  const source2 = sourceForFormat(format2, state.source);
-  if (format2) params2.set("format", format2);
-  if (templateId2) params2.set("template", templateId2);
-  if (source2) params2.set("source", source2);
-  if (state.prompt) params2.set("prompt", state.prompt);
-  const query = params2.toString();
+function creationWorkspaceUrl(format, templateId, state2) {
+  const params = new URLSearchParams();
+  const source = sourceForFormat(format, state2.source);
+  if (format) params.set("format", format);
+  if (templateId) params.set("template", templateId);
+  if (source) params.set("source", source);
+  if (state2.prompt) params.set("prompt", state2.prompt);
+  const query = params.toString();
   return query ? `/creer?${query}` : "/creer";
 }
 function esc3(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
-function renderIntake(format2, source2, prompt2, answers2, missingFieldIds2 = []) {
-  const flow = flowForFormat(format2);
-  return `<button class="back-template" data-back-template>\u2190 Changer de mod\xE8le</button><div class="create-heading"><p>${esc3(flow.title)}</p><h1>Donne-nous la mati\xE8re de d\xE9part.</h1><span>Weflo utilisera ces informations pour construire une premi\xE8re version fid\xE8le \xE0 ton objectif.</span></div>${renderFormatIntake(flow, answers2, source2, { prompt: prompt2, missingFieldIds: missingFieldIds2 })}`;
+function renderIntake(format, source, prompt, answers, missingFieldIds2 = []) {
+  const flow = flowForFormat(format);
+  return `<button class="back-template" data-back-template>\u2190 Changer de mod\xE8le</button><div class="create-heading"><p>${esc3(flow.title)}</p><h1>Donne-nous la mati\xE8re de d\xE9part.</h1><span>Weflo utilisera ces informations pour construire une premi\xE8re version fid\xE8le \xE0 ton objectif.</span></div>${renderFormatIntake(flow, answers, source, { prompt, missingFieldIds: missingFieldIds2 })}`;
 }
 function renderCreateWorkspace(input) {
-  const cards = creationFormats.map((format2) => `<button class="format-card" data-create-format="${format2.id}"><span>${format2.icon}</span><strong>${format2.title}</strong><small>${format2.description}</small></button>`).join("");
-  const selected = creationFormats.find((format2) => format2.id === input.selectedFormat);
-  const flow = input.selectedFormat ? flowForFormat(input.selectedFormat) : null;
-  const source2 = sourceForFormat(input.selectedFormat, input.source);
-  const hasTemplate = Boolean(flow?.templates.some((template2) => template2.id === input.selectedTemplateId));
-  const content = !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : selected.id === "blank" ? "" : !hasTemplate ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source: source2, prompt: input.prompt }))}` : renderIntake(selected.id, source2, input.prompt, input.answers, input.missingFieldIds);
+  const state2 = "state" in input ? input.state : {
+    format: input.selectedFormat,
+    templateId: input.selectedTemplateId,
+    source: sourceForFormat(input.selectedFormat, input.source),
+    prompt: input.prompt,
+    answers: input.answers,
+    step: input.selectedFormat === "blank" ? "create-blank" : !input.selectedFormat ? "format" : input.selectedTemplateId ? "intake" : "template"
+  };
+  const cards = creationFormats.map((format) => `<button class="format-card" data-create-format="${format.id}"><span>${format.icon}</span><strong>${format.title}</strong><small>${format.description}</small></button>`).join("");
+  const selected = creationFormats.find((format) => format.id === state2.format);
+  const flow = state2.format ? flowForFormat(state2.format) : null;
+  const source = sourceForFormat(state2.format, state2.source);
+  const content = state2.step === "format" || !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : state2.step === "create-blank" ? "" : state2.step === "template" ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source, prompt: state2.prompt }))}` : renderIntake(selected.id, source, state2.prompt, state2.answers, input.missingFieldIds);
   return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc3(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }
 
@@ -206,6 +218,203 @@ var FORMAT_RECIPES = {
 };
 function isCreationFormat(value) {
   return typeof value === "string" && (value === "store" || value in FORMAT_RECIPES);
+}
+
+// src/create/flow-state.ts
+var steps = /* @__PURE__ */ new Set(["format", "template", "intake", "strategy", "build", "create-blank"]);
+var sources2 = /* @__PURE__ */ new Set(["link", "image", "description", "shopify"]);
+function assertCompatibleTemplate(format, templateId) {
+  const template2 = templateById(templateId);
+  if (template2.format !== format) throw new Error(`Template ${templateId} is not compatible with ${format}`);
+}
+function isSafeText(value) {
+  return typeof value === "string" && !/^\s*(?:data|blob):/i.test(value);
+}
+function safePrompt(value) {
+  return isSafeText(value) ? value : "";
+}
+function safeAnswers(format, value) {
+  if (!format || format === "blank" || !value || typeof value !== "object" || Array.isArray(value)) return {};
+  const raw = value;
+  return Object.fromEntries(flowForFormat(format).intake.flatMap((field2) => {
+    const answer = raw[field2.id];
+    return isSafeText(answer) ? [[field2.id, answer]] : [];
+  }));
+}
+function missingRequiredFields(state2) {
+  if (!state2.format || state2.format === "blank") return [];
+  return flowForFormat(state2.format).intake.filter((field2) => field2.required && !(state2.answers[field2.id] ?? "").trim()).map((field2) => field2.id);
+}
+function assertState(state2) {
+  if (!state2.format) {
+    if (state2.templateId) throw new Error("A template requires a creation format");
+    if (state2.step !== "format") throw new Error("A creation format must be selected before continuing");
+    return;
+  }
+  if (state2.format === "blank") {
+    if (state2.templateId) throw new Error("A blank page cannot use a template");
+    if (state2.source) throw new Error("A blank page cannot use an import source");
+    if (state2.step !== "create-blank") throw new Error("A blank page must open directly in creation");
+    return;
+  }
+  if (state2.templateId) assertCompatibleTemplate(state2.format, state2.templateId);
+  if (state2.step === "format" && state2.templateId) throw new Error("The format choice cannot have a selected template");
+  if (state2.step === "template" && state2.templateId) throw new Error("The template gallery cannot have a selected template");
+  if ((state2.step === "intake" || state2.step === "strategy" || state2.step === "build") && !state2.templateId) {
+    throw new Error("A template must be selected before intake");
+  }
+  if (state2.source && !flowForFormat(state2.format).allowedSources.includes(state2.source)) {
+    throw new Error(`Source ${state2.source} is not compatible with ${state2.format}`);
+  }
+  if ((state2.step === "strategy" || state2.step === "build") && missingRequiredFields(state2).length) {
+    throw new Error(`Missing required intake fields: ${missingRequiredFields(state2).join(", ")}`);
+  }
+}
+function initialCreationState(url) {
+  const requestedFormat = url.searchParams.get("format");
+  const format = isCreationFormat(requestedFormat) ? requestedFormat : null;
+  const requestedTemplate = url.searchParams.get("template");
+  const templateId = format && format !== "blank" && requestedTemplate ? requestedTemplate : null;
+  if (format && templateId) assertCompatibleTemplate(format, templateId);
+  const state2 = {
+    format,
+    templateId,
+    source: format === "blank" ? null : sourceForFormat(format, url.searchParams.get("source")),
+    prompt: safePrompt(url.searchParams.get("prompt") ?? ""),
+    answers: {},
+    step: format === "blank" ? "create-blank" : !format ? "format" : templateId ? "intake" : "template"
+  };
+  assertState(state2);
+  return state2;
+}
+function transitionCreationFlow(state2, event) {
+  assertState(state2);
+  let next;
+  switch (event.type) {
+    case "SELECT_FORMAT": {
+      const format = event.format;
+      next = {
+        ...state2,
+        format,
+        templateId: null,
+        source: format === "blank" ? null : sourceForFormat(format, state2.source),
+        answers: safeAnswers(format, state2.answers),
+        step: format === "blank" ? "create-blank" : "template"
+      };
+      break;
+    }
+    case "SELECT_TEMPLATE":
+      if (!state2.format || state2.format === "blank") throw new Error("Select a creation format before a template");
+      assertCompatibleTemplate(state2.format, event.templateId);
+      next = { ...state2, templateId: event.templateId, step: "intake" };
+      break;
+    case "SELECT_SOURCE":
+      if (!state2.format || state2.format === "blank") throw new Error("Select a compatible creation format before a source");
+      next = { ...state2, source: sourceForFormat(state2.format, event.source) };
+      break;
+    case "UPDATE_INTAKE":
+      next = {
+        ...state2,
+        prompt: safePrompt(event.prompt),
+        answers: safeAnswers(state2.format, event.answers)
+      };
+      break;
+    case "CONTINUE": {
+      if (state2.format === "blank") return state2;
+      if (state2.step !== "intake") throw new Error("The creation flow cannot continue from this step");
+      const missing = missingRequiredFields(state2);
+      if (missing.length) throw new Error(`Missing required intake fields: ${missing.join(", ")}`);
+      next = { ...state2, step: "strategy" };
+      break;
+    }
+    case "START_BUILD":
+      if (state2.step !== "strategy") throw new Error("Strategy must be ready before construction");
+      next = { ...state2, step: "build" };
+      break;
+    case "BACK":
+      if (state2.step === "build") next = { ...state2, step: "strategy" };
+      else if (state2.step === "strategy") next = { ...state2, step: "intake" };
+      else if (state2.step === "intake") next = { ...state2, templateId: null, step: "template" };
+      else if (state2.step === "template") next = { ...state2, templateId: null, step: "format" };
+      else next = state2;
+      break;
+  }
+  assertState(next);
+  return next;
+}
+function serializeCreationDraft(state2) {
+  const format = isCreationFormat(state2.format) ? state2.format : null;
+  const templateId = format && format !== "blank" && state2.templateId ? state2.templateId : null;
+  if (format && templateId) assertCompatibleTemplate(format, templateId);
+  const source = format === "blank" ? null : sourceForFormat(format, state2.source);
+  return JSON.stringify({
+    version: 2,
+    format,
+    templateId,
+    source,
+    prompt: safePrompt(state2.prompt),
+    answers: safeAnswers(format, state2.answers),
+    step: state2.step
+  });
+}
+function restoreCreationDraft(raw) {
+  if (!raw) return null;
+  try {
+    const value = JSON.parse(raw);
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+    if (value.version !== void 0 && value.version !== 2) return null;
+    const format = value.format === null ? null : isCreationFormat(value.format) ? value.format : null;
+    if (value.format !== null && !format) return null;
+    const templateId = value.templateId === null ? null : typeof value.templateId === "string" ? value.templateId : null;
+    if (value.templateId !== null && !templateId) return null;
+    const source = value.source === null ? null : sources2.has(value.source) ? value.source : null;
+    if (value.source !== null && !source) return null;
+    const step = value.step === void 0 ? format === "blank" ? "create-blank" : !format ? "format" : templateId ? "intake" : "template" : steps.has(value.step) ? value.step : null;
+    if (!step) return null;
+    const state2 = {
+      format,
+      templateId,
+      source,
+      prompt: safePrompt(value.prompt),
+      answers: safeAnswers(format, value.answers),
+      step
+    };
+    assertState(state2);
+    return state2;
+  } catch {
+    return null;
+  }
+}
+function mergeCompatibleCreationDraft(urlState, saved, url) {
+  if (!saved) return urlState;
+  const explicitFormat = url.searchParams.has("format");
+  if (explicitFormat && saved.format !== urlState.format) return urlState;
+  const format = explicitFormat ? urlState.format : saved.format;
+  if (!format) return urlState;
+  if (url.searchParams.has("source") && urlState.source && sourceForFormat(format, urlState.source) !== urlState.source) return urlState;
+  if (format === "blank") return { ...urlState, format, templateId: null, source: null, answers: {}, step: "create-blank" };
+  const explicitTemplate = url.searchParams.has("template");
+  const templateId = explicitTemplate ? urlState.templateId : saved.templateId;
+  if (templateId) {
+    try {
+      assertCompatibleTemplate(format, templateId);
+    } catch {
+      return urlState;
+    }
+  }
+  const source = url.searchParams.has("source") ? sourceForFormat(format, urlState.source) : sourceForFormat(format, saved.source);
+  const prompt = url.searchParams.has("prompt") ? urlState.prompt : saved.prompt;
+  const answers = safeAnswers(format, saved.answers);
+  const step = !templateId && saved.step === "format" ? "format" : templateId ? "intake" : "template";
+  const merged = { format, templateId, source, prompt, answers, step };
+  assertState(merged);
+  return merged;
+}
+function submissionActionForState(state2) {
+  assertState(state2);
+  if (state2.source === "link") return "link";
+  if (state2.source === "image") return "image";
+  return "simple";
 }
 
 // src/hydrate/session-guard.ts
@@ -253,8 +462,8 @@ function renderBuildExperience(input) {
         <div class="canardo-status"><span class="canardo-orbit">\u25CF</span><div><small>Canardo travaille maintenant</small><h1>${esc4(current)}</h1><p>La structure, les textes et la direction visuelle sont assembl\xE9s dans une m\xEAme identit\xE9.</p></div></div>
         <div class="stage-stream">${visible.map((stage) => {
     const index = input.stages.indexOf(stage);
-    const state = index < activeIndex ? "done" : index === activeIndex ? "active" : "waiting";
-    return `<div class="stage-row" data-stage-state="${state}"><i>${state === "done" ? "\u2713" : state === "active" ? "\u25CF" : ""}</i><span>${esc4(stage.label)}</span>${state === "active" ? "<em>en cours</em>" : ""}</div>`;
+    const state2 = index < activeIndex ? "done" : index === activeIndex ? "active" : "waiting";
+    return `<div class="stage-row" data-stage-state="${state2}"><i>${state2 === "done" ? "\u2713" : state2 === "active" ? "\u25CF" : ""}</i><span>${esc4(stage.label)}</span>${state2 === "active" ? "<em>en cours</em>" : ""}</div>`;
   }).join("")}</div>
         <div class="build-note"><span>\u2726</span><p><strong>Une seule direction de marque.</strong> Chaque nouvelle section reprend les m\xEAmes couleurs, espacements et r\xE8gles typographiques.</p></div>
       </section>
@@ -274,13 +483,9 @@ function renderBuildExperience(input) {
 }
 
 // src/hydrate/creer.ts
+var CREATION_DRAFT_KEY = "weflo-create-draft-v2";
 var root = document.querySelector("#create-app");
-var params = new URLSearchParams(location.search);
-var format = isCreationFormat(params.get("format")) ? params.get("format") : null;
-var templateId = params.get("template");
-var source = sourceForFormat(format, params.get("source"));
-var prompt = params.get("prompt") ?? "";
-var answers = {};
+var state = initialCreationState(new URL(location.href));
 var missingFieldIds = [];
 var draft = null;
 var token = "";
@@ -297,26 +502,49 @@ async function request(url, init) {
   if (!response.ok) throw new Error(body.message || "Cette \xE9tape n\u2019a pas abouti.");
   return body;
 }
+function readSavedState() {
+  try {
+    return restoreCreationDraft(sessionStorage.getItem(CREATION_DRAFT_KEY));
+  } catch {
+    return null;
+  }
+}
+function persistState() {
+  try {
+    sessionStorage.setItem(CREATION_DRAFT_KEY, serializeCreationDraft(state));
+  } catch {
+  }
+}
+function replaceWorkspaceUrl() {
+  history.replaceState({}, "", creationWorkspaceUrl(state.format, state.templateId, { source: state.source, prompt: state.prompt }));
+}
+function commitState(next, shouldRender = true) {
+  state = next;
+  persistState();
+  replaceWorkspaceUrl();
+  if (shouldRender) render();
+}
 function render() {
   if (!root) return;
-  source = sourceForFormat(format, source);
-  root.innerHTML = draft ? renderStrategy() : renderCreateWorkspace({ workspaceName, selectedFormat: format, selectedTemplateId: templateId, source, prompt, answers, missingFieldIds });
+  if (state.step === "strategy" && draft) root.innerHTML = renderStrategy();
+  else if (state.step === "build" && draft) renderBuild();
+  else root.innerHTML = renderCreateWorkspace({ workspaceName, state, missingFieldIds });
   bind();
 }
 function renderStrategy() {
   const choices = [...draft.personas.map((item) => ({ ...item, kind: "persona" })), ...draft.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main><div class="create-heading"><p>${esc5(creationFormats.find((item) => item.id === format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc5(item.id)}" aria-pressed="${item.selected}"><strong>${esc5(item.icon)} ${esc5(item.title)}</strong><small>${esc5(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc5(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main><div class="create-heading"><p>${esc5(creationFormats.find((item) => item.id === state.format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc5(item.id)}" aria-pressed="${item.selected}"><strong>${esc5(item.icon)} ${esc5(item.title)}</strong><small>${esc5(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc5(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
 }
 function renderBuild() {
   if (!root || !draft) return;
-  const formatTitle = creationFormats.find((item) => item.id === format)?.title ?? "Boutique";
+  const formatTitle = creationFormats.find((item) => item.id === state.format)?.title ?? "Boutique";
   root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Produit</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
 }
 async function importLink(value) {
   const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });
   draft = body.draft;
   token = body.claimToken;
-  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: format ?? "store", language: "fr" }) });
+  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", language: "fr" }) });
 }
 async function importImage(file) {
   if (file.size > 45e4) throw new Error("Choisis une image de moins de 450 Ko.");
@@ -329,23 +557,26 @@ async function importImage(file) {
   const body = await request("/api/onboarding/import-image", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ imageDataUrl: data, fileName: file.name, language: "fr" }) });
   draft = body.draft;
   token = body.claimToken;
-  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: format ?? "store", language: "fr" }) });
+  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", language: "fr" }) });
 }
 async function createSimple() {
-  const type = format === "blog" ? "write" : format === "blank" ? "blank" : "sell";
-  const name = prompt.trim() || creationFormats.find((item) => item.id === format)?.title || "Nouvelle page";
+  const type = state.format === "blog" ? "write" : state.format === "blank" ? "blank" : "sell";
+  const name = state.prompt.trim() || creationFormats.find((item) => item.id === state.format)?.title || "Nouvelle page";
   const page = await request("/api/pages", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type, name }) });
   location.assign(`/editeur?page=${page.id}`);
 }
 async function build() {
   if (!draft) return;
+  state = transitionCreationFlow(state, { type: "START_BUILD" });
+  persistState();
+  replaceWorkspaceUrl();
   busy = true;
   error = "";
   buildStageIndex = 0;
   renderBuild();
   let timer;
   try {
-    await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: format ?? "store", personas: draft.personas, angles: draft.angles, language: "fr" }) });
+    await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ creationFormat: state.format ?? "store", personas: draft.personas, angles: draft.angles, language: "fr" }) });
     buildStageIndex = 1;
     renderBuild();
     timer = setInterval(() => {
@@ -373,39 +604,44 @@ async function build() {
 }
 function bind() {
   root?.querySelectorAll("[data-create-format]").forEach((button) => button.addEventListener("click", () => {
-    format = button.dataset.createFormat;
-    source = sourceForFormat(format, source);
-    templateId = null;
-    answers = {};
-    missingFieldIds = [];
-    history.replaceState({}, "", creationWorkspaceUrl(format, null, { source, prompt }));
-    render();
-  }));
-  root?.querySelector("[data-back-format]")?.addEventListener("click", () => {
-    format = null;
-    templateId = null;
-    answers = {};
     missingFieldIds = [];
     draft = null;
-    history.replaceState({}, "", creationWorkspaceUrl(null, null, { source, prompt }));
-    render();
+    commitState(transitionCreationFlow(state, { type: "SELECT_FORMAT", format: button.dataset.createFormat }));
+    if (state.step === "create-blank") void createSimple().catch((reason) => {
+      error = reason instanceof Error ? reason.message : "Cr\xE9ation impossible";
+      render();
+    });
+  }));
+  root?.querySelector("[data-back-format]")?.addEventListener("click", () => {
+    missingFieldIds = [];
+    draft = null;
+    commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
   root?.querySelector("[data-back-template]")?.addEventListener("click", () => {
-    templateId = null;
-    history.replaceState({}, "", creationWorkspaceUrl(format, null, { source, prompt }));
-    render();
+    missingFieldIds = [];
+    commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
-  root?.querySelectorAll("[data-create-source]").forEach((button) => button.addEventListener("click", () => {
-    source = sourceForFormat(format, button.dataset.createSource ?? null);
-    root.querySelector('[name="prompt"]')?.focus();
+  root?.querySelectorAll("button[data-create-source]").forEach((button) => button.addEventListener("click", () => {
+    commitState(transitionCreationFlow(state, { type: "SELECT_SOURCE", source: button.dataset.createSource }));
+    root?.querySelector('[name="prompt"]')?.focus();
   }));
   root?.querySelector("[data-create-image]")?.addEventListener("change", async (event) => {
     const file = event.currentTarget.files?.[0];
     if (!file) return;
+    const form = root?.querySelector("[data-source-form]");
+    if (form) {
+      const data = new FormData(form);
+      state = transitionCreationFlow(state, { type: "UPDATE_INTAKE", answers: answersFromFormData(data), prompt: String(data.get("prompt") ?? "").trim() });
+    }
+    state = transitionCreationFlow(state, { type: "SELECT_SOURCE", source: "image" });
+    persistState();
+    replaceWorkspaceUrl();
+    missingFieldIds = state.format ? validateFormatIntake(flowForFormat(state.format), state.answers) : [];
     try {
       busy = true;
       await importImage(file);
-      render();
+      if (!missingFieldIds.length) commitState(transitionCreationFlow(state, { type: "CONTINUE" }));
+      else render();
     } catch (reason) {
       error = reason instanceof Error ? reason.message : "Import impossible";
       render();
@@ -413,34 +649,69 @@ function bind() {
       busy = false;
     }
   });
-  root?.querySelector("[data-source-form]")?.addEventListener("submit", async (event) => {
+  const intakeForm = root?.querySelector("[data-source-form]");
+  intakeForm?.addEventListener("input", () => {
+    const data = new FormData(intakeForm);
+    state = transitionCreationFlow(state, { type: "UPDATE_INTAKE", answers: answersFromFormData(data), prompt: String(data.get("prompt") ?? "") });
+    persistState();
+    replaceWorkspaceUrl();
+  });
+  intakeForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    answers = answersFromFormData(form);
-    prompt = String(form.get("prompt") ?? "").trim();
-    source = sourceForFormat(format, source);
-    missingFieldIds = format ? validateFormatIntake(flowForFormat(format), answers) : [];
+    const data = new FormData(event.currentTarget);
+    let updated = transitionCreationFlow(state, { type: "UPDATE_INTAKE", answers: answersFromFormData(data), prompt: String(data.get("prompt") ?? "").trim() });
+    missingFieldIds = updated.format ? validateFormatIntake(flowForFormat(updated.format), updated.answers) : [];
+    commitState(updated, false);
     if (missingFieldIds.length) {
       render();
       return;
     }
-    const firstAnswer = Object.values(answers).find((value) => value.trim()) ?? "";
-    if (!prompt && !firstAnswer) return;
+    const firstAnswer = Object.values(updated.answers).find((value) => value.trim()) ?? "";
+    if (!updated.prompt && !firstAnswer) {
+      render();
+      return;
+    }
+    if (!updated.prompt) {
+      updated = transitionCreationFlow(updated, { type: "UPDATE_INTAKE", answers: updated.answers, prompt: firstAnswer });
+      commitState(updated, false);
+    }
+    const action = submissionActionForState(updated);
+    if (action === "image" && !draft) {
+      error = "Ajoute une image avant de continuer.";
+      render();
+      return;
+    }
     try {
       busy = true;
-      if (source === "link" || /^https?:\/\//.test(prompt)) await importLink(prompt);
-      else {
-        if (!prompt) prompt = firstAnswer;
+      error = "";
+      if (action === "link") await importLink(updated.prompt);
+      if (action === "simple") {
+        state = transitionCreationFlow(updated, { type: "CONTINUE" });
+        persistState();
+        replaceWorkspaceUrl();
         await createSimple();
+        return;
       }
-      render();
+      commitState(transitionCreationFlow(updated, { type: "CONTINUE" }));
     } catch (reason) {
+      if (state.step === "strategy" && !draft) state = transitionCreationFlow(state, { type: "BACK" });
+      persistState();
+      replaceWorkspaceUrl();
       error = reason instanceof Error ? reason.message : "Import impossible";
       render();
     } finally {
       busy = false;
     }
   });
+  root?.querySelectorAll("[data-template-select]").forEach((link) => link.addEventListener("click", (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const id = link.dataset.templateSelect;
+    if (id) {
+      missingFieldIds = [];
+      commitState(transitionCreationFlow(state, { type: "SELECT_TEMPLATE", templateId: id }));
+    }
+  }));
   const dialog = root?.querySelector("[data-template-dialog]");
   root?.querySelectorAll("[data-template-device]").forEach((button) => button.addEventListener("click", () => {
     const preview = button.closest("[data-template-preview]");
@@ -465,9 +736,21 @@ function bind() {
     dialog.querySelector("[data-template-dialog-title]").textContent = name;
     dialog.querySelector("[data-template-dialog-description]").textContent = description;
     const select = dialog.querySelector("[data-template-dialog-select]");
-    if (select) select.href = creationWorkspaceUrl(format, id, { source, prompt });
+    if (select) {
+      select.href = creationWorkspaceUrl(state.format, id, { source: state.source, prompt: state.prompt });
+      select.dataset.templateId = id;
+    }
     dialog.showModal();
   }));
+  dialog?.querySelector("[data-template-dialog-select]")?.addEventListener("click", (event) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const id = event.currentTarget.dataset.templateId;
+    if (!id) return;
+    event.preventDefault();
+    dialog.close();
+    missingFieldIds = [];
+    commitState(transitionCreationFlow(state, { type: "SELECT_TEMPLATE", templateId: id }));
+  });
   root?.querySelectorAll("[data-strategy]").forEach((button) => button.addEventListener("click", () => {
     const [kind, id] = (button.dataset.strategy ?? "").split(":");
     const list = kind === "persona" ? draft?.personas : draft?.angles;
@@ -477,14 +760,31 @@ function bind() {
   }));
   root?.querySelector("[data-build]")?.addEventListener("click", () => void build().catch((reason) => {
     busy = false;
+    if (state.step === "build") state = transitionCreationFlow(state, { type: "BACK" });
+    persistState();
+    replaceWorkspaceUrl();
     error = reason instanceof Error ? reason.message : "Construction impossible";
     render();
   }));
 }
+window.addEventListener("popstate", () => {
+  const url = new URL(location.href);
+  state = mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
+  persistState();
+  if (state.step === "create-blank") void createSimple().catch((reason) => {
+    error = reason instanceof Error ? reason.message : "Cr\xE9ation impossible";
+    render();
+  });
+  else render();
+});
 void (async () => {
   const me = await guardSession();
   if (!me) return;
   workspaceName = me.workspace.name;
-  if (format === "blank") await createSimple();
+  const url = new URL(location.href);
+  state = mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
+  persistState();
+  replaceWorkspaceUrl();
+  if (state.step === "create-blank") await createSimple();
   else render();
 })();
