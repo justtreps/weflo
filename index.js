@@ -19879,156 +19879,6 @@ function isEditorDocument(value2) {
   return validateEditorDocument(value2).ok;
 }
 
-// src/section-preview/fixtures.ts
-var images = (ids) => ids.map((id2) => `https://images.unsplash.com/${id2}?auto=format&fit=crop&w=1600&q=88`);
-function fixture(input) {
-  const [background, surface, ink, accent] = input.colors;
-  return {
-    id: input.id,
-    archetypes: input.archetypes,
-    brand: {
-      name: input.name,
-      palette: input.colors,
-      headingFont: input.fonts[0],
-      bodyFont: input.fonts[1],
-      schemes: [{ name: "Clair", background, text: ink, accent }, { name: "Surface", background: surface, text: ink, accent }]
-    },
-    theme: { background, surface, ink, muted: `${ink}A8`, accent, display: input.fonts[0].includes("Playfair") || input.fonts[0].includes("Libre") ? "serif" : "sans", radius: "soft" },
-    product: {
-      sourceUrl: `https://demo.weflo.app/${input.id}`,
-      title: input.title,
-      description: input.description,
-      vendor: input.name,
-      currency: input.currency ?? "EUR",
-      price: input.price,
-      compareAtPrice: input.compareAtPrice,
-      images: images(input.images),
-      rating: 4.8,
-      reviewCount: 327,
-      variants: [{ id: "classic", title: "Classique", price: input.price }, { id: "duo", title: "Duo", price: Math.round(input.price * 1.72) }],
-      reviews: []
-    },
-    previewOnly: {
-      benefits: input.benefits.map((text5, index) => ({ title: ["Pens\xE9 avec pr\xE9cision", "Simple au quotidien", "Une qualit\xE9 durable"][index] ?? `B\xE9n\xE9fice ${index + 1}`, text: text5 })),
-      reviews: [
-        { author: "Lina M.", title: "Encore mieux qu\u2019esp\xE9r\xE9", text: `Une exp\xE9rience ${input.name} tr\xE8s soign\xE9e, du produit \xE0 la livraison.`, rating: 5 },
-        { author: "Camille R.", title: "Beau et vraiment utile", text: "Tout est clair, simple et la qualit\xE9 se remarque imm\xE9diatement.", rating: 5 },
-        { author: "Noa B.", title: "Je recommande", text: "Une belle d\xE9couverte que j\u2019utilise maintenant chaque semaine.", rating: 5 }
-      ],
-      faqs: input.faqs.map((question, index) => ({ question, answer: ["Oui, tout a \xE9t\xE9 con\xE7u pour une prise en main imm\xE9diate.", "La commande est suivie et pr\xE9par\xE9e sous 48 heures.", "Tu disposes de trente jours pour changer d\u2019avis."][index] ?? "Notre \xE9quipe te r\xE9pond rapidement." })),
-      bundles: [{ title: "L\u2019essentiel", quantity: 1, price: `${input.price} \u20AC` }, { title: "Le duo", quantity: 2, price: `${Math.round(input.price * 1.72)} \u20AC`, badge: "Le plus choisi" }, { title: "La routine", quantity: 3, price: `${Math.round(input.price * 2.28)} \u20AC`, badge: "Meilleure valeur" }]
-    }
-  };
-}
-var SECTION_PREVIEW_FIXTURES = [
-  fixture({ id: "aurea-serum", archetypes: ["beauty", "wellness"], name: "Aur\xE9a", title: "S\xE9rum \xC9clat 03", description: "Un concentr\xE9 lumineux qui hydrate, apaise et r\xE9v\xE8le l\u2019\xE9clat naturel de la peau.", price: 48, compareAtPrice: 62, colors: ["#F3ECE7", "#FFFDFC", "#261B17", "#C87557"], fonts: ["Playfair Display", "Inter"], images: ["photo-1620916566398-39f1143ab7be", "photo-1556228578-8c89e6adf883", "photo-1598440947619-2c35fc9aa908"], benefits: ["Une formule courte aux actifs essentiels.", "Une texture l\xE9g\xE8re pens\xE9e pour chaque matin.", "Un flacon durable et une routine sans complication."], faqs: ["Convient-il aux peaux sensibles ?", "Quand appliquer le s\xE9rum ?", "Puis-je l\u2019essayer sans risque ?"] }),
-  fixture({ id: "halo-lamp", archetypes: ["home", "gadget", "design"], name: "Halo", title: "Lampe murale Halo One", description: "Une lumi\xE8re chaude, magn\xE9tique et sans fil qui se place exactement o\xF9 tu en as besoin.", price: 59, compareAtPrice: 79, colors: ["#EDE9E1", "#FFFEFA", "#171713", "#D4A72C"], fonts: ["Manrope", "Inter"], images: ["photo-1507473885765-e6ed057f782c", "photo-1540932239986-30128078f3c5", "photo-1513506003901-1e6a229e2d15"], benefits: ["Installation sans c\xE2ble ni per\xE7age.", "Orientation magn\xE9tique en un geste.", "Lumi\xE8re chaude rechargeable et apaisante."], faqs: ["La fixation tient-elle durablement ?", "Quelle est l\u2019autonomie ?", "Comment la recharger ?"] }),
-  fixture({ id: "noma-bag", archetypes: ["fashion"], name: "Noma", title: "Sac Week-end N\xB02", description: "Un sac souple et structur\xE9, con\xE7u pour voyager l\xE9ger sans renoncer aux beaux d\xE9tails.", price: 189, compareAtPrice: 229, colors: ["#EEE9E0", "#FBF8F1", "#211B16", "#8A5638"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1553062407-98eeb64c6a62", "photo-1548036328-c9fa89d128fa", "photo-1594223274512-ad4803739b7c"], benefits: ["Une ouverture large et des poches utiles.", "Une mati\xE8re r\xE9sistante qui se patine bien.", "Le bon format pour deux \xE0 quatre jours."], faqs: ["Passe-t-il en cabine ?", "Comment entretenir la mati\xE8re ?", "Est-il garanti ?"] }),
-  fixture({ id: "pulse-recovery", archetypes: ["sport", "wellness"], name: "Pulse", title: "Recovery Daily", description: "La formule quotidienne pens\xE9e pour mieux r\xE9cup\xE9rer et retrouver ton rythme d\xE8s le lendemain.", price: 39, compareAtPrice: 49, colors: ["#E9F0E7", "#FCFFF9", "#132016", "#79B96A"], fonts: ["Space Grotesk", "Inter"], images: ["photo-1593095948071-474c5cc2989d", "photo-1517836357463-d25dfeac3438", "photo-1538805060514-97d9cc17730c"], benefits: ["Une dose simple apr\xE8s l\u2019effort.", "Des ingr\xE9dients clairement expliqu\xE9s.", "Un format pens\xE9 pour trente jours."], faqs: ["Quand prendre la formule ?", "Que contient-elle ?", "Convient-elle \xE0 tous les sports ?"] }),
-  fixture({ id: "brume-coffee", archetypes: ["food"], name: "Brume", title: "Assemblage Matin Calme", description: "Un caf\xE9 rond et pr\xE9cis, torr\xE9fi\xE9 en petite s\xE9rie pour une tasse douce chaque matin.", price: 16, compareAtPrice: 19, colors: ["#EFE3D3", "#FFF9EF", "#2B1B13", "#D56A35"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1447933601403-0c6688de566e", "photo-1495474472287-4d71bcdd2085", "photo-1512568400610-62da28bc8a13"], benefits: ["Des grains sourc\xE9s avec transparence.", "Une torr\xE9faction fra\xEEche chaque semaine.", "Un profil doux, chocolat\xE9 et \xE9quilibr\xE9."], faqs: ["Quelle mouture choisir ?", "Quand le caf\xE9 est-il torr\xE9fi\xE9 ?", "Comment le conserver ?"] }),
-  fixture({ id: "forma-table", archetypes: ["home", "design"], name: "Forma", title: "Service Ondes", description: "Des pi\xE8ces de table sculpturales et faciles \xE0 vivre, dessin\xE9es pour les repas de tous les jours.", price: 84, compareAtPrice: 104, colors: ["#E9E4DA", "#FAF8F3", "#1F211B", "#6C7B4B"], fonts: ["Playfair Display", "Inter"], images: ["photo-1610701596007-11502861dcfa", "photo-1578749556568-bc2c40e68b61", "photo-1612196808214-b8e1d6145a8c"], benefits: ["Des formes empilables et agr\xE9ables en main.", "Une finition mate r\xE9sistante au quotidien.", "Chaque pi\xE8ce poss\xE8de de l\xE9g\xE8res nuances."], faqs: ["Les pi\xE8ces passent-elles au lave-vaisselle ?", "Sont-elles fabriqu\xE9es \xE0 la main ?", "Puis-je compl\xE9ter le service plus tard ?"] })
-];
-function fixtureById(id2) {
-  const found = SECTION_PREVIEW_FIXTURES.find((item3) => item3.id === id2);
-  if (!found) throw new Error(`Unknown preview fixture: ${id2}`);
-  return found;
-}
-
-// src/section-preview/manifests.ts
-var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, extra = {}) => {
-  const base9 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
-  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1, ...extra };
-};
-var ALL_ARCHETYPES = ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"];
-var SECTION_PREVIEW_MANIFESTS = [
-  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 100, popular: 95 }),
-  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 96, popular: 86 }),
-  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ALL_ARCHETYPES, "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"], { family: "product-purchase", capabilities: ["product-form", "variant-selection"], requiredData: ["Produit Shopify", "Variantes"], recommended: 98, popular: 100 }),
-  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "product-purchase", capabilities: ["product-form", "fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 94, popular: 91 }),
-  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "benefits", recommended: 83, popular: 82 }),
-  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"], { family: "benefits", recommended: 79, popular: 76 }),
-  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "reviews-ugc", requiredData: ["Avis clients"], recommended: 90, popular: 88 }),
-  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"], { family: "reviews-ugc", requiredData: ["Avis clients", "Photos UGC"], recommended: 89, popular: 93 }),
-  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 97, popular: 89 }),
-  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["quantity-breaks"], requiredData: ["Produit Shopify", "Paliers de quantit\xE9"], recommended: 95, popular: 96 }),
-  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 81, popular: 85 }),
-  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 77, popular: 72 })
-];
-var legacyFamily = { hero: "heroes", product: "product-purchase", benefits: "benefits", proof: "reviews-ugc", offer: "bundles-offers", faq: "faq-trust" };
-var definitionFamily = { navigation: "headers-navigation", announcement: "headers-navigation", footer: "footer-utilities", spacer: "footer-utilities", divider: "footer-utilities", hero: "heroes", productHero: "heroes", videoHero: "heroes", productMain: "product-purchase", productGrid: "collections-recommendations", collectionGrid: "collections-recommendations", bundle: "bundles-offers", comparison: "comparison", ingredients: "ingredients-materials", gallery: "demo-media", beforeAfter: "before-after", imageText: "benefits", benefits: "benefits", testimonials: "reviews-ugc", reviews: "reviews-ugc", faq: "faq-trust", guarantees: "faq-trust", shipping: "faq-trust", quiz: "quiz-forms", form: "quiz-forms", newsletter: "conversion-capture", cta: "conversion-capture", richText: "brand-story", customCode: "custom" };
-function normalize(value2) {
-  return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-function labelCapability(capability) {
-  const labels3 = { "product-form": "Formulaire produit", "variant-selection": "Variantes Shopify", "quantity-breaks": "Paliers de quantit\xE9", "collection-binding": "Collection Shopify", "recommendations": "Recommandations", "fixed-bundle": "Bundle fixe", "custom-bundle": "Bundle personnalisable", "selling-plan": "Abonnement", "preorder": "Pr\xE9commande", "cart-drawer": "Panier lat\xE9ral", "app-blocks": "Bloc d\u2019application", "markets": "March\xE9s Shopify", "localization": "Localisation" };
-  return labels3[capability] ?? capability.replace(/-/g, " ");
-}
-function capabilityState(capability, states) {
-  if (states && typeof states === "object" && !Array.isArray(states)) {
-    const value2 = states[capability];
-    if (value2 === "native" || value2 === "app-required" || value2 === "unavailable") return value2;
-  }
-  return ["custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability) ? "app-required" : "native";
-}
-function familyFrom(value2, fallback) {
-  const raw = Array.isArray(value2) && typeof value2[0] === "string" ? value2[0] : typeof value2 === "string" ? value2 : "";
-  const aliases = { "product-hero": "heroes", "buy-box": "product-purchase", "variant-selector": "variants-options", "quantity-offer": "bundles-offers", "fixed-bundle": "bundles-offers", "benefits-results": "benefits", "product-media": "demo-media", "reviews-ugc-premium": "reviews-ugc", recommendations: "collections-recommendations" };
-  return aliases[raw] ?? (raw ? raw : fallback);
-}
-function dynamicManifests() {
-  const existing = new Set(SECTION_PREVIEW_MANIFESTS.map((manifest) => `${manifest.sectionType}:${manifest.variantId}`));
-  const values2 = [];
-  for (const definition of listSectionDefinitions()) {
-    const type = typeof definition.type === "string" ? definition.type : "";
-    if (!type) continue;
-    const variants = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : Array.isArray(definition.previewVariants) && definition.previewVariants.length ? definition.previewVariants : ["default"];
-    for (const rawVariant of variants) {
-      const variant2 = typeof rawVariant === "string" ? { id: rawVariant } : rawVariant && typeof rawVariant === "object" ? rawVariant : null;
-      const variantId = variant2 && typeof variant2.id === "string" ? variant2.id : "default";
-      if (existing.has(`${type}:${variantId}`)) continue;
-      const fixtureId = variant2 && typeof variant2.previewFixtureId === "string" && SECTION_PREVIEW_FIXTURES.some((fixture2) => fixture2.id === variant2.previewFixtureId) ? variant2.previewFixtureId : "aurea-serum";
-      const fallbackPreview = fixtureById(fixtureId).product.images[0];
-      const title = variant2 && typeof variant2.name === "string" ? variant2.name : typeof definition.name === "string" ? definition.name : type;
-      const description = variant2 && typeof variant2.description === "string" ? variant2.description : `Ajouter ${title.toLocaleLowerCase("fr-FR")}`;
-      const capabilities = Array.isArray(definition.capabilities) ? definition.capabilities.filter((value2) => typeof value2 === "string") : [];
-      values2.push({ sectionType: type, variantId, title, conversionGoal: description, category: "product", family: familyFrom(definition.families ?? definition.family, definitionFamily[type] ?? "custom"), capabilities, capabilityStates: definition.capabilityStates, requiredData: Array.isArray(variant2?.requiredData) ? variant2.requiredData.filter((value2) => typeof value2 === "string") : [], tags: Array.isArray(definition.tags) ? definition.tags.filter((value2) => typeof value2 === "string") : [], recommended: typeof variant2?.recommended === "number" ? variant2.recommended : 0, newest: typeof variant2?.newest === "number" ? variant2.newest : 0, popular: typeof variant2?.popular === "number" ? variant2.popular : 0, supportedPages: Array.isArray(definition.supportedPages) ? definition.supportedPages.filter((value2) => typeof value2 === "string") : void 0, supportedMarkets: Array.isArray(definition.supportedMarkets) ? definition.supportedMarkets.filter((value2) => typeof value2 === "string") : void 0, supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixtureId, compatibleFixtureIds: [fixtureId], preview: { desktop: fallbackPreview, mobile: fallbackPreview }, previewVersion: 1 });
-    }
-  }
-  return values2;
-}
-function querySectionCatalog(query = {}) {
-  const family = query.family ?? (query.category ? legacyFamily[query.category] : void 0), needle = normalize(query.search ?? "");
-  const results = [...SECTION_PREVIEW_MANIFESTS, ...dynamicManifests()].filter((manifest) => {
-    if (family && manifest.family !== family) return false;
-    if (query.pageKind && manifest.supportedPages?.length && !manifest.supportedPages.includes(query.pageKind)) return false;
-    if (query.market && manifest.supportedMarkets?.length && !manifest.supportedMarkets.includes("all") && !manifest.supportedMarkets.includes(query.market)) return false;
-    if (query.capability && !(manifest.capabilities ?? []).includes(query.capability)) return false;
-    return !needle || normalize([manifest.title, manifest.conversionGoal, manifest.sectionType, manifest.variantId, manifest.family ?? "", ...manifest.capabilities ?? [], ...manifest.tags ?? []].join(" ")).includes(needle);
-  }).map((manifest) => ({ ...manifest, capabilityBadges: (manifest.capabilities ?? []).map((capability) => ({ capability, label: labelCapability(capability), state: capabilityState(capability, manifest.capabilityStates) })) }));
-  const sort = query.sort ?? "recommended", rank = (value2) => sort === "newest" ? value2.newest ?? 0 : sort === "popular" ? value2.popular ?? 0 : value2.recommended ?? 0;
-  return results.sort((a, b2) => rank(b2) - rank(a) || a.title.localeCompare(b2.title, "fr"));
-}
-function catalogItemForVariant(sectionType, variantId) {
-  return querySectionCatalog().find((item3) => item3.sectionType === sectionType && item3.variantId === variantId);
-}
-var keys = /* @__PURE__ */ new Set();
-for (const manifest of SECTION_PREVIEW_MANIFESTS) {
-  const key = `${manifest.sectionType}:${manifest.variantId}`;
-  if (keys.has(key)) throw new Error(`Duplicate section preview manifest: ${key}`);
-  keys.add(key);
-  fixtureById(manifest.defaultFixtureId);
-  for (const id2 of manifest.compatibleFixtureIds) fixtureById(id2);
-  if (!manifest.compatibleFixtureIds.includes(manifest.defaultFixtureId)) throw new Error(`Default fixture is incompatible: ${key}`);
-}
-function previewManifest(sectionType, variantId) {
-  const found = SECTION_PREVIEW_MANIFESTS.find((item3) => item3.sectionType === sectionType && item3.variantId === variantId);
-  if (found) return found;
-  const catalog = catalogItemForVariant(sectionType, variantId);
-  if (catalog) return catalog;
-  const fixture2 = "aurea-serum", base9 = `/assets/section-previews/${sectionType}/${variantId}-${fixture2}`;
-  return { sectionType, variantId, title: sectionType, conversionGoal: "Aper\xE7u de section", category: "product", family: definitionFamily[sectionType] ?? "custom", supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixture2, compatibleFixtureIds: [fixture2], preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1 };
-}
-
 // src/sections/registry.ts
 var definitions = /* @__PURE__ */ new Map();
 var LEGACY_FAMILY = {
@@ -20046,7 +19896,6 @@ function assertComplete(definition) {
   if (!definition.category) throw new Error(`Section ${definition.type} category is required`);
   if (!definition.defaults || !Array.isArray(definition.settings) || !Array.isArray(definition.blocks)) throw new Error(`Section ${definition.type} schema is incomplete`);
   if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
-  for (const variant2 of definition.previewVariants ?? []) previewManifest(definition.type, variant2);
 }
 function legacyVariant(definition, id2 = "default") {
   return { id: id2, name: id2 === "default" ? "Par d\xE9faut" : id2, description: "Variante compatible avec les documents Weflo existants.", composition: id2 === "default" ? "composition-par-defaut" : `composition-${id2}`, previewFixtureId: "", defaults: { ...definition.defaults, ...id2 === "default" ? {} : { variant: id2 } } };
@@ -28584,7 +28433,7 @@ function boundedStepCount(value2, fallback) {
 function first(...values2) {
   return values2.find((value2) => value2?.trim())?.trim() ?? "";
 }
-function item2(id2, title, text5 = "", extra = {}) {
+function item(id2, title, text5 = "", extra = {}) {
   return { id: id2, type: "item", settings: { title, text: text5, ...extra } };
 }
 function makeSection(type, index, settings2, blocks2 = []) {
@@ -28669,7 +28518,7 @@ function contentForSection(type, index, input, product) {
       break;
     case "navigation":
       Object.assign(settings2, { title: brand || "[Ajoutez le nom de la marque]", cta_label: "" });
-      blocks2 = collections.map((title, blockIndex) => item2(`navigation-${index + 1}-${blockIndex + 1}`, title, "", { label: title, link: `#${slugify(title)}` }));
+      blocks2 = collections.map((title, blockIndex) => item(`navigation-${index + 1}-${blockIndex + 1}`, title, "", { label: title, link: `#${slugify(title)}` }));
       break;
     case "hero":
       Object.assign(settings2, { title: primaryTitle || "[Ajoutez votre titre principal]", subtitle: [answer(answers, "activity"), answer(answers, "campaign"), answer(answers, "traffic"), answer(answers, "author"), answer(answers, "angle"), product?.vendor ?? ""].filter(Boolean).join(" \xB7 "), text: primaryText, image: product?.images[0] ?? "", image_alt: productTitle, cta_label: cta2, cta_link: cta2 ? "#action" : "#" });
@@ -28679,7 +28528,7 @@ function contentForSection(type, index, input, product) {
       break;
     case "gallery":
       Object.assign(settings2, { title: product ? productTitle : "[Ajoutez vos visuels]" });
-      blocks2 = (product?.images ?? []).map((url, blockIndex) => item2(`gallery-${index + 1}-${blockIndex + 1}`, productTitle, "", { image: url, image_alt: productTitle }));
+      blocks2 = (product?.images ?? []).map((url, blockIndex) => item(`gallery-${index + 1}-${blockIndex + 1}`, productTitle, "", { image: url, image_alt: productTitle }));
       break;
     case "productMain":
       Object.assign(settings2, { title: productTitle, text: first(selectedAngles[0]?.description, productText2), price, compare_at_price: compareAtPrice, image: product?.images[0] ?? "", cta_label: cta2, product_handle: slugify(productTitle) });
@@ -28692,7 +28541,7 @@ function contentForSection(type, index, input, product) {
       const submitted = first(answer(answers, "promise"), answer(answers, "positioning"), answer(answers, "angle"));
       const values2 = benefits.length ? benefits : submitted ? [submitted] : [];
       Object.assign(settings2, { title: answer(answers, "objective") || "[Pr\xE9sentez les b\xE9n\xE9fices]", subtitle: answer(answers, "proof"), text: "" });
-      blocks2 = values2.map((value2, blockIndex) => item2(`benefit-${index + 1}-${blockIndex + 1}`, value2));
+      blocks2 = values2.map((value2, blockIndex) => item(`benefit-${index + 1}-${blockIndex + 1}`, value2));
       break;
     }
     case "imageText":
@@ -28701,24 +28550,24 @@ function contentForSection(type, index, input, product) {
     case "comparison": {
       const values2 = objections.length ? objections : benefits.length ? benefits : segments;
       Object.assign(settings2, { title: first(answer(answers, "angle"), answer(answers, "objective")) || "[Ajoutez votre comparaison]", text: answer(answers, "proof") });
-      blocks2 = values2.map((value2, blockIndex) => item2(`comparison-${index + 1}-${blockIndex + 1}`, value2));
+      blocks2 = values2.map((value2, blockIndex) => item(`comparison-${index + 1}-${blockIndex + 1}`, value2));
       break;
     }
     case "richText":
       Object.assign(settings2, { title: first(answer(answers, "topic"), answer(answers, "angle"), answer(answers, "story"), primaryTitle) || "[Ajoutez le titre de l\u2019article]", subtitle: answer(answers, "author"), text: [answer(answers, "intent"), answer(answers, "angle"), answer(answers, "story"), answer(answers, "proof")].filter(Boolean).join("\n\n") || primaryText });
-      blocks2 = relatedProducts.map((value2, blockIndex) => item2(`related-${index + 1}-${blockIndex + 1}`, value2));
+      blocks2 = relatedProducts.map((value2, blockIndex) => item(`related-${index + 1}-${blockIndex + 1}`, value2));
       break;
     case "press": {
       const proof = answer(answers, "proof");
       Object.assign(settings2, { title: proof ? "\xC9l\xE9ments de preuve fournis" : "[Ajoutez vos sources ou mentions]", text: "" });
-      blocks2 = proof ? [item2(`proof-${index + 1}-1`, "Preuve fournie", proof)] : [];
+      blocks2 = proof ? [item(`proof-${index + 1}-1`, "Preuve fournie", proof)] : [];
       break;
     }
     case "quiz": {
       const objective = answer(answers, "objective");
       const stepCount = boundedStepCount(answer(answers, "steps"), segments.length || 3);
       Object.assign(settings2, { title: objective || "[Ajoutez l\u2019objectif du quiz]", subtitle: answer(answers, "steps"), text: answer(answers, "result") });
-      blocks2 = Array.from({ length: stepCount }, (_, blockIndex) => item2(
+      blocks2 = Array.from({ length: stepCount }, (_, blockIndex) => item(
         `quiz-${index + 1}-${blockIndex + 1}`,
         `[Question ${blockIndex + 1} \xE0 personnaliser]`,
         segments[blockIndex] ?? "[Ajoutez les choix ou le contexte de cette question]"
@@ -28730,7 +28579,7 @@ function contentForSection(type, index, input, product) {
       break;
     case "collectionGrid":
       Object.assign(settings2, { title: answer(answers, "activity") || "[Pr\xE9sentez vos collections]", subtitle: answer(answers, "products"), text: answer(answers, "positioning") });
-      blocks2 = collections.map((title, blockIndex) => item2(`collection-${index + 1}-${blockIndex + 1}`, title));
+      blocks2 = collections.map((title, blockIndex) => item(`collection-${index + 1}-${blockIndex + 1}`, title));
       break;
     case "newsletter":
       Object.assign(settings2, { title: "[Ajoutez le titre de votre newsletter]", text: "", cta_label: "[Ajoutez le libell\xE9 d\u2019inscription]" });
@@ -28741,7 +28590,7 @@ function contentForSection(type, index, input, product) {
       break;
     case "reviews":
       Object.assign(settings2, { title: "Avis clients", subtitle: product?.rating === null || product?.rating === void 0 ? "" : `${product.rating}/5`, text: "" });
-      blocks2 = (product?.reviews ?? []).map((review, blockIndex) => item2(`review-${index + 1}-${blockIndex + 1}`, review.title || review.author, review.text, { author: review.author, rating: review.rating, image: review.image ?? "" }));
+      blocks2 = (product?.reviews ?? []).map((review, blockIndex) => item(`review-${index + 1}-${blockIndex + 1}`, review.title || review.author, review.text, { author: review.author, rating: review.rating, image: review.image ?? "" }));
       break;
     case "shipping":
       Object.assign(settings2, { title: "[Ajoutez vos informations de livraison]", text: "" });
@@ -28751,12 +28600,12 @@ function contentForSection(type, index, input, product) {
       break;
     case "faq":
       Object.assign(settings2, { title: "Questions fr\xE9quentes", text: "" });
-      blocks2 = objections.map((objection, blockIndex) => item2(`faq-${index + 1}-${blockIndex + 1}`, objection, "[Ajoutez votre r\xE9ponse]"));
+      blocks2 = objections.map((objection, blockIndex) => item(`faq-${index + 1}-${blockIndex + 1}`, objection, "[Ajoutez votre r\xE9ponse]"));
       break;
     case "steps": {
       const values2 = segments.length ? segments : benefits;
       Object.assign(settings2, { title: answer(answers, "objective") || "[Ajoutez les \xE9tapes]", text: "" });
-      blocks2 = values2.map((value2, blockIndex) => item2(`step-${index + 1}-${blockIndex + 1}`, value2));
+      blocks2 = values2.map((value2, blockIndex) => item(`step-${index + 1}-${blockIndex + 1}`, value2));
       break;
     }
     case "cta":
@@ -28764,7 +28613,7 @@ function contentForSection(type, index, input, product) {
       break;
     case "footer":
       Object.assign(settings2, { title: brand || "[Ajoutez le nom de la marque]", text: answer(answers, "identity"), cta_label: "" });
-      blocks2 = collections.map((title, blockIndex) => item2(`footer-${index + 1}-${blockIndex + 1}`, title, "", { label: title, link: `#${slugify(title)}` }));
+      blocks2 = collections.map((title, blockIndex) => item(`footer-${index + 1}-${blockIndex + 1}`, title, "", { label: title, link: `#${slugify(title)}` }));
       break;
     default:
       Object.assign(settings2, { title: primaryTitle || "[Ajoutez un titre]", text: primaryText });
@@ -29238,6 +29087,156 @@ function flowForFormat(id2) {
   const flow = FORMAT_FLOWS.find((candidate2) => candidate2.id === id2);
   if (!flow) throw new Error(`Unknown creation format: ${id2}`);
   return flow;
+}
+
+// src/section-preview/fixtures.ts
+var images = (ids) => ids.map((id2) => `https://images.unsplash.com/${id2}?auto=format&fit=crop&w=1600&q=88`);
+function fixture(input) {
+  const [background, surface, ink, accent] = input.colors;
+  return {
+    id: input.id,
+    archetypes: input.archetypes,
+    brand: {
+      name: input.name,
+      palette: input.colors,
+      headingFont: input.fonts[0],
+      bodyFont: input.fonts[1],
+      schemes: [{ name: "Clair", background, text: ink, accent }, { name: "Surface", background: surface, text: ink, accent }]
+    },
+    theme: { background, surface, ink, muted: `${ink}A8`, accent, display: input.fonts[0].includes("Playfair") || input.fonts[0].includes("Libre") ? "serif" : "sans", radius: "soft" },
+    product: {
+      sourceUrl: `https://demo.weflo.app/${input.id}`,
+      title: input.title,
+      description: input.description,
+      vendor: input.name,
+      currency: input.currency ?? "EUR",
+      price: input.price,
+      compareAtPrice: input.compareAtPrice,
+      images: images(input.images),
+      rating: 4.8,
+      reviewCount: 327,
+      variants: [{ id: "classic", title: "Classique", price: input.price }, { id: "duo", title: "Duo", price: Math.round(input.price * 1.72) }],
+      reviews: []
+    },
+    previewOnly: {
+      benefits: input.benefits.map((text5, index) => ({ title: ["Pens\xE9 avec pr\xE9cision", "Simple au quotidien", "Une qualit\xE9 durable"][index] ?? `B\xE9n\xE9fice ${index + 1}`, text: text5 })),
+      reviews: [
+        { author: "Lina M.", title: "Encore mieux qu\u2019esp\xE9r\xE9", text: `Une exp\xE9rience ${input.name} tr\xE8s soign\xE9e, du produit \xE0 la livraison.`, rating: 5 },
+        { author: "Camille R.", title: "Beau et vraiment utile", text: "Tout est clair, simple et la qualit\xE9 se remarque imm\xE9diatement.", rating: 5 },
+        { author: "Noa B.", title: "Je recommande", text: "Une belle d\xE9couverte que j\u2019utilise maintenant chaque semaine.", rating: 5 }
+      ],
+      faqs: input.faqs.map((question, index) => ({ question, answer: ["Oui, tout a \xE9t\xE9 con\xE7u pour une prise en main imm\xE9diate.", "La commande est suivie et pr\xE9par\xE9e sous 48 heures.", "Tu disposes de trente jours pour changer d\u2019avis."][index] ?? "Notre \xE9quipe te r\xE9pond rapidement." })),
+      bundles: [{ title: "L\u2019essentiel", quantity: 1, price: `${input.price} \u20AC` }, { title: "Le duo", quantity: 2, price: `${Math.round(input.price * 1.72)} \u20AC`, badge: "Le plus choisi" }, { title: "La routine", quantity: 3, price: `${Math.round(input.price * 2.28)} \u20AC`, badge: "Meilleure valeur" }]
+    }
+  };
+}
+var SECTION_PREVIEW_FIXTURES = [
+  fixture({ id: "aurea-serum", archetypes: ["beauty", "wellness"], name: "Aur\xE9a", title: "S\xE9rum \xC9clat 03", description: "Un concentr\xE9 lumineux qui hydrate, apaise et r\xE9v\xE8le l\u2019\xE9clat naturel de la peau.", price: 48, compareAtPrice: 62, colors: ["#F3ECE7", "#FFFDFC", "#261B17", "#C87557"], fonts: ["Playfair Display", "Inter"], images: ["photo-1620916566398-39f1143ab7be", "photo-1556228578-8c89e6adf883", "photo-1598440947619-2c35fc9aa908"], benefits: ["Une formule courte aux actifs essentiels.", "Une texture l\xE9g\xE8re pens\xE9e pour chaque matin.", "Un flacon durable et une routine sans complication."], faqs: ["Convient-il aux peaux sensibles ?", "Quand appliquer le s\xE9rum ?", "Puis-je l\u2019essayer sans risque ?"] }),
+  fixture({ id: "halo-lamp", archetypes: ["home", "gadget", "design"], name: "Halo", title: "Lampe murale Halo One", description: "Une lumi\xE8re chaude, magn\xE9tique et sans fil qui se place exactement o\xF9 tu en as besoin.", price: 59, compareAtPrice: 79, colors: ["#EDE9E1", "#FFFEFA", "#171713", "#D4A72C"], fonts: ["Manrope", "Inter"], images: ["photo-1507473885765-e6ed057f782c", "photo-1540932239986-30128078f3c5", "photo-1513506003901-1e6a229e2d15"], benefits: ["Installation sans c\xE2ble ni per\xE7age.", "Orientation magn\xE9tique en un geste.", "Lumi\xE8re chaude rechargeable et apaisante."], faqs: ["La fixation tient-elle durablement ?", "Quelle est l\u2019autonomie ?", "Comment la recharger ?"] }),
+  fixture({ id: "noma-bag", archetypes: ["fashion"], name: "Noma", title: "Sac Week-end N\xB02", description: "Un sac souple et structur\xE9, con\xE7u pour voyager l\xE9ger sans renoncer aux beaux d\xE9tails.", price: 189, compareAtPrice: 229, colors: ["#EEE9E0", "#FBF8F1", "#211B16", "#8A5638"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1553062407-98eeb64c6a62", "photo-1548036328-c9fa89d128fa", "photo-1594223274512-ad4803739b7c"], benefits: ["Une ouverture large et des poches utiles.", "Une mati\xE8re r\xE9sistante qui se patine bien.", "Le bon format pour deux \xE0 quatre jours."], faqs: ["Passe-t-il en cabine ?", "Comment entretenir la mati\xE8re ?", "Est-il garanti ?"] }),
+  fixture({ id: "pulse-recovery", archetypes: ["sport", "wellness"], name: "Pulse", title: "Recovery Daily", description: "La formule quotidienne pens\xE9e pour mieux r\xE9cup\xE9rer et retrouver ton rythme d\xE8s le lendemain.", price: 39, compareAtPrice: 49, colors: ["#E9F0E7", "#FCFFF9", "#132016", "#79B96A"], fonts: ["Space Grotesk", "Inter"], images: ["photo-1593095948071-474c5cc2989d", "photo-1517836357463-d25dfeac3438", "photo-1538805060514-97d9cc17730c"], benefits: ["Une dose simple apr\xE8s l\u2019effort.", "Des ingr\xE9dients clairement expliqu\xE9s.", "Un format pens\xE9 pour trente jours."], faqs: ["Quand prendre la formule ?", "Que contient-elle ?", "Convient-elle \xE0 tous les sports ?"] }),
+  fixture({ id: "brume-coffee", archetypes: ["food"], name: "Brume", title: "Assemblage Matin Calme", description: "Un caf\xE9 rond et pr\xE9cis, torr\xE9fi\xE9 en petite s\xE9rie pour une tasse douce chaque matin.", price: 16, compareAtPrice: 19, colors: ["#EFE3D3", "#FFF9EF", "#2B1B13", "#D56A35"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1447933601403-0c6688de566e", "photo-1495474472287-4d71bcdd2085", "photo-1512568400610-62da28bc8a13"], benefits: ["Des grains sourc\xE9s avec transparence.", "Une torr\xE9faction fra\xEEche chaque semaine.", "Un profil doux, chocolat\xE9 et \xE9quilibr\xE9."], faqs: ["Quelle mouture choisir ?", "Quand le caf\xE9 est-il torr\xE9fi\xE9 ?", "Comment le conserver ?"] }),
+  fixture({ id: "forma-table", archetypes: ["home", "design"], name: "Forma", title: "Service Ondes", description: "Des pi\xE8ces de table sculpturales et faciles \xE0 vivre, dessin\xE9es pour les repas de tous les jours.", price: 84, compareAtPrice: 104, colors: ["#E9E4DA", "#FAF8F3", "#1F211B", "#6C7B4B"], fonts: ["Playfair Display", "Inter"], images: ["photo-1610701596007-11502861dcfa", "photo-1578749556568-bc2c40e68b61", "photo-1612196808214-b8e1d6145a8c"], benefits: ["Des formes empilables et agr\xE9ables en main.", "Une finition mate r\xE9sistante au quotidien.", "Chaque pi\xE8ce poss\xE8de de l\xE9g\xE8res nuances."], faqs: ["Les pi\xE8ces passent-elles au lave-vaisselle ?", "Sont-elles fabriqu\xE9es \xE0 la main ?", "Puis-je compl\xE9ter le service plus tard ?"] })
+];
+function fixtureById(id2) {
+  const found = SECTION_PREVIEW_FIXTURES.find((item3) => item3.id === id2);
+  if (!found) throw new Error(`Unknown preview fixture: ${id2}`);
+  return found;
+}
+
+// src/section-preview/manifests.ts
+var item2 = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, extra = {}) => {
+  const base9 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
+  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1, ...extra };
+};
+var ALL_ARCHETYPES = ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"];
+var SECTION_PREVIEW_MANIFESTS = [
+  item2("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 100, popular: 95 }),
+  item2("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 96, popular: 86 }),
+  item2("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ALL_ARCHETYPES, "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"], { family: "product-purchase", capabilities: ["product-form", "variant-selection"], requiredData: ["Produit Shopify", "Variantes"], recommended: 98, popular: 100 }),
+  item2("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "product-purchase", capabilities: ["product-form", "fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 94, popular: 91 }),
+  item2("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "benefits", recommended: 83, popular: 82 }),
+  item2("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"], { family: "benefits", recommended: 79, popular: 76 }),
+  item2("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "reviews-ugc", requiredData: ["Avis clients"], recommended: 90, popular: 88 }),
+  item2("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"], { family: "reviews-ugc", requiredData: ["Avis clients", "Photos UGC"], recommended: 89, popular: 93 }),
+  item2("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 97, popular: 89 }),
+  item2("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["quantity-breaks"], requiredData: ["Produit Shopify", "Paliers de quantit\xE9"], recommended: 95, popular: 96 }),
+  item2("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 81, popular: 85 }),
+  item2("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 77, popular: 72 })
+];
+var legacyFamily = { hero: "heroes", product: "product-purchase", benefits: "benefits", proof: "reviews-ugc", offer: "bundles-offers", faq: "faq-trust" };
+var definitionFamily = { navigation: "headers-navigation", announcement: "headers-navigation", footer: "footer-utilities", spacer: "footer-utilities", divider: "footer-utilities", hero: "heroes", productHero: "heroes", videoHero: "heroes", productMain: "product-purchase", productGrid: "collections-recommendations", collectionGrid: "collections-recommendations", bundle: "bundles-offers", comparison: "comparison", ingredients: "ingredients-materials", gallery: "demo-media", beforeAfter: "before-after", imageText: "benefits", benefits: "benefits", testimonials: "reviews-ugc", reviews: "reviews-ugc", faq: "faq-trust", guarantees: "faq-trust", shipping: "faq-trust", quiz: "quiz-forms", form: "quiz-forms", newsletter: "conversion-capture", cta: "conversion-capture", richText: "brand-story", customCode: "custom" };
+function normalize(value2) {
+  return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+function labelCapability(capability) {
+  const labels3 = { "product-form": "Formulaire produit", "variant-selection": "Variantes Shopify", "quantity-breaks": "Paliers de quantit\xE9", "collection-binding": "Collection Shopify", "recommendations": "Recommandations", "fixed-bundle": "Bundle fixe", "custom-bundle": "Bundle personnalisable", "selling-plan": "Abonnement", "preorder": "Pr\xE9commande", "cart-drawer": "Panier lat\xE9ral", "app-blocks": "Bloc d\u2019application", "markets": "March\xE9s Shopify", "localization": "Localisation" };
+  return labels3[capability] ?? capability.replace(/-/g, " ");
+}
+function capabilityState(capability, states) {
+  if (states && typeof states === "object" && !Array.isArray(states)) {
+    const value2 = states[capability];
+    if (value2 === "native" || value2 === "app-required" || value2 === "unavailable") return value2;
+  }
+  return ["custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability) ? "app-required" : "native";
+}
+function familyFrom(value2, fallback) {
+  const raw = Array.isArray(value2) && typeof value2[0] === "string" ? value2[0] : typeof value2 === "string" ? value2 : "";
+  const aliases = { "product-hero": "heroes", "buy-box": "product-purchase", "variant-selector": "variants-options", "quantity-offer": "bundles-offers", "fixed-bundle": "bundles-offers", "benefits-results": "benefits", "product-media": "demo-media", "reviews-ugc-premium": "reviews-ugc", recommendations: "collections-recommendations" };
+  return aliases[raw] ?? (raw ? raw : fallback);
+}
+function dynamicManifests() {
+  const existing = new Set(SECTION_PREVIEW_MANIFESTS.map((manifest) => `${manifest.sectionType}:${manifest.variantId}`));
+  const values2 = [];
+  for (const definition of listSectionDefinitions()) {
+    const type = typeof definition.type === "string" ? definition.type : "";
+    if (!type) continue;
+    const variants = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : Array.isArray(definition.previewVariants) && definition.previewVariants.length ? definition.previewVariants : ["default"];
+    for (const rawVariant of variants) {
+      const variant2 = typeof rawVariant === "string" ? { id: rawVariant } : rawVariant && typeof rawVariant === "object" ? rawVariant : null;
+      const variantId = variant2 && typeof variant2.id === "string" ? variant2.id : "default";
+      if (existing.has(`${type}:${variantId}`)) continue;
+      const fixtureId = variant2 && typeof variant2.previewFixtureId === "string" && SECTION_PREVIEW_FIXTURES.some((fixture2) => fixture2.id === variant2.previewFixtureId) ? variant2.previewFixtureId : "aurea-serum";
+      const fallbackPreview = fixtureById(fixtureId).product.images[0];
+      const title = variant2 && typeof variant2.name === "string" ? variant2.name : typeof definition.name === "string" ? definition.name : type;
+      const description = variant2 && typeof variant2.description === "string" ? variant2.description : `Ajouter ${title.toLocaleLowerCase("fr-FR")}`;
+      const capabilities = Array.isArray(definition.capabilities) ? definition.capabilities.filter((value2) => typeof value2 === "string") : [];
+      values2.push({ sectionType: type, variantId, title, conversionGoal: description, category: "product", family: familyFrom(definition.families ?? definition.family, definitionFamily[type] ?? "custom"), capabilities, capabilityStates: definition.capabilityStates, requiredData: Array.isArray(variant2?.requiredData) ? variant2.requiredData.filter((value2) => typeof value2 === "string") : [], tags: Array.isArray(definition.tags) ? definition.tags.filter((value2) => typeof value2 === "string") : [], recommended: typeof variant2?.recommended === "number" ? variant2.recommended : 0, newest: typeof variant2?.newest === "number" ? variant2.newest : 0, popular: typeof variant2?.popular === "number" ? variant2.popular : 0, supportedPages: Array.isArray(definition.supportedPages) ? definition.supportedPages.filter((value2) => typeof value2 === "string") : void 0, supportedMarkets: Array.isArray(definition.supportedMarkets) ? definition.supportedMarkets.filter((value2) => typeof value2 === "string") : void 0, supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixtureId, compatibleFixtureIds: [fixtureId], preview: { desktop: fallbackPreview, mobile: fallbackPreview }, previewVersion: 1 });
+    }
+  }
+  return values2;
+}
+function querySectionCatalog(query = {}) {
+  const family = query.family ?? (query.category ? legacyFamily[query.category] : void 0), needle = normalize(query.search ?? "");
+  const results = [...SECTION_PREVIEW_MANIFESTS, ...dynamicManifests()].filter((manifest) => {
+    if (family && manifest.family !== family) return false;
+    if (query.pageKind && manifest.supportedPages?.length && !manifest.supportedPages.includes(query.pageKind)) return false;
+    if (query.market && manifest.supportedMarkets?.length && !manifest.supportedMarkets.includes("all") && !manifest.supportedMarkets.includes(query.market)) return false;
+    if (query.capability && !(manifest.capabilities ?? []).includes(query.capability)) return false;
+    return !needle || normalize([manifest.title, manifest.conversionGoal, manifest.sectionType, manifest.variantId, manifest.family ?? "", ...manifest.capabilities ?? [], ...manifest.tags ?? []].join(" ")).includes(needle);
+  }).map((manifest) => ({ ...manifest, capabilityBadges: (manifest.capabilities ?? []).map((capability) => ({ capability, label: labelCapability(capability), state: capabilityState(capability, manifest.capabilityStates) })) }));
+  const sort = query.sort ?? "recommended", rank = (value2) => sort === "newest" ? value2.newest ?? 0 : sort === "popular" ? value2.popular ?? 0 : value2.recommended ?? 0;
+  return results.sort((a, b2) => rank(b2) - rank(a) || a.title.localeCompare(b2.title, "fr"));
+}
+function catalogItemForVariant(sectionType, variantId) {
+  return querySectionCatalog().find((item3) => item3.sectionType === sectionType && item3.variantId === variantId);
+}
+var keys = /* @__PURE__ */ new Set();
+for (const manifest of SECTION_PREVIEW_MANIFESTS) {
+  const key = `${manifest.sectionType}:${manifest.variantId}`;
+  if (keys.has(key)) throw new Error(`Duplicate section preview manifest: ${key}`);
+  keys.add(key);
+  fixtureById(manifest.defaultFixtureId);
+  for (const id2 of manifest.compatibleFixtureIds) fixtureById(id2);
+  if (!manifest.compatibleFixtureIds.includes(manifest.defaultFixtureId)) throw new Error(`Default fixture is incompatible: ${key}`);
+}
+function previewManifest(sectionType, variantId) {
+  const found = SECTION_PREVIEW_MANIFESTS.find((item3) => item3.sectionType === sectionType && item3.variantId === variantId);
+  if (found) return found;
+  const catalog = catalogItemForVariant(sectionType, variantId);
+  if (catalog) return catalog;
+  const fixture2 = "aurea-serum", base9 = `/assets/section-previews/${sectionType}/${variantId}-${fixture2}`;
+  return { sectionType, variantId, title: sectionType, conversionGoal: "Aper\xE7u de section", category: "product", family: definitionFamily[sectionType] ?? "custom", supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixture2, compatibleFixtureIds: [fixture2], preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1 };
 }
 
 // src/canardo/context.ts
@@ -30064,7 +30063,10 @@ function isLegacyPageDocument(value2) {
 }
 function editorDocumentFromStored(value2, type) {
   const editor = validateEditorDocument(value2);
-  if (editor.ok) return editor.value;
+  if (editor.ok) {
+    const wasExplicitlyBlank = type === "blank" && !editor.value.modelId && editor.value.pages.every((page) => page.sections.length === 0);
+    return wasExplicitlyBlank ? { ...editor.value, modelId: "blank" } : editor.value;
+  }
   if (!isLegacyPageDocument(value2)) return null;
   try {
     const migrated = migrateDocument(value2, type);
@@ -30086,6 +30088,7 @@ function emptyEditorDocument(name, type) {
     name,
     path: "/",
     kind: type === "sell" ? "product" : "landing",
+    ...type === "blank" ? { modelId: "blank" } : {},
     templateId: null,
     templateVersion: 1,
     theme: { ...DEFAULT_PAGE_THEME },

@@ -67,8 +67,47 @@ describe("pages API", () => {
       method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "blank", name: "Libre", creationFormat: "blank", templateId: null, answers: {} }),
     })).json();
     expect(page.document.version).toBe(2);
+    expect(page.document.modelId).toBe("blank");
     expect(page.document.pages[0].sections).toEqual([]);
     expect(validateEditorDocument(page.document)).toMatchObject({ ok: true });
+  });
+
+  it("keeps legacy blank-page creation out of the model picker", async () => {
+    const { app } = appAs("u1");
+    const response = await app.request("/api/pages", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ type: "blank", name: "Page vierge" }),
+    });
+    const page = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(page.document.modelId).toBe("blank");
+    expect(page.document.pages[0].sections).toEqual([]);
+  });
+
+  it("recognizes an already-saved empty blank document when reopening it", async () => {
+    const { app, store } = appAs("u1");
+    const workspace = await store.createWorkspace({ name: "Ancien", ownerUserId: "u1" });
+    const legacyBlank = {
+      version: 2 as const,
+      name: "Page vierge",
+      path: "/",
+      kind: "landing" as const,
+      templateId: null,
+      templateVersion: 1,
+      theme: { background: "#ffffff", surface: "#ffffff", ink: "#111111", muted: "#666666", accent: "#111111", display: "sans" as const, radius: "soft" as const },
+      pages: [{ id: "page-vierge", name: "Page vierge", slug: "page-vierge", sections: [] }],
+      assets: [],
+    };
+    const saved = await store.createPage({ workspaceId: workspace.id, name: "Page vierge", slug: "page-vierge", type: "blank", status: "draft", document: legacyBlank });
+
+    const response = await app.request(`/api/pages/${saved.id}?documentVersion=2`);
+    const page = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(page.document.modelId).toBe("blank");
+    expect(page.document.pages[0].sections).toEqual([]);
   });
 
   it.each([

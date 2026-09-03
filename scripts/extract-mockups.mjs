@@ -13,6 +13,9 @@ import {
   sanitizeConnexionTalent,
   revealEditorToolbar,
   extractEditorPreviewAssets,
+  injectEditorPreviewManifest,
+  bakeEditorPreviewImages,
+  injectDashboardHomeMount,
 } from "./extract-lib.mjs";
 
 const __dirname = import.meta.dirname ?? path.dirname(fileURLToPath(import.meta.url));
@@ -33,9 +36,10 @@ fs.mkdirSync(assetsDir, { recursive: true });
 
 for (const [file, hydrate] of Object.entries(map)) {
   const source = fs.readFileSync(path.join(root, file), "utf8");
+  let editorPreviews = null;
   if (file === "editeur.html") {
-    const previews = extractEditorPreviewAssets(source, assetsDir);
-    fs.writeFileSync(path.join(assetsDir, "editor-previews.json"), JSON.stringify(previews));
+    editorPreviews = extractEditorPreviewAssets(source, assetsDir);
+    fs.writeFileSync(path.join(assetsDir, "editor-previews.json"), JSON.stringify(editorPreviews));
   }
   let html = extractTemplate(source);
   const urls = extractBundleAssets(source, assetsDir);
@@ -48,7 +52,10 @@ for (const [file, hydrate] of Object.entries(map)) {
     html = sanitizeConnexionTalent(html);
     html = html.replace(/<body>/, '<body class="auth-mode-login">');
   }
+  if (file === "dashboard.html") html = injectDashboardHomeMount(html);
   if (file === "editeur.html") html = revealEditorToolbar(html);
+  if (file === "editeur.html" && editorPreviews) html = bakeEditorPreviewImages(html, editorPreviews);
+  if (file === "editeur.html" && editorPreviews) html = injectEditorPreviewManifest(html, editorPreviews);
   if (hydrate) html = injectHydrate(html, hydrate);
   fs.writeFileSync(path.join(publicDir, file), html);
 }

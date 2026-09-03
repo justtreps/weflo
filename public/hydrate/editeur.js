@@ -303,7 +303,6 @@ function assertComplete(definition) {
   if (!definition.category) throw new Error(`Section ${definition.type} category is required`);
   if (!definition.defaults || !Array.isArray(definition.settings) || !Array.isArray(definition.blocks)) throw new Error(`Section ${definition.type} schema is incomplete`);
   if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
-  for (const variant of definition.previewVariants ?? []) previewManifest(definition.type, variant);
 }
 function legacyVariant(definition, id2 = "default") {
   return { id: id2, name: id2 === "default" ? "Par d\xE9faut" : id2, description: "Variante compatible avec les documents Weflo existants.", composition: id2 === "default" ? "composition-par-defaut" : `composition-${id2}`, previewFixtureId: "", defaults: { ...definition.defaults, ...id2 === "default" ? {} : { variant: id2 } } };
@@ -3053,7 +3052,7 @@ function galleryItems(theme) {
 }
 function renderGalleryMarkup(items) {
   return items.map((item2) => {
-    const preview = item2.id === "blank" ? `<iframe data-model-preview="blank" title="Aper\xE7u d\u2019une page vierge" tabindex="-1"></iframe>` : `<img class="model-card__capture" src="${escapeHtml3(item2.previewDesktop ?? "")}" data-preview-desktop="${escapeHtml3(item2.previewDesktop ?? "")}" data-preview-mobile="${escapeHtml3(item2.previewMobile ?? "")}" alt="Aper\xE7u du mod\xE8le ${escapeHtml3(item2.name)}">`;
+    const preview = `<iframe data-model-preview="${escapeHtml3(item2.id)}" title="Aper\xE7u du mod\xE8le ${escapeHtml3(item2.name)}" tabindex="-1"></iframe>`;
     return `
     <button class="model-card${item2.id === "blank" ? " model-card--blank" : ""}" type="button" data-model-id="${escapeHtml3(item2.id)}" aria-label="Choisir ${escapeHtml3(item2.name)}">
       <span class="model-card__preview">

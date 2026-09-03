@@ -435,11 +435,11 @@ function renderField(field2, answers, missingFields) {
   return `<label class="intake-field">${label}<input name="${name}" value="${value2}" placeholder="${esc(field2.placeholder)}"${required}${accessibility}>${error2}</label>`;
 }
 function renderSource(source) {
-  const item2 = sourceLabels[source];
+  const item = sourceLabels[source];
   if (source === "image") {
-    return `<label data-create-source="image"><b>${item2.icon}</b><strong>${item2.title}</strong><small>${item2.description}</small><input type="file" accept="image/png,image/jpeg,image/webp" data-create-image hidden></label>`;
+    return `<label data-create-source="image"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small><input type="file" accept="image/png,image/jpeg,image/webp" data-create-image hidden></label>`;
   }
-  return `<button type="button" data-create-source="${source}"><b>${item2.icon}</b><strong>${item2.title}</strong><small>${item2.description}</small></button>`;
+  return `<button type="button" data-create-source="${source}"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small></button>`;
 }
 function validateFormatIntake(flow, answers) {
   return flow.intake.filter((field2) => field2.required && !(answers[field2.id] ?? "").trim()).map((field2) => field2.id);
@@ -590,156 +590,6 @@ function renderCreateWorkspace(input) {
   return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc3(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }
 
-// src/section-preview/fixtures.ts
-var images = (ids) => ids.map((id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1600&q=88`);
-function fixture(input) {
-  const [background, surface, ink, accent] = input.colors;
-  return {
-    id: input.id,
-    archetypes: input.archetypes,
-    brand: {
-      name: input.name,
-      palette: input.colors,
-      headingFont: input.fonts[0],
-      bodyFont: input.fonts[1],
-      schemes: [{ name: "Clair", background, text: ink, accent }, { name: "Surface", background: surface, text: ink, accent }]
-    },
-    theme: { background, surface, ink, muted: `${ink}A8`, accent, display: input.fonts[0].includes("Playfair") || input.fonts[0].includes("Libre") ? "serif" : "sans", radius: "soft" },
-    product: {
-      sourceUrl: `https://demo.weflo.app/${input.id}`,
-      title: input.title,
-      description: input.description,
-      vendor: input.name,
-      currency: input.currency ?? "EUR",
-      price: input.price,
-      compareAtPrice: input.compareAtPrice,
-      images: images(input.images),
-      rating: 4.8,
-      reviewCount: 327,
-      variants: [{ id: "classic", title: "Classique", price: input.price }, { id: "duo", title: "Duo", price: Math.round(input.price * 1.72) }],
-      reviews: []
-    },
-    previewOnly: {
-      benefits: input.benefits.map((text, index) => ({ title: ["Pens\xE9 avec pr\xE9cision", "Simple au quotidien", "Une qualit\xE9 durable"][index] ?? `B\xE9n\xE9fice ${index + 1}`, text })),
-      reviews: [
-        { author: "Lina M.", title: "Encore mieux qu\u2019esp\xE9r\xE9", text: `Une exp\xE9rience ${input.name} tr\xE8s soign\xE9e, du produit \xE0 la livraison.`, rating: 5 },
-        { author: "Camille R.", title: "Beau et vraiment utile", text: "Tout est clair, simple et la qualit\xE9 se remarque imm\xE9diatement.", rating: 5 },
-        { author: "Noa B.", title: "Je recommande", text: "Une belle d\xE9couverte que j\u2019utilise maintenant chaque semaine.", rating: 5 }
-      ],
-      faqs: input.faqs.map((question, index) => ({ question, answer: ["Oui, tout a \xE9t\xE9 con\xE7u pour une prise en main imm\xE9diate.", "La commande est suivie et pr\xE9par\xE9e sous 48 heures.", "Tu disposes de trente jours pour changer d\u2019avis."][index] ?? "Notre \xE9quipe te r\xE9pond rapidement." })),
-      bundles: [{ title: "L\u2019essentiel", quantity: 1, price: `${input.price} \u20AC` }, { title: "Le duo", quantity: 2, price: `${Math.round(input.price * 1.72)} \u20AC`, badge: "Le plus choisi" }, { title: "La routine", quantity: 3, price: `${Math.round(input.price * 2.28)} \u20AC`, badge: "Meilleure valeur" }]
-    }
-  };
-}
-var SECTION_PREVIEW_FIXTURES = [
-  fixture({ id: "aurea-serum", archetypes: ["beauty", "wellness"], name: "Aur\xE9a", title: "S\xE9rum \xC9clat 03", description: "Un concentr\xE9 lumineux qui hydrate, apaise et r\xE9v\xE8le l\u2019\xE9clat naturel de la peau.", price: 48, compareAtPrice: 62, colors: ["#F3ECE7", "#FFFDFC", "#261B17", "#C87557"], fonts: ["Playfair Display", "Inter"], images: ["photo-1620916566398-39f1143ab7be", "photo-1556228578-8c89e6adf883", "photo-1598440947619-2c35fc9aa908"], benefits: ["Une formule courte aux actifs essentiels.", "Une texture l\xE9g\xE8re pens\xE9e pour chaque matin.", "Un flacon durable et une routine sans complication."], faqs: ["Convient-il aux peaux sensibles ?", "Quand appliquer le s\xE9rum ?", "Puis-je l\u2019essayer sans risque ?"] }),
-  fixture({ id: "halo-lamp", archetypes: ["home", "gadget", "design"], name: "Halo", title: "Lampe murale Halo One", description: "Une lumi\xE8re chaude, magn\xE9tique et sans fil qui se place exactement o\xF9 tu en as besoin.", price: 59, compareAtPrice: 79, colors: ["#EDE9E1", "#FFFEFA", "#171713", "#D4A72C"], fonts: ["Manrope", "Inter"], images: ["photo-1507473885765-e6ed057f782c", "photo-1540932239986-30128078f3c5", "photo-1513506003901-1e6a229e2d15"], benefits: ["Installation sans c\xE2ble ni per\xE7age.", "Orientation magn\xE9tique en un geste.", "Lumi\xE8re chaude rechargeable et apaisante."], faqs: ["La fixation tient-elle durablement ?", "Quelle est l\u2019autonomie ?", "Comment la recharger ?"] }),
-  fixture({ id: "noma-bag", archetypes: ["fashion"], name: "Noma", title: "Sac Week-end N\xB02", description: "Un sac souple et structur\xE9, con\xE7u pour voyager l\xE9ger sans renoncer aux beaux d\xE9tails.", price: 189, compareAtPrice: 229, colors: ["#EEE9E0", "#FBF8F1", "#211B16", "#8A5638"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1553062407-98eeb64c6a62", "photo-1548036328-c9fa89d128fa", "photo-1594223274512-ad4803739b7c"], benefits: ["Une ouverture large et des poches utiles.", "Une mati\xE8re r\xE9sistante qui se patine bien.", "Le bon format pour deux \xE0 quatre jours."], faqs: ["Passe-t-il en cabine ?", "Comment entretenir la mati\xE8re ?", "Est-il garanti ?"] }),
-  fixture({ id: "pulse-recovery", archetypes: ["sport", "wellness"], name: "Pulse", title: "Recovery Daily", description: "La formule quotidienne pens\xE9e pour mieux r\xE9cup\xE9rer et retrouver ton rythme d\xE8s le lendemain.", price: 39, compareAtPrice: 49, colors: ["#E9F0E7", "#FCFFF9", "#132016", "#79B96A"], fonts: ["Space Grotesk", "Inter"], images: ["photo-1593095948071-474c5cc2989d", "photo-1517836357463-d25dfeac3438", "photo-1538805060514-97d9cc17730c"], benefits: ["Une dose simple apr\xE8s l\u2019effort.", "Des ingr\xE9dients clairement expliqu\xE9s.", "Un format pens\xE9 pour trente jours."], faqs: ["Quand prendre la formule ?", "Que contient-elle ?", "Convient-elle \xE0 tous les sports ?"] }),
-  fixture({ id: "brume-coffee", archetypes: ["food"], name: "Brume", title: "Assemblage Matin Calme", description: "Un caf\xE9 rond et pr\xE9cis, torr\xE9fi\xE9 en petite s\xE9rie pour une tasse douce chaque matin.", price: 16, compareAtPrice: 19, colors: ["#EFE3D3", "#FFF9EF", "#2B1B13", "#D56A35"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1447933601403-0c6688de566e", "photo-1495474472287-4d71bcdd2085", "photo-1512568400610-62da28bc8a13"], benefits: ["Des grains sourc\xE9s avec transparence.", "Une torr\xE9faction fra\xEEche chaque semaine.", "Un profil doux, chocolat\xE9 et \xE9quilibr\xE9."], faqs: ["Quelle mouture choisir ?", "Quand le caf\xE9 est-il torr\xE9fi\xE9 ?", "Comment le conserver ?"] }),
-  fixture({ id: "forma-table", archetypes: ["home", "design"], name: "Forma", title: "Service Ondes", description: "Des pi\xE8ces de table sculpturales et faciles \xE0 vivre, dessin\xE9es pour les repas de tous les jours.", price: 84, compareAtPrice: 104, colors: ["#E9E4DA", "#FAF8F3", "#1F211B", "#6C7B4B"], fonts: ["Playfair Display", "Inter"], images: ["photo-1610701596007-11502861dcfa", "photo-1578749556568-bc2c40e68b61", "photo-1612196808214-b8e1d6145a8c"], benefits: ["Des formes empilables et agr\xE9ables en main.", "Une finition mate r\xE9sistante au quotidien.", "Chaque pi\xE8ce poss\xE8de de l\xE9g\xE8res nuances."], faqs: ["Les pi\xE8ces passent-elles au lave-vaisselle ?", "Sont-elles fabriqu\xE9es \xE0 la main ?", "Puis-je compl\xE9ter le service plus tard ?"] })
-];
-function fixtureById(id) {
-  const found = SECTION_PREVIEW_FIXTURES.find((item2) => item2.id === id);
-  if (!found) throw new Error(`Unknown preview fixture: ${id}`);
-  return found;
-}
-
-// src/section-preview/manifests.ts
-var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, extra = {}) => {
-  const base9 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
-  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1, ...extra };
-};
-var ALL_ARCHETYPES = ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"];
-var SECTION_PREVIEW_MANIFESTS = [
-  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 100, popular: 95 }),
-  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 96, popular: 86 }),
-  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ALL_ARCHETYPES, "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"], { family: "product-purchase", capabilities: ["product-form", "variant-selection"], requiredData: ["Produit Shopify", "Variantes"], recommended: 98, popular: 100 }),
-  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "product-purchase", capabilities: ["product-form", "fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 94, popular: 91 }),
-  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "benefits", recommended: 83, popular: 82 }),
-  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"], { family: "benefits", recommended: 79, popular: 76 }),
-  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "reviews-ugc", requiredData: ["Avis clients"], recommended: 90, popular: 88 }),
-  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"], { family: "reviews-ugc", requiredData: ["Avis clients", "Photos UGC"], recommended: 89, popular: 93 }),
-  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 97, popular: 89 }),
-  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["quantity-breaks"], requiredData: ["Produit Shopify", "Paliers de quantit\xE9"], recommended: 95, popular: 96 }),
-  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 81, popular: 85 }),
-  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 77, popular: 72 })
-];
-var legacyFamily = { hero: "heroes", product: "product-purchase", benefits: "benefits", proof: "reviews-ugc", offer: "bundles-offers", faq: "faq-trust" };
-var definitionFamily = { navigation: "headers-navigation", announcement: "headers-navigation", footer: "footer-utilities", spacer: "footer-utilities", divider: "footer-utilities", hero: "heroes", productHero: "heroes", videoHero: "heroes", productMain: "product-purchase", productGrid: "collections-recommendations", collectionGrid: "collections-recommendations", bundle: "bundles-offers", comparison: "comparison", ingredients: "ingredients-materials", gallery: "demo-media", beforeAfter: "before-after", imageText: "benefits", benefits: "benefits", testimonials: "reviews-ugc", reviews: "reviews-ugc", faq: "faq-trust", guarantees: "faq-trust", shipping: "faq-trust", quiz: "quiz-forms", form: "quiz-forms", newsletter: "conversion-capture", cta: "conversion-capture", richText: "brand-story", customCode: "custom" };
-function normalize(value2) {
-  return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
-function labelCapability(capability) {
-  const labels = { "product-form": "Formulaire produit", "variant-selection": "Variantes Shopify", "quantity-breaks": "Paliers de quantit\xE9", "collection-binding": "Collection Shopify", "recommendations": "Recommandations", "fixed-bundle": "Bundle fixe", "custom-bundle": "Bundle personnalisable", "selling-plan": "Abonnement", "preorder": "Pr\xE9commande", "cart-drawer": "Panier lat\xE9ral", "app-blocks": "Bloc d\u2019application", "markets": "March\xE9s Shopify", "localization": "Localisation" };
-  return labels[capability] ?? capability.replace(/-/g, " ");
-}
-function capabilityState(capability, states) {
-  if (states && typeof states === "object" && !Array.isArray(states)) {
-    const value2 = states[capability];
-    if (value2 === "native" || value2 === "app-required" || value2 === "unavailable") return value2;
-  }
-  return ["custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability) ? "app-required" : "native";
-}
-function familyFrom(value2, fallback) {
-  const raw = Array.isArray(value2) && typeof value2[0] === "string" ? value2[0] : typeof value2 === "string" ? value2 : "";
-  const aliases = { "product-hero": "heroes", "buy-box": "product-purchase", "variant-selector": "variants-options", "quantity-offer": "bundles-offers", "fixed-bundle": "bundles-offers", "benefits-results": "benefits", "product-media": "demo-media", "reviews-ugc-premium": "reviews-ugc", recommendations: "collections-recommendations" };
-  return aliases[raw] ?? (raw ? raw : fallback);
-}
-function dynamicManifests() {
-  const existing = new Set(SECTION_PREVIEW_MANIFESTS.map((manifest) => `${manifest.sectionType}:${manifest.variantId}`));
-  const values = [];
-  for (const definition of listSectionDefinitions()) {
-    const type = typeof definition.type === "string" ? definition.type : "";
-    if (!type) continue;
-    const variants = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : Array.isArray(definition.previewVariants) && definition.previewVariants.length ? definition.previewVariants : ["default"];
-    for (const rawVariant of variants) {
-      const variant = typeof rawVariant === "string" ? { id: rawVariant } : rawVariant && typeof rawVariant === "object" ? rawVariant : null;
-      const variantId = variant && typeof variant.id === "string" ? variant.id : "default";
-      if (existing.has(`${type}:${variantId}`)) continue;
-      const fixtureId = variant && typeof variant.previewFixtureId === "string" && SECTION_PREVIEW_FIXTURES.some((fixture2) => fixture2.id === variant.previewFixtureId) ? variant.previewFixtureId : "aurea-serum";
-      const fallbackPreview = fixtureById(fixtureId).product.images[0];
-      const title = variant && typeof variant.name === "string" ? variant.name : typeof definition.name === "string" ? definition.name : type;
-      const description = variant && typeof variant.description === "string" ? variant.description : `Ajouter ${title.toLocaleLowerCase("fr-FR")}`;
-      const capabilities = Array.isArray(definition.capabilities) ? definition.capabilities.filter((value2) => typeof value2 === "string") : [];
-      values.push({ sectionType: type, variantId, title, conversionGoal: description, category: "product", family: familyFrom(definition.families ?? definition.family, definitionFamily[type] ?? "custom"), capabilities, capabilityStates: definition.capabilityStates, requiredData: Array.isArray(variant?.requiredData) ? variant.requiredData.filter((value2) => typeof value2 === "string") : [], tags: Array.isArray(definition.tags) ? definition.tags.filter((value2) => typeof value2 === "string") : [], recommended: typeof variant?.recommended === "number" ? variant.recommended : 0, newest: typeof variant?.newest === "number" ? variant.newest : 0, popular: typeof variant?.popular === "number" ? variant.popular : 0, supportedPages: Array.isArray(definition.supportedPages) ? definition.supportedPages.filter((value2) => typeof value2 === "string") : void 0, supportedMarkets: Array.isArray(definition.supportedMarkets) ? definition.supportedMarkets.filter((value2) => typeof value2 === "string") : void 0, supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixtureId, compatibleFixtureIds: [fixtureId], preview: { desktop: fallbackPreview, mobile: fallbackPreview }, previewVersion: 1 });
-    }
-  }
-  return values;
-}
-function querySectionCatalog(query = {}) {
-  const family = query.family ?? (query.category ? legacyFamily[query.category] : void 0), needle = normalize(query.search ?? "");
-  const results = [...SECTION_PREVIEW_MANIFESTS, ...dynamicManifests()].filter((manifest) => {
-    if (family && manifest.family !== family) return false;
-    if (query.pageKind && manifest.supportedPages?.length && !manifest.supportedPages.includes(query.pageKind)) return false;
-    if (query.market && manifest.supportedMarkets?.length && !manifest.supportedMarkets.includes("all") && !manifest.supportedMarkets.includes(query.market)) return false;
-    if (query.capability && !(manifest.capabilities ?? []).includes(query.capability)) return false;
-    return !needle || normalize([manifest.title, manifest.conversionGoal, manifest.sectionType, manifest.variantId, manifest.family ?? "", ...manifest.capabilities ?? [], ...manifest.tags ?? []].join(" ")).includes(needle);
-  }).map((manifest) => ({ ...manifest, capabilityBadges: (manifest.capabilities ?? []).map((capability) => ({ capability, label: labelCapability(capability), state: capabilityState(capability, manifest.capabilityStates) })) }));
-  const sort = query.sort ?? "recommended", rank = (value2) => sort === "newest" ? value2.newest ?? 0 : sort === "popular" ? value2.popular ?? 0 : value2.recommended ?? 0;
-  return results.sort((a, b) => rank(b) - rank(a) || a.title.localeCompare(b.title, "fr"));
-}
-function catalogItemForVariant(sectionType, variantId) {
-  return querySectionCatalog().find((item2) => item2.sectionType === sectionType && item2.variantId === variantId);
-}
-var keys = /* @__PURE__ */ new Set();
-for (const manifest of SECTION_PREVIEW_MANIFESTS) {
-  const key = `${manifest.sectionType}:${manifest.variantId}`;
-  if (keys.has(key)) throw new Error(`Duplicate section preview manifest: ${key}`);
-  keys.add(key);
-  fixtureById(manifest.defaultFixtureId);
-  for (const id of manifest.compatibleFixtureIds) fixtureById(id);
-  if (!manifest.compatibleFixtureIds.includes(manifest.defaultFixtureId)) throw new Error(`Default fixture is incompatible: ${key}`);
-}
-function previewManifest(sectionType, variantId) {
-  const found = SECTION_PREVIEW_MANIFESTS.find((item2) => item2.sectionType === sectionType && item2.variantId === variantId);
-  if (found) return found;
-  const catalog = catalogItemForVariant(sectionType, variantId);
-  if (catalog) return catalog;
-  const fixture2 = "aurea-serum", base9 = `/assets/section-previews/${sectionType}/${variantId}-${fixture2}`;
-  return { sectionType, variantId, title: sectionType, conversionGoal: "Aper\xE7u de section", category: "product", family: definitionFamily[sectionType] ?? "custom", supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixture2, compatibleFixtureIds: [fixture2], preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1 };
-}
-
 // src/sections/registry.ts
 var definitions = /* @__PURE__ */ new Map();
 var LEGACY_FAMILY = {
@@ -757,13 +607,12 @@ function assertComplete(definition) {
   if (!definition.category) throw new Error(`Section ${definition.type} category is required`);
   if (!definition.defaults || !Array.isArray(definition.settings) || !Array.isArray(definition.blocks)) throw new Error(`Section ${definition.type} schema is incomplete`);
   if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
-  for (const variant of definition.previewVariants ?? []) previewManifest(definition.type, variant);
 }
 function legacyVariant(definition, id = "default") {
   return { id, name: id === "default" ? "Par d\xE9faut" : id, description: "Variante compatible avec les documents Weflo existants.", composition: id === "default" ? "composition-par-defaut" : `composition-${id}`, previewFixtureId: "", defaults: { ...definition.defaults, ...id === "default" ? {} : { variant: id } } };
 }
 function defaultSchema(pack) {
-  const control = (item2) => ({ id: item2.key, label: item2.label, type: item2.type === "textarea" ? "textarea" : "text" });
+  const control = (item) => ({ id: item.key, label: item.label, type: item.type === "textarea" ? "textarea" : "text" });
   return {
     name: pack.name,
     settings: pack.settings.map(control),
@@ -805,9 +654,6 @@ function registerSection(definition) {
   if (definitions.has(pack.type)) throw new Error(`Section ${pack.type} is already registered`);
   definitions.set(pack.type, pack);
   return pack;
-}
-function listSectionDefinitions() {
-  return [...definitions.values()];
 }
 
 // src/sections/shared.ts
@@ -1234,7 +1080,7 @@ function premiumPack(input) {
     assets: [],
     packVersion: 1,
     renderWeb: ({ section, pageName, editor }) => {
-      const variant = variants.some((item2) => item2.id === value(section, "variant", variants[0].id)) ? value(section, "variant", variants[0].id) : variants[0].id;
+      const variant = variants.some((item) => item.id === value(section, "variant", variants[0].id)) ? value(section, "variant", variants[0].id) : variants[0].id;
       const heading = value(section, "title", pageName);
       const intro = `<header>${value(section, "subtitle") ? `<p class="wf-section__eyebrow">${escapeHtml(value(section, "subtitle"))}</p>` : ""}<h2 data-wf-edit-key="title">${escapeHtml(heading)}</h2>${value(section, "text") ? `<p class="wf-section__copy" data-wf-edit-key="text">${escapeHtml(value(section, "text"))}</p>` : ""}</header>`;
       const action = value(section, "cta_label") ? `<a class="wf-section__button" href="${safeLink(section.settings.cta_link)}">${escapeHtml(value(section, "cta_label"))}</a>` : "";
@@ -2043,10 +1889,10 @@ function renderStrategy() {
   const saved = wizardAnswer(current);
   const selected = new Set(saved?.selectedSuggestionIds ?? []);
   const review = current === "review";
-  const summary = draft.wizard.answers.filter((answer) => answer.stepId !== "review").map((answer) => `<li><strong>${esc5(WIZARD_COPY[answer.stepId].title)}</strong><span>${esc5(answer.customText || answer.selectedSuggestionIds.map((id) => draft.wizard.suggestions[answer.stepId]?.find((item2) => item2.id === id)?.title || "").filter(Boolean).join(" \xB7 "))}</span></li>`).join("");
+  const summary = draft.wizard.answers.filter((answer) => answer.stepId !== "review").map((answer) => `<li><strong>${esc5(WIZARD_COPY[answer.stepId].title)}</strong><span>${esc5(answer.customText || answer.selectedSuggestionIds.map((id) => draft.wizard.suggestions[answer.stepId]?.find((item) => item.id === id)?.title || "").filter(Boolean).join(" \xB7 "))}</span></li>`).join("");
   const loading = wizardLoadingStep === current;
-  const ordered = copy.multiple && selected.size ? `<ol class="wizard-order">${[...selected].map((id, index) => `<li>${esc5(choices.find((item2) => item2.id === id)?.title ?? id)}<span><button type="button" data-wizard-move="${esc5(id)}:-1" ${index === 0 ? "disabled" : ""}>\u2191</button><button type="button" data-wizard-move="${esc5(id)}:1" ${index === selected.size - 1 ? "disabled" : ""}>\u2193</button></span></li>`).join("")}</ol>` : "";
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li class="active">3 <span>Assistant IA</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<section class="wizard" data-wizard-step="${current}"><div class="wizard-progress" aria-label="\xC9tape ${Object.keys(WIZARD_COPY).indexOf(current) + 1} sur 9"><i style="width:${(Object.keys(WIZARD_COPY).indexOf(current) + 1) / 9 * 100}%"></i></div><div class="create-heading"><p>\xC9tape ${Object.keys(WIZARD_COPY).indexOf(current) + 1} sur 9</p><h1>${esc5(copy.title)}</h1><span>${esc5(copy.prompt)}</span></div>${review ? `<ul class="wizard-summary">${summary || "<li>Ajoutez vos choix avant de construire.</li>"}</ul>` : `<div class="wizard-grid">${choices.map((item2) => `<button type="button" class="wizard-card" data-wizard-select="${esc5(item2.id)}" aria-pressed="${selected.has(item2.id)}"><strong>${esc5(item2.title)}</strong><small>${esc5(item2.explanation)}</small><em>${item2.tags.map(esc5).join(" \xB7 ")}</em></button>`).join("") || `<p class="wizard-loading">${loading ? "Suggestions en cours\u2026" : "Aucune suggestion disponible."}</p>`}</div>${ordered}<label class="wizard-custom">Ajouter ma r\xE9ponse<textarea data-wizard-custom placeholder="\xC9cris une r\xE9ponse personnalis\xE9e\u2026">${esc5(saved?.customText ?? "")}</textarea></label><button type="button" class="wizard-regenerate" data-wizard-regenerate ${loading ? "disabled" : ""}>${loading ? "G\xE9n\xE9ration\u2026" : "R\xE9g\xE9n\xE9rer les suggestions"}</button>`}${error ? `<p class="create-error" role="alert">${esc5(error)}</p>` : ""}<div class="wizard-actions"><button type="button" class="wizard-back" data-wizard-back ${current === "source" ? "disabled" : ""}>Retour</button><button type="button" data-wizard-continue ${busy || !review && !selected.size && !saved?.customText.trim() ? "disabled" : ""}>${review ? "Construire le Blueprint" : "Continuer"}</button></div></section></main></div>`;
+  const ordered = copy.multiple && selected.size ? `<ol class="wizard-order">${[...selected].map((id, index) => `<li>${esc5(choices.find((item) => item.id === id)?.title ?? id)}<span><button type="button" data-wizard-move="${esc5(id)}:-1" ${index === 0 ? "disabled" : ""}>\u2191</button><button type="button" data-wizard-move="${esc5(id)}:1" ${index === selected.size - 1 ? "disabled" : ""}>\u2193</button></span></li>`).join("")}</ol>` : "";
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li class="active">3 <span>Assistant IA</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<section class="wizard" data-wizard-step="${current}"><div class="wizard-progress" aria-label="\xC9tape ${Object.keys(WIZARD_COPY).indexOf(current) + 1} sur 9"><i style="width:${(Object.keys(WIZARD_COPY).indexOf(current) + 1) / 9 * 100}%"></i></div><div class="create-heading"><p>\xC9tape ${Object.keys(WIZARD_COPY).indexOf(current) + 1} sur 9</p><h1>${esc5(copy.title)}</h1><span>${esc5(copy.prompt)}</span></div>${review ? `<ul class="wizard-summary">${summary || "<li>Ajoutez vos choix avant de construire.</li>"}</ul>` : `<div class="wizard-grid">${choices.map((item) => `<button type="button" class="wizard-card" data-wizard-select="${esc5(item.id)}" aria-pressed="${selected.has(item.id)}"><strong>${esc5(item.title)}</strong><small>${esc5(item.explanation)}</small><em>${item.tags.map(esc5).join(" \xB7 ")}</em></button>`).join("") || `<p class="wizard-loading">${loading ? "Suggestions en cours\u2026" : "Aucune suggestion disponible."}</p>`}</div>${ordered}<label class="wizard-custom">Ajouter ma r\xE9ponse<textarea data-wizard-custom placeholder="\xC9cris une r\xE9ponse personnalis\xE9e\u2026">${esc5(saved?.customText ?? "")}</textarea></label><button type="button" class="wizard-regenerate" data-wizard-regenerate ${loading ? "disabled" : ""}>${loading ? "G\xE9n\xE9ration\u2026" : "R\xE9g\xE9n\xE9rer les suggestions"}</button>`}${error ? `<p class="create-error" role="alert">${esc5(error)}</p>` : ""}<div class="wizard-actions"><button type="button" class="wizard-back" data-wizard-back ${current === "source" ? "disabled" : ""}>Retour</button><button type="button" data-wizard-continue ${busy || !review && !selected.size && !saved?.customText.trim() ? "disabled" : ""}>${review ? "Construire le Blueprint" : "Continuer"}</button></div></section></main></div>`;
 }
 async function loadWizardSuggestions(regenerate = false) {
   if (!draft) return;
@@ -2096,7 +1942,7 @@ async function saveWizardAnswer() {
 }
 function renderBuild() {
   if (!root || !draft) return;
-  const formatTitle = creationFormats.find((item2) => item2.id === state.format)?.title ?? "Boutique";
+  const formatTitle = creationFormats.find((item) => item.id === state.format)?.title ?? "Boutique";
   root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
 }
 async function syncDraft(includeStrategy = false) {
@@ -2158,7 +2004,7 @@ async function loadShopifyProducts(cursor = null, page = 1) {
   }
 }
 async function importShopifyProduct(productId) {
-  const product = shopifyCatalog.products.find((item2) => item2.id === productId);
+  const product = shopifyCatalog.products.find((item) => item.id === productId);
   if (!product) return;
   const generation = beginIntakeOperation();
   if (generation === null) return;
@@ -2399,7 +2245,7 @@ function bind() {
     const device = button2.dataset.templateDevice;
     if (device !== "desktop" && device !== "mobile") return;
     preview.dataset.previewDevice = device;
-    preview.querySelectorAll("[data-template-device]").forEach((item2) => item2.setAttribute("aria-pressed", String(item2 === button2)));
+    preview.querySelectorAll("[data-template-device]").forEach((item) => item.setAttribute("aria-pressed", String(item === button2)));
   }));
   const setDialogDevice = (device) => {
     if (!dialog) return;

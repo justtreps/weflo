@@ -44,9 +44,7 @@ export function galleryItems(theme: string): GalleryItem[] {
 
 export function renderGalleryMarkup(items: GalleryItem[]): string {
   return items.map((item) => {
-    const preview = item.id === "blank"
-      ? `<iframe data-model-preview="blank" title="Aperçu d’une page vierge" tabindex="-1"></iframe>`
-      : `<img class="model-card__capture" src="${escapeHtml(item.previewDesktop ?? "")}" data-preview-desktop="${escapeHtml(item.previewDesktop ?? "")}" data-preview-mobile="${escapeHtml(item.previewMobile ?? "")}" alt="Aperçu du modèle ${escapeHtml(item.name)}">`;
+    const preview = `<iframe data-model-preview="${escapeHtml(item.id)}" title="Aperçu du modèle ${escapeHtml(item.name)}" tabindex="-1"></iframe>`;
     return `
     <button class="model-card${item.id === "blank" ? " model-card--blank" : ""}" type="button" data-model-id="${escapeHtml(item.id)}" aria-label="Choisir ${escapeHtml(item.name)}">
       <span class="model-card__preview">

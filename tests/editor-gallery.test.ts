@@ -15,12 +15,13 @@ describe("editor model gallery", () => {
     expect(items.slice(1).every((item) => item.theme === "Beauté & soin")).toBe(true);
   });
 
-  it("renders cards with stable model ids and the original model captures", () => {
+  it("renders every model as a live document preview without depending on missing capture files", () => {
     const html = renderGalleryMarkup(galleryItems("Nutrition"));
     expect(html).toContain('data-model-id="blank"');
     expect(html).toContain('data-model-id="graine"');
-    expect(html).toContain('src="/assets/editor-preview-graine-cie-desktop.webp"');
-    expect(html).toContain('data-preview-mobile="/assets/editor-preview-graine-cie-mobile.webp"');
-    expect(html).not.toContain("Aperçu indisponible");
+    expect(html).toContain('data-model-preview="blank"');
+    expect(html).toContain('data-model-preview="graine"');
+    expect(html).not.toContain('/assets/editor-preview-');
+    expect(html).not.toContain('<img');
   });
 });

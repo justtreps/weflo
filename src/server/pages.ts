@@ -143,7 +143,12 @@ function isLegacyPageDocument(value: unknown): value is PageDocument {
 
 function editorDocumentFromStored(value: unknown, type: PageType): EditorDocument | null {
   const editor = validateEditorDocument(value);
-  if (editor.ok) return editor.value;
+  if (editor.ok) {
+    const wasExplicitlyBlank = type === "blank"
+      && !editor.value.modelId
+      && editor.value.pages.every((page) => page.sections.length === 0);
+    return wasExplicitlyBlank ? { ...editor.value, modelId: "blank" } : editor.value;
+  }
   if (!isLegacyPageDocument(value)) return null;
   try {
     const migrated = migrateDocument(value, type);
@@ -167,6 +172,7 @@ function emptyEditorDocument(name: string, type: PageType): EditorDocument {
     name,
     path: "/",
     kind: type === "sell" ? "product" : "landing",
+    ...(type === "blank" ? { modelId: "blank" } : {}),
     templateId: null,
     templateVersion: 1,
     theme: { ...DEFAULT_PAGE_THEME },

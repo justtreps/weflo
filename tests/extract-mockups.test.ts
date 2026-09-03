@@ -15,6 +15,9 @@ import {
   sanitizeConnexionTalent,
   revealEditorToolbar,
   extractEditorPreviewAssets,
+  injectEditorPreviewManifest,
+  bakeEditorPreviewImages,
+  injectDashboardHomeMount,
 // @ts-expect-error The extraction helper intentionally remains an executable ESM script.
 } from "../scripts/extract-lib.mjs";
 
@@ -182,6 +185,15 @@ describe("extractBundleAssets", () => {
   });
 });
 
+describe("injectDashboardHomeMount", () => {
+  it("preserves the real dashboard mount when captured mockups are regenerated", () => {
+    const out = injectDashboardHomeMount("<html><head></head><body><x-dc></x-dc></body></html>");
+    expect(out).toContain('<link rel="stylesheet" href="/hydrate/dashboard.css">');
+    expect(out).toContain('id="weflo-dashboard-home"');
+    expect(out.indexOf('id="weflo-dashboard-home"')).toBeLessThan(out.indexOf("<x-dc>"));
+  });
+});
+
 describe("extractEditorPreviewAssets", () => {
   it("extracts the original desktop and mobile WebP previews from compressed scripts", () => {
     const webp = "UklGRgQAAABXRUJQ";
@@ -205,5 +217,35 @@ describe("extractEditorPreviewAssets", () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("injectEditorPreviewManifest", () => {
+  it("restores the preview globals removed with the captured runtime", () => {
+    const out = injectEditorPreviewManifest("<html><body><main>Galerie</main></body></html>", {
+      desktop: { "Graine & Cie": "/assets/editor-preview-graine-cie-desktop.webp" },
+      mobile: { "Graine & Cie": "/assets/editor-preview-graine-cie-mobile.webp" },
+    });
+
+    expect(out).toContain("window.__BS_THUMBS=window.__BS_THUMBS||{}");
+    expect(out).toContain('window.__BS_PREVIEWS={"Graine & Cie":"/assets/editor-preview-graine-cie-desktop.webp"}');
+    expect(out).toContain('window.__BS_PREVIEWS_MB={"Graine & Cie":"/assets/editor-preview-graine-cie-mobile.webp"}');
+    expect(out.indexOf("window.__BS_PREVIEWS=")).toBeLessThan(out.indexOf("</body>"));
+  });
+});
+
+describe("bakeEditorPreviewImages", () => {
+  it("replaces every baked unavailable card with its extracted model preview", () => {
+    const fallback = '<div style="position:absolute">Aperçu indisponible</div>';
+    const out = bakeEditorPreviewImages(`<section>${fallback}${fallback}</section>`, {
+      mobile: {
+        "Graine & Cie": "/assets/editor-preview-graine-cie-mobile.webp",
+        Cycle: "/assets/editor-preview-cycle-mobile.webp",
+      },
+    });
+
+    expect(out).toContain('src="/assets/editor-preview-graine-cie-mobile.webp"');
+    expect(out).toContain('src="/assets/editor-preview-cycle-mobile.webp"');
+    expect(out).not.toContain("Aperçu indisponible");
   });
 });

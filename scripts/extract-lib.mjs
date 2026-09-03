@@ -251,6 +251,13 @@ export function extractBundleAssets(sourceHtml, destDir) {
   return map;
 }
 
+export function injectDashboardHomeMount(html) {
+  const stylesheet = '<link rel="stylesheet" href="/hydrate/dashboard.css">';
+  const mount = '<div id="weflo-dashboard-home"><div class="dashboard-boot" role="status" aria-live="polite"><span class="dashboard-boot__mark">weflo<span>.</span></span><span class="dashboard-boot__pulse"></span><p>Préparation de ton espace…</p></div></div>';
+  const withStyles = html.includes('/hydrate/dashboard.css') ? html : html.replace(/<\/head>/i, `${stylesheet}\n</head>`);
+  return withStyles.includes('id="weflo-dashboard-home"') ? withStyles : withStyles.replace(/<body>/i, `<body>\n${mount}`);
+}
+
 function previewSlug(value) {
   return value
     .normalize("NFD")
@@ -294,4 +301,23 @@ export function extractEditorPreviewAssets(sourceHtml, destDir) {
     }
   }
   return found;
+}
+
+export function injectEditorPreviewManifest(html, previews) {
+  const desktop = JSON.stringify(previews?.desktop ?? {}).replaceAll("<", "\\u003c");
+  const mobile = JSON.stringify(previews?.mobile ?? {}).replaceAll("<", "\\u003c");
+  const script = `<script>window.__BS_THUMBS=window.__BS_THUMBS||{};window.__BS_PREVIEWS=${desktop};window.__BS_PREVIEWS_MB=${mobile};</script>`;
+  return html.replace(/<\/body>/i, `${script}\n</body>`);
+}
+
+export function bakeEditorPreviewImages(html, previews) {
+  const models = Object.entries(previews?.mobile ?? {});
+  let index = 0;
+  return html.replace(/<div style="position:absolute[^"]*">Aperçu indisponible<\/div>/g, (fallback) => {
+    const model = models[index++];
+    if (!model) return fallback;
+    const [name, src] = model;
+    const safeName = String(name).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+    return `<img src="${src}" alt="Aperçu du modèle ${safeName}" style="position:absolute;inset:0;display:block;width:100%;height:auto;min-height:100%;object-fit:cover;object-position:top">`;
+  });
 }
