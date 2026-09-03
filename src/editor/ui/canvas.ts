@@ -1,6 +1,6 @@
 import type { EditorBreakpoint, EditorDocument } from "../document";
 import { renderEditorDocument } from "../render/render-document";
-import { parseCanvasBridgeMessage } from "./canvas-bridge";
+import { parseCanvasBridgeMessage, type CanvasBridgeAction } from "./canvas-bridge";
 import { CANVAS_RUNTIME } from "./canvas-runtime";
 import type { EditorStore } from "./store";
 import { sectionMoveTarget } from "./drag-sections";
@@ -31,6 +31,15 @@ export function canvasSrcdoc(document: EditorDocument, options: CanvasOptions): 
 }
 
 export const parseCanvasMessage = parseCanvasBridgeMessage;
+
+export function runCanvasMoveAction(store: EditorStore, action: Extract<CanvasBridgeAction, { type: "move" | "blockMove" }>): void {
+  if (action.type === "move") {
+    store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: store.getState().pageId, toIndex: action.toIndex });
+    return;
+  }
+  store.dispatch({ type: "moveBlock", sectionId: action.sectionId, blockId: action.blockId, toIndex: action.toIndex });
+  store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId, rightCollapsed: false });
+}
 
 export function mountCanvas(container: HTMLElement, store: EditorStore): () => void {
   const iframe = document.createElement("iframe");
@@ -72,7 +81,7 @@ export function mountCanvas(container: HTMLElement, store: EditorStore): () => v
         } catch (error) { window.alert(error instanceof Error ? error.message : "La modification de l’image a échoué."); }
       }
     }
-    if (action.type === "move") store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: store.getState().pageId, toIndex: action.toIndex });
+    if (action.type === "move" || action.type === "blockMove") runCanvasMoveAction(store, action);
     if (action.type === "action") {
       if (action.action === "hide") store.dispatch({ type: "toggleHidden", sectionId: action.sectionId });
       if (action.action === "remove") store.dispatch({ type: "removeSection", sectionId: action.sectionId });
