@@ -31,4 +31,12 @@ describe("creation template gallery", () => {
 
     expect(html).toContain('/creer?format=landing&amp;template=landing-direct-response');
   });
+
+  it("keeps the enlarged preview device-switchable and visibly marked as fictional", () => {
+    const html = renderTemplateGallery(flowForFormat("landing"), null);
+
+    expect(html).toContain('data-template-dialog-device="desktop"');
+    expect(html).toContain('data-template-dialog-device="mobile"');
+    expect(html).toContain("Exemple fictif");
+  });
 });

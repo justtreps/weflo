@@ -19919,7 +19919,7 @@ var SECTION_PREVIEW_FIXTURES = [
   fixture({ id: "aurea-serum", archetypes: ["beauty", "wellness"], name: "Aur\xE9a", title: "S\xE9rum \xC9clat 03", description: "Un concentr\xE9 lumineux qui hydrate, apaise et r\xE9v\xE8le l\u2019\xE9clat naturel de la peau.", price: 48, compareAtPrice: 62, colors: ["#F3ECE7", "#FFFDFC", "#261B17", "#C87557"], fonts: ["Playfair Display", "Inter"], images: ["photo-1620916566398-39f1143ab7be", "photo-1556228578-8c89e6adf883", "photo-1598440947619-2c35fc9aa908"], benefits: ["Une formule courte aux actifs essentiels.", "Une texture l\xE9g\xE8re pens\xE9e pour chaque matin.", "Un flacon durable et une routine sans complication."], faqs: ["Convient-il aux peaux sensibles ?", "Quand appliquer le s\xE9rum ?", "Puis-je l\u2019essayer sans risque ?"] }),
   fixture({ id: "halo-lamp", archetypes: ["home", "gadget", "design"], name: "Halo", title: "Lampe murale Halo One", description: "Une lumi\xE8re chaude, magn\xE9tique et sans fil qui se place exactement o\xF9 tu en as besoin.", price: 59, compareAtPrice: 79, colors: ["#EDE9E1", "#FFFEFA", "#171713", "#D4A72C"], fonts: ["Manrope", "Inter"], images: ["photo-1507473885765-e6ed057f782c", "photo-1540932239986-30128078f3c5", "photo-1513506003901-1e6a229e2d15"], benefits: ["Installation sans c\xE2ble ni per\xE7age.", "Orientation magn\xE9tique en un geste.", "Lumi\xE8re chaude rechargeable et apaisante."], faqs: ["La fixation tient-elle durablement ?", "Quelle est l\u2019autonomie ?", "Comment la recharger ?"] }),
   fixture({ id: "noma-bag", archetypes: ["fashion"], name: "Noma", title: "Sac Week-end N\xB02", description: "Un sac souple et structur\xE9, con\xE7u pour voyager l\xE9ger sans renoncer aux beaux d\xE9tails.", price: 189, compareAtPrice: 229, colors: ["#EEE9E0", "#FBF8F1", "#211B16", "#8A5638"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1553062407-98eeb64c6a62", "photo-1548036328-c9fa89d128fa", "photo-1594223274512-ad4803739b7c"], benefits: ["Une ouverture large et des poches utiles.", "Une mati\xE8re r\xE9sistante qui se patine bien.", "Le bon format pour deux \xE0 quatre jours."], faqs: ["Passe-t-il en cabine ?", "Comment entretenir la mati\xE8re ?", "Est-il garanti ?"] }),
-  fixture({ id: "pulse-recovery", archetypes: ["sport", "wellness"], name: "Pulse", title: "Recovery Daily", description: "La formule quotidienne pens\xE9e pour mieux r\xE9cup\xE9rer et retrouver ton rythme d\xE8s le lendemain.", price: 39, compareAtPrice: 49, colors: ["#E9F0E7", "#FCFFF9", "#132016", "#79B96A"], fonts: ["Space Grotesk", "Inter"], images: ["photo-1593095948071-474c5cc2989d", "photo-1579722821273-0f6c1ddde163", "photo-1538805060514-97d9cc17730c"], benefits: ["Une dose simple apr\xE8s l\u2019effort.", "Des ingr\xE9dients clairement expliqu\xE9s.", "Un format pens\xE9 pour trente jours."], faqs: ["Quand prendre la formule ?", "Que contient-elle ?", "Convient-elle \xE0 tous les sports ?"] }),
+  fixture({ id: "pulse-recovery", archetypes: ["sport", "wellness"], name: "Pulse", title: "Recovery Daily", description: "La formule quotidienne pens\xE9e pour mieux r\xE9cup\xE9rer et retrouver ton rythme d\xE8s le lendemain.", price: 39, compareAtPrice: 49, colors: ["#E9F0E7", "#FCFFF9", "#132016", "#79B96A"], fonts: ["Space Grotesk", "Inter"], images: ["photo-1593095948071-474c5cc2989d", "photo-1517836357463-d25dfeac3438", "photo-1538805060514-97d9cc17730c"], benefits: ["Une dose simple apr\xE8s l\u2019effort.", "Des ingr\xE9dients clairement expliqu\xE9s.", "Un format pens\xE9 pour trente jours."], faqs: ["Quand prendre la formule ?", "Que contient-elle ?", "Convient-elle \xE0 tous les sports ?"] }),
   fixture({ id: "brume-coffee", archetypes: ["food"], name: "Brume", title: "Assemblage Matin Calme", description: "Un caf\xE9 rond et pr\xE9cis, torr\xE9fi\xE9 en petite s\xE9rie pour une tasse douce chaque matin.", price: 16, compareAtPrice: 19, colors: ["#EFE3D3", "#FFF9EF", "#2B1B13", "#D56A35"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1447933601403-0c6688de566e", "photo-1495474472287-4d71bcdd2085", "photo-1512568400610-62da28bc8a13"], benefits: ["Des grains sourc\xE9s avec transparence.", "Une torr\xE9faction fra\xEEche chaque semaine.", "Un profil doux, chocolat\xE9 et \xE9quilibr\xE9."], faqs: ["Quelle mouture choisir ?", "Quand le caf\xE9 est-il torr\xE9fi\xE9 ?", "Comment le conserver ?"] }),
   fixture({ id: "forma-table", archetypes: ["home", "design"], name: "Forma", title: "Service Ondes", description: "Des pi\xE8ces de table sculpturales et faciles \xE0 vivre, dessin\xE9es pour les repas de tous les jours.", price: 84, compareAtPrice: 104, colors: ["#E9E4DA", "#FAF8F3", "#1F211B", "#6C7B4B"], fonts: ["Playfair Display", "Inter"], images: ["photo-1610701596007-11502861dcfa", "photo-1578749556568-bc2c40e68b61", "photo-1612196808214-b8e1d6145a8c"], benefits: ["Des formes empilables et agr\xE9ables en main.", "Une finition mate r\xE9sistante au quotidien.", "Chaque pi\xE8ce poss\xE8de de l\xE9g\xE8res nuances."], faqs: ["Les pi\xE8ces passent-elles au lave-vaisselle ?", "Sont-elles fabriqu\xE9es \xE0 la main ?", "Puis-je compl\xE9ter le service plus tard ?"] })
 ];
@@ -28040,6 +28040,346 @@ function buildStoreDocument(rawInput) {
   };
 }
 
+// public/template-previews/manifest.json
+var manifest_default = {
+  "store-editorial-commerce": {
+    desktop: "/template-previews/store-editorial-commerce-desktop.webp",
+    mobile: "/template-previews/store-editorial-commerce-mobile.webp",
+    desktopHash: "bbbe4b41dc286791",
+    mobileHash: "251bc0ae18dee1c2",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "store-conversion-modern": {
+    desktop: "/template-previews/store-conversion-modern-desktop.webp",
+    mobile: "/template-previews/store-conversion-modern-mobile.webp",
+    desktopHash: "0e24241dc5fdb293",
+    mobileHash: "71fb7e58b95dfda8",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "store-maison-premium": {
+    desktop: "/template-previews/store-maison-premium-desktop.webp",
+    mobile: "/template-previews/store-maison-premium-mobile.webp",
+    desktopHash: "185697fc4c948357",
+    mobileHash: "2a57c2b9dc8ddb15",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "product-buybox-premium": {
+    desktop: "/template-previews/product-buybox-premium-desktop.webp",
+    mobile: "/template-previews/product-buybox-premium-mobile.webp",
+    desktopHash: "8b22de9e8f11da3f",
+    mobileHash: "d34b5d21ec509f4b",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "product-demonstration": {
+    desktop: "/template-previews/product-demonstration-desktop.webp",
+    mobile: "/template-previews/product-demonstration-mobile.webp",
+    desktopHash: "903993c4dfc4410f",
+    mobileHash: "5194babf7f014ea1",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "product-bundle-first": {
+    desktop: "/template-previews/product-bundle-first-desktop.webp",
+    mobile: "/template-previews/product-bundle-first-mobile.webp",
+    desktopHash: "e82d67002dd60ac3",
+    mobileHash: "106cd6d729bad03d",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "landing-direct-response": {
+    desktop: "/template-previews/landing-direct-response-desktop.webp",
+    mobile: "/template-previews/landing-direct-response-mobile.webp",
+    desktopHash: "d280f11bd0354413",
+    mobileHash: "6a6fa0edcae19c5a",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "landing-editorial-premium": {
+    desktop: "/template-previews/landing-editorial-premium-desktop.webp",
+    mobile: "/template-previews/landing-editorial-premium-mobile.webp",
+    desktopHash: "4f467a248ab4c8a6",
+    mobileHash: "f11ce0a6fbaa9db9",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "landing-visual-demo": {
+    desktop: "/template-previews/landing-visual-demo-desktop.webp",
+    mobile: "/template-previews/landing-visual-demo-mobile.webp",
+    desktopHash: "7ec1893917ae577a",
+    mobileHash: "76fe3b1f27738d6f",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "advertorial-journal": {
+    desktop: "/template-previews/advertorial-journal-desktop.webp",
+    mobile: "/template-previews/advertorial-journal-mobile.webp",
+    desktopHash: "e4c34ad60bb3cd97",
+    mobileHash: "de5689e6c5c27cde",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "advertorial-founder-story": {
+    desktop: "/template-previews/advertorial-founder-story-desktop.webp",
+    mobile: "/template-previews/advertorial-founder-story-mobile.webp",
+    desktopHash: "9c63bd132c0affbb",
+    mobileHash: "51dded105ea9dc2a",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "advertorial-comparison": {
+    desktop: "/template-previews/advertorial-comparison-desktop.webp",
+    mobile: "/template-previews/advertorial-comparison-mobile.webp",
+    desktopHash: "1195772356c08de3",
+    mobileHash: "9b6bd4e8ab510086",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "quiz-diagnostic": {
+    desktop: "/template-previews/quiz-diagnostic-desktop.webp",
+    mobile: "/template-previews/quiz-diagnostic-mobile.webp",
+    desktopHash: "37ad7330f8f77b86",
+    mobileHash: "4bafc18876f3efaa",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "quiz-routine": {
+    desktop: "/template-previews/quiz-routine-desktop.webp",
+    mobile: "/template-previews/quiz-routine-mobile.webp",
+    desktopHash: "6788734360bcbcd3",
+    mobileHash: "95237377f31dd5e5",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "quiz-recommendation": {
+    desktop: "/template-previews/quiz-recommendation-desktop.webp",
+    mobile: "/template-previews/quiz-recommendation-mobile.webp",
+    desktopHash: "79f3411adbc5ff82",
+    mobileHash: "abade84d591d8dae",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "home-brand-editorial": {
+    desktop: "/template-previews/home-brand-editorial-desktop.webp",
+    mobile: "/template-previews/home-brand-editorial-mobile.webp",
+    desktopHash: "5d0f6f2df94d195a",
+    mobileHash: "d8c19de6b6c56873",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "home-catalogue-premium": {
+    desktop: "/template-previews/home-catalogue-premium-desktop.webp",
+    mobile: "/template-previews/home-catalogue-premium-mobile.webp",
+    desktopHash: "66d140e6f47c4f25",
+    mobileHash: "7dbed246bafc1f69",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "home-story-first": {
+    desktop: "/template-previews/home-story-first-desktop.webp",
+    mobile: "/template-previews/home-story-first-mobile.webp",
+    desktopHash: "fe1797a08fd1e639",
+    mobileHash: "54274763955ebba7",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "blog-magazine": {
+    desktop: "/template-previews/blog-magazine-desktop.webp",
+    mobile: "/template-previews/blog-magazine-mobile.webp",
+    desktopHash: "83db75d1b262d7dd",
+    mobileHash: "9f32fbeedbcbb040",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "blog-guide": {
+    desktop: "/template-previews/blog-guide-desktop.webp",
+    mobile: "/template-previews/blog-guide-mobile.webp",
+    desktopHash: "753cf79ebab6e6a5",
+    mobileHash: "58507a38d998d580",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "blog-study": {
+    desktop: "/template-previews/blog-study-desktop.webp",
+    mobile: "/template-previews/blog-study-mobile.webp",
+    desktopHash: "893d67410f285b0d",
+    mobileHash: "d179ebe1a5328e56",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  }
+};
+
 // src/create/format-flow.ts
 var TEMPLATE_IDS = {
   store: ["store-editorial-commerce", "store-conversion-modern", "store-maison-premium"],
@@ -28074,15 +28414,17 @@ var templateDetails = {
   "blog-guide": { name: "Guide", description: "Un contenu pratique, structur\xE9 pour \xEAtre facilement consult\xE9.", artProfile: "minimal", sectionVariants: { richText: "guide", faq: "inline" } },
   "blog-study": { name: "\xC9tude", description: "Une analyse approfondie avec preuves et sources.", artProfile: "editorial", sectionVariants: { hero: "study", press: "sources" } }
 };
+var generatedTemplatePreviews = manifest_default;
 function template(id2, format) {
   const details = templateDetails[id2];
   if (!details) throw new Error(`Missing creation template details for ${id2}`);
+  const generated = generatedTemplatePreviews[id2];
   return {
     id: id2,
     format,
     ...details,
-    previewDesktop: `/template-previews/${id2}-desktop.webp`,
-    previewMobile: `/template-previews/${id2}-mobile.webp`
+    previewDesktop: generated?.desktop ?? `/template-previews/${id2}-desktop.webp`,
+    previewMobile: generated?.mobile ?? `/template-previews/${id2}-mobile.webp`
   };
 }
 function fields(...intake) {

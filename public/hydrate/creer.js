@@ -1,3 +1,343 @@
+// public/template-previews/manifest.json
+var manifest_default = {
+  "store-editorial-commerce": {
+    desktop: "/template-previews/store-editorial-commerce-desktop.webp",
+    mobile: "/template-previews/store-editorial-commerce-mobile.webp",
+    desktopHash: "bbbe4b41dc286791",
+    mobileHash: "251bc0ae18dee1c2",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "store-conversion-modern": {
+    desktop: "/template-previews/store-conversion-modern-desktop.webp",
+    mobile: "/template-previews/store-conversion-modern-mobile.webp",
+    desktopHash: "0e24241dc5fdb293",
+    mobileHash: "71fb7e58b95dfda8",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "store-maison-premium": {
+    desktop: "/template-previews/store-maison-premium-desktop.webp",
+    mobile: "/template-previews/store-maison-premium-mobile.webp",
+    desktopHash: "185697fc4c948357",
+    mobileHash: "2a57c2b9dc8ddb15",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "product-buybox-premium": {
+    desktop: "/template-previews/product-buybox-premium-desktop.webp",
+    mobile: "/template-previews/product-buybox-premium-mobile.webp",
+    desktopHash: "8b22de9e8f11da3f",
+    mobileHash: "d34b5d21ec509f4b",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "product-demonstration": {
+    desktop: "/template-previews/product-demonstration-desktop.webp",
+    mobile: "/template-previews/product-demonstration-mobile.webp",
+    desktopHash: "903993c4dfc4410f",
+    mobileHash: "5194babf7f014ea1",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "product-bundle-first": {
+    desktop: "/template-previews/product-bundle-first-desktop.webp",
+    mobile: "/template-previews/product-bundle-first-mobile.webp",
+    desktopHash: "e82d67002dd60ac3",
+    mobileHash: "106cd6d729bad03d",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "landing-direct-response": {
+    desktop: "/template-previews/landing-direct-response-desktop.webp",
+    mobile: "/template-previews/landing-direct-response-mobile.webp",
+    desktopHash: "d280f11bd0354413",
+    mobileHash: "6a6fa0edcae19c5a",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "landing-editorial-premium": {
+    desktop: "/template-previews/landing-editorial-premium-desktop.webp",
+    mobile: "/template-previews/landing-editorial-premium-mobile.webp",
+    desktopHash: "4f467a248ab4c8a6",
+    mobileHash: "f11ce0a6fbaa9db9",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "landing-visual-demo": {
+    desktop: "/template-previews/landing-visual-demo-desktop.webp",
+    mobile: "/template-previews/landing-visual-demo-mobile.webp",
+    desktopHash: "7ec1893917ae577a",
+    mobileHash: "76fe3b1f27738d6f",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "advertorial-journal": {
+    desktop: "/template-previews/advertorial-journal-desktop.webp",
+    mobile: "/template-previews/advertorial-journal-mobile.webp",
+    desktopHash: "e4c34ad60bb3cd97",
+    mobileHash: "de5689e6c5c27cde",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "advertorial-founder-story": {
+    desktop: "/template-previews/advertorial-founder-story-desktop.webp",
+    mobile: "/template-previews/advertorial-founder-story-mobile.webp",
+    desktopHash: "9c63bd132c0affbb",
+    mobileHash: "51dded105ea9dc2a",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "advertorial-comparison": {
+    desktop: "/template-previews/advertorial-comparison-desktop.webp",
+    mobile: "/template-previews/advertorial-comparison-mobile.webp",
+    desktopHash: "1195772356c08de3",
+    mobileHash: "9b6bd4e8ab510086",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "quiz-diagnostic": {
+    desktop: "/template-previews/quiz-diagnostic-desktop.webp",
+    mobile: "/template-previews/quiz-diagnostic-mobile.webp",
+    desktopHash: "37ad7330f8f77b86",
+    mobileHash: "4bafc18876f3efaa",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "quiz-routine": {
+    desktop: "/template-previews/quiz-routine-desktop.webp",
+    mobile: "/template-previews/quiz-routine-mobile.webp",
+    desktopHash: "6788734360bcbcd3",
+    mobileHash: "95237377f31dd5e5",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "quiz-recommendation": {
+    desktop: "/template-previews/quiz-recommendation-desktop.webp",
+    mobile: "/template-previews/quiz-recommendation-mobile.webp",
+    desktopHash: "79f3411adbc5ff82",
+    mobileHash: "abade84d591d8dae",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "home-brand-editorial": {
+    desktop: "/template-previews/home-brand-editorial-desktop.webp",
+    mobile: "/template-previews/home-brand-editorial-mobile.webp",
+    desktopHash: "5d0f6f2df94d195a",
+    mobileHash: "d8c19de6b6c56873",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "home-catalogue-premium": {
+    desktop: "/template-previews/home-catalogue-premium-desktop.webp",
+    mobile: "/template-previews/home-catalogue-premium-mobile.webp",
+    desktopHash: "66d140e6f47c4f25",
+    mobileHash: "7dbed246bafc1f69",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "home-story-first": {
+    desktop: "/template-previews/home-story-first-desktop.webp",
+    mobile: "/template-previews/home-story-first-mobile.webp",
+    desktopHash: "fe1797a08fd1e639",
+    mobileHash: "54274763955ebba7",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "blog-magazine": {
+    desktop: "/template-previews/blog-magazine-desktop.webp",
+    mobile: "/template-previews/blog-magazine-mobile.webp",
+    desktopHash: "83db75d1b262d7dd",
+    mobileHash: "9f32fbeedbcbb040",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "blog-guide": {
+    desktop: "/template-previews/blog-guide-desktop.webp",
+    mobile: "/template-previews/blog-guide-mobile.webp",
+    desktopHash: "753cf79ebab6e6a5",
+    mobileHash: "58507a38d998d580",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  },
+  "blog-study": {
+    desktop: "/template-previews/blog-study-desktop.webp",
+    mobile: "/template-previews/blog-study-mobile.webp",
+    desktopHash: "893d67410f285b0d",
+    mobileHash: "d179ebe1a5328e56",
+    dimensions: {
+      desktop: {
+        width: 1440,
+        height: 1100
+      },
+      mobile: {
+        width: 390,
+        height: 844
+      }
+    }
+  }
+};
+
 // src/create/format-flow.ts
 var TEMPLATE_IDS = {
   store: ["store-editorial-commerce", "store-conversion-modern", "store-maison-premium"],
@@ -32,15 +372,17 @@ var templateDetails = {
   "blog-guide": { name: "Guide", description: "Un contenu pratique, structur\xE9 pour \xEAtre facilement consult\xE9.", artProfile: "minimal", sectionVariants: { richText: "guide", faq: "inline" } },
   "blog-study": { name: "\xC9tude", description: "Une analyse approfondie avec preuves et sources.", artProfile: "editorial", sectionVariants: { hero: "study", press: "sources" } }
 };
+var generatedTemplatePreviews = manifest_default;
 function template(id, format) {
   const details = templateDetails[id];
   if (!details) throw new Error(`Missing creation template details for ${id}`);
+  const generated = generatedTemplatePreviews[id];
   return {
     id,
     format,
     ...details,
-    previewDesktop: `/template-previews/${id}-desktop.webp`,
-    previewMobile: `/template-previews/${id}-mobile.webp`
+    previewDesktop: generated?.desktop ?? `/template-previews/${id}-desktop.webp`,
+    previewMobile: generated?.mobile ?? `/template-previews/${id}-mobile.webp`
   };
 }
 function fields(...intake) {
@@ -147,8 +489,8 @@ function renderTemplateGallery(flow, selectedTemplateId, templateUrl = (template
   </section>
   <dialog class="template-preview-dialog" data-template-dialog aria-labelledby="template-dialog-title">
     <form method="dialog"><button class="template-dialog-close" aria-label="Fermer l\u2019aper\xE7u">\xD7</button></form>
-    <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc2(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aper\xE7u du mod\xE8le</h2><span data-template-dialog-description>Choisis ce mod\xE8le si cette composition te ressemble.</span><a data-template-dialog-select href="${esc2(templateUrl(flow.templates[0]))}">Choisir ce mod\xE8le</a></div>
-      <div class="template-dialog-stage" data-preview-device="desktop"><img data-template-dialog-image alt="" onerror="this.classList.add('is-missing')"><div class="template-preview-fallback" aria-hidden="true"><span data-template-dialog-fallback>Mod\xE8le Weflo</span><i></i><i></i><i></i></div></div>
+    <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc2(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aper\xE7u du mod\xE8le</h2><span data-template-dialog-description>Choisis ce mod\xE8le si cette composition te ressemble.</span><small class="template-dialog-fixture">Exemple fictif \xB7 la structure sera adapt\xE9e \xE0 ta marque.</small><a data-template-dialog-select href="${esc2(templateUrl(flow.templates[0]))}">Choisir ce mod\xE8le</a></div>
+      <div class="template-dialog-preview"><div class="template-dialog-device-switch" role="group" aria-label="Format de l\u2019aper\xE7u agrandi"><button type="button" data-template-dialog-device="desktop" aria-pressed="true">Ordinateur</button><button type="button" data-template-dialog-device="mobile" aria-pressed="false">Mobile</button></div><div class="template-dialog-stage" data-preview-device="desktop"><img data-template-dialog-image alt="" onerror="this.classList.add('is-missing')"><div class="template-preview-fallback" aria-hidden="true"><span data-template-dialog-fallback>Mod\xE8le Weflo</span><i></i><i></i><i></i></div></div></div>
     </div>
   </dialog>`;
 }
@@ -927,17 +1269,35 @@ function bind() {
     preview.dataset.previewDevice = device;
     preview.querySelectorAll("[data-template-device]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
   }));
+  const setDialogDevice = (device) => {
+    if (!dialog) return;
+    const image = dialog.querySelector("[data-template-dialog-image]");
+    const stage = dialog.querySelector("[data-template-dialog-stage]");
+    if (!image || !stage) return;
+    const source = image.dataset[device];
+    if (!source) return;
+    image.src = source;
+    stage.dataset.previewDevice = device;
+    dialog.querySelectorAll("[data-template-dialog-device]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.templateDialogDevice === device)));
+  };
+  dialog?.querySelectorAll("[data-template-dialog-device]").forEach((button) => button.addEventListener("click", () => {
+    const device = button.dataset.templateDialogDevice;
+    if (device === "desktop" || device === "mobile") setDialogDevice(device);
+  }));
   root?.querySelectorAll("[data-template-open]").forEach((button) => button.addEventListener("click", () => {
     const id = button.dataset.templateOpen;
     const card = id ? root.querySelector(`[data-template-card="${id}"]`) : null;
     if (!id || !card || !dialog) return;
     const image = dialog.querySelector("[data-template-dialog-image]");
     const desktop = card.querySelector('[data-preview-image="desktop"]');
+    const mobile = card.querySelector('[data-preview-image="mobile"]');
     const name = card.querySelector("h2")?.textContent ?? "Mod\xE8le";
     const description = card.querySelector("p")?.textContent ?? "";
-    if (image && desktop) {
-      image.src = desktop.src;
+    if (image && desktop && mobile) {
+      image.dataset.desktop = desktop.src;
+      image.dataset.mobile = mobile.src;
       image.alt = desktop.alt;
+      setDialogDevice("desktop");
     }
     dialog.querySelector("[data-template-dialog-title]").textContent = name;
     dialog.querySelector("[data-template-dialog-description]").textContent = description;

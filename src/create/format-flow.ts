@@ -1,4 +1,5 @@
 import type { CreationFormatId } from "../onboarding/creation-recipe";
+import templatePreviewManifest from "../../public/template-previews/manifest.json";
 
 export type CreationSource = "link" | "image" | "description" | "shopify";
 export type IntakeField = { id: string; label: string; placeholder: string; kind: "text" | "textarea" | "list"; required: boolean };
@@ -50,15 +51,19 @@ const templateDetails: Record<string, TemplateDetails> = {
   "blog-study": { name: "Étude", description: "Une analyse approfondie avec preuves et sources.", artProfile: "editorial", sectionVariants: { hero: "study", press: "sources" } },
 };
 
+type TemplatePreviewManifest = Record<string, { desktop: string; mobile: string }>;
+const generatedTemplatePreviews = templatePreviewManifest as TemplatePreviewManifest;
+
 function template(id: string, format: CreationFormatId): CreationTemplate {
   const details = templateDetails[id];
   if (!details) throw new Error(`Missing creation template details for ${id}`);
+  const generated = generatedTemplatePreviews[id];
   return {
     id,
     format,
     ...details,
-    previewDesktop: `/template-previews/${id}-desktop.webp`,
-    previewMobile: `/template-previews/${id}-mobile.webp`,
+    previewDesktop: generated?.desktop ?? `/template-previews/${id}-desktop.webp`,
+    previewMobile: generated?.mobile ?? `/template-previews/${id}-mobile.webp`,
   };
 }
 

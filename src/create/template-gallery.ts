@@ -34,8 +34,8 @@ export function renderTemplateGallery(flow: FormatFlow, selectedTemplateId: stri
   </section>
   <dialog class="template-preview-dialog" data-template-dialog aria-labelledby="template-dialog-title">
     <form method="dialog"><button class="template-dialog-close" aria-label="Fermer l’aperçu">×</button></form>
-    <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aperçu du modèle</h2><span data-template-dialog-description>Choisis ce modèle si cette composition te ressemble.</span><a data-template-dialog-select href="${esc(templateUrl(flow.templates[0]!))}">Choisir ce modèle</a></div>
-      <div class="template-dialog-stage" data-preview-device="desktop"><img data-template-dialog-image alt="" onerror="this.classList.add('is-missing')"><div class="template-preview-fallback" aria-hidden="true"><span data-template-dialog-fallback>Modèle Weflo</span><i></i><i></i><i></i></div></div>
+    <div class="template-dialog-content"><div class="template-dialog-copy"><p>${esc(flow.title)}</p><h2 id="template-dialog-title" data-template-dialog-title>Aperçu du modèle</h2><span data-template-dialog-description>Choisis ce modèle si cette composition te ressemble.</span><small class="template-dialog-fixture">Exemple fictif · la structure sera adaptée à ta marque.</small><a data-template-dialog-select href="${esc(templateUrl(flow.templates[0]!))}">Choisir ce modèle</a></div>
+      <div class="template-dialog-preview"><div class="template-dialog-device-switch" role="group" aria-label="Format de l’aperçu agrandi"><button type="button" data-template-dialog-device="desktop" aria-pressed="true">Ordinateur</button><button type="button" data-template-dialog-device="mobile" aria-pressed="false">Mobile</button></div><div class="template-dialog-stage" data-preview-device="desktop"><img data-template-dialog-image alt="" onerror="this.classList.add('is-missing')"><div class="template-preview-fallback" aria-hidden="true"><span data-template-dialog-fallback>Modèle Weflo</span><i></i><i></i><i></i></div></div></div>
     </div>
   </dialog>`;
 }
