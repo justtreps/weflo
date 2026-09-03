@@ -75,6 +75,13 @@ describe("dashboard home model", () => {
     expect(projectPreviewImage(product)).toBe("https://cdn.example/product-v2.webp");
   });
 
+  it("does not crash on a malformed v2-like historical document", () => {
+    const historical = { ...page(), document: { version: 2, pages: [] } } as unknown as Page;
+
+    expect(() => dashboardHomeModel({ pages: [historical], workspace })).not.toThrow();
+    expect(dashboardHomeModel({ pages: [historical], workspace }).projects[0].previewImage).toBeNull();
+  });
+
   it("sorts recent projects and maps publication states in French", () => {
     const draft = page({ id: "draft", updatedAt: "2026-09-01T12:00:00.000Z" });
     const ready = page({ id: "ready", status: "published_hosted", updatedAt: "2026-09-02T12:00:00.000Z" });

@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { migrateDocument } from "../editor/migrate";
 import { validateEditorDocument } from "../editor/schema";
 import { applyCanardo, canardoCreditCost, refuseReferralHelp } from "../lib/canardo";
-import { DEFAULT_PAGE_THEME } from "../lib/catalog";
+import { DEFAULT_PAGE_THEME, SECTION_TYPES } from "../lib/catalog";
 import { spendCredits, totalCredits } from "../lib/credits";
 import { publishAccessForBilling } from "../lib/publishing";
 import { resolveShopifyToken } from "../lib/shopify";
@@ -91,6 +91,30 @@ function safeAnswers(format: CreationFormatId, value: unknown): Record<string, s
   const raw = value as Record<string, unknown>;
   const allowed = new Set(flowForFormat(format).intake.map((field) => field.id));
   return Object.fromEntries(Object.entries(raw).flatMap(([key, answer]) => allowed.has(key) && typeof answer === "string" ? [[key, answer.trim().slice(0, 4_000)] as const] : []));
+}
+
+function record(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isLegacyPageDocument(value: unknown): value is PageDocument {
+  if (!record(value) || "version" in value || typeof value.name !== "string" || typeof value.path !== "string" || !Array.isArray(value.sections)) return false;
+  return value.sections.every((section) => record(section)
+    && typeof section.id === "string"
+    && typeof section.type === "string"
+    && SECTION_TYPES.includes(section.type as PageDocument["sections"][number]["type"])
+    && record(section.settings));
+}
+
+function validatedDocumentPatch(value: unknown, type: PageType): Page["document"] | null {
+  const editor = validateEditorDocument(value);
+  if (editor.ok) return editor.value;
+  if (!isLegacyPageDocument(value)) return null;
+  try {
+    return validateEditorDocument(migrateDocument(value, type)).ok ? value : null;
+  } catch {
+    return null;
+  }
 }
 
 function emptyEditorDocument(name: string, type: PageType): EditorDocument {
@@ -214,8 +238,10 @@ export function pagesRoutes(deps: AppDeps) {
     if (typeof body.name === "string") patch.name = body.name;
     if (typeof body.slug === "string") patch.slug = slugify(body.slug);
     if (isPageStatus(body.status)) patch.status = body.status;
-    if (body.document && typeof body.document === "object") {
-      patch.document = body.document as Page["document"];
+    if (Object.prototype.hasOwnProperty.call(body, "document")) {
+      const document = validatedDocumentPatch(body.document, loaded.page.type);
+      if (!document) return c.json({ error: "invalid document" }, 400);
+      patch.document = document;
     }
     const expectedVersion = typeof body.expectedVersion === "number" && Number.isInteger(body.expectedVersion)
       ? body.expectedVersion

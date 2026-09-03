@@ -55,12 +55,19 @@ function findMedia(value: unknown, parentKey = ""): string | null {
   return null;
 }
 
-export function projectPreviewImage(page: Page): string | null {
-  if (isEditorDocument(page.document)) {
-    const asset = page.document.assets.find((candidate) => candidate.type === "image" && validMedia(candidate.url));
-    return asset?.url ?? findMedia(page.document.pages.flatMap((candidate) => candidate.sections));
+export function projectPreviewImage(page: { document: unknown }): string | null {
+  const document = page.document;
+  if (isEditorDocument(document)) {
+    const asset = Array.isArray(document.assets)
+      ? document.assets.find((candidate) => candidate?.type === "image" && validMedia(candidate.url))
+      : undefined;
+    const sections = Array.isArray(document.pages)
+      ? document.pages.flatMap((candidate) => Array.isArray(candidate?.sections) ? candidate.sections : [])
+      : [];
+    return asset?.url ?? findMedia(sections);
   }
-  return findMedia(page.document.sections);
+  if (!document || typeof document !== "object" || Array.isArray(document)) return null;
+  return findMedia((document as Record<string, unknown>).sections);
 }
 
 function updatedLabel(iso: string): string {

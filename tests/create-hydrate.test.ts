@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { creationWorkspaceUrl } from "../src/create/workspace";
 import { createSubmissionLock } from "../src/create/submission-lock";
 import { creationStartupAction, initialCreationState } from "../src/create/flow-state";
-import { onboardingDraftPatch } from "../src/create/onboarding-sync";
+import { onboardingDraftPatch, synchronizeOnboardingDraft } from "../src/create/onboarding-sync";
 
 describe("creation hydration URL state", () => {
   it("rejects a second synchronous submit until the first navigation or failure releases the lock", () => {
@@ -60,6 +60,38 @@ describe("creation hydration URL state", () => {
       templateId: "product-demonstration",
       answers: { benefits: "Bénéfice final", objections: "Frein final" },
       language: "fr",
+    });
+  });
+
+  it("sends the latest intake through the onboarding PATCH call boundary", async () => {
+    const calls: Array<{ url: string; init: RequestInit }> = [];
+    const source = readFileSync("src/hydrate/creer.ts", "utf8");
+
+    expect(source).toContain('if(action==="image")await syncDraft();');
+    expect(source).toContain("try{await syncDraft(true);");
+    expect(source).toContain("synchronizeOnboardingDraft({ draftId:draft.id, claimToken:token, state, strategy, request })");
+
+    await synchronizeOnboardingDraft({
+      draftId: "draft/one",
+      claimToken: "claim-token",
+      state: {
+        ...initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-demonstration")),
+        answers: { benefits: "Bénéfice final", objections: "Frein final" },
+      },
+      strategy: { personas: [], angles: [] },
+      request: async (url: string, init: RequestInit) => { calls.push({ url, init }); return {}; },
+    });
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe("/api/onboarding/draft%2Fone");
+    expect(calls[0].init.method).toBe("PATCH");
+    expect(calls[0].init.headers).toEqual({ "content-type": "application/json", "x-weflo-claim-token": "claim-token" });
+    expect(JSON.parse(String(calls[0].init.body))).toMatchObject({
+      creationFormat: "product",
+      templateId: "product-demonstration",
+      answers: { benefits: "Bénéfice final", objections: "Frein final" },
+      personas: [],
+      angles: [],
     });
   });
 });

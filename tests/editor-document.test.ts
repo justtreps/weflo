@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { EditorDocument } from "../src/editor/document";
+import { isEditorDocument, type EditorDocument } from "../src/editor/document";
 import { validateEditorDocument } from "../src/editor/schema";
 
 function fixtureDocument(): EditorDocument {
@@ -46,6 +46,13 @@ function fixtureDocument(): EditorDocument {
 }
 
 describe("EditorDocument validation", () => {
+  it("narrows only v2 documents with the required top-level collections", () => {
+    expect(isEditorDocument(fixtureDocument())).toBe(true);
+    expect(isEditorDocument({ version: 2, pages: [] })).toBe(false);
+    expect(isEditorDocument({ ...fixtureDocument(), assets: undefined })).toBe(false);
+    expect(isEditorDocument({ ...fixtureDocument(), pages: [{ id: "page", name: "Page", slug: "page" }] })).toBe(false);
+  });
+
   it("accepts a complete v2 document", () => {
     const result = validateEditorDocument(fixtureDocument());
     expect(result.ok).toBe(true);

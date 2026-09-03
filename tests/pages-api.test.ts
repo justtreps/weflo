@@ -109,6 +109,23 @@ describe("pages API", () => {
     expect((await store.getPage(copy.id))?.document).toEqual(copy.document);
   });
 
+  it("rejects a malformed v2 document patch without persisting it", async () => {
+    const { app, store } = appAs("u1");
+    const workspace = await store.createWorkspace({ name: "Stable", ownerUserId: "u1" });
+    const original = initialDocument("Stable", "sell");
+    const page = await store.createPage({ workspaceId: workspace.id, name: "Stable", slug: "stable", type: "sell", status: "draft", document: original });
+
+    const response = await app.request(`/api/pages/${page.id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name: "Should not persist", document: { version: 2, pages: [] } }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({ error: "invalid document" });
+    expect(await store.getPage(page.id)).toMatchObject({ name: "Stable", document: original, documentVersion: 1 });
+  });
+
   it("renames, duplicates, deletes", async () => {
     const { app } = appAs("u1");
     const page = await (await app.request("/api/pages", {

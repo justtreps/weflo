@@ -669,6 +669,13 @@ function onboardingDraftPatch(state2, strategy) {
     ...strategy ? { personas: strategy.personas, angles: strategy.angles } : {}
   };
 }
+async function synchronizeOnboardingDraft(input) {
+  return input.request(`/api/onboarding/${encodeURIComponent(input.draftId)}`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json", "x-weflo-claim-token": input.claimToken },
+    body: JSON.stringify(onboardingDraftPatch(input.state, input.strategy))
+  });
+}
 
 // src/hydrate/creer.ts
 var CREATION_DRAFT_KEY = "weflo-create-draft-v2";
@@ -732,7 +739,7 @@ function renderBuild() {
 async function syncDraft(includeStrategy = false) {
   if (!draft) return;
   const strategy = includeStrategy ? { personas: draft.personas, angles: draft.angles } : void 0;
-  await request(`/api/onboarding/${draft.id}`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify(onboardingDraftPatch(state, strategy)) });
+  await synchronizeOnboardingDraft({ draftId: draft.id, claimToken: token, state, strategy, request });
 }
 async function importLink(value) {
   const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });

@@ -1,5 +1,6 @@
 import type { PageTheme } from "../types";
 import type { ArtDirectionProfile, BrandKit, BuyerPersona, ImportedProduct, MarketingAngle, ProductTruthSheet } from "../onboarding/types";
+import { validateEditorDocument } from "./schema";
 
 export type EditorPageKind = "landing" | "product" | "collection" | "home";
 export type EditorAssetType = "image" | "video";
@@ -77,7 +78,5 @@ export type EditorDocument = {
 };
 
 export function isEditorDocument(value: unknown): value is EditorDocument {
-  if (!value || typeof value !== "object") return false;
-  const candidate = value as Partial<EditorDocument>;
-  return candidate.version === 2 && Array.isArray(candidate.pages);
+  return validateEditorDocument(value).ok;
 }

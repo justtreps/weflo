@@ -2127,11 +2127,116 @@ function documentFromModel(modelId, pageName) {
   };
 }
 
+// src/editor/schema.ts
+var BREAKPOINTS = /* @__PURE__ */ new Set(["desktop", "tablet", "mobile"]);
+var PAGE_KINDS = /* @__PURE__ */ new Set(["landing", "product", "collection", "home"]);
+var ASSET_TYPES = /* @__PURE__ */ new Set(["image", "video"]);
+function object(value2) {
+  return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
+}
+function nonEmptyString(value2) {
+  return typeof value2 === "string" && value2.trim().length > 0;
+}
+function settingValue(value2) {
+  if (value2 === null || ["string", "number", "boolean"].includes(typeof value2)) return true;
+  return Array.isArray(value2) && value2.every((item2) => item2 === null || ["string", "number", "boolean"].includes(typeof item2));
+}
+function styleSettings(value2) {
+  return object(value2) && Object.values(value2).every(settingValue);
+}
+function responsiveSettings(value2) {
+  if (!object(value2)) return false;
+  return Object.entries(value2).every(([breakpoint, styles]) => BREAKPOINTS.has(breakpoint) && styleSettings(styles));
+}
+function unsafeCustomCode(section2) {
+  if (section2.type !== "customCode" || !object(section2.settings)) return false;
+  const html = typeof section2.settings.html === "string" ? section2.settings.html : "";
+  const js = typeof section2.settings.js === "string" ? section2.settings.js : "";
+  return /<script\b[^>]*\bsrc\s*=|\bimport\s*\(|\bdocument\.cookie\b|\bwindow\.top\b|\bparent\.location\b/i.test(`${html}
+${js}`);
+}
+function validateBlock(value2, errors, blockIds2) {
+  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.type) || !object(value2.settings)) {
+    errors.push("Invalid editor block");
+    return false;
+  }
+  if (blockIds2.has(value2.id)) errors.push(`Duplicate block id: ${value2.id}`);
+  blockIds2.add(value2.id);
+  for (const [key, setting2] of Object.entries(value2.settings)) {
+    if (!settingValue(setting2)) errors.push(`Invalid setting value at ${value2.id}.${key}`);
+  }
+  return true;
+}
+function validateSection(value2, errors, sectionIds2, blockIds2) {
+  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.type)) {
+    errors.push("Invalid editor section");
+    return false;
+  }
+  const id2 = value2.id;
+  if (sectionIds2.has(id2)) errors.push(`Duplicate section id: ${id2}`);
+  sectionIds2.add(id2);
+  if (!nonEmptyString(value2.name) || typeof value2.hidden !== "boolean" || typeof value2.locked !== "boolean") {
+    errors.push(`Invalid section metadata: ${id2}`);
+  }
+  if (!object(value2.settings)) errors.push(`Invalid section settings: ${id2}`);
+  else for (const [key, setting2] of Object.entries(value2.settings)) {
+    if (!settingValue(setting2)) errors.push(`Invalid setting value at ${id2}.${key}`);
+  }
+  if (!styleSettings(value2.style)) errors.push(`Invalid style settings in section: ${id2}`);
+  if (!responsiveSettings(value2.responsive)) errors.push(`Invalid responsive settings in section: ${id2}`);
+  if (!Array.isArray(value2.blocks)) errors.push(`Invalid blocks in section: ${id2}`);
+  else value2.blocks.forEach((block3) => validateBlock(block3, errors, blockIds2));
+  if (unsafeCustomCode(value2)) errors.push(`Unsafe custom code in section: ${id2}`);
+  return true;
+}
+function validatePage(value2, errors, pageIds, sectionIds2, blockIds2) {
+  if (!object(value2) || !nonEmptyString(value2.id) || !nonEmptyString(value2.name) || !nonEmptyString(value2.slug) || !Array.isArray(value2.sections)) {
+    errors.push("Invalid editor page");
+    return false;
+  }
+  if (pageIds.has(value2.id)) errors.push(`Duplicate page id: ${value2.id}`);
+  pageIds.add(value2.id);
+  value2.sections.forEach((section2) => validateSection(section2, errors, sectionIds2, blockIds2));
+  return true;
+}
+function validateAsset(value2, errors, assetIds) {
+  if (!object(value2) || !nonEmptyString(value2.id) || !ASSET_TYPES.has(String(value2.type)) || !nonEmptyString(value2.url)) {
+    errors.push("Invalid asset reference");
+    return false;
+  }
+  if (assetIds.has(value2.id)) errors.push(`Duplicate asset id: ${value2.id}`);
+  assetIds.add(value2.id);
+  if (value2.alt !== void 0 && typeof value2.alt !== "string") errors.push(`Invalid asset alt: ${value2.id}`);
+  return true;
+}
+function validTheme(value2) {
+  if (!object(value2)) return false;
+  return ["background", "surface", "ink", "muted", "accent"].every((key) => typeof value2[key] === "string") && ["sans", "serif", "condensed"].includes(String(value2.display)) && ["none", "soft", "round"].includes(String(value2.radius));
+}
+function validateEditorDocument(value2) {
+  const errors = [];
+  if (!object(value2)) return { ok: false, errors: ["Editor document must be an object"] };
+  if (value2.version !== 2) errors.push("Unsupported editor document version");
+  if (!nonEmptyString(value2.name)) errors.push("Editor document name is required");
+  if (typeof value2.path !== "string" || !value2.path.startsWith("/")) errors.push("Editor document path must start with /");
+  if (!PAGE_KINDS.has(String(value2.kind))) errors.push("Invalid editor document kind");
+  if (value2.templateId !== void 0 && value2.templateId !== null && !nonEmptyString(value2.templateId)) errors.push("Invalid editor document template id");
+  if (value2.templateVersion !== void 0 && (typeof value2.templateVersion !== "number" || !Number.isInteger(value2.templateVersion) || value2.templateVersion < 1)) errors.push("Invalid editor document template version");
+  if (!validTheme(value2.theme)) errors.push("Invalid editor document theme");
+  const pageIds = /* @__PURE__ */ new Set();
+  const sectionIds2 = /* @__PURE__ */ new Set();
+  const blockIds2 = /* @__PURE__ */ new Set();
+  const assetIds = /* @__PURE__ */ new Set();
+  if (!Array.isArray(value2.pages) || value2.pages.length === 0) errors.push("Editor document needs at least one page");
+  else value2.pages.forEach((page) => validatePage(page, errors, pageIds, sectionIds2, blockIds2));
+  if (!Array.isArray(value2.assets)) errors.push("Editor document assets must be an array");
+  else value2.assets.forEach((asset) => validateAsset(asset, errors, assetIds));
+  return errors.length ? { ok: false, errors } : { ok: true, value: value2 };
+}
+
 // src/editor/document.ts
 function isEditorDocument(value2) {
-  if (!value2 || typeof value2 !== "object") return false;
-  const candidate = value2;
-  return candidate.version === 2 && Array.isArray(candidate.pages);
+  return validateEditorDocument(value2).ok;
 }
 
 // src/models/assets.ts

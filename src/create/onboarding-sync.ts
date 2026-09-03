@@ -15,3 +15,17 @@ export function onboardingDraftPatch(
     ...(strategy ? { personas: strategy.personas, angles: strategy.angles } : {}),
   };
 }
+
+export async function synchronizeOnboardingDraft(input: {
+  draftId: string;
+  claimToken: string;
+  state: SyncState;
+  strategy?: Pick<OnboardingDraft, "personas" | "angles">;
+  request: (url: string, init: RequestInit) => Promise<unknown>;
+}): Promise<unknown> {
+  return input.request(`/api/onboarding/${encodeURIComponent(input.draftId)}`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json", "x-weflo-claim-token": input.claimToken },
+    body: JSON.stringify(onboardingDraftPatch(input.state, input.strategy)),
+  });
+}
