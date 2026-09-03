@@ -98,9 +98,17 @@ describe("Shopify document compiler", () => {
     expect(liquid).toContain('data-wf-block-id="{{ block.id }}"');
     expect(liquid).toContain("section.settings.subtitle");
     expect(liquid).toContain("section.settings.text");
+    expect(liquid).toContain("section.settings.subtitle | escape");
+    expect(liquid).toContain("section.settings.text | escape");
+    expect(liquid).toContain("wf-quantity-offer--{{ section.settings.variant | escape }}");
+    expect(liquid).toContain("weflo-product-form.js");
     expect(liquid).not.toMatch(/{%\s*if[^%]*\(/);
     expect(published?.blocks?.duo.type).toBe("offer-tier");
     expect(files.find((file) => file.key === "assets/weflo-product-form.js")?.value).toContain("wfNativeCheckoutLocked");
+    const schema = JSON.parse(liquid.match(/{% schema %}([\s\S]*?){% endschema %}/)?.[1] ?? "{}");
+    expect(schema.settings.map((setting: { id: string }) => setting.id)).toEqual(expect.arrayContaining([
+      "title", "subtitle", "text", "product_handle", "quantity_label", "cta_label", "variant",
+    ]));
   });
 
   it("keeps stable discount values with French Shopify labels", () => {
