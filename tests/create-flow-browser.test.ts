@@ -34,6 +34,12 @@ const shopifyProduct = {
   reviewCount: null,
   reviews: [],
 };
+const linkedProduct = {
+  ...shopifyProduct,
+  sourceUrl: "https://example.com/products/lampe-du-lien",
+  title: "Lampe héritée du lien",
+  vendor: "Marchand du lien",
+};
 
 let browser: Browser;
 let server: ServerType;
@@ -82,7 +88,19 @@ describe("format-specific creation browser journeys", () => {
     const app = createApp({
       store,
       session: async (request) => request.headers.get("cookie")?.includes(sessionCookie) ? user : null,
-      productFetch: { fetch: async () => { throw new Error("Aucun import produit attendu dans ce parcours."); } },
+      productFetch: {
+        fetch: async () => ({
+          finalUrl: linkedProduct.sourceUrl,
+          html: `<script type="application/ld+json">${JSON.stringify({
+            "@type": "Product",
+            name: linkedProduct.title,
+            description: linkedProduct.description,
+            brand: { name: linkedProduct.vendor },
+            image: linkedProduct.images,
+            offers: { price: linkedProduct.price, priceCurrency: linkedProduct.currency },
+          })}</script>`,
+        }),
+      },
       shopify: {
         ping: async () => {},
         publish: async () => ({ themeId: "theme-1", productId: "product-1" }),
@@ -168,6 +186,45 @@ describe("format-specific creation browser journeys", () => {
       await context.close();
     }
   }, 20_000);
+
+  it("does not reuse a link draft after switching to Shopify without selecting a catalog product", async () => {
+    const { context, page } = await authenticatedPage();
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-bundle-first");
+      await page.locator('button[data-create-source="link"]').click();
+      for (const [field, value] of Object.entries({
+        benefits: "Installation sans perçage",
+        objections: "Autonomie de la batterie",
+        offer: "49 € avec garantie 30 jours",
+        variants: "Sable",
+      })) {
+        await page.locator(`[name="answers[${field}]"]`).fill(value);
+      }
+      await page.locator('[name="prompt"]').fill(linkedProduct.sourceUrl);
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+      await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toBeVisible();
+      await playwrightExpect(page.getByText(linkedProduct.title, { exact: false }).first()).toBeVisible();
+
+      await page.locator("[data-back-strategy]").click();
+      await page.locator('button[data-create-source="shopify"]').click();
+      const catalogProduct = page.locator(`[data-shopify-product="${shopifyProduct.id}"]`);
+      await playwrightExpect(catalogProduct).toBeVisible();
+
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+      await playwrightExpect(page.getByRole("alert")).toContainText("Choisis un produit du catalogue Shopify avant de continuer.");
+      await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toHaveCount(0);
+
+      await catalogProduct.click();
+      await playwrightExpect(page.getByText(`${shopifyProduct.title} est prêt à être utilisé.`)).toBeVisible();
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+      await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toBeVisible();
+      await playwrightExpect(page.getByText(shopifyProduct.title, { exact: false }).first()).toBeVisible();
+      await playwrightExpect(page.getByText(linkedProduct.title, { exact: false })).toHaveCount(0);
+    } finally {
+      await context.close();
+    }
+  }, 25_000);
 
   it("shows a bounded reconnect action when the Shopify catalog is unavailable", async () => {
     const { context, page } = await authenticatedPage();

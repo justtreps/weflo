@@ -1039,12 +1039,40 @@ var state = initialCreationState(new URL(location.href));
 var missingFieldIds = [];
 var draft = null;
 var token = "";
+var draftProvenance = null;
 var error = "";
 var busy = false;
 var workspaceName = "Ton espace";
 var buildStageIndex = 0;
 var shopifyCatalog = { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "" };
 var submissionLock = createSubmissionLock();
+function emptyShopifyCatalog() {
+  return { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "" };
+}
+function clearDraft() {
+  draft = null;
+  token = "";
+  draftProvenance = null;
+}
+function acceptDraft(body, provenance) {
+  if (!body.draft || typeof body.claimToken !== "string" || !body.claimToken) throw new Error("La r\xE9ponse du serveur est invalide. R\xE9essaie.");
+  draft = body.draft;
+  token = body.claimToken;
+  draftProvenance = provenance;
+}
+function draftMatchesSource(source) {
+  return Boolean(draft && token && draftProvenance?.source === source);
+}
+function validShopifyDraft() {
+  const selectedId = shopifyCatalog.selectedId;
+  return shopifyCatalog.status === "ready" && Boolean(selectedId && shopifyCatalog.products.some((product) => product.id === selectedId) && draftMatchesSource("shopify") && draftProvenance?.shopifyProductId === selectedId);
+}
+function resetArtifactsForSourceChange(nextSource) {
+  if (nextSource === state.source) return;
+  clearDraft();
+  shopifyCatalog = emptyShopifyCatalog();
+  error = "";
+}
 function esc5(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
@@ -1123,7 +1151,8 @@ function renderShopifyCatalog() {
   if (shopifyCatalog.status === "idle") return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2><p>Charge les produits actifs de la boutique connect\xE9e.</p><button type="button" data-shopify-load>Charger le catalogue</button></section>`;
   if (!shopifyCatalog.products.length) return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2><p role="status">Aucun produit actif n\u2019est disponible dans le catalogue connect\xE9.</p><div class="shopify-catalog-actions"><button type="button" data-shopify-load>Actualiser</button><a href="/boutique">V\xE9rifier Shopify</a></div></section>`;
   const selected = shopifyCatalog.selectedId ? `<p class="shopify-product-selected" role="status">${esc5(shopifyCatalog.selectedTitle)} est pr\xEAt \xE0 \xEAtre utilis\xE9.</p>` : "";
-  return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2>${selected}<div class="shopify-product-list">${shopifyCatalog.products.map((product) => `<button type="button" data-shopify-product="${esc5(product.id)}" aria-pressed="${product.id === shopifyCatalog.selectedId}">${product.image ? `<img src="${esc5(product.image)}" alt="">` : `<span aria-hidden="true">\u25A3</span>`}<strong>${esc5(product.title)}</strong><small>${esc5(product.vendor)} \xB7 ${esc5(shopifyPrice(product))}</small></button>`).join("")}</div><button type="button" class="shopify-refresh" data-shopify-load>Actualiser le catalogue</button></section>`;
+  const message = shopifyCatalog.message ? `<p class="create-error" role="alert">${esc5(shopifyCatalog.message)}</p>` : "";
+  return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2>${selected}${message}<div class="shopify-product-list">${shopifyCatalog.products.map((product) => `<button type="button" data-shopify-product="${esc5(product.id)}" aria-pressed="${product.id === shopifyCatalog.selectedId}">${product.image ? `<img src="${esc5(product.image)}" alt="">` : `<span aria-hidden="true">\u25A3</span>`}<strong>${esc5(product.title)}</strong><small>${esc5(product.vendor)} \xB7 ${esc5(shopifyPrice(product))}</small></button>`).join("")}</div><button type="button" class="shopify-refresh" data-shopify-load>Actualiser le catalogue</button></section>`;
 }
 function renderStrategy() {
   const choices = [...draft.personas.map((item) => ({ ...item, kind: "persona" })), ...draft.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
@@ -1135,14 +1164,13 @@ function renderBuild() {
   root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
 }
 async function syncDraft(includeStrategy = false) {
-  if (!draft) return;
+  if (!draftMatchesSource(state.source) || !draft) throw new Error("La source de cette analyse ne correspond plus \xE0 la cr\xE9ation. Relance l\u2019importation.");
   const strategy = includeStrategy ? { personas: draft.personas, angles: draft.angles } : void 0;
   await synchronizeOnboardingDraft({ draftId: draft.id, claimToken: token, state, strategy, request });
 }
 async function importLink(value) {
   const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });
-  draft = body.draft;
-  token = body.claimToken;
+  acceptDraft(body, { source: "link", shopifyProductId: null });
   await syncDraft();
 }
 async function importImage(file) {
@@ -1154,23 +1182,25 @@ async function importImage(file) {
     reader.readAsDataURL(file);
   });
   const body = await request("/api/onboarding/import-image", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ imageDataUrl: data, fileName: file.name, language: "fr" }) });
-  draft = body.draft;
-  token = body.claimToken;
+  acceptDraft(body, { source: "image", shopifyProductId: null });
   await syncDraft();
 }
 async function startFromAnswers() {
   const body = await request("/api/onboarding/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ creationFormat: state.format, templateId: state.templateId, answers: state.answers, prompt: state.prompt, language: "fr" }) });
-  draft = body.draft;
-  token = body.claimToken;
+  acceptDraft(body, { source: state.source, shopifyProductId: null });
 }
 async function loadShopifyProducts() {
   shopifyCatalog = { ...shopifyCatalog, status: "loading", message: "" };
   render();
   try {
     const body = await request("/api/shopify/products", { method: "GET" });
-    shopifyCatalog = { ...shopifyCatalog, status: "ready", products: Array.isArray(body.products) ? body.products : [], message: "" };
+    const products = Array.isArray(body.products) ? body.products : [];
+    const selectedStillExists = Boolean(shopifyCatalog.selectedId && products.some((product) => product.id === shopifyCatalog.selectedId));
+    if (!selectedStillExists && draftProvenance?.source === "shopify") clearDraft();
+    shopifyCatalog = { ...shopifyCatalog, status: "ready", products, message: "", selectedId: selectedStillExists ? shopifyCatalog.selectedId : null, selectedTitle: selectedStillExists ? shopifyCatalog.selectedTitle : "" };
   } catch (reason) {
-    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", products: [], message: reason instanceof Error ? reason.message : "Impossible de charger le catalogue Shopify. R\xE9essaie." };
+    if (draftProvenance?.source === "shopify") clearDraft();
+    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", products: [], selectedId: null, selectedTitle: "", message: reason instanceof Error ? reason.message : "Impossible de charger le catalogue Shopify. R\xE9essaie." };
   }
   render();
 }
@@ -1184,15 +1214,16 @@ async function importShopifyProduct(productId) {
     persistState();
     replaceWorkspaceUrl();
   }
+  clearDraft();
   shopifyCatalog = { ...shopifyCatalog, status: "loading", selectedId: productId, selectedTitle: product.title, message: "" };
   render();
   try {
     const body = await request("/api/onboarding/import-shopify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ productId, language: "fr" }) });
-    draft = body.draft;
-    token = body.claimToken;
+    acceptDraft(body, { source: "shopify", shopifyProductId: productId });
     shopifyCatalog = { ...shopifyCatalog, status: "ready", selectedId: productId, selectedTitle: product.title, message: "" };
   } catch (reason) {
-    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", message: reason instanceof Error ? reason.message : "Impossible d\u2019importer ce produit Shopify. R\xE9essaie." };
+    clearDraft();
+    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", selectedId: null, selectedTitle: "", message: reason instanceof Error ? reason.message : "Impossible d\u2019importer ce produit Shopify. R\xE9essaie." };
   }
   render();
 }
@@ -1250,14 +1281,15 @@ async function build() {
 function bind() {
   root?.querySelectorAll("[data-create-format]").forEach((button) => button.addEventListener("click", () => {
     missingFieldIds = [];
-    draft = null;
-    shopifyCatalog = { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "" };
+    clearDraft();
+    shopifyCatalog = emptyShopifyCatalog();
     commitState(transitionCreationFlow(state, { type: "SELECT_FORMAT", format: button.dataset.createFormat }));
     if (state.step === "create-blank") void createBlankPage();
   }));
   root?.querySelector("[data-back-format]")?.addEventListener("click", () => {
     missingFieldIds = [];
-    draft = null;
+    clearDraft();
+    shopifyCatalog = emptyShopifyCatalog();
     commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
   root?.querySelector("[data-back-template]")?.addEventListener("click", () => {
@@ -1266,6 +1298,7 @@ function bind() {
   });
   root?.querySelectorAll("button[data-create-source]").forEach((button) => button.addEventListener("click", () => {
     const source = button.dataset.createSource;
+    resetArtifactsForSourceChange(source);
     commitState(transitionCreationFlow(state, { type: "SELECT_SOURCE", source }));
     if (source === "shopify") void loadShopifyProducts();
     else root?.querySelector('[name="prompt"]')?.focus();
@@ -1284,6 +1317,7 @@ function bind() {
       const data = new FormData(form);
       state = transitionCreationFlow(state, { type: "UPDATE_INTAKE", answers: answersFromFormData(data), prompt: String(data.get("prompt") ?? "").trim() });
     }
+    resetArtifactsForSourceChange("image");
     state = transitionCreationFlow(state, { type: "SELECT_SOURCE", source: "image" });
     persistState();
     replaceWorkspaceUrl();
@@ -1330,15 +1364,15 @@ function bind() {
       commitState(updated, false, "replace");
     }
     const action = submissionActionForState(updated);
-    if (action === "image" && !draft) {
+    if (action === "image" && !draftMatchesSource("image")) {
       submissionLock.release();
       error = "Ajoute une image avant de continuer.";
       render();
       return;
     }
-    if (action === "shopify" && !draft) {
+    if (action === "shopify" && !validShopifyDraft()) {
       submissionLock.release();
-      shopifyCatalog = { ...shopifyCatalog, status: "unavailable", message: "Choisis un produit du catalogue Shopify avant de continuer." };
+      shopifyCatalog = { ...shopifyCatalog, message: "Choisis un produit du catalogue Shopify avant de continuer." };
       render();
       return;
     }
@@ -1452,7 +1486,9 @@ function bind() {
 window.addEventListener("popstate", (event) => {
   const url = new URL(location.href);
   const historyDraft = event.state && typeof event.state.wefloCreationDraft === "string" ? restoreCreationDraft(event.state.wefloCreationDraft) : null;
-  state = historyDraft ?? mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
+  const next = historyDraft ?? mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
+  resetArtifactsForSourceChange(next.source);
+  state = next;
   persistState();
   replaceWorkspaceUrl();
   if (creationStartupAction(state) === "create-blank") void createBlankPage();
