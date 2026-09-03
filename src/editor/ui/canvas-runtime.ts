@@ -28,10 +28,11 @@ export const CANVAS_RUNTIME = `<style>
   const positionAt=(event,target)=>pointerDropPosition(event.clientY,target.getBoundingClientRect());
   let draggingSection=null;
   let draggingBlock=null;
+  let dragOrigin=null;
   const clearRails=()=>document.querySelectorAll("[data-wf-drop-position]").forEach(target=>target.removeAttribute("data-wf-drop-position"));
-  const clearDrag=()=>{clearRails();document.querySelectorAll("[data-wf-dragging]").forEach(target=>target.removeAttribute("data-wf-dragging"));draggingSection=null;draggingBlock=null};
+  const clearDrag=()=>{clearRails();document.querySelectorAll("[data-wf-dragging]").forEach(target=>target.removeAttribute("data-wf-dragging"));draggingSection=null;draggingBlock=null;dragOrigin=null};
   const showRail=(target,position)=>{clearRails();target.dataset.wfDropPosition=position};
-  const moveBlockBy=(section,block,direction)=>{const blocks=blocksIn(section);const index=blocks.indexOf(block);if(index<0)return;const toIndex=direction<0?index-1:index+2;if(toIndex<0||toIndex>blocks.length)return;post("canvas:block-move",{sectionId:section.dataset.wfSectionId,blockId:block.dataset.wfBlockId,toIndex})};
+  const moveBlockBy=(section,block,direction)=>{const blocks=blocksIn(section);const index=blocks.indexOf(block);const target=blocks[index+direction];if(index<0||!target)return;post("canvas:block-move",{sectionId:section.dataset.wfSectionId,blockId:block.dataset.wfBlockId,targetBlockId:target.dataset.wfBlockId,after:direction>0})};
   const toolbar=(section,imageKey,block)=>{
     document.querySelector("[data-canvas-toolbar]")?.remove();
     const bar=document.createElement("div");bar.className="wf-canvas-toolbar";bar.dataset.canvasToolbar="";
@@ -66,20 +67,25 @@ export const CANVAS_RUNTIME = `<style>
     if(!section||!direction)return;
     event.preventDefault();event.stopPropagation();post("canvas:action",{sectionId:section.dataset.wfSectionId,action:direction<0?"moveUp":"moveDown"});
   });
+  const rememberDragOrigin=event=>{dragOrigin=event.target};
+  const interactiveOrigin=target=>Boolean(target?.closest?.("input,button,select,textarea,a,[contenteditable=true]"));
+  document.addEventListener("pointerdown",rememberDragOrigin,true);
+  document.addEventListener("mousedown",rememberDragOrigin,true);
   document.addEventListener("dragstart",event=>{
+    if(interactiveOrigin(dragOrigin||event.target)){clearDrag();event.preventDefault();return}
     const found=offerBlock(event.target);
-    if(found){if(event.target.closest("input,button,select,textarea,a,[contenteditable=true]")){event.preventDefault();return}draggingBlock={sectionId:found.section.dataset.wfSectionId,blockId:found.block.dataset.wfBlockId};draggingSection=null;found.block.dataset.wfDragging="true";if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain","block:"+draggingBlock.sectionId+":"+draggingBlock.blockId)}return}
+    if(found){draggingBlock={sectionId:found.section.dataset.wfSectionId,blockId:found.block.dataset.wfBlockId};draggingSection=null;found.block.dataset.wfDragging="true";if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain","block:"+draggingBlock.sectionId+":"+draggingBlock.blockId)}return}
     const section=event.target.closest?.("[data-wf-section-id]");
-    if(!section||event.target.closest("[data-canvas-toolbar],input,button,select,textarea,a,[contenteditable=true]")){event.preventDefault();return}
+    if(!section||dragOrigin?.closest?.("[data-canvas-toolbar]")){clearDrag();event.preventDefault();return}
     draggingSection=section.dataset.wfSectionId;draggingBlock=null;section.dataset.wfDragging="true";if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain","section:"+draggingSection)}
   });
   document.addEventListener("dragover",event=>{
     if(draggingBlock){const found=offerBlock(event.target);if(!found||found.section.dataset.wfSectionId!==draggingBlock.sectionId){clearRails();return}event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect="move";showRail(found.block,positionAt(event,found.block));return}
-    if(draggingSection){const section=event.target.closest?.("[data-wf-section-id]");if(!section)return;event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect="move";showRail(section,positionAt(event,section))}
+    if(draggingSection){const section=event.target.closest?.("[data-wf-section-id]");if(!section){clearRails();return}event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect="move";showRail(section,positionAt(event,section))}
   });
   document.addEventListener("drop",event=>{
     try{
-      if(draggingBlock){const found=offerBlock(event.target);if(!found||found.section.dataset.wfSectionId!==draggingBlock.sectionId)return;event.preventDefault();const targets=blocksIn(found.section);const targetIndex=targets.indexOf(found.block);if(targetIndex<0)return;const after=positionAt(event,found.block)==="after";post("canvas:block-move",{sectionId:draggingBlock.sectionId,blockId:draggingBlock.blockId,toIndex:targetIndex+(after?1:0)});return}
+      if(draggingBlock){const found=offerBlock(event.target);if(!found||found.section.dataset.wfSectionId!==draggingBlock.sectionId)return;event.preventDefault();const after=positionAt(event,found.block)==="after";post("canvas:block-move",{sectionId:draggingBlock.sectionId,blockId:draggingBlock.blockId,targetBlockId:found.block.dataset.wfBlockId,after});return}
       if(draggingSection){const section=event.target.closest?.("[data-wf-section-id]");if(!section)return;event.preventDefault();const siblings=[...section.parentElement.querySelectorAll(":scope > [data-wf-section-id]")];const targetIndex=siblings.indexOf(section);if(targetIndex<0)return;const after=positionAt(event,section)==="after";post("canvas:move",{sectionId:draggingSection,toIndex:targetIndex+(after?1:0)})}
     }finally{clearDrag()}
   });

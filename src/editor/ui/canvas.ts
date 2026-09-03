@@ -3,7 +3,7 @@ import { renderEditorDocument } from "../render/render-document";
 import { parseCanvasBridgeMessage, type CanvasBridgeAction } from "./canvas-bridge";
 import { CANVAS_RUNTIME } from "./canvas-runtime";
 import type { EditorStore } from "./store";
-import { sectionMoveTarget } from "./drag-sections";
+import { blockDropTarget, sectionMoveTarget } from "./drag-sections";
 
 export type CanvasOptions = {
   mode: "edit" | "preview";
@@ -37,7 +37,9 @@ export function runCanvasMoveAction(store: EditorStore, action: Extract<CanvasBr
     store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: store.getState().pageId, toIndex: action.toIndex });
     return;
   }
-  store.dispatch({ type: "moveBlock", sectionId: action.sectionId, blockId: action.blockId, toIndex: action.toIndex });
+  const target = blockDropTarget(store.getState().document, action.sectionId, action.blockId, action.targetBlockId, action.after);
+  if (!target) return;
+  store.dispatch({ type: "moveBlock", sectionId: target.sectionId, blockId: action.blockId, toIndex: target.toIndex });
   store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId, rightCollapsed: false });
 }
 

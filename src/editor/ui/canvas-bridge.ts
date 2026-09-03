@@ -3,7 +3,7 @@ export type CanvasBridgeAction =
   | { type: "inlineEdit"; sectionId: string; key: string; value: string }
   | { type: "imageEdit"; sectionId: string; key: string }
   | { type: "move"; sectionId: string; toIndex: number }
-  | { type: "blockMove"; sectionId: string; blockId: string; toIndex: number }
+  | { type: "blockMove"; sectionId: string; blockId: string; targetBlockId: string; after: boolean }
   | { type: "action"; sectionId: string; action: "moveUp" | "moveDown" | "duplicate" | "hide" | "remove" };
 
 export function parseCanvasBridgeMessage(value: unknown): CanvasBridgeAction | null {
@@ -25,10 +25,10 @@ export function parseCanvasBridgeMessage(value: unknown): CanvasBridgeAction | n
   if (message.type === "canvas:block-move"
     && typeof message.blockId === "string"
     && /^[a-z0-9_-]+$/i.test(message.blockId)
-    && typeof message.toIndex === "number"
-    && Number.isInteger(message.toIndex)
-    && message.toIndex >= 0) {
-    return { type: "blockMove", sectionId: message.sectionId, blockId: message.blockId, toIndex: message.toIndex };
+    && typeof message.targetBlockId === "string"
+    && /^[a-z0-9_-]+$/i.test(message.targetBlockId)
+    && typeof message.after === "boolean") {
+    return { type: "blockMove", sectionId: message.sectionId, blockId: message.blockId, targetBlockId: message.targetBlockId, after: message.after };
   }
   const actions = ["moveUp", "moveDown", "duplicate", "hide", "remove"] as const;
   if (message.type === "canvas:action" && actions.includes(message.action as typeof actions[number])) {

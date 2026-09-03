@@ -38,11 +38,9 @@ export function blockDropTarget(
   document: EditorDocument,
   sectionId: string,
   blockId: string,
-  targetSectionId: string,
   targetBlockId: string,
   after = false,
 ): BlockDragTarget | null {
-  if (sectionId !== targetSectionId) return null;
   for (const page of document.pages) {
     const section = page.sections.find((item) => item.id === sectionId);
     if (!section) continue;

@@ -36,23 +36,35 @@ describe("visual editor browser contract", () => {
       responsive: {},
       blocks: [
         { id: "solo", type: "offer-tier", settings: {} },
+        { id: "cross-sell", type: "upsell", settings: {} },
         { id: "duo", type: "offer-tier", settings: {} },
       ],
     });
-    const store = createEditorStore(visualEditorInitialState({ id: "pg_1", name: "Boutique", slug: "boutique", status: "draft", documentVersion: 3, document }));
-    const action = parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:block-move", sectionId: "quantity-offer-1", blockId: "solo", toIndex: 2 });
+    const scenarios = [
+      { name: "avant", blockId: "duo", targetBlockId: "solo", after: false, expected: ["duo", "solo", "cross-sell"] },
+      { name: "après", blockId: "solo", targetBlockId: "duo", after: true, expected: ["cross-sell", "duo", "solo"] },
+      { name: "haut", blockId: "duo", targetBlockId: "solo", after: false, expected: ["duo", "solo", "cross-sell"] },
+      { name: "bas", blockId: "solo", targetBlockId: "duo", after: true, expected: ["cross-sell", "duo", "solo"] },
+    ];
 
-    expect(action).toEqual({ type: "blockMove", sectionId: "quantity-offer-1", blockId: "solo", toIndex: 2 });
-    if (!action || action.type !== "blockMove") throw new Error("Déplacement de palier non reconnu");
-    runCanvasMoveAction(store, action);
-    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toEqual(["duo", "solo"]);
-    expect(store.getState().selectedId).toBe("quantity-offer-1");
-    expect(store.getState().selectedBlockId).toBe("solo");
-    expect(document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toEqual(["solo", "duo"]);
+    for (const scenario of scenarios) {
+      const store = createEditorStore(visualEditorInitialState({ id: "pg_1", name: "Boutique", slug: "boutique", status: "draft", documentVersion: 3, document }));
+      const action = parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:block-move", sectionId: "quantity-offer-1", blockId: scenario.blockId, targetBlockId: scenario.targetBlockId, after: scenario.after });
+      expect(action, scenario.name).toEqual({ type: "blockMove", sectionId: "quantity-offer-1", blockId: scenario.blockId, targetBlockId: scenario.targetBlockId, after: scenario.after });
+      if (!action || action.type !== "blockMove") throw new Error("Déplacement de palier non reconnu");
+
+      runCanvasMoveAction(store, action);
+
+      expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id), scenario.name).toEqual(scenario.expected);
+      expect(store.getState().selectedId).toBe("quantity-offer-1");
+      expect(store.getState().selectedBlockId).toBe(scenario.blockId);
+    }
+    expect(document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toEqual(["solo", "cross-sell", "duo"]);
   });
 
   it("rejects malformed canvas tier moves", () => {
-    expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:block-move", sectionId: "quantity-offer-1", blockId: "<duo>", toIndex: 1 })).toBeNull();
-    expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:block-move", sectionId: "quantity-offer-1", blockId: "duo", toIndex: -1 })).toBeNull();
+    expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:block-move", sectionId: "quantity-offer-1", blockId: "<duo>", targetBlockId: "solo", after: false })).toBeNull();
+    expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:block-move", sectionId: "quantity-offer-1", blockId: "duo", targetBlockId: "<solo>", after: false })).toBeNull();
+    expect(parseCanvasBridgeMessage({ source: "weflo-canvas", type: "canvas:block-move", sectionId: "quantity-offer-1", blockId: "duo", targetBlockId: "solo", after: "false" })).toBeNull();
   });
 });
