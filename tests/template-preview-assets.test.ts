@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { FORMAT_FLOWS } from "../src/create/format-flow";
 
@@ -18,6 +18,8 @@ describe("template preview assets", () => {
     const templates = FORMAT_FLOWS.flatMap((flow) => flow.templates);
     expect(templates).toHaveLength(21);
     expect(Object.keys(manifest)).toHaveLength(21);
+    const files = readdirSync("public/template-previews").filter((file) => file.endsWith(".webp")).sort();
+    expect(files).toHaveLength(42);
 
     for (const template of templates) {
       const entry = manifest[template.id];
@@ -32,5 +34,6 @@ describe("template preview assets", () => {
       expect(entry.desktopHash).toBe(createHash("sha256").update(readFileSync(`public${entry.desktop}`)).digest("hex").slice(0, 16));
       expect(entry.mobileHash).toBe(createHash("sha256").update(readFileSync(`public${entry.mobile}`)).digest("hex").slice(0, 16));
     }
+    expect(files).toEqual(templates.flatMap((template) => [`${template.id}-desktop.webp`, `${template.id}-mobile.webp`]).sort());
   });
 });

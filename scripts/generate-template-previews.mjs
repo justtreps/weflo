@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { chromium } from "playwright";
 import { FORMAT_FLOWS } from "../src/create/format-flow.ts";
@@ -29,9 +29,14 @@ async function assertPreview(page, templateId, viewport) {
   if (qa.visibleText < 80) throw new Error(`Blank preview in ${templateId}:${viewport}`);
 }
 
-function overviewHtml(sectionBuffers, viewport) {
-  const columns = viewport === "desktop" ? 3 : 2;
-  return `<!doctype html><html><head><style>*{box-sizing:border-box}body{margin:0;padding:18px;background:#10100f}.grid{height:calc(100vh - 36px);display:grid;grid-template-columns:repeat(${columns},minmax(0,1fr));grid-auto-rows:1fr;gap:10px}.frame{min-width:0;min-height:0;overflow:hidden;background:#f7f6f1;border:1px solid #3e3d37}.frame img{width:100%;height:100%;display:block;object-fit:contain;object-position:top}</style></head><body><main class="grid">${sectionBuffers.map((buffer) => `<div class="frame"><img src="data:image/png;base64,${buffer.toString("base64")}" alt="Section de modèle fictif"></div>`).join("")}</main></body></html>`;
+async function fitContinuousDocument(page) {
+  await page.evaluate(() => { const scale = Math.min(1, window.innerHeight / document.documentElement.scrollHeight); const style = document.createElement("style"); style.textContent = `.wf-section,.wf-v2-wrap{width:calc(100% - 56px);max-width:none}body{width:${100 / scale}%;transform:scale(${scale});transform-origin:top left;overflow:hidden}`; document.head.append(style); });
+}
+
+async function assertFinalCapture(context, buffer, templateId, viewport) {
+  const page = await context.newPage(); const errors = [];
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); }); page.on("pageerror", (error) => errors.push(error.message));
+  try { await page.setContent(`<img id="capture" src="data:image/webp;base64,${buffer.toString("base64")}">`); const result = await page.evaluate(async () => { const image = document.querySelector("#capture"); await image.decode(); const canvas = document.createElement("canvas"); canvas.width=image.naturalWidth; canvas.height=image.naturalHeight; const ctx=canvas.getContext("2d"); ctx.drawImage(image,0,0); const data=ctx.getImageData(0,0,canvas.width,canvas.height).data; let min=255,max=0; for(let i=0;i<data.length;i+=64){min=Math.min(min,data[i],data[i+1],data[i+2]);max=Math.max(max,data[i],data[i+1],data[i+2]);} return {width:image.naturalWidth,height:image.naturalHeight,range:max-min}; }); if(result.width!==sizes[viewport].width||result.height!==sizes[viewport].height||result.range<12||buffer.length<2000) throw new Error(`Blank or invalid final capture for ${templateId}:${viewport}`); if(errors.length) throw new Error(`Final capture errors in ${templateId}:${viewport}: ${errors.join(" | ")}`); } finally { await page.close(); }
 }
 
 function contactSheetHtml(cards) {
@@ -51,6 +56,8 @@ function fixtureIllustration(url) {
 }
 
 await mkdir(outputRoot, { recursive: true });
+const expectedPaths = new Set(templates.flatMap((template) => [pathFor(template.id, "desktop").split("/").at(-1), pathFor(template.id, "mobile").split("/").at(-1)]));
+for (const name of await readdir(outputRoot)) if (name.endsWith(".webp") && !expectedPaths.has(name)) await unlink(join(outputRoot, name));
 const browser = await chromium.launch({ headless: true });
 const entries = {};
 const contactCards = new Map();
@@ -76,14 +83,9 @@ try {
         })));
       });
       await assertPreview(page, template.id, viewport);
-      const sections = page.locator("[data-wf-section-id]");
-      const sectionBuffers = [];
-      for (let index = 0; index < await sections.count(); index += 1) sectionBuffers.push(await sections.nth(index).screenshot({ type: "png", animations: "disabled" }));
-      const overview = await context.newPage();
-      await overview.setViewportSize(size);
-      await overview.setContent(overviewHtml(sectionBuffers, viewport), { waitUntil: "domcontentloaded" });
-      const buffer = await overview.screenshot({ type: "webp", quality: 86, animations: "disabled" });
-      await overview.close();
+      await fitContinuousDocument(page);
+      const buffer = await page.screenshot({ type: "webp", quality: 86, animations: "disabled" });
+      await assertFinalCapture(context, buffer, template.id, viewport);
       const assetPath = pathFor(template.id, viewport);
       await writeFile(join(root, "public", ...assetPath.split("/").filter(Boolean)), buffer);
       assets[viewport] = { path: assetPath, buffer, hash: hash(buffer) };
@@ -98,6 +100,8 @@ try {
     cards.push(card); contactCards.set(template.format, cards);
   }
   await writeFile(join(outputRoot, "manifest.json"), `${JSON.stringify(entries, null, 2)}\n`);
+  const outputWebps = (await readdir(outputRoot)).filter((name) => name.endsWith(".webp"));
+  if (outputWebps.length !== templates.length * 2 || outputWebps.some((name) => !expectedPaths.has(name))) throw new Error(`Expected exactly ${templates.length * 2} template WebPs, found ${outputWebps.length}`);
   const sheet = await context.newPage();
   await sheet.setViewportSize({ width: 1840, height: 1200 });
   await sheet.setContent(contactSheetHtml([...contactCards].map(([format, cards]) => `<section class="format"><h2>${format}</h2><div class="grid">${cards.join("")}</div></section>`)), { waitUntil: "domcontentloaded" });

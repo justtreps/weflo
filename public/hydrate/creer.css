@@ -1227,3 +1227,12 @@ body {
     min-height: 0;
   }
 }
+.template-preview-frame img {
+  object-fit: contain;
+}
+.template-preview[data-preview-device=desktop] .template-preview-frame {
+  aspect-ratio: 1440/1100;
+}
+.template-preview[data-preview-device=mobile] .template-preview-frame {
+  aspect-ratio: 390/844;
+}
