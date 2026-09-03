@@ -96,7 +96,11 @@ describe("Shopify document compiler", () => {
     expect(liquid).toContain("selected_product");
     expect(liquid).not.toContain("15% de réduction");
     expect(liquid).toContain('data-wf-block-id="{{ block.id }}"');
+    expect(liquid).toContain("section.settings.subtitle");
+    expect(liquid).toContain("section.settings.text");
+    expect(liquid).not.toMatch(/{%\s*if[^%]*\(/);
     expect(published?.blocks?.duo.type).toBe("offer-tier");
+    expect(files.find((file) => file.key === "assets/weflo-product-form.js")?.value).toContain("wfNativeCheckoutLocked");
   });
 
   it("keeps stable discount values with French Shopify labels", () => {

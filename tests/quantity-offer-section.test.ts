@@ -54,6 +54,9 @@ describe("section Offre quantité", () => {
     expect(liquid).toContain("block.settings.quantity");
     expect(liquid).toContain('name="quantity"');
     expect(liquid).toContain("selected_product");
+    expect(liquid).toContain("section.settings.subtitle");
+    expect(liquid).toContain("section.settings.text");
+    expect(liquid).not.toMatch(/{%\s*if[^%]*\(/);
     expect(schema.blocks[0].type).toBe("offer-tier");
     expect(schema.blocks[0].settings.map((setting) => setting.id)).toEqual(expect.arrayContaining([
       "title", "subtitle", "badge", "quantity", "discount_type", "discount_value", "product_handle", "variant_id", "preselected", "show_variant_picker",
@@ -105,5 +108,12 @@ describe("section Offre quantité", () => {
 
     expect(changed).toBe(true);
     expect(id.value).toBe("445566");
+  });
+
+  it("keeps a native checkout lock explicit for mixed offers", () => {
+    expect(productRuntime).toHaveProperty("isNativeCheckoutLocked");
+    const locked = (productRuntime as unknown as { isNativeCheckoutLocked(root: { dataset: Record<string, string> }): boolean }).isNativeCheckoutLocked;
+    expect(locked({ dataset: { wfNativeCheckoutLocked: "true" } })).toBe(true);
+    expect(locked({ dataset: { wfNativeCheckoutLocked: "false" } })).toBe(false);
   });
 });
