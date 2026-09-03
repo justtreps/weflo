@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderBuildExperience } from "../src/create/build-view";
 import { initialCreationState, transitionCreationFlow } from "../src/create/flow-state";
-import { renderCreateWorkspace } from "../src/create/workspace";
+import { renderCreateWorkspace, renderStrategyBackControl } from "../src/create/workspace";
 import type { BuildStage } from "../src/onboarding/types";
 
 const stages: BuildStage[] = [
@@ -33,5 +33,16 @@ describe("premium creation build view", () => {
     expect(gallery).not.toContain('data-create-source="description"');
     expect(intake).toContain('data-create-source="description"');
     expect(intake).toContain('name="answers[campaign]"');
+  });
+
+  it("disables intake submission while a submission is in flight", () => {
+    const state = initialCreationState(new URL("https://weflo.test/creer?format=landing&template=landing-direct-response"));
+
+    expect(renderCreateWorkspace({ workspaceName: "Studio", state, busy: true }))
+      .toContain("<button disabled>Analyse en cours…</button>");
+  });
+
+  it("renders a French strategy back control", () => {
+    expect(renderStrategyBackControl()).toBe('<button type="button" class="back-template" data-back-strategy>← Retour aux informations</button>');
   });
 });

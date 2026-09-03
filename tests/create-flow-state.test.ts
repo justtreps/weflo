@@ -7,6 +7,7 @@ import {
   submissionActionForState,
   transitionCreationFlow,
 } from "../src/create/flow-state";
+import { creationWorkspaceUrl } from "../src/create/workspace";
 
 describe("creation flow state", () => {
   it("starts a homepage at its template gallery", () => {
@@ -115,6 +116,29 @@ describe("creation flow state", () => {
     expect(raw).not.toContain("ZmlsZQ");
   });
 
+  it.each([
+    "https://user:password@example.test/product",
+    "https://example.test/product?access_token=secret",
+    "https://example.test/product?key=secret",
+    "https://example.test/product?api_key=secret",
+    "https://example.test/product?password=secret",
+    "https://example.test/product?secret=secret",
+    "https://example.test/product?auth=secret",
+    "https://example.test/product?signature=secret",
+    "https://example.test/product?credential=secret",
+    "Consulte blob:https://example.test/private-payload",
+    "Préfixe data:image/png;base64,secret-image",
+  ])("keeps an unsafe prompt transient and omits it from storage and history: %s", (prompt) => {
+    const state = transitionCreationFlow(
+      initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=link")),
+      { type: "UPDATE_INTAKE", prompt, answers: {} },
+    );
+
+    expect(state.prompt).toBe(prompt);
+    expect(JSON.parse(serializeCreationDraft(state)).prompt).toBe("");
+    expect(creationWorkspaceUrl(state.format, state.templateId, state)).toBe("/creer?format=product&template=product-buybox-premium&source=link");
+  });
+
   it("restores a current safe draft and rejects malformed or incompatible drafts", () => {
     const raw = JSON.stringify({
       version: 2,
@@ -142,6 +166,15 @@ describe("creation flow state", () => {
       prompt: "",
       answers: {},
       step: "intake",
+    }))).toBeNull();
+    expect(restoreCreationDraft(JSON.stringify({
+      version: 2,
+      format: "home",
+      templateId: null,
+      source: "description",
+      prompt: "",
+      answers: {},
+      step: "create-blank",
     }))).toBeNull();
   });
 
@@ -186,5 +219,24 @@ describe("creation flow state", () => {
     expect(submissionActionForState(describedProduct)).toBe("simple");
     expect(submissionActionForState(normalizedHome)).toBe("simple");
     expect(submissionActionForState(linkedProduct)).toBe("link");
+  });
+
+  it("returns from strategy to intake without losing the selected draft", () => {
+    let state = initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=description"));
+    state = transitionCreationFlow(state, {
+      type: "UPDATE_INTAKE",
+      prompt: "Une fiche précise",
+      answers: { benefits: "Rapide", objections: "Prix", offer: "49 €", variants: "Noir" },
+    });
+    state = transitionCreationFlow(state, { type: "CONTINUE" });
+
+    expect(transitionCreationFlow(state, { type: "BACK" })).toMatchObject({
+      step: "intake",
+      format: "product",
+      templateId: "product-buybox-premium",
+      source: "description",
+      prompt: "Une fiche précise",
+      answers: { benefits: "Rapide", offer: "49 €" },
+    });
   });
 });

@@ -1,6 +1,7 @@
 import { flowForFormat, templateById, type CreationSource } from "./format-flow";
 import { sourceForFormat } from "./workspace";
 import { isCreationFormat, type CreationFormatId } from "../onboarding/creation-recipe";
+import { persistentCreationText } from "./draft-safety";
 
 export type CreationStep = "format" | "template" | "intake" | "strategy" | "build" | "create-blank";
 
@@ -30,20 +31,12 @@ function assertCompatibleTemplate(format: CreationFormatId, templateId: string):
   if (template.format !== format) throw new Error(`Template ${templateId} is not compatible with ${format}`);
 }
 
-function isSafeText(value: unknown): value is string {
-  return typeof value === "string" && !/^\s*(?:data|blob):/i.test(value);
-}
-
-function safePrompt(value: unknown): string {
-  return isSafeText(value) ? value : "";
-}
-
 function safeAnswers(format: CreationFormatId | null, value: unknown): Record<string, string> {
   if (!format || format === "blank" || !value || typeof value !== "object" || Array.isArray(value)) return {};
   const raw = value as Record<string, unknown>;
   return Object.fromEntries(flowForFormat(format).intake.flatMap((field) => {
     const answer = raw[field.id];
-    return isSafeText(answer) ? [[field.id, answer] as const] : [];
+    return typeof answer === "string" && persistentCreationText(answer) === answer ? [[field.id, answer] as const] : [];
   }));
 }
 
@@ -69,6 +62,7 @@ function assertState(state: CreationFlowState): void {
   }
 
   if (state.templateId) assertCompatibleTemplate(state.format, state.templateId);
+  if (state.step === "create-blank") throw new Error("Only a blank page can use the create-blank step");
   if (state.step === "format" && state.templateId) throw new Error("The format choice cannot have a selected template");
   if (state.step === "template" && state.templateId) throw new Error("The template gallery cannot have a selected template");
   if ((state.step === "intake" || state.step === "strategy" || state.step === "build") && !state.templateId) {
@@ -93,7 +87,7 @@ export function initialCreationState(url: URL): CreationFlowState {
     format,
     templateId,
     source: format === "blank" ? null : sourceForFormat(format, url.searchParams.get("source")),
-    prompt: safePrompt(url.searchParams.get("prompt") ?? ""),
+    prompt: url.searchParams.get("prompt") ?? "",
     answers: {},
     step: format === "blank" ? "create-blank" : !format ? "format" : templateId ? "intake" : "template",
   };
@@ -130,7 +124,7 @@ export function transitionCreationFlow(state: CreationFlowState, event: Creation
     case "UPDATE_INTAKE":
       next = {
         ...state,
-        prompt: safePrompt(event.prompt),
+        prompt: event.prompt,
         answers: safeAnswers(state.format, event.answers),
       };
       break;
@@ -169,7 +163,7 @@ export function serializeCreationDraft(state: CreationFlowState): string {
     format,
     templateId,
     source,
-    prompt: safePrompt(state.prompt),
+    prompt: persistentCreationText(state.prompt),
     answers: safeAnswers(format, state.answers),
     step: state.step,
   });
@@ -196,7 +190,7 @@ export function restoreCreationDraft(raw: string | null): CreationFlowState | nu
       format,
       templateId,
       source,
-      prompt: safePrompt(value.prompt),
+      prompt: persistentCreationText(value.prompt),
       answers: safeAnswers(format, value.answers),
       step,
     };
@@ -236,4 +230,9 @@ export function submissionActionForState(state: CreationFlowState): "link" | "im
   if (state.source === "link") return "link";
   if (state.source === "image") return "image";
   return "simple";
+}
+
+export function creationStartupAction(state: CreationFlowState): "create-blank" | "render" {
+  assertState(state);
+  return state.step === "create-blank" ? "create-blank" : "render";
 }

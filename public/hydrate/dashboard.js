@@ -499,6 +499,34 @@ function renderDashboardHome(model) {
     <nav class="mobile-nav"><a href="/dashboard">\u2302<span>Accueil</span></a><a href="/creations">\u25A3<span>Cr\xE9ations</span></a><a href="/studio">\u2726<span>Studio</span></a><a href="/boutique">\u25C6<span>Boutique</span></a><a href="/facturation">\u2699<span>R\xE9glages</span></a></nav>`;
 }
 
+// src/create/draft-safety.ts
+var sensitiveQueryKey = /(?:^|[_-])(?:token|key|api[_-]?key|password|secret|auth|signature|credential)(?:$|[_-])/i;
+var urlCandidate = /\b[a-z][a-z0-9+.-]*:\/\/[^\s<>"']+/gi;
+var queryKey = /[?&]([^=&#\s]+)=/g;
+function decoded(value) {
+  try {
+    return decodeURIComponent(value.replace(/\+/g, " "));
+  } catch {
+    return value;
+  }
+}
+function persistentCreationText(value) {
+  if (typeof value !== "string") return "";
+  if (/(?:data|blob):/i.test(value)) return "";
+  for (const candidate of value.match(urlCandidate) ?? []) {
+    try {
+      const url = new URL(candidate);
+      if (url.username || url.password) return "";
+      if ([...url.searchParams.keys()].some((key) => sensitiveQueryKey.test(key))) return "";
+    } catch {
+    }
+  }
+  for (const match of value.matchAll(queryKey)) {
+    if (sensitiveQueryKey.test(decoded(match[1]))) return "";
+  }
+  return value;
+}
+
 // src/create/workspace.ts
 var formatIcons = {
   store: "\u25C6",
@@ -515,7 +543,9 @@ function creationActionUrl(action, prompt = "") {
   if (action === "link") return "/creer?source=link";
   if (action === "image") return "/creer?source=image";
   if (action === "blank") return "/creer?format=blank";
-  return prompt ? `/creer?source=description&prompt=${encodeURIComponent(prompt)}` : "/creer";
+  const persistentPrompt = persistentCreationText(prompt);
+  if (!prompt) return "/creer";
+  return persistentPrompt ? `/creer?source=description&prompt=${encodeURIComponent(persistentPrompt)}` : "/creer?source=description";
 }
 
 // src/hydrate/dashboard.ts

@@ -1,8 +1,9 @@
-import { creationFormats, creationWorkspaceUrl, renderCreateWorkspace } from "../create/workspace";
+import { creationFormats, creationWorkspaceUrl, renderCreateWorkspace, renderStrategyBackControl } from "../create/workspace";
 import { flowForFormat } from "../create/format-flow";
 import { answersFromFormData, validateFormatIntake } from "../create/format-intake";
 import {
   initialCreationState,
+  creationStartupAction,
   mergeCompatibleCreationDraft,
   restoreCreationDraft,
   serializeCreationDraft,
@@ -14,6 +15,7 @@ import type { OnboardingDraft } from "../onboarding/types";
 import { guardSession } from "./session-guard";
 import { readApiJson } from "./onboarding-request";
 import { renderBuildExperience } from "../create/build-view";
+import { createSubmissionLock } from "../create/submission-lock";
 import "./creer.css";
 
 type PublicDraft = Omit<OnboardingDraft, "claimTokenHash">;
@@ -27,6 +29,7 @@ let error = "";
 let busy = false;
 let workspaceName = "Ton espace";
 let buildStageIndex = 0;
+const submissionLock = createSubmissionLock();
 
 function esc(value: string) { return value.replace(/[&<>"']/g, (char) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[char]!); }
 async function request(url: string, init: RequestInit) { const response = await fetch(url, init); const body = await readApiJson(response); if (!response.ok) throw new Error(body.message || "Cette étape n’a pas abouti."); return body; }
@@ -38,12 +41,12 @@ function render() {
   if (!root) return;
   if (state.step === "strategy" && draft) root.innerHTML=renderStrategy();
   else if (state.step === "build" && draft) renderBuild();
-  else root.innerHTML=renderCreateWorkspace({ workspaceName, state, missingFieldIds });
+  else root.innerHTML=renderCreateWorkspace({ workspaceName, state, missingFieldIds, busy:submissionLock.locked });
   bind();
 }
 function renderStrategy() {
   const choices = [...draft!.personas.map((item) => ({ ...item, kind: "persona" })), ...draft!.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">← Retour à l’espace</a><ol><li>✓ <span>Format</span></li><li>✓ <span>Produit</span></li><li class="active">3 <span>Stratégie</span></li><li>4 <span>Construction</span></li></ol><small>${esc(workspaceName)}</small></aside><main><div class="create-heading"><p>${esc(creationFormats.find((item) => item.id === state.format)?.title ?? "Création")}</p><h1>À qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l’offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc(item.id)}" aria-pressed="${item.selected}"><strong>${esc(item.icon)} ${esc(item.title)}</strong><small>${esc(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction…" : "Construire la page"}</button></div></main></div>`;
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">← Retour à l’espace</a><ol><li>✓ <span>Format</span></li><li>✓ <span>Produit</span></li><li class="active">3 <span>Stratégie</span></li><li>4 <span>Construction</span></li></ol><small>${esc(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<div class="create-heading"><p>${esc(creationFormats.find((item) => item.id === state.format)?.title ?? "Création")}</p><h1>À qui doit parler cette page ?</h1><span>Canardo a extrait ces pistes du produit. Active celles qui doivent guider les titres, les preuves et l’offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc(item.id)}" aria-pressed="${item.selected}"><strong>${esc(item.icon)} ${esc(item.title)}</strong><small>${esc(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction…" : "Construire la page"}</button></div></main></div>`;
 }
 function renderBuild() { if (!root || !draft) return; const formatTitle = creationFormats.find((item) => item.id === state.format)?.title ?? "Boutique"; root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>✓ <span>Format</span></li><li>✓ <span>Produit</span></li><li>✓ <span>Stratégie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc(workspaceName)}</small></aside>${renderBuildExperience({ brandName:draft.brandName || "Ta marque", formatTitle, stages:draft.stages, activeIndex:buildStageIndex, productImage:draft.product?.images[0] })}</div>`; }
 async function importLink(value: string) { const body = await request("/api/onboarding/import", { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({ sourceUrl:value, language:"fr" }) }); draft = body.draft; token = body.claimToken; await request(`/api/onboarding/${draft!.id}`, { method:"PATCH", headers:{"content-type":"application/json","x-weflo-claim-token":token}, body:JSON.stringify({ creationFormat:state.format ?? "store", language:"fr" }) }); }
@@ -66,25 +69,27 @@ function bind() {
   const intakeForm=root?.querySelector<HTMLFormElement>("[data-source-form]");
   intakeForm?.addEventListener("input",()=>{const data=new FormData(intakeForm);state=transitionCreationFlow(state,{type:"UPDATE_INTAKE",answers:answersFromFormData(data),prompt:String(data.get("prompt")??"")});persistState();replaceWorkspaceUrl();});
   intakeForm?.addEventListener("submit",async(event)=>{
-    event.preventDefault();const data=new FormData(event.currentTarget as HTMLFormElement);
+    event.preventDefault();if(!submissionLock.tryAcquire())return;const data=new FormData(event.currentTarget as HTMLFormElement);
     let updated=transitionCreationFlow(state,{type:"UPDATE_INTAKE",answers:answersFromFormData(data),prompt:String(data.get("prompt")??"").trim()});
     missingFieldIds=updated.format?validateFormatIntake(flowForFormat(updated.format),updated.answers):[];
     commitState(updated,false);
-    if(missingFieldIds.length){render();return;}
+    if(missingFieldIds.length){submissionLock.release();render();return;}
     const firstAnswer=Object.values(updated.answers).find((value)=>value.trim())??"";
-    if(!updated.prompt&&!firstAnswer){render();return;}
+    if(!updated.prompt&&!firstAnswer){submissionLock.release();render();return;}
     if(!updated.prompt){updated=transitionCreationFlow(updated,{type:"UPDATE_INTAKE",answers:updated.answers,prompt:firstAnswer});commitState(updated,false);}
     const action=submissionActionForState(updated);
-    if(action==="image"&&!draft){error="Ajoute une image avant de continuer.";render();return;}
-    try{busy=true;error="";if(action==="link")await importLink(updated.prompt);if(action==="simple"){state=transitionCreationFlow(updated,{type:"CONTINUE"});persistState();replaceWorkspaceUrl();await createSimple();return;}commitState(transitionCreationFlow(updated,{type:"CONTINUE"}));}catch(reason){if(state.step==="strategy"&&!draft)state=transitionCreationFlow(state,{type:"BACK"});persistState();replaceWorkspaceUrl();error=reason instanceof Error?reason.message:"Import impossible";render();}finally{busy=false;}
+    if(action==="image"&&!draft){submissionLock.release();error="Ajoute une image avant de continuer.";render();return;}
+    render();
+    try{error="";if(action==="link")await importLink(updated.prompt);if(action==="simple"){state=transitionCreationFlow(updated,{type:"CONTINUE"});persistState();replaceWorkspaceUrl();await createSimple();return;}submissionLock.release();commitState(transitionCreationFlow(updated,{type:"CONTINUE"}));}catch(reason){submissionLock.release();if(state.step==="strategy"&&!draft)state=transitionCreationFlow(state,{type:"BACK"});persistState();replaceWorkspaceUrl();error=reason instanceof Error?reason.message:"Import impossible";render();}
   });
   root?.querySelectorAll<HTMLAnchorElement>("[data-template-select]").forEach((link)=>link.addEventListener("click",(event)=>{if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;event.preventDefault();const id=link.dataset.templateSelect;if(id){missingFieldIds=[];commitState(transitionCreationFlow(state,{type:"SELECT_TEMPLATE",templateId:id}));}}));
   const dialog=root?.querySelector<HTMLDialogElement>("[data-template-dialog]");
   root?.querySelectorAll<HTMLElement>("[data-template-device]").forEach((button)=>button.addEventListener("click",()=>{const preview=button.closest<HTMLElement>("[data-template-preview]");if(!preview)return;const device=button.dataset.templateDevice;if(device!=="desktop"&&device!=="mobile")return;preview.dataset.previewDevice=device;preview.querySelectorAll<HTMLElement>("[data-template-device]").forEach((item)=>item.setAttribute("aria-pressed",String(item===button)));}));
   root?.querySelectorAll<HTMLElement>("[data-template-open]").forEach((button)=>button.addEventListener("click",()=>{const id=button.dataset.templateOpen;const card=id?root.querySelector<HTMLElement>(`[data-template-card="${id}"]`):null;if(!id||!card||!dialog)return;const image=dialog.querySelector<HTMLImageElement>("[data-template-dialog-image]");const desktop=card.querySelector<HTMLImageElement>('[data-preview-image="desktop"]');const name=card.querySelector("h2")?.textContent??"Modèle";const description=card.querySelector("p")?.textContent??"";if(image&&desktop){image.src=desktop.src;image.alt=desktop.alt;}dialog.querySelector("[data-template-dialog-title]")!.textContent=name;dialog.querySelector("[data-template-dialog-description]")!.textContent=description;const select=dialog.querySelector<HTMLAnchorElement>("[data-template-dialog-select]");if(select){select.href=creationWorkspaceUrl(state.format,id,{source:state.source,prompt:state.prompt});select.dataset.templateId=id;}dialog.showModal();}));
   dialog?.querySelector<HTMLAnchorElement>("[data-template-dialog-select]")?.addEventListener("click",(event)=>{if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;const id=(event.currentTarget as HTMLAnchorElement).dataset.templateId;if(!id)return;event.preventDefault();dialog.close();missingFieldIds=[];commitState(transitionCreationFlow(state,{type:"SELECT_TEMPLATE",templateId:id}));});
+  root?.querySelector("[data-back-strategy]")?.addEventListener("click",()=>{submissionLock.release();missingFieldIds=[];commitState(transitionCreationFlow(state,{type:"BACK"}));});
   root?.querySelectorAll<HTMLElement>("[data-strategy]").forEach((button)=>button.addEventListener("click",()=>{const[kind,id]=(button.dataset.strategy??"").split(":");const list=kind==="persona"?draft?.personas:draft?.angles;const item=list?.find((entry)=>entry.id===id);if(item)item.selected=!item.selected;render();}));
   root?.querySelector("[data-build]")?.addEventListener("click",()=>void build().catch((reason)=>{busy=false;if(state.step==="build")state=transitionCreationFlow(state,{type:"BACK"});persistState();replaceWorkspaceUrl();error=reason instanceof Error?reason.message:"Construction impossible";render();}));
 }
-window.addEventListener("popstate",()=>{const url=new URL(location.href);state=mergeCompatibleCreationDraft(initialCreationState(url),readSavedState(),url);persistState();if(state.step==="create-blank")void createSimple().catch((reason)=>{error=reason instanceof Error?reason.message:"Création impossible";render();});else render();});
-void (async()=>{const me=await guardSession();if(!me)return;workspaceName=me.workspace.name;const url=new URL(location.href);state=mergeCompatibleCreationDraft(initialCreationState(url),readSavedState(),url);persistState();replaceWorkspaceUrl();if(state.step==="create-blank")await createSimple();else render();})();
+window.addEventListener("popstate",()=>{const url=new URL(location.href);state=mergeCompatibleCreationDraft(initialCreationState(url),readSavedState(),url);persistState();if(creationStartupAction(state)==="create-blank")void createSimple().catch((reason)=>{error=reason instanceof Error?reason.message:"Création impossible";render();});else render();});
+void (async()=>{const me=await guardSession();if(!me)return;workspaceName=me.workspace.name;const url=new URL(location.href);state=mergeCompatibleCreationDraft(initialCreationState(url),readSavedState(),url);persistState();replaceWorkspaceUrl();if(creationStartupAction(state)==="create-blank")await createSimple();else render();})();

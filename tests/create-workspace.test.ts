@@ -8,6 +8,7 @@ describe("connected creation workspace", () => {
     expect(creationActionUrl("image")).toBe("/creer?source=image");
     expect(creationActionUrl("generate", "une lampe murale")).toBe("/creer?source=description&prompt=une%20lampe%20murale");
     expect(creationActionUrl("blank")).toBe("/creer?format=blank");
+    expect(creationActionUrl("generate", "https://example.test/product?token=secret")).toBe("/creer?source=description");
   });
 
   it("restores every professional page format in French", () => {

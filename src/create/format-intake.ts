@@ -46,11 +46,12 @@ export function answersFromFormData(form: FormData): Record<string, string> {
   }));
 }
 
-type IntakeRenderState = { prompt?: string; missingFieldIds?: string[] };
+type IntakeRenderState = { prompt?: string; missingFieldIds?: string[]; busy?: boolean };
 
 export function renderFormatIntake(flow: FormatFlow, answers: Record<string, string>, source: string | null, state: IntakeRenderState = {}): string {
   const missingFields = new Set(state.missingFieldIds ?? []);
   const promptPlaceholder = source === "link" ? "Colle le lien de ton produit…" : "Ajoute une précision utile pour cette page…";
 
-  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field) => renderField(field, answers, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte à ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state.prompt ?? "")}</textarea></label><button>Analyser et continuer</button></form>`;
+  const submit = state.busy ? '<button disabled>Analyse en cours…</button>' : "<button>Analyser et continuer</button>";
+  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field) => renderField(field, answers, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte à ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state.prompt ?? "")}</textarea></label>${submit}</form>`;
 }
