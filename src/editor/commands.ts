@@ -14,7 +14,9 @@ export type EditorCommand =
   | { type: "moveBlock"; sectionId: string; blockId: string; toIndex: number }
   | { type: "removeBlock"; sectionId: string; blockId: string }
   | { type: "updateBlockSetting"; sectionId: string; blockId: string; key: string; value: SettingValue }
+  | { type: "setExclusiveBlockSetting"; sectionId: string; blockId: string; key: string }
   | { type: "duplicateBlock"; sectionId: string; blockId: string; newBlockId: string; index?: number }
+  | { type: "transaction"; commands: EditorCommand[] }
   | { type: "restoreDocument"; document: EditorDocument };
 
 export class EditorCommandError extends Error {}
@@ -59,6 +61,7 @@ function editableSection(document: EditorDocument, sectionId: string) {
 
 export function applyCommand(document: EditorDocument, command: EditorCommand): EditorDocument {
   if (command.type === "restoreDocument") return clone(command.document);
+  if (command.type === "transaction") return command.commands.reduce((current, nested) => applyCommand(current, nested), clone(document));
   const next = clone(document);
 
   switch (command.type) {
@@ -150,6 +153,15 @@ export function applyCommand(document: EditorDocument, command: EditorCommand): 
       const block = section.blocks.find((item) => item.id === command.blockId);
       if (!block) throw new EditorCommandError(`Block not found: ${command.blockId}`);
       block.settings[command.key] = clone(command.value);
+      break;
+    }
+    case "setExclusiveBlockSetting": {
+      const { section } = editableSection(next, command.sectionId);
+      const selected = section.blocks.find((block) => block.id === command.blockId);
+      if (!selected) throw new EditorCommandError(`Block not found: ${command.blockId}`);
+      for (const block of section.blocks) {
+        block.settings[command.key] = block.id === selected.id;
+      }
       break;
     }
     case "duplicateBlock": {

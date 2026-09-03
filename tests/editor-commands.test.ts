@@ -55,4 +55,31 @@ describe("editor commands", () => {
     expect(() => applyCommand(locked, { type: "updateSetting", sectionId: "s1", key: "title", value: "No" })).toThrow("Section is locked: s1");
     expect(() => applyCommand(document(), { type: "insertSection", pageId: "p1", index: 0, section: section("s2") })).toThrow("Duplicate section id: s2");
   });
+
+  it("sets one exclusive block setting without mutating the source", () => {
+    const before = document();
+    before.pages[0].sections[0].blocks[0].settings.preselected = true;
+    before.pages[0].sections[0].blocks[1].settings.preselected = true;
+    before.pages[0].sections[0].blocks[1].type = "offer-tier";
+
+    const after = applyCommand(before, { type: "setExclusiveBlockSetting", sectionId: "s1", blockId: "s1-b2", key: "preselected" } as EditorCommand);
+
+    expect(after.pages[0].sections[0].blocks.map((block) => block.settings.preselected)).toEqual([false, true]);
+    expect(before.pages[0].sections[0].blocks.map((block) => block.settings.preselected)).toEqual([true, true]);
+  });
+
+  it("applies a command transaction as one reversible history entry", async () => {
+    const { createHistory, dispatch, undo } = await import("../src/editor/history");
+    const before = document();
+    const history = dispatch(createHistory(before), {
+      type: "transaction",
+      commands: [
+        { type: "duplicateBlock", sectionId: "s1", blockId: "s1-b1", newBlockId: "s1-b3" },
+        { type: "setExclusiveBlockSetting", sectionId: "s1", blockId: "s1-b1", key: "preselected" },
+      ],
+    } as EditorCommand);
+
+    expect(history.present.pages[0].sections[0].blocks.map((block) => block.id)).toEqual(["s1-b1", "s1-b3", "s1-b2"]);
+    expect(undo(history).present).toEqual(before);
+  });
 });

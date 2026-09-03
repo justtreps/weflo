@@ -1,4 +1,5 @@
 import type { EditorBlock, EditorSection, SettingValue } from "../document";
+import type { EditorCommand } from "../commands";
 import type { EditorState, EditorStore } from "./store";
 
 const TIER_DEFAULTS: EditorBlock["settings"] = {
@@ -51,7 +52,7 @@ function effectivePreselectedId(tiers: EditorBlock[]): string | undefined {
 
 function effectiveProductHandles(section: EditorSection, tiers: EditorBlock[]): string[] {
   const sectionHandle = String(section.settings.product_handle ?? "").trim().toLowerCase();
-  return [...new Set(tiers.map((tier) => String(tier.settings.product_handle ?? sectionHandle).trim().toLowerCase()).filter(Boolean))];
+  return [...new Set(tiers.map((tier) => (String(tier.settings.product_handle ?? "").trim() || sectionHandle).toLowerCase()).filter(Boolean))];
 }
 
 function setting(block: EditorBlock, key: string, fallback: SettingValue = ""): SettingValue {
@@ -65,9 +66,9 @@ function tierMarkup(section: EditorSection, block: EditorBlock, selectedBlockId:
   const attributes = `data-section-id="${sectionId}" data-block-id="${blockId}"`;
   const selected = block.id === selectedBlockId;
   const checked = block.id === preselectedId;
-  return `<article class="editor-offer-tier" data-offer-tier="${blockId}" ${attributes} draggable="${!section.locked}" tabindex="0" aria-label="Modifier le palier ${escapeHtml(title)}" aria-selected="${selected}">
+  return `<article class="editor-offer-tier" data-offer-tier="${blockId}" ${attributes} tabindex="0" aria-label="Modifier le palier ${escapeHtml(title)}" aria-selected="${selected}">
     <header class="editor-offer-tier__header">
-      <button type="button" class="editor-offer-tier__handle" data-offer-drag-handle ${attributes} aria-label="Déplacer le palier ${escapeHtml(title)}"${section.locked ? " disabled" : ""}><span aria-hidden="true">⠿</span></button>
+      <button type="button" class="editor-offer-tier__handle" data-offer-drag-handle ${attributes} draggable="${!section.locked}" aria-label="Déplacer le palier ${escapeHtml(title)}"${section.locked ? " disabled" : ""}><span aria-hidden="true">⠿</span></button>
       <button type="button" class="editor-offer-tier__select" data-offer-action="select" ${attributes}><strong>${escapeHtml(title)}</strong><small>${escapeHtml(setting(block, "subtitle", `${setting(block, "quantity", 1)} unité(s)`))}</small></button>
       <label class="editor-offer-tier__default"><input type="radio" name="offer-preselected-${sectionId}" data-offer-setting="preselected" ${attributes}${checked ? " checked" : ""}${section.locked ? " disabled" : ""}>Par défaut</label>
     </header>
@@ -113,45 +114,51 @@ function sectionById(state: EditorState, sectionId: string): EditorSection | und
   return state.document.pages.flatMap((page) => page.sections).find((section) => section.id === sectionId);
 }
 
-function ensureOnePreselected(store: EditorStore, sectionId: string, preferredId?: string): void {
-  const section = sectionById(store.getState(), sectionId);
-  if (!section) return;
+function exclusivePreselection(section: EditorSection, preferredId?: string): EditorCommand | undefined {
   const tiers = offerTiers(section);
   const chosen = preferredId && tiers.some((tier) => tier.id === preferredId)
     ? preferredId
     : effectivePreselectedId(tiers);
-  if (!chosen) return;
-  for (const tier of tiers) {
-    const expected = tier.id === chosen;
-    if (tier.settings.preselected !== expected) store.dispatch({ type: "updateBlockSetting", sectionId, blockId: tier.id, key: "preselected", value: expected });
-  }
+  return chosen ? { type: "setExclusiveBlockSetting", sectionId: section.id, blockId: chosen, key: "preselected" } : undefined;
+}
+
+function transaction(commands: Array<EditorCommand | undefined>): EditorCommand {
+  return { type: "transaction", commands: commands.filter((command): command is EditorCommand => command !== undefined) };
 }
 
 export function runOfferEditorAction(store: EditorStore, action: OfferEditorAction): void {
   const section = sectionById(store.getState(), action.sectionId);
-  if (!section || section.type !== "quantity-offer" || section.locked) return;
+  if (!section || section.type !== "quantity-offer") return;
   if (action.action === "select") {
     store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId, rightCollapsed: false });
     return;
   }
+  if (section.locked) return;
   if (action.action === "composition") {
     if (COMPOSITIONS.some(([value]) => value === action.value)) store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: "variant", value: action.value });
     return;
   }
   if (action.action === "setting") {
+    if (action.key === "preselected") {
+      store.dispatch({ type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: "preselected" });
+      return;
+    }
     store.dispatch({ type: "updateBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: action.key, value: action.value });
     return;
   }
   if (action.action === "preselect") {
-    ensureOnePreselected(store, action.sectionId, action.blockId);
+    store.dispatch({ type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: "preselected" });
     store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId });
     return;
   }
   if (action.action === "add") {
     const id = uniqueBlockId(store.getState(), "offer-tier-1");
     const tiers = offerTiers(section);
-    store.dispatch({ type: "insertBlock", sectionId: action.sectionId, index: section.blocks.length, block: { id, type: "offer-tier", settings: { ...TIER_DEFAULTS, preselected: tiers.length === 0 } } });
-    ensureOnePreselected(store, action.sectionId);
+    const chosen = effectivePreselectedId(tiers) ?? id;
+    store.dispatch(transaction([
+      { type: "insertBlock", sectionId: action.sectionId, index: section.blocks.length, block: { id, type: "offer-tier", settings: { ...TIER_DEFAULTS, preselected: false } } },
+      { type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: chosen, key: "preselected" },
+    ]));
     store.setState({ selectedId: action.sectionId, selectedBlockId: id, rightCollapsed: false });
     return;
   }
@@ -159,9 +166,10 @@ export function runOfferEditorAction(store: EditorStore, action: OfferEditorActi
     const sourceIndex = section.blocks.findIndex((block) => block.id === action.blockId);
     if (sourceIndex < 0) return;
     const id = uniqueBlockId(store.getState(), `${action.blockId}-copy`);
-    store.dispatch({ type: "duplicateBlock", sectionId: action.sectionId, blockId: action.blockId, newBlockId: id, index: sourceIndex + 1 });
-    store.dispatch({ type: "updateBlockSetting", sectionId: action.sectionId, blockId: id, key: "preselected", value: false });
-    ensureOnePreselected(store, action.sectionId, effectivePreselectedId(offerTiers(section)));
+    store.dispatch(transaction([
+      { type: "duplicateBlock", sectionId: action.sectionId, blockId: action.blockId, newBlockId: id, index: sourceIndex + 1 },
+      exclusivePreselection(section),
+    ]));
     store.setState({ selectedId: action.sectionId, selectedBlockId: id, rightCollapsed: false });
     return;
   }
@@ -170,10 +178,13 @@ export function runOfferEditorAction(store: EditorStore, action: OfferEditorActi
     if (tiers.length <= 1 || !tiers.some((tier) => tier.id === action.blockId)) return;
     const index = tiers.findIndex((tier) => tier.id === action.blockId);
     const wasSelected = action.blockId === store.getState().selectedBlockId;
-    store.dispatch({ type: "removeBlock", sectionId: action.sectionId, blockId: action.blockId });
-    const remaining = offerTiers(sectionById(store.getState(), action.sectionId)!);
+    const remaining = tiers.filter((tier) => tier.id !== action.blockId);
     const nextId = remaining[Math.min(index, remaining.length - 1)]?.id;
-    ensureOnePreselected(store, action.sectionId);
+    const chosen = effectivePreselectedId(remaining) ?? nextId;
+    store.dispatch(transaction([
+      { type: "removeBlock", sectionId: action.sectionId, blockId: action.blockId },
+      chosen ? { type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: chosen, key: "preselected" } : undefined,
+    ]));
     if (wasSelected) store.setState({ selectedBlockId: nextId ?? null });
     return;
   }
@@ -252,6 +263,7 @@ export function bindOfferEditor(root: HTMLElement, store: EditorStore): () => vo
 
   const keydown = (event: KeyboardEvent) => {
     if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    if ((event.target as HTMLElement | null)?.closest?.("input,select,textarea,button")) return;
     const row = eventTarget(event, "[data-offer-tier]");
     const sectionId = row?.dataset.sectionId;
     const blockId = row?.dataset.blockId;
@@ -265,10 +277,10 @@ export function bindOfferEditor(root: HTMLElement, store: EditorStore): () => vo
   };
 
   const dragstart = (event: DragEvent) => {
-    const row = eventTarget(event, "[data-offer-tier]");
-    if (!row?.dataset.sectionId || !row.dataset.blockId || !event.dataTransfer) return;
+    const handle = eventTarget(event, "[data-offer-drag-handle]");
+    if (!handle?.dataset.sectionId || !handle.dataset.blockId || !event.dataTransfer) return;
     event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", `${row.dataset.sectionId}:${row.dataset.blockId}`);
+    event.dataTransfer.setData("text/plain", `${handle.dataset.sectionId}:${handle.dataset.blockId}`);
   };
 
   const dragover = (event: DragEvent) => {

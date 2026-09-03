@@ -67,11 +67,16 @@ function offerTarget(dataset: Record<string, string>, values: Record<string, unk
     checked: false,
     type: "button",
     closest(selector: string) {
+      if (selector === "input,select,textarea,button" && target.matches(selector)) return target;
       if (selector.includes("data-offer-action") && dataset.offerAction) return target;
       if (selector.includes("data-offer-setting") && dataset.offerSetting) return target;
       if (selector.includes("data-offer-composition") && dataset.offerComposition !== undefined) return target;
+      if (selector.includes("data-offer-drag-handle") && dataset.offerDragHandle !== undefined) return target;
       if (selector.includes("data-offer-tier") && dataset.offerTier) return target;
       return null;
+    },
+    matches(selector: string) {
+      return selector.split(",").map((part) => part.trim().toUpperCase()).includes(String((target as { tagName?: string }).tagName ?? "").toUpperCase());
     },
     ...values,
   };
@@ -107,6 +112,17 @@ describe("offer editor", () => {
     expect(markup).toContain("Une application Shopify est requise");
   });
 
+  it("uses the section Shopify handle when a tier handle is empty", () => {
+    const mixed = offerSection({
+      blocks: [
+        { ...offerSection().blocks[0], settings: { ...offerSection().blocks[0].settings, product_handle: "" } },
+        { ...offerSection().blocks[2], settings: { ...offerSection().blocks[2].settings, product_handle: "creme" } },
+      ],
+    });
+
+    expect(offerEditorMarkup(editor(mixed).getState())).toContain('data-offer-capability="app-required"');
+  });
+
   it("updates block settings through commands and keeps one preselected tier", () => {
     const store = editor();
     const original = store.getState().document;
@@ -118,6 +134,34 @@ describe("offer editor", () => {
     expect(section.blocks.find((block) => block.id === "duo")?.settings.discount_value).toBe(15);
     expect(section.blocks.filter((block) => block.settings.preselected === true).map((block) => block.id)).toEqual(["duo"]);
     expect(original.pages[0].sections.at(-1)?.blocks.find((block) => block.id === "solo")?.settings.preselected).toBe(true);
+  });
+
+  it("selects tiers in locked sections while rejecting their mutations", () => {
+    const store = editor(offerSection({ locked: true }));
+    store.setState({ selectedBlockId: null });
+
+    runOfferEditorAction(store, { action: "select", sectionId: "quantity-offer-1", blockId: "trio" });
+    runOfferEditorAction(store, { action: "setting", sectionId: "quantity-offer-1", blockId: "trio", key: "quantity", value: 9 });
+
+    expect(store.getState().selectedBlockId).toBe("trio");
+    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.find((block) => block.id === "trio")?.settings.quantity).toBe(3);
+  });
+
+  it("normalizes zero and multiple preselected tiers in one command", () => {
+    for (const values of [[false, false, false], [true, true, false]]) {
+      const malformed = offerSection({
+        blocks: offerSection().blocks.map((block, index) => ({ ...block, settings: { ...block.settings, preselected: values[index] } })),
+      });
+      const store = editor(malformed);
+
+      runOfferEditorAction(store, { action: "preselect", sectionId: "quantity-offer-1", blockId: "trio" });
+
+      expect(store.getState().document.pages[0].sections.at(-1)?.blocks.filter((block) => block.settings.preselected).map((block) => block.id)).toEqual(["trio"]);
+      store.undo();
+      expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.settings.preselected)).toEqual(values);
+      store.redo();
+      expect(store.getState().document.pages[0].sections.at(-1)?.blocks.filter((block) => block.settings.preselected).map((block) => block.id)).toEqual(["trio"]);
+    }
   });
 
   it("adds, duplicates and removes tiers without breaking preselection", () => {
@@ -134,6 +178,23 @@ describe("offer editor", () => {
     expect(section.blocks.some((block) => block.id === duplicate)).toBe(true);
     expect(section.blocks.some((block) => block.id === "solo")).toBe(false);
     expect(section.blocks.filter((block) => block.settings.preselected === true)).toHaveLength(1);
+  });
+
+  it("undoes and redoes duplication without exposing an invalid intermediate state", () => {
+    const store = editor();
+
+    runOfferEditorAction(store, { action: "duplicate", sectionId: "quantity-offer-1", blockId: "solo" });
+    const duplicatedIds = store.getState().document.pages[0].sections.at(-1)!.blocks.map((block) => block.id);
+    expect(duplicatedIds).toContain("solo-copy");
+    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.filter((block) => block.settings.preselected)).toHaveLength(1);
+
+    store.undo();
+    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toEqual(["solo", "duo", "trio"]);
+    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.filter((block) => block.settings.preselected).map((block) => block.id)).toEqual(["solo"]);
+
+    store.redo();
+    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toEqual(duplicatedIds);
+    expect(store.getState().document.pages[0].sections.at(-1)?.blocks.filter((block) => block.settings.preselected)).toHaveLength(1);
   });
 
   it("moves tiers with keyboard and pointer destinations", () => {
@@ -168,11 +229,48 @@ describe("offer editor", () => {
     expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toEqual(["duo", "solo", "trio"]);
 
     const transfer = { value: "", effectAllowed: "", dropEffect: "", setData(_type: string, value: string) { this.value = value; }, getData() { return this.value; } };
-    root.emit("dragstart", offerTarget({ sectionId: "quantity-offer-1", blockId: "duo", offerTier: "duo" }), { dataTransfer: transfer });
+    root.emit("dragstart", offerTarget({ sectionId: "quantity-offer-1", blockId: "duo", offerTier: "duo", offerDragHandle: "" }), { dataTransfer: transfer });
     root.emit("drop", offerTarget({ sectionId: "quantity-offer-1", blockId: "trio", offerTier: "trio" }), { dataTransfer: transfer });
     expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toEqual(["solo", "trio", "duo"]);
 
     unbind();
     expect([...root.listeners.values()].every((listeners) => listeners.size === 0)).toBe(true);
+  });
+
+  it("does not move tiers when arrow keys come from interactive controls", () => {
+    const controls = [
+      { tagName: "INPUT", dataset: { offerSetting: "quantity" }, type: "number" },
+      { tagName: "SELECT", dataset: { offerSetting: "discount_type" } },
+      { tagName: "INPUT", dataset: { offerSetting: "preselected" }, type: "radio" },
+      { tagName: "SELECT", dataset: { offerComposition: "horizontal-cards" } },
+      { tagName: "TEXTAREA", dataset: { offerSetting: "subtitle" } },
+      { tagName: "BUTTON", dataset: { offerAction: "quantity-up" } },
+    ];
+    for (const control of controls) {
+      const store = editor();
+      const root = new FakeRoot();
+      const unbind = bindOfferEditor(root as unknown as HTMLElement, store);
+
+      root.emit("keydown", offerTarget({ sectionId: "quantity-offer-1", blockId: "duo", offerTier: "duo", ...control.dataset }, { tagName: control.tagName, type: control.type ?? "button" }), { key: "ArrowUp" });
+
+      expect(store.getState().document.pages[0].sections.at(-1)?.blocks.map((block) => block.id)).toEqual(["solo", "duo", "trio"]);
+      unbind();
+    }
+  });
+
+  it("starts dragging only from the dedicated handle", () => {
+    const store = editor();
+    const root = new FakeRoot();
+    const unbind = bindOfferEditor(root as unknown as HTMLElement, store);
+    const transfer = () => ({ value: "", effectAllowed: "", setData(_type: string, value: string) { this.value = value; }, getData() { return this.value; } });
+    const fieldTransfer = transfer();
+    const handleTransfer = transfer();
+
+    root.emit("dragstart", offerTarget({ sectionId: "quantity-offer-1", blockId: "duo", offerTier: "duo", offerSetting: "quantity" }, { tagName: "INPUT" }), { dataTransfer: fieldTransfer });
+    root.emit("dragstart", offerTarget({ sectionId: "quantity-offer-1", blockId: "duo", offerTier: "duo", offerDragHandle: "" }, { tagName: "BUTTON" }), { dataTransfer: handleTransfer });
+
+    expect(fieldTransfer.value).toBe("");
+    expect(handleTransfer.value).toBe("quantity-offer-1:duo");
+    unbind();
   });
 });
