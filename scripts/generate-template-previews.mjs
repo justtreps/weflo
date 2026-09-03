@@ -84,6 +84,7 @@ try {
       });
       await assertPreview(page, template.id, viewport);
       await fitContinuousDocument(page);
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const buffer = await page.screenshot({ type: "webp", quality: 86, animations: "disabled" });
       await assertFinalCapture(context, buffer, template.id, viewport);
       const assetPath = pathFor(template.id, viewport);

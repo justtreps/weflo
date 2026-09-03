@@ -130,7 +130,7 @@
   "landing-visual-demo": {
     "desktop": "/template-previews/landing-visual-demo-desktop.webp",
     "mobile": "/template-previews/landing-visual-demo-mobile.webp",
-    "desktopHash": "51fd962b3aaea606",
+    "desktopHash": "b2c556b6b53bf7f4",
     "mobileHash": "8f7fe8f9ccb30665",
     "dimensions": {
       "desktop": {
@@ -243,7 +243,7 @@
     "desktop": "/template-previews/home-brand-editorial-desktop.webp",
     "mobile": "/template-previews/home-brand-editorial-mobile.webp",
     "desktopHash": "33e8f7aff5bc6d9d",
-    "mobileHash": "075fadef78cef13b",
+    "mobileHash": "f166172e2dc5ef7d",
     "dimensions": {
       "desktop": {
         "width": 1440,
@@ -290,7 +290,7 @@
   "blog-magazine": {
     "desktop": "/template-previews/blog-magazine-desktop.webp",
     "mobile": "/template-previews/blog-magazine-mobile.webp",
-    "desktopHash": "f11a5ae4426d480e",
+    "desktopHash": "7f1074cb2e78f858",
     "mobileHash": "23841ebc268d0392",
     "dimensions": {
       "desktop": {
