@@ -94,9 +94,14 @@ describe("section Offre quantité", () => {
     const web = definition.renderWeb({ section, pageName: "Sérum" });
     const liquid = definition.renderLiquid(section);
     const status = "Une application Shopify est requise pour les offres multi-produits.";
+    const guardSelector = productRuntime.mixedOfferRuntimeGuardSource.match(/querySelector\('([^']+)'\)/)?.[1];
+    expect(guardSelector).toBe(".wf-quantity-offer__app-required");
+    const appRequiredClass = guardSelector!.slice(1);
     expect(web).toContain(status);
+    expect(web).toContain(`class="${appRequiredClass}"`);
     expect(web).toContain('type="submit" disabled');
     expect(liquid).toContain(status);
+    expect(liquid).toContain(`class="${appRequiredClass}"`);
     expect(liquid).toContain("wf_mixed_product_offer");
   });
 
