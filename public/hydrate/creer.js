@@ -3,8 +3,8 @@ var manifest_default = {
   "store-editorial-commerce": {
     desktop: "/template-previews/store-editorial-commerce-desktop.webp",
     mobile: "/template-previews/store-editorial-commerce-mobile.webp",
-    desktopHash: "64b9ab1c8103522e",
-    mobileHash: "32e6cfecc0b3b3fd",
+    desktopHash: "3b2c9b7e477e4626",
+    mobileHash: "d546a0cf92b85ef4",
     dimensions: {
       desktop: {
         width: 1440,
@@ -19,8 +19,8 @@ var manifest_default = {
   "store-conversion-modern": {
     desktop: "/template-previews/store-conversion-modern-desktop.webp",
     mobile: "/template-previews/store-conversion-modern-mobile.webp",
-    desktopHash: "af2b0b8b8d868475",
-    mobileHash: "9831663c3f83c63a",
+    desktopHash: "064fd13ff57db5fc",
+    mobileHash: "5a5c0ea1f0a334d0",
     dimensions: {
       desktop: {
         width: 1440,
@@ -35,8 +35,8 @@ var manifest_default = {
   "store-maison-premium": {
     desktop: "/template-previews/store-maison-premium-desktop.webp",
     mobile: "/template-previews/store-maison-premium-mobile.webp",
-    desktopHash: "8650160beddfb4aa",
-    mobileHash: "8d61555cc084efc5",
+    desktopHash: "09ba87a40cad4696",
+    mobileHash: "8924838bf793a96c",
     dimensions: {
       desktop: {
         width: 1440,
@@ -51,8 +51,8 @@ var manifest_default = {
   "product-buybox-premium": {
     desktop: "/template-previews/product-buybox-premium-desktop.webp",
     mobile: "/template-previews/product-buybox-premium-mobile.webp",
-    desktopHash: "3d40eb753bf4a0c4",
-    mobileHash: "230ae836ca7e7675",
+    desktopHash: "a99ccd4287cdb39b",
+    mobileHash: "64a16f0dfcf43305",
     dimensions: {
       desktop: {
         width: 1440,
@@ -67,8 +67,8 @@ var manifest_default = {
   "product-demonstration": {
     desktop: "/template-previews/product-demonstration-desktop.webp",
     mobile: "/template-previews/product-demonstration-mobile.webp",
-    desktopHash: "d6cd62bd34ee824c",
-    mobileHash: "e762864fd872a7ce",
+    desktopHash: "26fff44c9292a06a",
+    mobileHash: "e7c42822c07565c9",
     dimensions: {
       desktop: {
         width: 1440,
@@ -83,8 +83,8 @@ var manifest_default = {
   "product-bundle-first": {
     desktop: "/template-previews/product-bundle-first-desktop.webp",
     mobile: "/template-previews/product-bundle-first-mobile.webp",
-    desktopHash: "3ef5b346d901ded5",
-    mobileHash: "0970c1318d6e5736",
+    desktopHash: "a80d65862a18263e",
+    mobileHash: "7150a75a04e2c7e4",
     dimensions: {
       desktop: {
         width: 1440,
@@ -99,8 +99,8 @@ var manifest_default = {
   "landing-direct-response": {
     desktop: "/template-previews/landing-direct-response-desktop.webp",
     mobile: "/template-previews/landing-direct-response-mobile.webp",
-    desktopHash: "1659d8aa26f3520a",
-    mobileHash: "816d599654250b20",
+    desktopHash: "abdccb917f9e1c98",
+    mobileHash: "56320c1084823dd1",
     dimensions: {
       desktop: {
         width: 1440,
@@ -115,8 +115,8 @@ var manifest_default = {
   "landing-editorial-premium": {
     desktop: "/template-previews/landing-editorial-premium-desktop.webp",
     mobile: "/template-previews/landing-editorial-premium-mobile.webp",
-    desktopHash: "a75929201801c8ab",
-    mobileHash: "53860014cdb39977",
+    desktopHash: "13faba3286c785dd",
+    mobileHash: "945b5cb405b50236",
     dimensions: {
       desktop: {
         width: 1440,
@@ -131,8 +131,8 @@ var manifest_default = {
   "landing-visual-demo": {
     desktop: "/template-previews/landing-visual-demo-desktop.webp",
     mobile: "/template-previews/landing-visual-demo-mobile.webp",
-    desktopHash: "51fd962b3aaea606",
-    mobileHash: "8f7fe8f9ccb30665",
+    desktopHash: "553036b08ccb7b7a",
+    mobileHash: "467308b85e85ced0",
     dimensions: {
       desktop: {
         width: 1440,
@@ -147,8 +147,8 @@ var manifest_default = {
   "advertorial-journal": {
     desktop: "/template-previews/advertorial-journal-desktop.webp",
     mobile: "/template-previews/advertorial-journal-mobile.webp",
-    desktopHash: "868ea19b5ada6578",
-    mobileHash: "94448f5321ae4328",
+    desktopHash: "8d462d9e2132fb11",
+    mobileHash: "56f70447c85e38dc",
     dimensions: {
       desktop: {
         width: 1440,
@@ -163,8 +163,8 @@ var manifest_default = {
   "advertorial-founder-story": {
     desktop: "/template-previews/advertorial-founder-story-desktop.webp",
     mobile: "/template-previews/advertorial-founder-story-mobile.webp",
-    desktopHash: "89db3932b8f89383",
-    mobileHash: "b909eedbbbb98a3c",
+    desktopHash: "f89cec5db3189235",
+    mobileHash: "8bb753261a414bb1",
     dimensions: {
       desktop: {
         width: 1440,
@@ -179,8 +179,8 @@ var manifest_default = {
   "advertorial-comparison": {
     desktop: "/template-previews/advertorial-comparison-desktop.webp",
     mobile: "/template-previews/advertorial-comparison-mobile.webp",
-    desktopHash: "77a30700e4851717",
-    mobileHash: "5ffc2e350588a26a",
+    desktopHash: "2f6d9078496b6030",
+    mobileHash: "5b8ce0396c66fa84",
     dimensions: {
       desktop: {
         width: 1440,
@@ -195,8 +195,8 @@ var manifest_default = {
   "quiz-diagnostic": {
     desktop: "/template-previews/quiz-diagnostic-desktop.webp",
     mobile: "/template-previews/quiz-diagnostic-mobile.webp",
-    desktopHash: "ccdc08adf7504284",
-    mobileHash: "77dfc72785aa4f59",
+    desktopHash: "da4dc26f218bbb5d",
+    mobileHash: "b87aa4e58895992a",
     dimensions: {
       desktop: {
         width: 1440,
@@ -211,8 +211,8 @@ var manifest_default = {
   "quiz-routine": {
     desktop: "/template-previews/quiz-routine-desktop.webp",
     mobile: "/template-previews/quiz-routine-mobile.webp",
-    desktopHash: "d0b5bf238a32f4e2",
-    mobileHash: "135e60fd8dfe3711",
+    desktopHash: "7e6b0e29792bef0c",
+    mobileHash: "7118c0f9dabc4459",
     dimensions: {
       desktop: {
         width: 1440,
@@ -227,8 +227,8 @@ var manifest_default = {
   "quiz-recommendation": {
     desktop: "/template-previews/quiz-recommendation-desktop.webp",
     mobile: "/template-previews/quiz-recommendation-mobile.webp",
-    desktopHash: "daa5ad466866efd0",
-    mobileHash: "4b47278719dbc432",
+    desktopHash: "e7c3695294dd9dd8",
+    mobileHash: "7879ad8f79829b27",
     dimensions: {
       desktop: {
         width: 1440,
@@ -243,8 +243,8 @@ var manifest_default = {
   "home-brand-editorial": {
     desktop: "/template-previews/home-brand-editorial-desktop.webp",
     mobile: "/template-previews/home-brand-editorial-mobile.webp",
-    desktopHash: "33e8f7aff5bc6d9d",
-    mobileHash: "075fadef78cef13b",
+    desktopHash: "d2098da134278c4d",
+    mobileHash: "fb7141077ee7b654",
     dimensions: {
       desktop: {
         width: 1440,
@@ -259,8 +259,8 @@ var manifest_default = {
   "home-catalogue-premium": {
     desktop: "/template-previews/home-catalogue-premium-desktop.webp",
     mobile: "/template-previews/home-catalogue-premium-mobile.webp",
-    desktopHash: "2d98087ec5b17b01",
-    mobileHash: "09a726d5bac25808",
+    desktopHash: "ae1026ae1c734321",
+    mobileHash: "d0160ee07f1ea2db",
     dimensions: {
       desktop: {
         width: 1440,
@@ -275,8 +275,8 @@ var manifest_default = {
   "home-story-first": {
     desktop: "/template-previews/home-story-first-desktop.webp",
     mobile: "/template-previews/home-story-first-mobile.webp",
-    desktopHash: "350af881d3b55100",
-    mobileHash: "c7d6f1ba33f3013e",
+    desktopHash: "4a3b28433f071c4e",
+    mobileHash: "3bc13c74266f3f2a",
     dimensions: {
       desktop: {
         width: 1440,
@@ -291,8 +291,8 @@ var manifest_default = {
   "blog-magazine": {
     desktop: "/template-previews/blog-magazine-desktop.webp",
     mobile: "/template-previews/blog-magazine-mobile.webp",
-    desktopHash: "7f1074cb2e78f858",
-    mobileHash: "23841ebc268d0392",
+    desktopHash: "e4ce7c8c4bd2b840",
+    mobileHash: "c055ac7ed03c5d17",
     dimensions: {
       desktop: {
         width: 1440,
@@ -307,8 +307,8 @@ var manifest_default = {
   "blog-guide": {
     desktop: "/template-previews/blog-guide-desktop.webp",
     mobile: "/template-previews/blog-guide-mobile.webp",
-    desktopHash: "a3337dd5869c6528",
-    mobileHash: "07155cccee9ea8ec",
+    desktopHash: "5d0ccb85fe619829",
+    mobileHash: "2479d075fe6d8a6f",
     dimensions: {
       desktop: {
         width: 1440,
@@ -323,8 +323,8 @@ var manifest_default = {
   "blog-study": {
     desktop: "/template-previews/blog-study-desktop.webp",
     mobile: "/template-previews/blog-study-mobile.webp",
-    desktopHash: "875ba7f16656770d",
-    mobileHash: "3f5582f50c0cf4a8",
+    desktopHash: "4060e58d17ea1b71",
+    mobileHash: "97c033b7ba89a707",
     dimensions: {
       desktop: {
         width: 1440,
