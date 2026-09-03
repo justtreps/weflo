@@ -10,6 +10,7 @@ import { getSectionDefinition } from "../../sections/index";
 import { materializeSectionVariant } from "../../section-preview/materialize";
 import { sectionCatalogMarkup } from "./section-catalog";
 import { openSectionPreviewDialog } from "./section-preview-dialog";
+import { bindOfferEditor } from "./offer-editor";
 import "./section-catalog.css";
 
 export type PanelAction =
@@ -101,6 +102,7 @@ export function runPanelAction(store: EditorStore, action: PanelAction): void {
 }
 
 export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void {
+  const unbindOfferEditor = bindOfferEditor(root, store);
   const refreshCatalog = (catalog: HTMLElement) => {
     const viewport=(catalog.dataset.catalogViewport as "desktop"|"mobile")||"desktop";
     const family=catalog.dataset.catalogFamily || undefined;
@@ -207,5 +209,5 @@ export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void 
     refreshCatalog(catalog);
   };
   root.addEventListener("input", input);
-  return () => { root.removeEventListener("click", click); root.removeEventListener("change", change); root.removeEventListener("input", input); };
+  return () => { unbindOfferEditor(); root.removeEventListener("click", click); root.removeEventListener("change", change); root.removeEventListener("input", input); };
 }

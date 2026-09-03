@@ -45,6 +45,17 @@ describe("editor left rail", () => {
     expect(editor.getState().saveStatus).toBe("modified");
   });
 
+  it("clears the selected offer tier when selecting another section", () => {
+    const editor = store();
+    const [navigation, hero] = editor.getState().document.pages[0].sections;
+    editor.setState({ selectedId: navigation.id, selectedBlockId: "tier-duo" });
+
+    runPanelAction(editor, { action: "select", sectionId: hero.id });
+
+    expect(editor.getState().selectedId).toBe(hero.id);
+    expect(editor.getState().selectedBlockId).toBeNull();
+  });
+
   it("exposes a permanent delete control and removes the selected section", () => {
     const editor = store();
     const hero = editor.getState().document.pages[0].sections[1];
@@ -71,6 +82,20 @@ describe("editor left rail", () => {
     activateEditorPanel(editor, "commerce");
     expect(editorPanelMarkup(editor.getState())).toContain("Connexion et publication Shopify");
     expect(editorPanelMarkup(editor.getState())).toContain("/dashboard#shopify");
+  });
+
+  it("opens the contextual offer editor for a selected quantity offer", () => {
+    const editor = store();
+    const document = editor.getState().document;
+    const section = {
+      id: "quantity-offer-1", type: "quantity-offer", name: "Offre quantité", hidden: false, locked: false,
+      settings: { title: "Choisir", variant: "horizontal-cards" }, style: {}, responsive: {},
+      blocks: [{ id: "duo", type: "offer-tier", settings: { title: "Duo", quantity: 2, discount_type: "percentage", discount_value: 10, preselected: true } }],
+    };
+    editor.setState({ document: { ...document, pages: document.pages.map((page, index) => index === 0 ? { ...page, sections: [...page.sections, section] } : page) }, selectedId: section.id, activePanel: "commerce" });
+
+    expect(editorPanelMarkup(editor.getState())).toContain("Offres et bundles");
+    expect(editorPanelMarkup(editor.getState())).toContain('data-offer-tier="duo"');
   });
 
   it("adds a page and assigns an imported image to the selected section", () => {
