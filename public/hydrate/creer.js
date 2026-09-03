@@ -97,10 +97,16 @@ function renderSource(source2) {
 function validateFormatIntake(flow, answers2) {
   return flow.intake.filter((field2) => field2.required && !(answers2[field2.id] ?? "").trim()).map((field2) => field2.id);
 }
+function answersFromFormData(form) {
+  return Object.fromEntries([...form.entries()].flatMap(([key, value]) => {
+    const fieldId = /^answers\[(.+)\]$/.exec(key)?.[1];
+    return fieldId ? [[fieldId, String(value)]] : [];
+  }));
+}
 function renderFormatIntake(flow, answers2, source2, state = {}) {
   const missingFields = new Set(state.missingFieldIds ?? []);
   const promptPlaceholder = source2 === "link" ? "Colle le lien de ton produit\u2026" : "Ajoute une pr\xE9cision utile pour cette page\u2026";
-  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form><div class="intake-fields">${flow.intake.map((field2) => renderField(field2, answers2, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte \xE0 ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state.prompt ?? "")}</textarea></label><button>Analyser et continuer</button></form>`;
+  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field2) => renderField(field2, answers2, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte \xE0 ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state.prompt ?? "")}</textarea></label><button>Analyser et continuer</button></form>`;
 }
 
 // src/create/template-gallery.ts
@@ -154,11 +160,19 @@ var formatIcons = {
 };
 var creationFormats = FORMAT_FLOWS.map(({ id, title, description }) => ({ id, title, description, icon: formatIcons[id] }));
 var creationSources = /* @__PURE__ */ new Set(["link", "image", "description", "shopify"]);
+function sourceForFormat(format2, source2) {
+  const selectedSource = source2 && creationSources.has(source2) ? source2 : null;
+  if (!format2 || !selectedSource) return selectedSource;
+  const allowedSources = flowForFormat(format2).allowedSources;
+  if (allowedSources.includes(selectedSource)) return selectedSource;
+  return allowedSources.includes("description") ? "description" : allowedSources[0] ?? null;
+}
 function creationWorkspaceUrl(format2, templateId2, state) {
   const params2 = new URLSearchParams();
+  const source2 = sourceForFormat(format2, state.source);
   if (format2) params2.set("format", format2);
   if (templateId2) params2.set("template", templateId2);
-  if (state.source && creationSources.has(state.source)) params2.set("source", state.source);
+  if (source2) params2.set("source", source2);
   if (state.prompt) params2.set("prompt", state.prompt);
   const query = params2.toString();
   return query ? `/creer?${query}` : "/creer";
@@ -174,8 +188,9 @@ function renderCreateWorkspace(input) {
   const cards = creationFormats.map((format2) => `<button class="format-card" data-create-format="${format2.id}"><span>${format2.icon}</span><strong>${format2.title}</strong><small>${format2.description}</small></button>`).join("");
   const selected = creationFormats.find((format2) => format2.id === input.selectedFormat);
   const flow = input.selectedFormat ? flowForFormat(input.selectedFormat) : null;
+  const source2 = sourceForFormat(input.selectedFormat, input.source);
   const hasTemplate = Boolean(flow?.templates.some((template2) => template2.id === input.selectedTemplateId));
-  const content = !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : selected.id === "blank" ? "" : !hasTemplate ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source: input.source, prompt: input.prompt }))}` : renderIntake(selected.id, input.source, input.prompt, input.answers, input.missingFieldIds);
+  const content = !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : selected.id === "blank" ? "" : !hasTemplate ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source: source2, prompt: input.prompt }))}` : renderIntake(selected.id, source2, input.prompt, input.answers, input.missingFieldIds);
   return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc3(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }
 
@@ -263,7 +278,7 @@ var root = document.querySelector("#create-app");
 var params = new URLSearchParams(location.search);
 var format = isCreationFormat(params.get("format")) ? params.get("format") : null;
 var templateId = params.get("template");
-var source = params.get("source");
+var source = sourceForFormat(format, params.get("source"));
 var prompt = params.get("prompt") ?? "";
 var answers = {};
 var missingFieldIds = [];
@@ -284,6 +299,7 @@ async function request(url, init) {
 }
 function render() {
   if (!root) return;
+  source = sourceForFormat(format, source);
   root.innerHTML = draft ? renderStrategy() : renderCreateWorkspace({ workspaceName, selectedFormat: format, selectedTemplateId: templateId, source, prompt, answers, missingFieldIds });
   bind();
 }
@@ -358,6 +374,7 @@ async function build() {
 function bind() {
   root?.querySelectorAll("[data-create-format]").forEach((button) => button.addEventListener("click", () => {
     format = button.dataset.createFormat;
+    source = sourceForFormat(format, source);
     templateId = null;
     answers = {};
     missingFieldIds = [];
@@ -379,7 +396,7 @@ function bind() {
     render();
   });
   root?.querySelectorAll("[data-create-source]").forEach((button) => button.addEventListener("click", () => {
-    source = button.dataset.createSource ?? null;
+    source = sourceForFormat(format, button.dataset.createSource ?? null);
     root.querySelector('[name="prompt"]')?.focus();
   }));
   root?.querySelector("[data-create-image]")?.addEventListener("change", async (event) => {
@@ -399,11 +416,9 @@ function bind() {
   root?.querySelector("[data-source-form]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    answers = Object.fromEntries([...form.entries()].flatMap(([key, value]) => {
-      const fieldId = /^answers\\[(.+)\\]$/.exec(key)?.[1];
-      return fieldId ? [[fieldId, String(value)]] : [];
-    }));
+    answers = answersFromFormData(form);
     prompt = String(form.get("prompt") ?? "").trim();
+    source = sourceForFormat(format, source);
     missingFieldIds = format ? validateFormatIntake(flowForFormat(format), answers) : [];
     if (missingFieldIds.length) {
       render();

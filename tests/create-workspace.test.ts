@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { creationActionUrl, creationFormats, renderCreateWorkspace } from "../src/create/workspace";
+import { creationActionUrl, creationFormats, creationWorkspaceUrl, renderCreateWorkspace, sourceForFormat } from "../src/create/workspace";
 import { readFileSync } from "node:fs";
 
 describe("connected creation workspace", () => {
@@ -35,5 +35,11 @@ describe("connected creation workspace", () => {
     expect(gallery).toContain('/creer?format=landing&amp;template=landing-direct-response&amp;source=description&amp;prompt=une+lampe');
     expect(intake).toContain('data-create-source="description"');
     expect(intake).toContain('name="answers[campaign]"');
+  });
+
+  it("rejects a product-link source for home while retaining valid product sources", () => {
+    expect(sourceForFormat("home", "link")).toBe("description");
+    expect(sourceForFormat("product", "link")).toBe("link");
+    expect(creationWorkspaceUrl("home", "home-brand-editorial", { source: "link", prompt: "" })).toBe("/creer?format=home&template=home-brand-editorial&source=description");
   });
 });
