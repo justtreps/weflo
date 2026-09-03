@@ -28357,6 +28357,10 @@ function applyCanardoOperations(document2, response) {
 // src/server/pages.ts
 var PAGE_TYPES = ["sell", "write", "blank"];
 var PAGE_STATUSES = ["draft", "published_hosted", "published_shopify"];
+var INVALID_STORED_DOCUMENT = {
+  error: "invalid_stored_document",
+  message: "Le contenu de cette page est invalide et ne peut pas \xEAtre ouvert."
+};
 async function requireUser(deps, req) {
   return deps.session(req);
 }
@@ -28415,15 +28419,22 @@ function isLegacyPageDocument(value2) {
   if (!record(value2) || "version" in value2 || typeof value2.name !== "string" || typeof value2.path !== "string" || !Array.isArray(value2.sections)) return false;
   return value2.sections.every((section2) => record(section2) && typeof section2.id === "string" && typeof section2.type === "string" && SECTION_TYPES.includes(section2.type) && record(section2.settings));
 }
-function validatedDocumentPatch(value2, type) {
+function editorDocumentFromStored(value2, type) {
   const editor = validateEditorDocument(value2);
   if (editor.ok) return editor.value;
   if (!isLegacyPageDocument(value2)) return null;
   try {
-    return validateEditorDocument(migrateDocument(value2, type)).ok ? value2 : null;
+    const migrated = migrateDocument(value2, type);
+    const validated = validateEditorDocument(migrated);
+    return validated.ok ? validated.value : null;
   } catch {
     return null;
   }
+}
+function validatedDocumentPatch(value2, type) {
+  const editor = validateEditorDocument(value2);
+  if (editor.ok) return editor.value;
+  return editorDocumentFromStored(value2, type) && isLegacyPageDocument(value2) ? value2 : null;
 }
 function emptyEditorDocument(name, type) {
   const slug2 = slugify2(name);
@@ -28461,9 +28472,11 @@ function pagesRoutes(deps) {
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
     if (c.req.query("documentVersion") === "2") {
+      const document2 = editorDocumentFromStored(loaded.page.document, loaded.page.type);
+      if (!document2) return c.json(INVALID_STORED_DOCUMENT, 422);
       return c.json({
         ...loaded.page,
-        document: migrateDocument(loaded.page.document, loaded.page.type)
+        document: document2
       });
     }
     return c.json(loaded.page);
@@ -28558,10 +28571,10 @@ function pagesRoutes(deps) {
     if (!user) return c.json({ error: "unauthorized" }, 401);
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    const document2 = editorDocumentFromStored(loaded.page.document, loaded.page.type);
+    if (!document2) return c.json(INVALID_STORED_DOCUMENT, 422);
     const name = `${loaded.page.name} copy`;
     const slug2 = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify2(name));
-    const document2 = migrateDocument(loaded.page.document, loaded.page.type);
-    if (!validateEditorDocument(document2).ok) return c.json({ error: "invalid editor document" }, 500);
     const copy = await deps.store.createPage({
       workspaceId: loaded.page.workspaceId,
       name,

@@ -3,6 +3,7 @@ import { createApp } from "../src/server/app";
 import { MemoryStore } from "../src/repos/memory";
 import { validateEditorDocument } from "../src/editor/schema";
 import { initialDocument } from "../src/lib/catalog";
+import type { Page } from "../src/types";
 
 function appAs(userId: string | null) {
   const store = new MemoryStore();
@@ -107,6 +108,51 @@ describe("pages API", () => {
     expect(copy.document.version).toBe(2);
     expect(validateEditorDocument(copy.document)).toMatchObject({ ok: true });
     expect((await store.getPage(copy.id))?.document).toEqual(copy.document);
+  });
+
+  it("returns a controlled error without changing a malformed historical v2 document", async () => {
+    const { app, store } = appAs("u1");
+    const workspace = await store.createWorkspace({ name: "Corrompue", ownerUserId: "u1" });
+    const malformed = { version: 2, pages: [] } as unknown as Page["document"];
+    const page = await store.createPage({ workspaceId: workspace.id, name: "Corrompue", slug: "corrompue", type: "sell", status: "draft", document: malformed });
+    const before = await store.getPage(page.id);
+
+    const response = await app.request(`/api/pages/${page.id}?documentVersion=2`);
+
+    expect(response.status).toBe(422);
+    expect(await response.json()).toEqual({
+      error: "invalid_stored_document",
+      message: "Le contenu de cette page est invalide et ne peut pas être ouvert.",
+    });
+    expect(await store.getPage(page.id)).toEqual(before);
+  });
+
+  it("migrates a valid legacy document on v2 GET without changing stored data", async () => {
+    const { app, store } = appAs("u1");
+    const workspace = await store.createWorkspace({ name: "Legacy", ownerUserId: "u1" });
+    const legacy = initialDocument("Ancienne page", "sell");
+    const page = await store.createPage({ workspaceId: workspace.id, name: "Ancienne page", slug: "ancienne-page", type: "sell", status: "draft", document: legacy });
+
+    const response = await app.request(`/api/pages/${page.id}?documentVersion=2`);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(validateEditorDocument(body.document)).toMatchObject({ ok: true });
+    expect(body.document).toMatchObject({ version: 2, name: "Ancienne page" });
+    expect((await store.getPage(page.id))?.document).toEqual(legacy);
+  });
+
+  it("rejects duplication of a malformed historical v2 document without creating a copy", async () => {
+    const { app, store } = appAs("u1");
+    const workspace = await store.createWorkspace({ name: "Corrompue", ownerUserId: "u1" });
+    const malformed = { version: 2, pages: [] } as unknown as Page["document"];
+    const page = await store.createPage({ workspaceId: workspace.id, name: "Corrompue", slug: "corrompue", type: "sell", status: "draft", document: malformed });
+
+    const response = await app.request(`/api/pages/${page.id}/duplicate`, { method: "POST" });
+
+    expect(response.status).toBe(422);
+    expect(await response.json()).toMatchObject({ error: "invalid_stored_document" });
+    expect((await store.listPages(workspace.id)).map((candidate) => candidate.id)).toEqual([page.id]);
   });
 
   it("rejects a malformed v2 document patch without persisting it", async () => {

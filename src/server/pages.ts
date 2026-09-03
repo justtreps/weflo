@@ -24,6 +24,10 @@ import type { CanardoResponse } from "../canardo/protocol";
 
 const PAGE_TYPES: PageType[] = ["sell", "write", "blank"];
 const PAGE_STATUSES: PageStatus[] = ["draft", "published_hosted", "published_shopify"];
+const INVALID_STORED_DOCUMENT = {
+  error: "invalid_stored_document",
+  message: "Le contenu de cette page est invalide et ne peut pas être ouvert.",
+} as const;
 
 export async function requireUser(deps: AppDeps, req: Request): Promise<User | null> {
   return deps.session(req);
@@ -106,15 +110,23 @@ function isLegacyPageDocument(value: unknown): value is PageDocument {
     && record(section.settings));
 }
 
-function validatedDocumentPatch(value: unknown, type: PageType): Page["document"] | null {
+function editorDocumentFromStored(value: unknown, type: PageType): EditorDocument | null {
   const editor = validateEditorDocument(value);
   if (editor.ok) return editor.value;
   if (!isLegacyPageDocument(value)) return null;
   try {
-    return validateEditorDocument(migrateDocument(value, type)).ok ? value : null;
+    const migrated = migrateDocument(value, type);
+    const validated = validateEditorDocument(migrated);
+    return validated.ok ? validated.value : null;
   } catch {
     return null;
   }
+}
+
+function validatedDocumentPatch(value: unknown, type: PageType): Page["document"] | null {
+  const editor = validateEditorDocument(value);
+  if (editor.ok) return editor.value;
+  return editorDocumentFromStored(value, type) && isLegacyPageDocument(value) ? value : null;
 }
 
 function emptyEditorDocument(name: string, type: PageType): EditorDocument {
@@ -157,9 +169,11 @@ export function pagesRoutes(deps: AppDeps) {
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
     if (c.req.query("documentVersion") === "2") {
+      const document = editorDocumentFromStored(loaded.page.document, loaded.page.type);
+      if (!document) return c.json(INVALID_STORED_DOCUMENT, 422);
       return c.json({
         ...loaded.page,
-        document: migrateDocument(loaded.page.document, loaded.page.type),
+        document,
       });
     }
     return c.json(loaded.page);
@@ -261,10 +275,10 @@ export function pagesRoutes(deps: AppDeps) {
     if (!user) return c.json({ error: "unauthorized" }, 401);
     const loaded = await loadOwnedPage(deps, user.id, c.req.param("id"));
     if ("error" in loaded) return c.json({ error: loaded.error }, loaded.status);
+    const document = editorDocumentFromStored(loaded.page.document, loaded.page.type);
+    if (!document) return c.json(INVALID_STORED_DOCUMENT, 422);
     const name = `${loaded.page.name} copy`;
     const slug = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify(name));
-    const document = migrateDocument(loaded.page.document, loaded.page.type);
-    if (!validateEditorDocument(document).ok) return c.json({ error: "invalid editor document" }, 500);
     const copy = await deps.store.createPage({
       workspaceId: loaded.page.workspaceId,
       name,
