@@ -1115,7 +1115,7 @@ function pagesPanel(state) {
 // src/editor/ui/panels/structure.ts
 function structurePanel(state) {
   const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
-  const rows = page.sections.map((section2, index) => `<button type="button" class="editor-panel-row" data-panel-action="select" data-section-id="${section2.id}" aria-pressed="${state.selectedId === section2.id}"><i>${String(index + 1).padStart(2, "0")}</i><span>${section2.name}</span><small>${section2.hidden ? "Masqu\xE9e" : "Modifier"}</small></button>`).join("");
+  const rows = page.sections.map((section2, index) => `<div class="editor-panel-section-row"><button type="button" class="editor-panel-row" data-panel-action="select" data-section-id="${section2.id}" aria-pressed="${state.selectedId === section2.id}"><i>${String(index + 1).padStart(2, "0")}</i><span>${section2.name}</span><small>${section2.hidden ? "Masqu\xE9e" : "Modifier"}</small></button><button type="button" class="editor-panel-delete" data-panel-action="remove" data-section-id="${section2.id}" aria-label="Supprimer ${section2.name}" title="Supprimer la section"${section2.locked ? " disabled" : ""}>\xD7</button></div>`).join("");
   return `<section data-panel="structure"><p class="editor-panel-help">S\xE9lectionne, modifie et r\xE9organise chaque section r\xE9elle de la boutique.</p><div class="editor-panel-list">${rows}</div></section>`;
 }
 
@@ -1500,6 +1500,10 @@ function nextSection(state, type) {
 function runPanelAction(store, action) {
   const state = store.getState();
   if (action.action === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+  if (action.action === "remove") {
+    store.dispatch({ type: "removeSection", sectionId: action.sectionId });
+    if (state.selectedId === action.sectionId) store.setState({ selectedId: null });
+  }
   if (action.action === "toggleHidden" || action.action === "toggleLocked") {
     store.dispatch({ type: action.action, sectionId: action.sectionId });
   }
@@ -1589,6 +1593,10 @@ function bindLeftRail(root, store) {
     const action = target.dataset.panelAction;
     const sectionId = target.dataset.sectionId;
     if ((action === "select" || action === "toggleHidden" || action === "toggleLocked") && sectionId) runPanelAction(store, { action, sectionId });
+    if (action === "remove" && sectionId) {
+      const section2 = store.getState().document.pages.flatMap((page) => page.sections).find((item2) => item2.id === sectionId);
+      if (section2 && window.confirm(`Supprimer la section \xAB ${section2.name} \xBB ?`)) runPanelAction(store, { action, sectionId });
+    }
     if (action === "insert" && target.dataset.sectionType) runPanelAction(store, { action, sectionType: target.dataset.sectionType });
     if (action === "selectPage" && target.dataset.pageId) runPanelAction(store, { action, pageId: target.dataset.pageId });
     if (action === "addPage") runPanelAction(store, { action, name: window.prompt("Nom de la page", "Nouvelle page") ?? "Nouvelle page" });
@@ -1704,7 +1712,7 @@ function inspectorMarkup(state) {
   const section2 = selectedSection(state);
   if (!section2) return `<div class="editor-inspector-empty"><strong>S\xE9lectionne une section</strong><p>Clique dans la page ou dans la structure pour modifier son contenu et son style.</p></div>`;
   const groups = inspectorGroupsForSection(section2.type);
-  return `<div class="editor-inspector" data-inspector-section="${section2.id}"><div class="editor-inspector-tabs">${groups.map((group) => `<button type="button" data-inspector-tab="${group.id}">${group.label}</button>`).join("")}</div>${groups.map((group, index) => `<section data-inspector-group="${group.id}"${index ? " hidden" : ""}><h3>${group.label}</h3>${group.controls.map((control) => inspectorControlMarkup(section2, control, state.breakpoint)).join("")}</section>`).join("")}</div>`;
+  return `<div class="editor-inspector" data-inspector-section="${section2.id}"><div class="editor-inspector-tabs">${groups.map((group) => `<button type="button" data-inspector-tab="${group.id}">${group.label}</button>`).join("")}</div>${groups.map((group, index) => `<section data-inspector-group="${group.id}"${index ? " hidden" : ""}><h3>${group.label}</h3>${group.controls.map((control) => inspectorControlMarkup(section2, control, state.breakpoint)).join("")}</section>`).join("")}<div class="editor-inspector-actions"><button type="button" data-inspector-remove${section2.locked ? " disabled" : ""}>Supprimer la section</button></div></div>`;
 }
 function applyInspectorValue(store, change) {
   const sectionId = store.getState().selectedId;
@@ -1718,6 +1726,15 @@ function applyInspectorValue(store, change) {
 }
 function bindInspector(root, store) {
   const click = async (event) => {
+    const removeButton = event.target.closest("[data-inspector-remove]");
+    if (removeButton) {
+      const section2 = selectedSection(store.getState());
+      if (section2 && window.confirm(`Supprimer la section \xAB ${section2.name} \xBB ?`)) {
+        store.dispatch({ type: "removeSection", sectionId: section2.id });
+        store.setState({ selectedId: null });
+      }
+      return;
+    }
     const imageButton = event.target.closest("[data-image-ai]");
     if (imageButton) {
       const state = store.getState();

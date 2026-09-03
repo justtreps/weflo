@@ -32,7 +32,7 @@ export function inspectorMarkup(state: EditorState): string {
   const section = selectedSection(state);
   if (!section) return `<div class="editor-inspector-empty"><strong>Sélectionne une section</strong><p>Clique dans la page ou dans la structure pour modifier son contenu et son style.</p></div>`;
   const groups = inspectorGroupsForSection(section.type);
-  return `<div class="editor-inspector" data-inspector-section="${section.id}"><div class="editor-inspector-tabs">${groups.map((group) => `<button type="button" data-inspector-tab="${group.id}">${group.label}</button>`).join("")}</div>${groups.map((group, index) => `<section data-inspector-group="${group.id}"${index ? " hidden" : ""}><h3>${group.label}</h3>${group.controls.map((control) => inspectorControlMarkup(section, control, state.breakpoint)).join("")}</section>`).join("")}</div>`;
+  return `<div class="editor-inspector" data-inspector-section="${section.id}"><div class="editor-inspector-tabs">${groups.map((group) => `<button type="button" data-inspector-tab="${group.id}">${group.label}</button>`).join("")}</div>${groups.map((group, index) => `<section data-inspector-group="${group.id}"${index ? " hidden" : ""}><h3>${group.label}</h3>${group.controls.map((control) => inspectorControlMarkup(section, control, state.breakpoint)).join("")}</section>`).join("")}<div class="editor-inspector-actions"><button type="button" data-inspector-remove${section.locked ? " disabled" : ""}>Supprimer la section</button></div></div>`;
 }
 
 export function applyInspectorValue(store: EditorStore, change: InspectorChange): void {
@@ -48,6 +48,15 @@ export function applyInspectorValue(store: EditorStore, change: InspectorChange)
 
 export function bindInspector(root: HTMLElement, store: EditorStore): () => void {
   const click = async (event: Event) => {
+    const removeButton = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-inspector-remove]");
+    if (removeButton) {
+      const section = selectedSection(store.getState());
+      if (section && window.confirm(`Supprimer la section « ${section.name} » ?`)) {
+        store.dispatch({ type: "removeSection", sectionId: section.id });
+        store.setState({ selectedId: null });
+      }
+      return;
+    }
     const imageButton = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-image-ai]");
     if (imageButton) {
       const state = store.getState();

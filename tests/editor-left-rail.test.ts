@@ -44,6 +44,19 @@ describe("editor left rail", () => {
     expect(editor.getState().saveStatus).toBe("modified");
   });
 
+  it("exposes a permanent delete control and removes the selected section", () => {
+    const editor = store();
+    const hero = editor.getState().document.pages[0].sections[1];
+    runPanelAction(editor, { action: "select", sectionId: hero.id });
+
+    expect(editorPanelMarkup(editor.getState())).toContain(`data-panel-action="remove" data-section-id="${hero.id}"`);
+
+    runPanelAction(editor, { action: "remove", sectionId: hero.id });
+    expect(editor.getState().document.pages[0].sections.some((section) => section.id === hero.id)).toBe(false);
+    expect(editor.getState().selectedId).toBeNull();
+    expect(editor.getState().saveStatus).toBe("modified");
+  });
+
   it("inserts a selected premium variant without preview-only data", () => {
     const editor = store();
     runPanelAction(editor, { action: "insertVariant", sectionType: "productHero", variantId: "beauty-editorial" });

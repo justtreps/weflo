@@ -525,6 +525,12 @@ body {
   display: grid;
   gap: 4px;
 }
+.editor-panel-section-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 3px;
+}
 .editor-panel-row {
   width: 100%;
   display: flex;
@@ -545,6 +551,25 @@ body {
 }
 .editor-panel-row small {
   color: var(--editor-muted);
+}
+.editor-panel-delete {
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #aaa;
+  font-size: 19px;
+  cursor: pointer;
+}
+.editor-panel-delete:hover {
+  border-color: #7d3434;
+  background: #3a2020;
+  color: #ff9d93;
+}
+.editor-panel-delete:disabled {
+  opacity: .3;
+  cursor: not-allowed;
 }
 .editor-panel-grid {
   display: grid;
@@ -791,6 +816,28 @@ body {
 .editor-control--toggle input {
   width: 18px;
   min-height: 18px;
+}
+.editor-inspector-actions {
+  margin: 6px 14px 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--editor-line);
+}
+.editor-inspector-actions button {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #713a35;
+  border-radius: 7px;
+  background: #2e1d1a;
+  color: #ff9d93;
+  font-weight: 700;
+  cursor: pointer;
+}
+.editor-inspector-actions button:hover {
+  background: #44231f;
+}
+.editor-inspector-actions button:disabled {
+  opacity: .35;
+  cursor: not-allowed;
 }
 .weflo-editor[data-left-collapsed=true] {
   grid-template-columns: 56px 0 minmax(0, 1fr) var(--editor-inspector);

@@ -25,6 +25,8 @@ describe("section inspector", () => {
     for (const tab of ["Contenu", "Style", "Disposition", "Responsive", "Animation"]) expect(html).toContain(tab);
     expect(html).toContain('data-inspector-key="title"');
     expect(html).toContain('data-inspector-control="color"');
+    expect(html).toContain('data-inspector-remove');
+    expect(html).toContain('Supprimer la section');
   });
 
   it("updates settings, base styles and mobile overrides immediately", () => {

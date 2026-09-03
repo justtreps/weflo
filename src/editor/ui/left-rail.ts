@@ -13,7 +13,7 @@ import { openSectionPreviewDialog } from "./section-preview-dialog";
 import "./section-catalog.css";
 
 export type PanelAction =
-  | { action: "select" | "toggleHidden" | "toggleLocked"; sectionId: string }
+  | { action: "select" | "toggleHidden" | "toggleLocked" | "remove"; sectionId: string }
   | { action: "insert"; sectionType: string }
   | { action: "insertVariant"; sectionType: string; variantId: string }
   | { action: "selectPage"; pageId: string }
@@ -56,6 +56,10 @@ function nextSection(state: EditorState, type: string): EditorSection {
 export function runPanelAction(store: EditorStore, action: PanelAction): void {
   const state = store.getState();
   if (action.action === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+  if (action.action === "remove") {
+    store.dispatch({ type: "removeSection", sectionId: action.sectionId });
+    if (state.selectedId === action.sectionId) store.setState({ selectedId: null });
+  }
   if (action.action === "toggleHidden" || action.action === "toggleLocked") {
     store.dispatch({ type: action.action, sectionId: action.sectionId });
   }
@@ -144,6 +148,10 @@ export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void 
     const action = target.dataset.panelAction;
     const sectionId = target.dataset.sectionId;
     if ((action === "select" || action === "toggleHidden" || action === "toggleLocked") && sectionId) runPanelAction(store, { action, sectionId });
+    if (action === "remove" && sectionId) {
+      const section = store.getState().document.pages.flatMap((page) => page.sections).find((item) => item.id === sectionId);
+      if (section && window.confirm(`Supprimer la section « ${section.name} » ?`)) runPanelAction(store, { action, sectionId });
+    }
     if (action === "insert" && target.dataset.sectionType) runPanelAction(store, { action, sectionType: target.dataset.sectionType });
     if (action === "selectPage" && target.dataset.pageId) runPanelAction(store, { action, pageId: target.dataset.pageId });
     if (action === "addPage") runPanelAction(store, { action, name: window.prompt("Nom de la page", "Nouvelle page") ?? "Nouvelle page" });
