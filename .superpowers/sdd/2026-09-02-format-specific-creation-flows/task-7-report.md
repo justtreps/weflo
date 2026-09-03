@@ -70,3 +70,45 @@ None. The full test run prints pre-existing expected stderr from tests that inte
 - Gallery previews now use `object-fit: contain` and exact desktop/mobile aspect ratios, avoiding crop in both card states.
 - Regenerated assets and contact sheet were visually inspected. Two final generator runs produced identical manifest bytes (`manifest_same=True`) and exactly 42 WebPs.
 - Focused preview/gallery tests, `tsc`, build, and the full 467-test suite passed after the correction.
+
+## Review fix round 2
+
+### RED evidence and pipeline correction
+
+The previous continuous-frame implementation measured document height before its width/transform reflow and then took a viewport-only screenshot. Re-review found that this clipped later sections in every asset (for example, only 4/10 sections of `store-editorial-commerce` and 3/11 sections of `product-demonstration` were visible).
+
+`scripts/generate-template-previews.mjs` now uses a full-document pipeline per template and viewport:
+
+1. Render the real full editor document at the actual target viewport width.
+2. Wait for fonts and eager fixture images, then perform the existing source QA.
+3. Locate the last `[data-wf-section-id]`; fail if its bottom extends beyond `document.documentElement.scrollHeight`.
+4. Capture the single continuous document with `page.screenshot({ type: "png", fullPage: true })` into memory.
+5. Create a separate target-size frame containing exactly that one PNG and `object-fit: contain`, then encode the final WebP at `1440×1100` or `390×844`.
+
+No sections are tiled, independently re-rendered, reordered, or cropped in the final asset. The source full-page image is the sole final-frame image.
+
+### Assertions and files
+
+- Added last-section/full-document assertions before the intermediate capture.
+- Retained final WebP decode, exact-dimension, pixel-range, byte-size, console-error, and page-error checks.
+- Retained stale-WebP cleanup restricted to `public/template-previews/*.webp`, expected-name verification, and the exact 42-file asset test.
+- Changed: `scripts/generate-template-previews.mjs`, regenerated `public/template-previews/*.webp`, `manifest.json`, and `contact-sheet.png`.
+- Relevant commits: `e3f09de fix: fit complete template documents`.
+
+### Reproduction and verification
+
+Commands run for the two generation passes:
+
+```powershell
+npm run previews:templates
+$first = (Get-FileHash public/template-previews/manifest.json -Algorithm SHA256).Hash
+npm run previews:templates
+$second = (Get-FileHash public/template-previews/manifest.json -Algorithm SHA256).Hash
+"manifest_same=$($first -eq $second) webps=$((Get-ChildItem public/template-previews -Filter '*.webp' | Measure-Object).Count)"
+```
+
+Both runs completed with `generated 42 template previews and contact sheet`; the final artifact directory contains exactly 42 WebPs. Focused verification is `npx vitest run tests/template-preview.test.ts tests/template-preview-assets.test.ts tests/create-template-gallery.test.ts` (8 passed). `npx tsc --noEmit`, `npm run build`, and `npm test` passed; the full suite result is 104 files / 467 tests passed.
+
+### Visual review and self-review
+
+Inspected the regenerated continuous-page contact sheet at desktop scale. Each preview is a single page image with navigation at the top and the terminal/footer strip visible at the bottom of its fitted page; no collage grid remains. The three templates in every format continue to differ in ordering and visual emphasis. Self-review confirmed the generator’s only intermediate capture is `fullPage: true`, while the final frame has exactly one `<img>` using `object-fit: contain`.
