@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { compileShopifyPage } from "../src/shopify/compiler";
 import { buildModelDocument } from "../src/models/model-manifest";
+import { getSectionDefinition } from "../src/sections";
 
 describe("Shopify document compiler", () => {
   it("creates deterministic namespaced files and an ordered alternate template", () => {
@@ -42,5 +43,32 @@ describe("Shopify document compiler", () => {
     expect(css).toContain(".wf-product__sticky");
     expect(css).toContain("@media(max-width:749px)");
     expect(css).toContain("prefers-reduced-motion");
+  });
+
+  it("keeps a collection handle in JSON and compiles a handle-backed Liquid branch", () => {
+    const document = buildModelDocument("proteo", "Shop");
+    const definition = getSectionDefinition("collectionGrid")!;
+    document.pages[0].sections.push({
+      id: "collection-shopify",
+      type: "collectionGrid",
+      name: definition.name,
+      hidden: false,
+      locked: false,
+      settings: { ...definition.defaults, collection_handle: "nouveautes" },
+      style: {},
+      responsive: {},
+      blocks: [],
+    });
+
+    const files = compileShopifyPage(document, { resource: "home" });
+    const liquidFile = files.find((file) => file.key.includes("collectiongrid.liquid"));
+    expect(liquidFile).toBeTruthy();
+    const liquid = liquidFile!.value;
+    const template = JSON.parse(files.find((file) => file.key.startsWith("templates/page."))!.value);
+    const collection = Object.values(template.sections as Record<string, { settings: Record<string, unknown> }>).find((section) => section.settings.collection_handle === "nouveautes");
+
+    expect(collection?.settings.collection_handle).toBe("nouveautes");
+    expect(liquid).toContain("for product in selected_collection.products");
+    expect(liquid).toContain("for block in section.blocks");
   });
 });

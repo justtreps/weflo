@@ -618,7 +618,7 @@ var collectionGridSection = {
     }).join("");
     return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards}</div></section>`;
   },
-  renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header><div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div></section>`
+  renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header>{% if section.settings.collection_handle != blank %}{% assign selected_collection = collections[section.settings.collection_handle] %}<div class="wf-section__grid">{% for product in selected_collection.products %}<article class="wf-section__card"><a href="{{ product.url }}">{% if product.featured_image != blank %}{{ product.featured_image | image_url: width: 900 | image_tag: alt: product.title }}{% endif %}<h3>{{ product.title | escape }}</h3><p>{{ product.price | money }}</p></a></article>{% endfor %}</div>{% else %}<div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div>{% endif %}</section>`
 };
 
 // src/sections/bundle.ts
@@ -2179,8 +2179,13 @@ function validateSection(value2, errors, sectionIds2, blockIds2) {
     errors.push(`Invalid section metadata: ${id2}`);
   }
   if (!object(value2.settings)) errors.push(`Invalid section settings: ${id2}`);
-  else for (const [key, setting2] of Object.entries(value2.settings)) {
-    if (!settingValue(setting2)) errors.push(`Invalid setting value at ${id2}.${key}`);
+  else {
+    for (const [key, setting2] of Object.entries(value2.settings)) {
+      if (!settingValue(setting2)) errors.push(`Invalid setting value at ${id2}.${key}`);
+    }
+    if (value2.type === "collectionGrid" && value2.settings.collection_handle !== void 0 && typeof value2.settings.collection_handle !== "string") {
+      errors.push(`Invalid Shopify collection handle: ${id2}`);
+    }
   }
   if (!styleSettings(value2.style)) errors.push(`Invalid style settings in section: ${id2}`);
   if (!responsiveSettings(value2.responsive)) errors.push(`Invalid responsive settings in section: ${id2}`);

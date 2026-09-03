@@ -46,12 +46,22 @@ export function answersFromFormData(form: FormData): Record<string, string> {
   }));
 }
 
-type IntakeRenderState = { prompt?: string; missingFieldIds?: string[]; busy?: boolean };
+type IntakeRenderState = { prompt?: string; missingFieldIds?: string[]; busy?: boolean; error?: string };
 
 export function renderFormatIntake(flow: FormatFlow, answers: Record<string, string>, source: string | null, state: IntakeRenderState = {}): string {
   const missingFields = new Set(state.missingFieldIds ?? []);
-  const promptPlaceholder = source === "link" ? "Colle le lien de ton produit…" : "Ajoute une précision utile pour cette page…";
+  const productLed = flow.id === "store" || flow.id === "product";
+  const promptPlaceholder = source === "link"
+    ? "Colle le lien de ton produit…"
+    : productLed && !source
+      ? "Choisis d’abord un lien, une image ou un produit Shopify."
+      : "Ajoute une précision utile pour cette page…";
 
-  const submit = state.busy ? '<button disabled>Analyse en cours…</button>' : "<button>Analyser et continuer</button>";
-  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field) => renderField(field, answers, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte à ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state.prompt ?? "")}</textarea></label>${submit}</form>`;
+  const recovery = state.error
+    ? `<div class="intake-request-error create-error" role="alert"><p>${esc(state.error)}</p>${source === "image" ? '<button type="button" data-image-retry>Choisir une autre image</button>' : ""}</div>`
+    : "";
+  const submit = state.busy
+    ? '<button disabled>Analyse en cours…</button>'
+    : `<button${state.error && source !== "image" ? " data-intake-retry" : ""}>${state.error && source !== "image" ? "Réessayer" : "Analyser et continuer"}</button>`;
+  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field) => renderField(field, answers, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte à ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state.prompt ?? "")}</textarea></label>${recovery}${submit}</form>`;
 }

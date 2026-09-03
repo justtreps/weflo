@@ -4,11 +4,11 @@ import { readFileSync } from "node:fs";
 
 describe("connected creation workspace", () => {
   it("routes dashboard imports to the connected workspace instead of public onboarding", () => {
-    expect(creationActionUrl("link")).toBe("/creer?source=link");
-    expect(creationActionUrl("image")).toBe("/creer?source=image");
-    expect(creationActionUrl("generate", "une lampe murale")).toBe("/creer?source=description&prompt=une%20lampe%20murale");
-    expect(creationActionUrl("blank")).toBe("/creer?format=blank");
-    expect(creationActionUrl("generate", "https://example.test/product?token=secret")).toBe("/creer?source=description");
+    expect(creationActionUrl("link")).toBe("/creer?new=1&source=link");
+    expect(creationActionUrl("image")).toBe("/creer?new=1&source=image");
+    expect(creationActionUrl("generate", "une lampe murale")).toBe("/creer?new=1&source=description&prompt=une%20lampe%20murale");
+    expect(creationActionUrl("blank")).toBe("/creer?format=blank&new=1");
+    expect(creationActionUrl("generate", "https://example.test/product?token=secret")).toBe("/creer?new=1&source=description");
   });
 
   it("restores every professional page format in French", () => {
@@ -41,6 +41,7 @@ describe("connected creation workspace", () => {
   it("rejects a product-link source for home while retaining valid product sources", () => {
     expect(sourceForFormat("home", "link")).toBe("description");
     expect(sourceForFormat("product", "link")).toBe("link");
+    expect(sourceForFormat("product", "description")).toBeNull();
     expect(creationWorkspaceUrl("home", "home-brand-editorial", { source: "link", prompt: "" })).toBe("/creer?format=home&template=home-brand-editorial&source=description");
   });
 });

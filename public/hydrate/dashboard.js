@@ -384,8 +384,13 @@ function validateSection(value, errors, sectionIds, blockIds) {
     errors.push(`Invalid section metadata: ${id}`);
   }
   if (!object(value.settings)) errors.push(`Invalid section settings: ${id}`);
-  else for (const [key, setting] of Object.entries(value.settings)) {
-    if (!settingValue(setting)) errors.push(`Invalid setting value at ${id}.${key}`);
+  else {
+    for (const [key, setting] of Object.entries(value.settings)) {
+      if (!settingValue(setting)) errors.push(`Invalid setting value at ${id}.${key}`);
+    }
+    if (value.type === "collectionGrid" && value.settings.collection_handle !== void 0 && typeof value.settings.collection_handle !== "string") {
+      errors.push(`Invalid Shopify collection handle: ${id}`);
+    }
   }
   if (!styleSettings(value.style)) errors.push(`Invalid style settings in section: ${id}`);
   if (!responsiveSettings(value.responsive)) errors.push(`Invalid responsive settings in section: ${id}`);
@@ -908,10 +913,10 @@ function fields(...intake) {
   return intake;
 }
 var field = (id, label, placeholder, kind = "text", required = true) => ({ id, label, placeholder, kind, required });
-var sources = ["link", "image", "description", "shopify"];
+var productSources = ["link", "image", "shopify"];
 var FORMAT_FLOWS = [
-  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: sources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id) => template(id, "store")) },
-  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: sources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id) => template(id, "product")) },
+  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: productSources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id) => template(id, "store")) },
+  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: productSources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id) => template(id, "product")) },
   { id: "landing", title: "Landing page", description: "Une campagne, une promesse, une action", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("campaign", "Campagne", "Le nom ou contexte de la campagne"), field("audience", "Audience", "\xC0 qui la page doit-elle parler ?", "textarea"), field("promise", "Promesse", "Le r\xE9sultat principal propos\xE9", "textarea"), field("traffic", "Source du trafic", "Ex. Meta Ads, email, recherche"), field("cta", "Action attendue", "Ex. D\xE9couvrir l\u2019offre")), templates: TEMPLATE_IDS.landing.map((id) => template(id, "landing")) },
   { id: "advertorial", title: "Advertorial", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne vers l\u2019offre", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("angle", "Angle narratif", "L\u2019id\xE9e centrale de l\u2019article", "textarea"), field("author", "Auteur", "Qui porte ce r\xE9cit ?"), field("proof", "Niveau de preuve", "\xC9tudes, exp\xE9rience ou d\xE9monstration", "textarea"), field("product", "Produit final", "Le produit ou l\u2019offre vers lequel conduire")), templates: TEMPLATE_IDS.advertorial.map((id) => template(id, "advertorial")) },
   { id: "quiz", title: "Quiz et funnel", description: "Questions, recommandation et capture", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("objective", "Objectif", "Le r\xE9sultat que doit produire le quiz", "textarea"), field("segments", "Segments", "Les profils ou besoins \xE0 distinguer", "list"), field("result", "Recommandation", "Ce que chaque profil doit recevoir", "textarea"), field("steps", "Nombre d\u2019\xE9tapes", "Ex. 5", "text", false), field("destination", "Destination des r\xE9ponses", "Ex. une recommandation produit", "textarea", false)), templates: TEMPLATE_IDS.quiz.map((id) => template(id, "quiz")) },
@@ -937,7 +942,7 @@ function projectCard(project) {
 function formatCard(flow) {
   const templateCount = flow.templates.length;
   const templateLabel = templateCount === 1 ? "mod\xE8le" : "mod\xE8les";
-  return `<a class="format-card" href="/creer?format=${encodeURIComponent(flow.id)}"><span class="format-card__count">${templateCount} ${templateLabel}</span><h3>${escapeHtml(flow.title)}</h3><p>${escapeHtml(flow.description)}</p><span class="format-card__arrow" aria-hidden="true">\u2192</span></a>`;
+  return `<a class="format-card" href="/creer?format=${encodeURIComponent(flow.id)}&amp;new=1"><span class="format-card__count">${templateCount} ${templateLabel}</span><h3>${escapeHtml(flow.title)}</h3><p>${escapeHtml(flow.description)}</p><span class="format-card__arrow" aria-hidden="true">\u2192</span></a>`;
 }
 function renderDashboardHome(model) {
   const cards = model.projects.length ? model.projects.map(projectCard).join("") : `<button class="empty-project" data-dashboard-action="generate"><span>\uFF0B</span><strong>Ta premi\xE8re boutique commence ici</strong><small>Ajoute un produit et Weflo construit chaque section.</small></button>`;
@@ -963,7 +968,7 @@ function renderDashboardHome(model) {
 // src/create/draft-safety.ts
 var sensitiveQueryParts = /* @__PURE__ */ new Set(["token", "key", "apikey", "password", "secret", "auth", "signature", "credential"]);
 var urlCandidate = /\b[a-z][a-z0-9+.-]*:\/\/[^\s<>"']+/gi;
-var queryKey = /[?&]([^=&#\s]+)=/g;
+var queryKey = /[?&#]([^=&#\s/]+)=/g;
 function decoded(value) {
   try {
     return decodeURIComponent(value.replace(/\+/g, " "));
@@ -983,6 +988,9 @@ function persistentCreationText(value) {
       const url = new URL(candidate);
       if (url.username || url.password) return "";
       if ([...url.searchParams.keys()].some(isSensitiveQueryKey)) return "";
+      const fragment = url.hash.slice(1);
+      const fragmentParameters = fragment.includes("?") ? fragment.slice(fragment.indexOf("?") + 1) : fragment;
+      if ([...new URLSearchParams(fragmentParameters).keys()].some(isSensitiveQueryKey)) return "";
     } catch {
     }
   }
@@ -1005,12 +1013,12 @@ var formatIcons = {
 };
 var creationFormats = FORMAT_FLOWS.map(({ id, title, description }) => ({ id, title, description, icon: formatIcons[id] }));
 function creationActionUrl(action, prompt = "") {
-  if (action === "link") return "/creer?source=link";
-  if (action === "image") return "/creer?source=image";
-  if (action === "blank") return "/creer?format=blank";
+  if (action === "link") return "/creer?new=1&source=link";
+  if (action === "image") return "/creer?new=1&source=image";
+  if (action === "blank") return "/creer?format=blank&new=1";
   const persistentPrompt = persistentCreationText(prompt);
-  if (!prompt) return "/creer";
-  return persistentPrompt ? `/creer?source=description&prompt=${encodeURIComponent(persistentPrompt)}` : "/creer?source=description";
+  if (!prompt) return "/creer?new=1";
+  return persistentPrompt ? `/creer?new=1&source=description&prompt=${encodeURIComponent(persistentPrompt)}` : "/creer?new=1&source=description";
 }
 
 // src/hydrate/dashboard.ts

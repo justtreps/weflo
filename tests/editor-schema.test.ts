@@ -23,4 +23,27 @@ describe("editor schema template provenance", () => {
     expect(validateEditorDocument(invalidId)).toMatchObject({ ok: false });
     expect(validateEditorDocument(invalidVersion)).toMatchObject({ ok: false });
   });
+
+  it("accepts a legacy collection handle and rejects non-text handles", () => {
+    const valid = document();
+    valid.pages[0].sections.push({
+      id: "collection-1",
+      type: "collectionGrid",
+      name: "Collection",
+      hidden: false,
+      locked: false,
+      settings: { collection_handle: "nouveautes" },
+      style: {},
+      responsive: {},
+      blocks: [],
+    });
+    const invalid = structuredClone(valid) as unknown as EditorDocument;
+    invalid.pages[0].sections[0].settings.collection_handle = ["nouveautes"];
+
+    expect(validateEditorDocument(valid)).toMatchObject({ ok: true });
+    expect(validateEditorDocument(invalid)).toMatchObject({
+      ok: false,
+      errors: expect.arrayContaining(["Invalid Shopify collection handle: collection-1"]),
+    });
+  });
 });

@@ -80,4 +80,19 @@ describe("premium creation build view", () => {
     });
     expect(JSON.stringify(body.draft)).not.toMatch(/previewOnly|previewFixtureId|template-preview-fixture|demo\.weflo\.app|Atelier fictif/i);
   });
+
+  it("rejects product-led answers-only startup with actionable French guidance", async () => {
+    const app = createApp({ store: new MemoryStore(), session: async () => null });
+    const response = await app.request("/api/onboarding/start", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ creationFormat: "product", templateId: "product-buybox-premium", answers: {} }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: "product_source_required",
+      message: "Importe un lien, une image ou un produit Shopify pour créer ce format.",
+    });
+  });
 });

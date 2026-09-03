@@ -105,7 +105,12 @@ export type ShopifyPort = {
   }): Promise<{ themeId: string; productId: string }>;
   rollback(input: { shop: string; token: string; themeId?: string; productId?: string }): Promise<void>;
   listThemes?(input: { shop: string; token: string }): Promise<Array<{ id: string; name: string; role: "main" | "unpublished" | "development" | "demo" }>>;
-  listProducts?(input: { shop: string; token: string }): Promise<ShopifyCatalogProduct[]>;
+  listProducts?(input: { shop: string; token: string; cursor?: string | null }): Promise<ShopifyCatalogProduct[] | {
+    products: ShopifyCatalogProduct[];
+    nextCursor: string | null;
+    previousCursor: string | null;
+  }>;
+  getProduct?(input: { shop: string; token: string; productId: string }): Promise<ShopifyCatalogProduct | null>;
   publishEditor?(input: { shop: string; token: string; document: unknown; pageName: string; strategy: "active" | "duplicate_active" | "new_weflo"; themeId?: string; replaceGlobalTemplate?: boolean }): Promise<{ themeId: string; previewUrl: string }>;
 };
 

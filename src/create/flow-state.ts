@@ -202,6 +202,7 @@ export function restoreCreationDraft(raw: string | null): CreationFlowState | nu
 }
 
 export function mergeCompatibleCreationDraft(urlState: CreationFlowState, saved: CreationFlowState | null, url: URL): CreationFlowState {
+  if (url.searchParams.get("new") === "1") return urlState;
   if (!saved) return urlState;
   const explicitFormat = url.searchParams.has("format");
   if (explicitFormat && saved.format !== urlState.format) return urlState;
@@ -225,11 +226,12 @@ export function mergeCompatibleCreationDraft(urlState: CreationFlowState, saved:
   return merged;
 }
 
-export function submissionActionForState(state: CreationFlowState): "link" | "image" | "shopify" | "simple" {
+export function submissionActionForState(state: CreationFlowState): "link" | "image" | "shopify" | "simple" | "product-required" {
   assertState(state);
   if (state.source === "link") return "link";
   if (state.source === "image") return "image";
   if (state.source === "shopify") return "shopify";
+  if (state.format === "store" || state.format === "product") return "product-required";
   return "simple";
 }
 

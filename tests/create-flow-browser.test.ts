@@ -1,5 +1,5 @@
 import { serve, type ServerType } from "@hono/node-server";
-import { chromium, type Browser, type BrowserContext, type Page } from "playwright";
+import { chromium, type Browser, type BrowserContext, type Page, type Route } from "playwright";
 import { expect as playwrightExpect } from "playwright/test";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { validateEditorDocument } from "../src/editor/schema";
@@ -40,6 +40,21 @@ const linkedProduct = {
   title: "Lampe héritée du lien",
   vendor: "Marchand du lien",
 };
+const laterShopifyProduct = {
+  ...shopifyProduct,
+  id: "gid://shopify/Product/955",
+  sourceUrl: "https://atelier-aube.myshopify.com/products/produit-55",
+  title: "Produit Shopify 55",
+};
+const firstShopifyPage = [
+  shopifyProduct,
+  ...Array.from({ length: 49 }, (_, index) => ({
+    ...shopifyProduct,
+    id: `gid://shopify/Product/${800 + index}`,
+    sourceUrl: `https://atelier-aube.myshopify.com/products/produit-${index + 2}`,
+    title: `Produit Shopify ${index + 2}`,
+  })),
+];
 
 let browser: Browser;
 let server: ServerType;
@@ -61,8 +76,8 @@ async function openFormat(page: Page, format: "home" | "product" | "blank"): Pro
   await page.locator("[data-new-page]").click();
   const dialog = page.locator("[data-format-dialog]");
   await playwrightExpect(dialog).toHaveJSProperty("open", true);
-  const link = dialog.locator(`a[href="/creer?format=${format}"]`);
-  await playwrightExpect(link).toHaveAttribute("href", `/creer?format=${format}`);
+  const link = dialog.locator(`a[href^="/creer?format=${format}"]`);
+  await playwrightExpect(link).toHaveAttribute("href", `/creer?format=${format}&new=1`);
   await link.click();
   await page.waitForURL(new RegExp(`/creer\\?format=${format}`));
 }
@@ -76,6 +91,17 @@ async function chooseTemplate(page: Page, templateId: string): Promise<void> {
 
 async function fillHomepageIntake(page: Page): Promise<void> {
   for (const [field, value] of Object.entries(homepageAnswers)) {
+    await page.locator(`[name="answers[${field}]"]`).fill(value);
+  }
+}
+
+async function fillProductIntake(page: Page): Promise<void> {
+  for (const [field, value] of Object.entries({
+    benefits: "Installation sans perçage",
+    objections: "Autonomie de la batterie",
+    offer: "49 € avec garantie 30 jours",
+    variants: "Sable",
+  })) {
     await page.locator(`[name="answers[${field}]"]`).fill(value);
   }
 }
@@ -105,7 +131,10 @@ describe("format-specific creation browser journeys", () => {
         ping: async () => {},
         publish: async () => ({ themeId: "theme-1", productId: "product-1" }),
         rollback: async () => {},
-        listProducts: async () => [shopifyProduct],
+        listProducts: async ({ cursor }) => cursor === "catalog-page-2"
+          ? { products: [laterShopifyProduct], nextCursor: null, previousCursor: "catalog-page-1" }
+          : { products: firstShopifyPage, nextCursor: "catalog-page-2", previousCursor: null },
+        getProduct: async ({ productId }) => [...firstShopifyPage, laterShopifyProduct].find((product) => product.id === productId) ?? null,
       },
     });
     server = await new Promise<ServerType>((resolve) => {
@@ -151,6 +180,26 @@ describe("format-specific creation browser journeys", () => {
     }
   }, 20_000);
 
+  it("does not send a product-led template to the answers-only endpoint without a product source", async () => {
+    const { context, page } = await authenticatedPage();
+    let startRequests = 0;
+    page.on("request", (request) => {
+      if (request.method() === "POST" && request.url().endsWith("/api/onboarding/start")) startRequests += 1;
+    });
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-buybox-premium");
+      await fillProductIntake(page);
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+
+      await playwrightExpect(page.getByRole("alert")).toContainText("Choisis un lien, une image ou un produit Shopify avant de continuer.");
+      await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toHaveCount(0);
+      expect(startRequests).toBe(0);
+    } finally {
+      await context.close();
+    }
+  }, 20_000);
+
   it("selects a real connected Shopify catalog product before entering product strategy", async () => {
     const { context, page } = await authenticatedPage();
     try {
@@ -171,14 +220,7 @@ describe("format-specific creation browser journeys", () => {
       await catalogProduct.click();
       await playwrightExpect(page.getByText(`${shopifyProduct.title} est prêt à être utilisé.`)).toBeVisible();
 
-      for (const [field, value] of Object.entries({
-        benefits: "Installation sans perçage",
-        objections: "Autonomie de la batterie",
-        offer: "49 € avec garantie 30 jours",
-        variants: "Sable",
-      })) {
-        await page.locator(`[name="answers[${field}]"]`).fill(value);
-      }
+      await fillProductIntake(page);
       await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
       await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toBeVisible();
       await playwrightExpect(page.getByText("Atelier Aube", { exact: false })).toBeVisible();
@@ -186,6 +228,28 @@ describe("format-specific creation browser journeys", () => {
       await context.close();
     }
   }, 20_000);
+
+  it("reaches and imports an active Shopify product after the first catalog page", async () => {
+    const { context, page } = await authenticatedPage();
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-bundle-first");
+      await page.locator('button[data-create-source="shopify"]').click();
+      await playwrightExpect(page.locator("[data-shopify-product]")).toHaveCount(50);
+      await page.locator("[data-shopify-next]").click();
+      await playwrightExpect(page.locator(`[data-shopify-product="${laterShopifyProduct.id}"]`)).toContainText(laterShopifyProduct.title);
+      await playwrightExpect(page.locator("[data-shopify-page]")).toContainText("Page 2");
+
+      await fillProductIntake(page);
+      await page.locator(`[data-shopify-product="${laterShopifyProduct.id}"]`).click();
+      await playwrightExpect(page.getByText(`${laterShopifyProduct.title} est prêt à être utilisé.`)).toBeVisible();
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+      await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toBeVisible();
+      await playwrightExpect(page.getByText(laterShopifyProduct.title, { exact: false }).first()).toBeVisible();
+    } finally {
+      await context.close();
+    }
+  }, 25_000);
 
   it("does not reuse a link draft after switching to Shopify without selecting a catalog product", async () => {
     const { context, page } = await authenticatedPage();
@@ -222,6 +286,141 @@ describe("format-specific creation browser journeys", () => {
       await playwrightExpect(page.getByText(shopifyProduct.title, { exact: false }).first()).toBeVisible();
       await playwrightExpect(page.getByText(linkedProduct.title, { exact: false })).toHaveCount(0);
     } finally {
+      await context.close();
+    }
+  }, 25_000);
+
+  it("renders a retryable French alert when link import fails", async () => {
+    const { context, page } = await authenticatedPage();
+    await page.route("**/api/onboarding/import", (route) => route.fulfill({
+      status: 422,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "import_failed", message: "Ce lien produit n’a pas pu être importé." }),
+    }));
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-buybox-premium");
+      await page.locator('button[data-create-source="link"]').click();
+      await fillProductIntake(page);
+      await page.locator('[name="prompt"]').fill(linkedProduct.sourceUrl);
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+
+      await playwrightExpect(page.getByRole("alert")).toContainText("Ce lien produit n’a pas pu être importé.");
+      await playwrightExpect(page.locator("[data-intake-retry]")).toHaveText("Réessayer");
+    } finally {
+      await context.close();
+    }
+  }, 20_000);
+
+  it("renders an image recovery action when image analysis fails", async () => {
+    const { context, page } = await authenticatedPage();
+    await page.route("**/api/onboarding/import-image", (route) => route.fulfill({
+      status: 422,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "image_import_failed", message: "Cette image n’a pas pu être analysée." }),
+    }));
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-buybox-premium");
+      await fillProductIntake(page);
+      await page.locator("[data-create-image]").setInputFiles({ name: "produit.png", mimeType: "image/png", buffer: Buffer.from("image") });
+
+      await playwrightExpect(page.getByRole("alert")).toContainText("Cette image n’a pas pu être analysée.");
+      await playwrightExpect(page.locator("[data-image-retry]")).toHaveText("Choisir une autre image");
+    } finally {
+      await context.close();
+    }
+  }, 20_000);
+
+  it("renders a retryable French alert when answers-only strategy preparation fails", async () => {
+    const { context, page } = await authenticatedPage();
+    await page.route("**/api/onboarding/start", (route) => route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "start_failed", message: "La stratégie n’a pas pu être préparée." }),
+    }));
+    try {
+      await openFormat(page, "home");
+      await chooseTemplate(page, "home-brand-editorial");
+      await page.locator('button[data-create-source="description"]').click();
+      await fillHomepageIntake(page);
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+
+      await playwrightExpect(page.getByRole("alert")).toContainText("La stratégie n’a pas pu être préparée.");
+      await playwrightExpect(page.locator("[data-intake-retry]")).toHaveText("Réessayer");
+    } finally {
+      await context.close();
+    }
+  }, 20_000);
+
+  it("renders Shopify import recovery without leaving the intake", async () => {
+    const { context, page } = await authenticatedPage();
+    await page.route("**/api/onboarding/import-shopify", (route) => route.fulfill({
+      status: 502,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "shopify_import_failed", message: "Ce produit Shopify n’a pas pu être importé." }),
+    }));
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-buybox-premium");
+      await page.locator('button[data-create-source="shopify"]').click();
+      await page.locator(`[data-shopify-product="${shopifyProduct.id}"]`).click();
+
+      await playwrightExpect(page.getByRole("alert")).toContainText("Ce produit Shopify n’a pas pu être importé.");
+      await playwrightExpect(page.locator("[data-shopify-load]")).toHaveText("Réessayer");
+      await playwrightExpect(page.locator("[data-source-form]")).toBeVisible();
+    } finally {
+      await context.close();
+    }
+  }, 20_000);
+
+  it("enables construction immediately after a successful image import", async () => {
+    const { context, page } = await authenticatedPage();
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-buybox-premium");
+      await fillProductIntake(page);
+      await page.locator("[data-create-image]").setInputFiles({ name: "lampe.png", mimeType: "image/png", buffer: Buffer.from("image") });
+
+      await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toBeVisible();
+      await playwrightExpect(page.locator("[data-build]")).toBeEnabled();
+      await playwrightExpect(page.locator("[data-build]")).toHaveText("Construire la page");
+    } finally {
+      await context.close();
+    }
+  }, 20_000);
+
+  it("locks duplicate image uploads and ignores an image response after switching source", async () => {
+    const { context, page } = await authenticatedPage();
+    const heldImageRoutes: Route[] = [];
+    let imageRequests = 0;
+    await page.route("**/api/onboarding/import-image", async (route) => {
+      imageRequests += 1;
+      heldImageRoutes.push(route);
+    });
+    try {
+      await openFormat(page, "product");
+      await chooseTemplate(page, "product-buybox-premium");
+      await fillProductIntake(page);
+      const image = page.locator("[data-create-image]");
+      await image.setInputFiles({ name: "image-obsolete.png", mimeType: "image/png", buffer: Buffer.from("first") });
+      await playwrightExpect.poll(() => imageRequests).toBe(1);
+      await image.setInputFiles({ name: "image-double.png", mimeType: "image/png", buffer: Buffer.from("second") });
+      await page.waitForTimeout(100);
+      expect(imageRequests).toBe(1);
+
+      await page.locator('button[data-create-source="link"]').click();
+      await page.locator('[name="prompt"]').fill(linkedProduct.sourceUrl);
+      await page.locator("[data-source-form]").evaluate((form: HTMLFormElement) => form.requestSubmit());
+      await playwrightExpect(page.getByRole("heading", { name: "À qui doit parler cette page ?" })).toBeVisible();
+      await playwrightExpect(page.getByText(linkedProduct.title, { exact: false }).first()).toBeVisible();
+
+      await Promise.all(heldImageRoutes.map((route) => route.continue()));
+      await page.waitForTimeout(300);
+      await playwrightExpect(page.getByText(linkedProduct.title, { exact: false }).first()).toBeVisible();
+      await playwrightExpect(page.getByText(/image obsolete|image double/i)).toHaveCount(0);
+    } finally {
+      for (const route of heldImageRoutes) await route.abort().catch(() => undefined);
       await context.close();
     }
   }, 25_000);
@@ -344,6 +543,11 @@ describe("format-specific creation browser journeys", () => {
       expect(validateEditorDocument(savedPage.document)).toMatchObject({ ok: true });
       expect(JSON.stringify(savedPage.document)).not.toMatch(/previewOnly|previewFixtureId|template-preview-fixture|demo\.weflo\.app|Atelier fictif/i);
       expect(JSON.stringify(savedPage.document)).toContain("Maison Aube");
+
+      await openFormat(page, "home");
+      await playwrightExpect(page.locator('[data-template-card="home-brand-editorial"]')).toBeVisible();
+      await playwrightExpect(page.locator("[data-source-form]")).toHaveCount(0);
+      await playwrightExpect.poll(() => page.evaluate(() => JSON.parse(sessionStorage.getItem("weflo-create-draft-v2") ?? "null")?.answers)).toEqual({});
     } finally {
       await context.close();
     }

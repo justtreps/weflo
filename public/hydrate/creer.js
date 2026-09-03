@@ -389,10 +389,10 @@ function fields(...intake) {
   return intake;
 }
 var field = (id, label, placeholder, kind = "text", required = true) => ({ id, label, placeholder, kind, required });
-var sources = ["link", "image", "description", "shopify"];
+var productSources = ["link", "image", "shopify"];
 var FORMAT_FLOWS = [
-  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: sources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id) => template(id, "store")) },
-  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: sources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id) => template(id, "product")) },
+  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: productSources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id) => template(id, "store")) },
+  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: productSources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id) => template(id, "product")) },
   { id: "landing", title: "Landing page", description: "Une campagne, une promesse, une action", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("campaign", "Campagne", "Le nom ou contexte de la campagne"), field("audience", "Audience", "\xC0 qui la page doit-elle parler ?", "textarea"), field("promise", "Promesse", "Le r\xE9sultat principal propos\xE9", "textarea"), field("traffic", "Source du trafic", "Ex. Meta Ads, email, recherche"), field("cta", "Action attendue", "Ex. D\xE9couvrir l\u2019offre")), templates: TEMPLATE_IDS.landing.map((id) => template(id, "landing")) },
   { id: "advertorial", title: "Advertorial", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne vers l\u2019offre", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("angle", "Angle narratif", "L\u2019id\xE9e centrale de l\u2019article", "textarea"), field("author", "Auteur", "Qui porte ce r\xE9cit ?"), field("proof", "Niveau de preuve", "\xC9tudes, exp\xE9rience ou d\xE9monstration", "textarea"), field("product", "Produit final", "Le produit ou l\u2019offre vers lequel conduire")), templates: TEMPLATE_IDS.advertorial.map((id) => template(id, "advertorial")) },
   { id: "quiz", title: "Quiz et funnel", description: "Questions, recommandation et capture", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("objective", "Objectif", "Le r\xE9sultat que doit produire le quiz", "textarea"), field("segments", "Segments", "Les profils ou besoins \xE0 distinguer", "list"), field("result", "Recommandation", "Ce que chaque profil doit recevoir", "textarea"), field("steps", "Nombre d\u2019\xE9tapes", "Ex. 5", "text", false), field("destination", "Destination des r\xE9ponses", "Ex. une recommandation produit", "textarea", false)), templates: TEMPLATE_IDS.quiz.map((id) => template(id, "quiz")) },
@@ -452,9 +452,11 @@ function answersFromFormData(form) {
 }
 function renderFormatIntake(flow, answers, source, state2 = {}) {
   const missingFields = new Set(state2.missingFieldIds ?? []);
-  const promptPlaceholder = source === "link" ? "Colle le lien de ton produit\u2026" : "Ajoute une pr\xE9cision utile pour cette page\u2026";
-  const submit = state2.busy ? "<button disabled>Analyse en cours\u2026</button>" : "<button>Analyser et continuer</button>";
-  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field2) => renderField(field2, answers, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte \xE0 ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state2.prompt ?? "")}</textarea></label>${submit}</form>`;
+  const productLed = flow.id === "store" || flow.id === "product";
+  const promptPlaceholder = source === "link" ? "Colle le lien de ton produit\u2026" : productLed && !source ? "Choisis d\u2019abord un lien, une image ou un produit Shopify." : "Ajoute une pr\xE9cision utile pour cette page\u2026";
+  const recovery = state2.error ? `<div class="intake-request-error create-error" role="alert"><p>${esc(state2.error)}</p>${source === "image" ? '<button type="button" data-image-retry>Choisir une autre image</button>' : ""}</div>` : "";
+  const submit = state2.busy ? "<button disabled>Analyse en cours\u2026</button>" : `<button${state2.error && source !== "image" ? " data-intake-retry" : ""}>${state2.error && source !== "image" ? "R\xE9essayer" : "Analyser et continuer"}</button>`;
+  return `<div class="source-grid source-grid-${flow.allowedSources.length}">${flow.allowedSources.map(renderSource).join("")}</div><form class="source-form format-intake" data-source-form novalidate><div class="intake-fields">${flow.intake.map((field2) => renderField(field2, answers, missingFields)).join("")}</div><label class="intake-field intake-prompt"><span>Contexte \xE0 ajouter</span><textarea name="prompt" placeholder="${promptPlaceholder}">${esc(state2.prompt ?? "")}</textarea></label>${recovery}${submit}</form>`;
 }
 
 // src/create/template-gallery.ts
@@ -498,7 +500,7 @@ function renderTemplateGallery(flow, selectedTemplateId, templateUrl = (template
 // src/create/draft-safety.ts
 var sensitiveQueryParts = /* @__PURE__ */ new Set(["token", "key", "apikey", "password", "secret", "auth", "signature", "credential"]);
 var urlCandidate = /\b[a-z][a-z0-9+.-]*:\/\/[^\s<>"']+/gi;
-var queryKey = /[?&]([^=&#\s]+)=/g;
+var queryKey = /[?&#]([^=&#\s/]+)=/g;
 function decoded(value) {
   try {
     return decodeURIComponent(value.replace(/\+/g, " "));
@@ -518,6 +520,9 @@ function persistentCreationText(value) {
       const url = new URL(candidate);
       if (url.username || url.password) return "";
       if ([...url.searchParams.keys()].some(isSensitiveQueryKey)) return "";
+      const fragment = url.hash.slice(1);
+      const fragmentParameters = fragment.includes("?") ? fragment.slice(fragment.indexOf("?") + 1) : fragment;
+      if ([...new URLSearchParams(fragmentParameters).keys()].some(isSensitiveQueryKey)) return "";
     } catch {
     }
   }
@@ -548,7 +553,7 @@ function sourceForFormat(format, source) {
   if (!format || !selectedSource) return selectedSource;
   const allowedSources = flowForFormat(format).allowedSources;
   if (allowedSources.includes(selectedSource)) return selectedSource;
-  return allowedSources.includes("description") ? "description" : allowedSources[0] ?? null;
+  return allowedSources.includes("description") ? "description" : null;
 }
 function creationWorkspaceUrl(format, templateId, state2) {
   const params = new URLSearchParams();
@@ -564,9 +569,9 @@ function creationWorkspaceUrl(format, templateId, state2) {
 function esc3(value) {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
-function renderIntake(format, source, prompt, answers, missingFieldIds2 = [], busy2 = false) {
+function renderIntake(format, source, prompt, answers, missingFieldIds2 = [], busy2 = false, errorMessage = "") {
   const flow = flowForFormat(format);
-  return `<button class="back-template" data-back-template>\u2190 Changer de mod\xE8le</button><div class="create-heading"><p>${esc3(flow.title)}</p><h1>Donne-nous la mati\xE8re de d\xE9part.</h1><span>Weflo utilisera ces informations pour construire une premi\xE8re version fid\xE8le \xE0 ton objectif.</span></div>${renderFormatIntake(flow, answers, source, { prompt, missingFieldIds: missingFieldIds2, busy: busy2 })}`;
+  return `<button class="back-template" data-back-template>\u2190 Changer de mod\xE8le</button><div class="create-heading"><p>${esc3(flow.title)}</p><h1>Donne-nous la mati\xE8re de d\xE9part.</h1><span>Weflo utilisera ces informations pour construire une premi\xE8re version fid\xE8le \xE0 ton objectif.</span></div>${renderFormatIntake(flow, answers, source, { prompt, missingFieldIds: missingFieldIds2, busy: busy2, error: errorMessage })}`;
 }
 function renderCreateWorkspace(input) {
   const state2 = "state" in input ? input.state : {
@@ -581,7 +586,7 @@ function renderCreateWorkspace(input) {
   const selected = creationFormats.find((format) => format.id === state2.format);
   const flow = state2.format ? flowForFormat(state2.format) : null;
   const source = sourceForFormat(state2.format, state2.source);
-  const content = state2.step === "format" || !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : state2.step === "create-blank" ? "" : state2.step === "template" ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source, prompt: state2.prompt }))}` : renderIntake(selected.id, source, state2.prompt, state2.answers, input.missingFieldIds, input.busy);
+  const content = state2.step === "format" || !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : state2.step === "create-blank" ? "" : state2.step === "template" ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source, prompt: state2.prompt }))}` : renderIntake(selected.id, source, state2.prompt, state2.answers, input.missingFieldIds, input.busy, input.errorMessage);
   return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc3(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }
 
@@ -724,7 +729,7 @@ function isCreationFormat(value) {
 
 // src/create/flow-state.ts
 var steps = /* @__PURE__ */ new Set(["format", "template", "intake", "strategy", "build", "create-blank"]);
-var sources2 = /* @__PURE__ */ new Set(["link", "image", "description", "shopify"]);
+var sources = /* @__PURE__ */ new Set(["link", "image", "description", "shopify"]);
 function assertCompatibleTemplate(format, templateId) {
   const template2 = templateById(templateId);
   if (template2.format !== format) throw new Error(`Template ${templateId} is not compatible with ${format}`);
@@ -864,7 +869,7 @@ function restoreCreationDraft(raw) {
     if (value.format !== null && !format) return null;
     const templateId = value.templateId === null ? null : typeof value.templateId === "string" ? value.templateId : null;
     if (value.templateId !== null && !templateId) return null;
-    const source = value.source === null ? null : sources2.has(value.source) ? value.source : null;
+    const source = value.source === null ? null : sources.has(value.source) ? value.source : null;
     if (value.source !== null && !source) return null;
     const step = value.step === void 0 ? format === "blank" ? "create-blank" : !format ? "format" : templateId ? "intake" : "template" : steps.has(value.step) ? value.step : null;
     if (!step) return null;
@@ -883,6 +888,7 @@ function restoreCreationDraft(raw) {
   }
 }
 function mergeCompatibleCreationDraft(urlState, saved, url) {
+  if (url.searchParams.get("new") === "1") return urlState;
   if (!saved) return urlState;
   const explicitFormat = url.searchParams.has("format");
   if (explicitFormat && saved.format !== urlState.format) return urlState;
@@ -912,6 +918,7 @@ function submissionActionForState(state2) {
   if (state2.source === "link") return "link";
   if (state2.source === "image") return "image";
   if (state2.source === "shopify") return "shopify";
+  if (state2.format === "store" || state2.format === "product") return "product-required";
   return "simple";
 }
 function creationStartupAction(state2) {
@@ -1044,10 +1051,31 @@ var error = "";
 var busy = false;
 var workspaceName = "Ton espace";
 var buildStageIndex = 0;
-var shopifyCatalog = { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "" };
+var shopifyCatalog = { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "", nextCursor: null, previousCursor: null, page: 1 };
 var submissionLock = createSubmissionLock();
+var intakeGeneration = 0;
+var activeIntakeGeneration = null;
 function emptyShopifyCatalog() {
-  return { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "" };
+  return { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "", nextCursor: null, previousCursor: null, page: 1 };
+}
+function beginIntakeOperation() {
+  if (!submissionLock.tryAcquire()) return null;
+  const generation = ++intakeGeneration;
+  activeIntakeGeneration = generation;
+  return generation;
+}
+function currentIntakeOperation(generation, source) {
+  return activeIntakeGeneration === generation && (!source || state.source === source);
+}
+function finishIntakeOperation(generation) {
+  if (activeIntakeGeneration !== generation) return;
+  activeIntakeGeneration = null;
+  submissionLock.release();
+}
+function cancelIntakeOperation() {
+  intakeGeneration += 1;
+  activeIntakeGeneration = null;
+  submissionLock.release();
 }
 function clearDraft() {
   draft = null;
@@ -1069,6 +1097,7 @@ function validShopifyDraft() {
 }
 function resetArtifactsForSourceChange(nextSource) {
   if (nextSource === state.source) return;
+  cancelIntakeOperation();
   clearDraft();
   shopifyCatalog = emptyShopifyCatalog();
   error = "";
@@ -1078,7 +1107,7 @@ function esc5(value) {
 }
 function requestCopy(url) {
   if (url === "/api/pages") return { timeout: "La cr\xE9ation de la page vierge prend trop de temps. R\xE9essaie.", failure: "Impossible de cr\xE9er la page vierge. R\xE9essaie." };
-  if (url.endsWith("/shopify/products")) return { timeout: "Le catalogue Shopify met trop de temps \xE0 r\xE9pondre. R\xE9essaie.", failure: "Impossible de charger le catalogue Shopify. R\xE9essaie." };
+  if (url.startsWith("/api/shopify/products")) return { timeout: "Le catalogue Shopify met trop de temps \xE0 r\xE9pondre. R\xE9essaie.", failure: "Impossible de charger le catalogue Shopify. R\xE9essaie." };
   if (url.endsWith("/import-shopify")) return { timeout: "L\u2019importation du produit Shopify prend trop de temps. R\xE9essaie.", failure: "Impossible d\u2019importer ce produit Shopify. R\xE9essaie." };
   if (url.endsWith("/import-image")) return { timeout: "L\u2019analyse de l\u2019image prend trop de temps. R\xE9essaie.", failure: "Impossible d\u2019analyser cette image. R\xE9essaie." };
   if (url.endsWith("/import")) return { timeout: "L\u2019importation du lien prend trop de temps. R\xE9essaie ou importe une image.", failure: "Impossible d\u2019importer ce lien. R\xE9essaie." };
@@ -1134,7 +1163,7 @@ function render() {
   if (state.step === "create-blank") root.innerHTML = renderBlankCreation();
   else if (state.step === "strategy" && draft) root.innerHTML = renderStrategy();
   else if (state.step === "build" && draft) renderBuild();
-  else root.innerHTML = renderCreateWorkspace({ workspaceName, state, missingFieldIds, busy: submissionLock.locked });
+  else root.innerHTML = renderCreateWorkspace({ workspaceName, state, missingFieldIds, busy: submissionLock.locked, errorMessage: error });
   if (state.step === "intake" && state.source === "shopify") root.querySelector(".source-grid")?.insertAdjacentHTML("afterend", renderShopifyCatalog());
   bind();
 }
@@ -1145,6 +1174,10 @@ function renderBlankCreation() {
 function shopifyPrice(product) {
   return product.price == null ? "Prix non renseign\xE9" : new Intl.NumberFormat("fr-FR", { style: "currency", currency: product.currency || "EUR" }).format(product.price);
 }
+function renderShopifyPagination() {
+  if (!shopifyCatalog.previousCursor && !shopifyCatalog.nextCursor) return "";
+  return `<nav class="shopify-pagination" aria-label="Pages du catalogue Shopify"><button type="button" data-shopify-previous${shopifyCatalog.previousCursor ? "" : " disabled"}>\u2190 Pr\xE9c\xE9dent</button><span data-shopify-page>Page ${shopifyCatalog.page}</span><button type="button" data-shopify-next${shopifyCatalog.nextCursor ? "" : " disabled"}>Suivant \u2192</button></nav>`;
+}
 function renderShopifyCatalog() {
   if (shopifyCatalog.status === "loading") return `<section class="shopify-catalog" data-shopify-catalog aria-live="polite"><h2>Choisis un produit Shopify</h2><p>Chargement du catalogue connect\xE9\u2026</p></section>`;
   if (shopifyCatalog.status === "unavailable") return `<section class="shopify-catalog" data-shopify-catalog><h2>Catalogue Shopify indisponible</h2><p class="create-error" role="alert">${esc5(shopifyCatalog.message)}</p><div class="shopify-catalog-actions"><button type="button" data-shopify-load>R\xE9essayer</button><a href="/boutique">Reconnecter Shopify</a></div></section>`;
@@ -1152,11 +1185,11 @@ function renderShopifyCatalog() {
   if (!shopifyCatalog.products.length) return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2><p role="status">Aucun produit actif n\u2019est disponible dans le catalogue connect\xE9.</p><div class="shopify-catalog-actions"><button type="button" data-shopify-load>Actualiser</button><a href="/boutique">V\xE9rifier Shopify</a></div></section>`;
   const selected = shopifyCatalog.selectedId ? `<p class="shopify-product-selected" role="status">${esc5(shopifyCatalog.selectedTitle)} est pr\xEAt \xE0 \xEAtre utilis\xE9.</p>` : "";
   const message = shopifyCatalog.message ? `<p class="create-error" role="alert">${esc5(shopifyCatalog.message)}</p>` : "";
-  return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2>${selected}${message}<div class="shopify-product-list">${shopifyCatalog.products.map((product) => `<button type="button" data-shopify-product="${esc5(product.id)}" aria-pressed="${product.id === shopifyCatalog.selectedId}">${product.image ? `<img src="${esc5(product.image)}" alt="">` : `<span aria-hidden="true">\u25A3</span>`}<strong>${esc5(product.title)}</strong><small>${esc5(product.vendor)} \xB7 ${esc5(shopifyPrice(product))}</small></button>`).join("")}</div><button type="button" class="shopify-refresh" data-shopify-load>Actualiser le catalogue</button></section>`;
+  return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2>${selected}${message}<div class="shopify-product-list">${shopifyCatalog.products.map((product) => `<button type="button" data-shopify-product="${esc5(product.id)}" aria-pressed="${product.id === shopifyCatalog.selectedId}">${product.image ? `<img src="${esc5(product.image)}" alt="">` : `<span aria-hidden="true">\u25A3</span>`}<strong>${esc5(product.title)}</strong><small>${esc5(product.vendor)} \xB7 ${esc5(shopifyPrice(product))}</small></button>`).join("")}</div>${renderShopifyPagination()}<button type="button" class="shopify-refresh" data-shopify-load>Actualiser le catalogue</button></section>`;
 }
 function renderStrategy() {
   const choices = [...draft.personas.map((item) => ({ ...item, kind: "persona" })), ...draft.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<div class="create-heading"><p>${esc5(creationFormats.find((item) => item.id === state.format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a pr\xE9par\xE9 ces pistes \xE0 partir de tes informations. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc5(item.id)}" aria-pressed="${item.selected}"><strong>${esc5(item.icon)} ${esc5(item.title)}</strong><small>${esc5(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error">${esc5(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<div class="create-heading"><p>${esc5(creationFormats.find((item) => item.id === state.format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a pr\xE9par\xE9 ces pistes \xE0 partir de tes informations. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc5(item.id)}" aria-pressed="${item.selected}"><strong>${esc5(item.icon)} ${esc5(item.title)}</strong><small>${esc5(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error" role="alert">${esc5(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
 }
 function renderBuild() {
   if (!root || !draft) return;
@@ -1168,12 +1201,14 @@ async function syncDraft(includeStrategy = false) {
   const strategy = includeStrategy ? { personas: draft.personas, angles: draft.angles } : void 0;
   await synchronizeOnboardingDraft({ draftId: draft.id, claimToken: token, state, strategy, request });
 }
-async function importLink(value) {
+async function importLink(value, generation) {
   const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });
+  if (!currentIntakeOperation(generation, "link")) return false;
   acceptDraft(body, { source: "link", shopifyProductId: null });
   await syncDraft();
+  return currentIntakeOperation(generation, "link");
 }
-async function importImage(file) {
+async function importImage(file, generation) {
   if (file.size > 45e4) throw new Error("Choisis une image de moins de 450 Ko.");
   const data = await new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1181,32 +1216,49 @@ async function importImage(file) {
     reader.onerror = () => reject(new Error("Impossible de lire l\u2019image."));
     reader.readAsDataURL(file);
   });
+  if (!currentIntakeOperation(generation, "image")) return false;
   const body = await request("/api/onboarding/import-image", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ imageDataUrl: data, fileName: file.name, language: "fr" }) });
+  if (!currentIntakeOperation(generation, "image")) return false;
   acceptDraft(body, { source: "image", shopifyProductId: null });
   await syncDraft();
+  return currentIntakeOperation(generation, "image");
 }
-async function startFromAnswers() {
+async function startFromAnswers(generation) {
   const body = await request("/api/onboarding/start", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ creationFormat: state.format, templateId: state.templateId, answers: state.answers, prompt: state.prompt, language: "fr" }) });
+  if (!currentIntakeOperation(generation, state.source)) return false;
   acceptDraft(body, { source: state.source, shopifyProductId: null });
+  return true;
 }
-async function loadShopifyProducts() {
+async function loadShopifyProducts(cursor = null, page = 1) {
+  const generation = beginIntakeOperation();
+  if (generation === null) return;
+  const previous = { ...shopifyCatalog };
   shopifyCatalog = { ...shopifyCatalog, status: "loading", message: "" };
+  error = "";
   render();
   try {
-    const body = await request("/api/shopify/products", { method: "GET" });
+    const url = cursor ? `/api/shopify/products?cursor=${encodeURIComponent(cursor)}` : "/api/shopify/products";
+    const body = await request(url, { method: "GET" });
+    if (!currentIntakeOperation(generation, "shopify")) return;
     const products = Array.isArray(body.products) ? body.products : [];
-    const selectedStillExists = Boolean(shopifyCatalog.selectedId && products.some((product) => product.id === shopifyCatalog.selectedId));
+    const selectedStillExists = Boolean(previous.selectedId && products.some((product) => product.id === previous.selectedId));
     if (!selectedStillExists && draftProvenance?.source === "shopify") clearDraft();
-    shopifyCatalog = { ...shopifyCatalog, status: "ready", products, message: "", selectedId: selectedStillExists ? shopifyCatalog.selectedId : null, selectedTitle: selectedStillExists ? shopifyCatalog.selectedTitle : "" };
+    shopifyCatalog = { status: "ready", products, message: "", selectedId: selectedStillExists ? previous.selectedId : null, selectedTitle: selectedStillExists ? previous.selectedTitle : "", nextCursor: typeof body.nextCursor === "string" && body.nextCursor ? body.nextCursor : null, previousCursor: typeof body.previousCursor === "string" && body.previousCursor ? body.previousCursor : null, page };
+    finishIntakeOperation(generation);
+    render();
   } catch (reason) {
+    if (!currentIntakeOperation(generation, "shopify")) return;
     if (draftProvenance?.source === "shopify") clearDraft();
-    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", products: [], selectedId: null, selectedTitle: "", message: reason instanceof Error ? reason.message : "Impossible de charger le catalogue Shopify. R\xE9essaie." };
+    shopifyCatalog = { status: "unavailable", products: [], selectedId: null, selectedTitle: "", message: reason instanceof Error ? reason.message : "Impossible de charger le catalogue Shopify. R\xE9essaie.", nextCursor: null, previousCursor: null, page: 1 };
+    finishIntakeOperation(generation);
+    render();
   }
-  render();
 }
 async function importShopifyProduct(productId) {
   const product = shopifyCatalog.products.find((item) => item.id === productId);
   if (!product) return;
+  const generation = beginIntakeOperation();
+  if (generation === null) return;
   const form = root?.querySelector("[data-source-form]");
   if (form) {
     const data = new FormData(form);
@@ -1215,17 +1267,23 @@ async function importShopifyProduct(productId) {
     replaceWorkspaceUrl();
   }
   clearDraft();
+  error = "";
   shopifyCatalog = { ...shopifyCatalog, status: "loading", selectedId: productId, selectedTitle: product.title, message: "" };
   render();
   try {
     const body = await request("/api/onboarding/import-shopify", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ productId, language: "fr" }) });
+    if (!currentIntakeOperation(generation, "shopify")) return;
     acceptDraft(body, { source: "shopify", shopifyProductId: productId });
     shopifyCatalog = { ...shopifyCatalog, status: "ready", selectedId: productId, selectedTitle: product.title, message: "" };
+    finishIntakeOperation(generation);
+    render();
   } catch (reason) {
+    if (!currentIntakeOperation(generation, "shopify")) return;
     clearDraft();
-    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", selectedId: null, selectedTitle: "", message: reason instanceof Error ? reason.message : "Impossible d\u2019importer ce produit Shopify. R\xE9essaie." };
+    shopifyCatalog = { ...shopifyCatalog, status: "unavailable", products: [], selectedId: null, selectedTitle: "", nextCursor: null, previousCursor: null, page: 1, message: reason instanceof Error ? reason.message : "Impossible d\u2019importer ce produit Shopify. R\xE9essaie." };
+    finishIntakeOperation(generation);
+    render();
   }
-  render();
 }
 async function createBlankPage() {
   if (busy) return;
@@ -1280,6 +1338,7 @@ async function build() {
 }
 function bind() {
   root?.querySelectorAll("[data-create-format]").forEach((button) => button.addEventListener("click", () => {
+    cancelIntakeOperation();
     missingFieldIds = [];
     clearDraft();
     shopifyCatalog = emptyShopifyCatalog();
@@ -1287,12 +1346,14 @@ function bind() {
     if (state.step === "create-blank") void createBlankPage();
   }));
   root?.querySelector("[data-back-format]")?.addEventListener("click", () => {
+    cancelIntakeOperation();
     missingFieldIds = [];
     clearDraft();
     shopifyCatalog = emptyShopifyCatalog();
     commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
   root?.querySelector("[data-back-template]")?.addEventListener("click", () => {
+    cancelIntakeOperation();
     missingFieldIds = [];
     commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
@@ -1304,11 +1365,18 @@ function bind() {
     else root?.querySelector('[name="prompt"]')?.focus();
   }));
   root?.querySelector("[data-shopify-load]")?.addEventListener("click", () => void loadShopifyProducts());
+  root?.querySelector("[data-shopify-next]")?.addEventListener("click", () => {
+    if (shopifyCatalog.nextCursor) void loadShopifyProducts(shopifyCatalog.nextCursor, shopifyCatalog.page + 1);
+  });
+  root?.querySelector("[data-shopify-previous]")?.addEventListener("click", () => {
+    if (shopifyCatalog.previousCursor) void loadShopifyProducts(shopifyCatalog.previousCursor, Math.max(1, shopifyCatalog.page - 1));
+  });
   root?.querySelectorAll("[data-shopify-product]").forEach((button) => button.addEventListener("click", () => {
     const id = button.dataset.shopifyProduct;
     if (id) void importShopifyProduct(id);
   }));
   root?.querySelector("[data-blank-retry]")?.addEventListener("click", () => void createBlankPage());
+  root?.querySelector("[data-image-retry]")?.addEventListener("click", () => root?.querySelector("[data-create-image]")?.click());
   root?.querySelector("[data-create-image]")?.addEventListener("change", async (event) => {
     const file = event.currentTarget.files?.[0];
     if (!file) return;
@@ -1322,16 +1390,21 @@ function bind() {
     persistState();
     replaceWorkspaceUrl();
     missingFieldIds = state.format ? validateFormatIntake(flowForFormat(state.format), state.answers) : [];
+    const generation = beginIntakeOperation();
+    if (generation === null) return;
+    error = "";
+    render();
     try {
-      busy = true;
-      await importImage(file);
+      const completed = await importImage(file, generation);
+      if (!completed) return;
+      finishIntakeOperation(generation);
       if (!missingFieldIds.length) commitState(transitionCreationFlow(state, { type: "CONTINUE" }));
       else render();
     } catch (reason) {
-      error = reason instanceof Error ? reason.message : "Import impossible";
+      if (!currentIntakeOperation(generation, "image")) return;
+      finishIntakeOperation(generation);
+      error = reason instanceof Error ? reason.message : "Impossible d\u2019analyser cette image. R\xE9essaie.";
       render();
-    } finally {
-      busy = false;
     }
   });
   const intakeForm = root?.querySelector("[data-source-form]");
@@ -1343,19 +1416,20 @@ function bind() {
   });
   intakeForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!submissionLock.tryAcquire()) return;
+    const generation = beginIntakeOperation();
+    if (generation === null) return;
     const data = new FormData(event.currentTarget);
     let updated = transitionCreationFlow(state, { type: "UPDATE_INTAKE", answers: answersFromFormData(data), prompt: String(data.get("prompt") ?? "").trim() });
     missingFieldIds = updated.format ? validateFormatIntake(flowForFormat(updated.format), updated.answers) : [];
     commitState(updated, false, "replace");
     if (missingFieldIds.length) {
-      submissionLock.release();
+      finishIntakeOperation(generation);
       render();
       return;
     }
     const firstAnswer = Object.values(updated.answers).find((value) => value.trim()) ?? "";
     if (!updated.prompt && !firstAnswer) {
-      submissionLock.release();
+      finishIntakeOperation(generation);
       render();
       return;
     }
@@ -1364,28 +1438,40 @@ function bind() {
       commitState(updated, false, "replace");
     }
     const action = submissionActionForState(updated);
+    if (action === "product-required") {
+      finishIntakeOperation(generation);
+      error = "Choisis un lien, une image ou un produit Shopify avant de continuer.";
+      render();
+      return;
+    }
     if (action === "image" && !draftMatchesSource("image")) {
-      submissionLock.release();
+      finishIntakeOperation(generation);
       error = "Ajoute une image avant de continuer.";
       render();
       return;
     }
     if (action === "shopify" && !validShopifyDraft()) {
-      submissionLock.release();
+      finishIntakeOperation(generation);
       shopifyCatalog = { ...shopifyCatalog, message: "Choisis un produit du catalogue Shopify avant de continuer." };
       render();
       return;
     }
+    error = "";
     render();
     try {
-      error = "";
-      if (action === "link") await importLink(updated.prompt);
-      if (action === "image" || action === "shopify") await syncDraft();
-      if (action === "simple") await startFromAnswers();
-      submissionLock.release();
+      let completed = true;
+      if (action === "link") completed = await importLink(updated.prompt, generation);
+      if (action === "image" || action === "shopify") {
+        await syncDraft();
+        completed = currentIntakeOperation(generation, action);
+      }
+      if (action === "simple") completed = await startFromAnswers(generation);
+      if (!completed) return;
+      finishIntakeOperation(generation);
       commitState(transitionCreationFlow(updated, { type: "CONTINUE" }));
     } catch (reason) {
-      submissionLock.release();
+      if (!currentIntakeOperation(generation)) return;
+      finishIntakeOperation(generation);
       if (state.step === "strategy" && !draft) state = transitionCreationFlow(state, { type: "BACK" });
       persistState();
       replaceWorkspaceUrl();
@@ -1398,6 +1484,7 @@ function bind() {
     event.preventDefault();
     const id = link.dataset.templateSelect;
     if (id) {
+      cancelIntakeOperation();
       missingFieldIds = [];
       commitState(transitionCreationFlow(state, { type: "SELECT_TEMPLATE", templateId: id }));
     }
@@ -1459,11 +1546,12 @@ function bind() {
     if (!id) return;
     event.preventDefault();
     dialog.close();
+    cancelIntakeOperation();
     missingFieldIds = [];
     commitState(transitionCreationFlow(state, { type: "SELECT_TEMPLATE", templateId: id }));
   });
   root?.querySelector("[data-back-strategy]")?.addEventListener("click", () => {
-    submissionLock.release();
+    cancelIntakeOperation();
     missingFieldIds = [];
     commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
@@ -1484,6 +1572,7 @@ function bind() {
   }));
 }
 window.addEventListener("popstate", (event) => {
+  cancelIntakeOperation();
   const url = new URL(location.href);
   const historyDraft = event.state && typeof event.state.wefloCreationDraft === "string" ? restoreCreationDraft(event.state.wefloCreationDraft) : null;
   const next = historyDraft ?? mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);

@@ -39,15 +39,24 @@ async function admin(
   path: string,
   init: RequestInit = {},
 ): Promise<Record<string, unknown> | null> {
+  return (await adminResponse(shop, token, path, init)).body;
+}
+
+async function adminResponse(
+  shop: string,
+  token: string,
+  path: string,
+  init: RequestInit = {},
+): Promise<{ body: Record<string, unknown> | null; headers: Headers }> {
   const url = `https://${shopHost(shop)}/admin/api/${SHOPIFY_API_VERSION}${path}`;
   const res = await fetch(url, {
     ...init,
     headers: { ...adminHeaders(token), ...init.headers },
   });
   if (!res.ok) throw new Error(`shopify ${res.status}`);
-  if (res.status === 204) return null;
+  if (res.status === 204) return { body: null, headers: res.headers };
   const text = await res.text();
-  return text ? (JSON.parse(text) as Record<string, unknown>) : null;
+  return { body: text ? (JSON.parse(text) as Record<string, unknown>) : null, headers: res.headers };
 }
 
 function optionalPrice(value: unknown): number | null {
@@ -62,7 +71,7 @@ function productText(value: unknown): string {
 }
 
 function catalogProducts(payload: Record<string, unknown> | null, shop: string, currency: string): ShopifyCatalogProduct[] {
-  const products = Array.isArray(payload?.products) ? payload.products : [];
+  const products = Array.isArray(payload?.products) ? payload.products : payload?.product && typeof payload.product === "object" ? [payload.product] : [];
   return products.flatMap((raw) => {
     const item = raw as Record<string, unknown>;
     if (item.id == null || typeof item.title !== "string") return [];
@@ -92,6 +101,18 @@ function catalogProducts(payload: Record<string, unknown> | null, shop: string, 
       reviews: [],
     }];
   });
+}
+
+function cursorFromLink(headers: Headers, relation: "next" | "previous"): string | null {
+  const link = headers.get("link");
+  if (!link) return null;
+  for (const part of link.split(",")) {
+    if (!new RegExp(`rel=["']?${relation}["']?`, "i").test(part)) continue;
+    const href = /<([^>]+)>/.exec(part)?.[1];
+    if (!href) continue;
+    try { return new URL(href).searchParams.get("page_info"); } catch { return null; }
+  }
+  return null;
 }
 
 async function graphql(shop: string, token: string, query: string, variables: Record<string, unknown>): Promise<Record<string, unknown>> {
@@ -143,14 +164,32 @@ export function createShopifyPort(): ShopifyPort {
       });
     },
 
-    async listProducts({ shop, token }) {
-      const [shopPayload, productPayload] = await Promise.all([
+    async listProducts({ shop, token, cursor }) {
+      const fields = "id,title,body_html,vendor,handle,images,variants";
+      const path = cursor
+        ? `/products.json?limit=50&page_info=${encodeURIComponent(cursor)}&fields=${fields}`
+        : `/products.json?limit=50&status=active&fields=${fields}`;
+      const [shopPayload, productResponse] = await Promise.all([
         admin(shop, token, "/shop.json?fields=currency"),
-        admin(shop, token, "/products.json?limit=50&status=active&fields=id,title,body_html,vendor,handle,images,variants"),
+        adminResponse(shop, token, path),
       ]);
       const shopData = shopPayload?.shop as { currency?: unknown } | undefined;
       const currency = typeof shopData?.currency === "string" && shopData.currency ? shopData.currency : "";
-      return catalogProducts(productPayload, shop, currency);
+      return {
+        products: catalogProducts(productResponse.body, shop, currency),
+        nextCursor: cursorFromLink(productResponse.headers, "next"),
+        previousCursor: cursorFromLink(productResponse.headers, "previous"),
+      };
+    },
+
+    async getProduct({ shop, token, productId }) {
+      const [shopPayload, productPayload] = await Promise.all([
+        admin(shop, token, "/shop.json?fields=currency"),
+        admin(shop, token, `/products/${encodeURIComponent(productId)}.json?fields=id,title,body_html,vendor,handle,images,variants`),
+      ]);
+      const shopData = shopPayload?.shop as { currency?: unknown } | undefined;
+      const currency = typeof shopData?.currency === "string" && shopData.currency ? shopData.currency : "";
+      return catalogProducts(productPayload, shop, currency)[0] ?? null;
     },
 
     async publishEditor(input) {

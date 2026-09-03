@@ -42,7 +42,28 @@ describe("commerce sections", () => {
     expect(web).not.toMatch(/<form|name=["'](?:id|quantity)["']|\/cart\/add/);
     expect(liquid).toContain("for block in section.blocks");
     expect(liquid).toContain("block.settings.title");
-    expect(liquid).not.toMatch(/selected_collection\.products|name=["'](?:id|quantity)["']/);
+    expect(liquid).not.toMatch(/name=["'](?:id|quantity)["']/);
+  });
+
+  it("loads real Shopify products when an existing section has a collection handle", () => {
+    const definition = commerceSections.find((item) => item.type === "collectionGrid")!;
+    const section: EditorSection = {
+      id: "collection-shopify",
+      type: "collectionGrid",
+      name: definition.name,
+      hidden: false,
+      locked: false,
+      settings: { ...definition.defaults, collection_handle: "nouveautes" },
+      style: {},
+      responsive: {},
+      blocks: [],
+    };
+    const liquid = definition.renderLiquid(section);
+
+    expect(liquid).toContain("collections[section.settings.collection_handle]");
+    expect(liquid).toContain("for product in selected_collection.products");
+    expect(liquid).toContain("product.featured_image");
+    expect(liquid).toContain("product.price | money");
   });
 
   it("ships Shopify Liquid bindings without credentials", () => {

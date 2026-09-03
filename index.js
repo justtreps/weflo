@@ -8929,11 +8929,11 @@ var require_webauthn = __commonJS({
       hints: ["security-key"],
       attestation: "direct"
     };
-    function deepMerge(...sources2) {
+    function deepMerge(...sources) {
       const isObject2 = (val) => val !== null && typeof val === "object" && !Array.isArray(val);
       const isArrayBufferLike = (val) => val instanceof ArrayBuffer || ArrayBuffer.isView(val);
       const result = {};
-      for (const source of sources2) {
+      for (const source of sources) {
         if (!source)
           continue;
         for (const key in source) {
@@ -19814,8 +19814,13 @@ function validateSection(value2, errors, sectionIds2, blockIds2) {
     errors.push(`Invalid section metadata: ${id2}`);
   }
   if (!object(value2.settings)) errors.push(`Invalid section settings: ${id2}`);
-  else for (const [key, setting3] of Object.entries(value2.settings)) {
-    if (!settingValue(setting3)) errors.push(`Invalid setting value at ${id2}.${key}`);
+  else {
+    for (const [key, setting3] of Object.entries(value2.settings)) {
+      if (!settingValue(setting3)) errors.push(`Invalid setting value at ${id2}.${key}`);
+    }
+    if (value2.type === "collectionGrid" && value2.settings.collection_handle !== void 0 && typeof value2.settings.collection_handle !== "string") {
+      errors.push(`Invalid Shopify collection handle: ${id2}`);
+    }
   }
   if (!styleSettings(value2.style)) errors.push(`Invalid style settings in section: ${id2}`);
   if (!responsiveSettings(value2.responsive)) errors.push(`Invalid responsive settings in section: ${id2}`);
@@ -20193,7 +20198,7 @@ var collectionGridSection = {
     }).join("");
     return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards}</div></section>`;
   },
-  renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header><div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div></section>`
+  renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header>{% if section.settings.collection_handle != blank %}{% assign selected_collection = collections[section.settings.collection_handle] %}<div class="wf-section__grid">{% for product in selected_collection.products %}<article class="wf-section__card"><a href="{{ product.url }}">{% if product.featured_image != blank %}{{ product.featured_image | image_url: width: 900 | image_tag: alt: product.title }}{% endif %}<h3>{{ product.title | escape }}</h3><p>{{ product.price | money }}</p></a></article>{% endfor %}</div>{% else %}<div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div>{% endif %}</section>`
 };
 
 // src/sections/bundle.ts
@@ -27383,15 +27388,18 @@ function adminHeaders(token) {
   };
 }
 async function admin(shop, token, path3, init = {}) {
+  return (await adminResponse(shop, token, path3, init)).body;
+}
+async function adminResponse(shop, token, path3, init = {}) {
   const url = `https://${shopHost(shop)}/admin/api/${SHOPIFY_API_VERSION}${path3}`;
   const res = await fetch(url, {
     ...init,
     headers: { ...adminHeaders(token), ...init.headers }
   });
   if (!res.ok) throw new Error(`shopify ${res.status}`);
-  if (res.status === 204) return null;
+  if (res.status === 204) return { body: null, headers: res.headers };
   const text5 = await res.text();
-  return text5 ? JSON.parse(text5) : null;
+  return { body: text5 ? JSON.parse(text5) : null, headers: res.headers };
 }
 function optionalPrice(value2) {
   const number2 = typeof value2 === "number" ? value2 : typeof value2 === "string" && value2.trim() ? Number(value2) : Number.NaN;
@@ -27401,7 +27409,7 @@ function productText(value2) {
   return typeof value2 === "string" ? value2.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&quot;/gi, '"').replace(/&#39;/gi, "'").replace(/\s+/g, " ").trim() : "";
 }
 function catalogProducts(payload, shop, currency) {
-  const products = Array.isArray(payload?.products) ? payload.products : [];
+  const products = Array.isArray(payload?.products) ? payload.products : payload?.product && typeof payload.product === "object" ? [payload.product] : [];
   return products.flatMap((raw) => {
     const item3 = raw;
     if (item3.id == null || typeof item3.title !== "string") return [];
@@ -27431,6 +27439,21 @@ function catalogProducts(payload, shop, currency) {
       reviews: []
     }];
   });
+}
+function cursorFromLink(headers, relation) {
+  const link = headers.get("link");
+  if (!link) return null;
+  for (const part of link.split(",")) {
+    if (!new RegExp(`rel=["']?${relation}["']?`, "i").test(part)) continue;
+    const href = /<([^>]+)>/.exec(part)?.[1];
+    if (!href) continue;
+    try {
+      return new URL(href).searchParams.get("page_info");
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 async function graphql(shop, token, query, variables) {
   const payload = await admin(shop, token, "/graphql.json", { method: "POST", body: JSON.stringify({ query, variables }) });
@@ -27474,14 +27497,29 @@ function createShopifyPort() {
         return theme.id != null && typeof theme.name === "string" && ["main", "unpublished", "development", "demo"].includes(String(theme.role)) ? [{ id: String(theme.id), name: theme.name, role: theme.role }] : [];
       });
     },
-    async listProducts({ shop, token }) {
-      const [shopPayload, productPayload2] = await Promise.all([
+    async listProducts({ shop, token, cursor }) {
+      const fields2 = "id,title,body_html,vendor,handle,images,variants";
+      const path3 = cursor ? `/products.json?limit=50&page_info=${encodeURIComponent(cursor)}&fields=${fields2}` : `/products.json?limit=50&status=active&fields=${fields2}`;
+      const [shopPayload, productResponse] = await Promise.all([
         admin(shop, token, "/shop.json?fields=currency"),
-        admin(shop, token, "/products.json?limit=50&status=active&fields=id,title,body_html,vendor,handle,images,variants")
+        adminResponse(shop, token, path3)
       ]);
       const shopData = shopPayload?.shop;
       const currency = typeof shopData?.currency === "string" && shopData.currency ? shopData.currency : "";
-      return catalogProducts(productPayload2, shop, currency);
+      return {
+        products: catalogProducts(productResponse.body, shop, currency),
+        nextCursor: cursorFromLink(productResponse.headers, "next"),
+        previousCursor: cursorFromLink(productResponse.headers, "previous")
+      };
+    },
+    async getProduct({ shop, token, productId }) {
+      const [shopPayload, productPayload2] = await Promise.all([
+        admin(shop, token, "/shop.json?fields=currency"),
+        admin(shop, token, `/products/${encodeURIComponent(productId)}.json?fields=id,title,body_html,vendor,handle,images,variants`)
+      ]);
+      const shopData = shopPayload?.shop;
+      const currency = typeof shopData?.currency === "string" && shopData.currency ? shopData.currency : "";
+      return catalogProducts(productPayload2, shop, currency)[0] ?? null;
     },
     async publishEditor(input) {
       const document2 = input.document;
@@ -28479,10 +28517,10 @@ function fields(...intake) {
   return intake;
 }
 var field = (id2, label, placeholder, kind = "text", required = true) => ({ id: id2, label, placeholder, kind, required });
-var sources = ["link", "image", "description", "shopify"];
+var productSources = ["link", "image", "shopify"];
 var FORMAT_FLOWS = [
-  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: sources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id2) => template(id2, "store")) },
-  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: sources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id2) => template(id2, "product")) },
+  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: productSources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id2) => template(id2, "store")) },
+  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: productSources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id2) => template(id2, "product")) },
   { id: "landing", title: "Landing page", description: "Une campagne, une promesse, une action", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("campaign", "Campagne", "Le nom ou contexte de la campagne"), field("audience", "Audience", "\xC0 qui la page doit-elle parler ?", "textarea"), field("promise", "Promesse", "Le r\xE9sultat principal propos\xE9", "textarea"), field("traffic", "Source du trafic", "Ex. Meta Ads, email, recherche"), field("cta", "Action attendue", "Ex. D\xE9couvrir l\u2019offre")), templates: TEMPLATE_IDS.landing.map((id2) => template(id2, "landing")) },
   { id: "advertorial", title: "Advertorial", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne vers l\u2019offre", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("angle", "Angle narratif", "L\u2019id\xE9e centrale de l\u2019article", "textarea"), field("author", "Auteur", "Qui porte ce r\xE9cit ?"), field("proof", "Niveau de preuve", "\xC9tudes, exp\xE9rience ou d\xE9monstration", "textarea"), field("product", "Produit final", "Le produit ou l\u2019offre vers lequel conduire")), templates: TEMPLATE_IDS.advertorial.map((id2) => template(id2, "advertorial")) },
   { id: "quiz", title: "Quiz et funnel", description: "Questions, recommandation et capture", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("objective", "Objectif", "Le r\xE9sultat que doit produire le quiz", "textarea"), field("segments", "Segments", "Les profils ou besoins \xE0 distinguer", "list"), field("result", "Recommandation", "Ce que chaque profil doit recevoir", "textarea"), field("steps", "Nombre d\u2019\xE9tapes", "Ex. 5", "text", false), field("destination", "Destination des r\xE9ponses", "Ex. une recommandation produit", "textarea", false)), templates: TEMPLATE_IDS.quiz.map((id2) => template(id2, "quiz")) },
@@ -29461,7 +29499,7 @@ function settingsRoutes(deps) {
 import { Hono as Hono7 } from "hono";
 
 // src/server/shopify-catalog.ts
-async function loadShopifyCatalog(deps, request) {
+async function catalogAccess(deps, request) {
   const user = await requireUser(deps, request);
   if (!user) return { ok: false, status: 401, body: { error: "unauthorized", message: "Reconnecte-toi pour acc\xE9der \xE0 Shopify." } };
   const workspace = await ensureWorkspace(deps.store, user.id);
@@ -29472,12 +29510,45 @@ async function loadShopifyCatalog(deps, request) {
   if (!deps.shopify?.listProducts) {
     return { ok: false, status: 503, body: { error: "shopify_catalog_unavailable", message: "Le catalogue Shopify n\u2019est pas disponible sur cet environnement.", actionUrl: "/boutique" } };
   }
+  return {
+    ok: true,
+    shopDomain: connection2.shopDomain,
+    token: resolveShopifyToken(connection2.tokenEncrypted, deps.encryptionKey)
+  };
+}
+function normalizeListing(listing) {
+  return Array.isArray(listing) ? { products: listing, nextCursor: null, previousCursor: null } : listing;
+}
+async function loadShopifyCatalog(deps, request, cursor = null) {
+  const access = await catalogAccess(deps, request);
+  if (!access.ok) return access;
   try {
-    const products = await deps.shopify.listProducts({
-      shop: connection2.shopDomain,
-      token: resolveShopifyToken(connection2.tokenEncrypted, deps.encryptionKey)
-    });
-    return { ok: true, shopDomain: connection2.shopDomain, products };
+    const listing = normalizeListing(await deps.shopify.listProducts({
+      shop: access.shopDomain,
+      token: access.token,
+      cursor
+    }));
+    return { ok: true, shopDomain: access.shopDomain, ...listing };
+  } catch {
+    return { ok: false, status: 502, body: { error: "shopify_catalog_failed", message: "Impossible de charger le catalogue Shopify. V\xE9rifie la connexion puis r\xE9essaie.", actionUrl: "/boutique" } };
+  }
+}
+async function loadShopifyProduct(deps, request, productId) {
+  const access = await catalogAccess(deps, request);
+  if (!access.ok) return access;
+  try {
+    if (deps.shopify?.getProduct) {
+      return { ok: true, product: await deps.shopify.getProduct({
+        shop: access.shopDomain,
+        token: access.token,
+        productId
+      }) };
+    }
+    const listing = normalizeListing(await deps.shopify.listProducts({
+      shop: access.shopDomain,
+      token: access.token
+    }));
+    return { ok: true, product: listing.products.find((product) => product.id === productId) ?? null };
   } catch {
     return { ok: false, status: 502, body: { error: "shopify_catalog_failed", message: "Impossible de charger le catalogue Shopify. V\xE9rifie la connexion puis r\xE9essaie.", actionUrl: "/boutique" } };
   }
@@ -29508,7 +29579,9 @@ function shopifyRoutes(deps) {
     });
   });
   app2.get("/shopify/products", async (c) => {
-    const result = await loadShopifyCatalog(deps, c.req.raw);
+    const cursor = c.req.query("cursor")?.trim() || null;
+    if (cursor && cursor.length > 1e3) return c.json({ error: "invalid_cursor", message: "Cette page de catalogue n\u2019est plus valide. Recharge le catalogue." }, 400);
+    const result = await loadShopifyCatalog(deps, c.req.raw, cursor);
     if (!result.ok) return c.json(result.body, result.status);
     return c.json({
       shopDomain: result.shopDomain,
@@ -29519,7 +29592,9 @@ function shopifyRoutes(deps) {
         price: product.price,
         currency: product.currency,
         image: product.images[0] ?? null
-      }))
+      })),
+      nextCursor: result.nextCursor,
+      previousCursor: result.previousCursor
     });
   });
   app2.post("/shopify/connect", async (c) => {
@@ -30219,10 +30294,13 @@ function onboardingRoutes(deps) {
   const app2 = new Hono9();
   app2.post("/onboarding/start", async (c) => {
     const body = await c.req.json().catch(() => ({}));
-    if (!isCreationFormat(body.creationFormat) || body.creationFormat === "blank" || isProductLedCreationFormat(body.creationFormat)) {
+    if (!isCreationFormat(body.creationFormat) || body.creationFormat === "blank") {
       return c.json({ error: "invalid_creation_format", message: "Choisis un format compatible avant de continuer." }, 400);
     }
     const creationFormat = body.creationFormat;
+    if (isProductLedCreationFormat(creationFormat)) {
+      return c.json({ error: "product_source_required", message: "Importe un lien, une image ou un produit Shopify pour cr\xE9er ce format." }, 400);
+    }
     if (typeof body.templateId !== "string") {
       return c.json({ error: "invalid_template", message: "Choisis un mod\xE8le avant de continuer." }, 400);
     }
@@ -30291,9 +30369,9 @@ function onboardingRoutes(deps) {
     const body = await c.req.json().catch(() => ({}));
     const productId = typeof body.productId === "string" ? body.productId.trim() : "";
     if (!productId) return c.json({ error: "invalid_product", message: "Choisis un produit Shopify avant de continuer." }, 400);
-    const catalog = await loadShopifyCatalog(deps, c.req.raw);
+    const catalog = await loadShopifyProduct(deps, c.req.raw, productId);
     if (!catalog.ok) return c.json(catalog.body, catalog.status);
-    const selected = catalog.products.find((product2) => product2.id === productId);
+    const selected = catalog.product;
     if (!selected) return c.json({ error: "product_not_found", message: "Ce produit n\u2019est plus disponible dans le catalogue Shopify. Actualise la liste." }, 404);
     const { id: _shopifyId, ...product } = selected;
     const language = typeof body.language === "string" && body.language.trim() ? body.language.trim().slice(0, 40) : "fr";

@@ -23,6 +23,7 @@ describe("format-specific intake", () => {
     expect(html).toContain("Importer un lien");
     expect(html).toContain("Ajouter une image");
     expect(html).toContain("Depuis Shopify");
+    expect(html).not.toContain("Décrire mon idée");
   });
 
   it("returns exact missing required fields", () => {

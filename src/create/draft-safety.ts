@@ -1,6 +1,6 @@
 const sensitiveQueryParts = new Set(["token", "key", "apikey", "password", "secret", "auth", "signature", "credential"]);
 const urlCandidate = /\b[a-z][a-z0-9+.-]*:\/\/[^\s<>"']+/gi;
-const queryKey = /[?&]([^=&#\s]+)=/g;
+const queryKey = /[?&#]([^=&#\s/]+)=/g;
 
 function decoded(value: string): string {
   try { return decodeURIComponent(value.replace(/\+/g, " ")); } catch { return value; }
@@ -23,6 +23,9 @@ export function persistentCreationText(value: unknown): string {
       const url = new URL(candidate);
       if (url.username || url.password) return "";
       if ([...url.searchParams.keys()].some(isSensitiveQueryKey)) return "";
+      const fragment = url.hash.slice(1);
+      const fragmentParameters = fragment.includes("?") ? fragment.slice(fragment.indexOf("?") + 1) : fragment;
+      if ([...new URLSearchParams(fragmentParameters).keys()].some(isSensitiveQueryKey)) return "";
     } catch { /* The raw query scan below still handles partial URLs. */ }
   }
 

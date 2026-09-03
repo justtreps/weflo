@@ -50,8 +50,13 @@ function validateSection(value, errors, sectionIds, blockIds) {
     errors.push(`Invalid section metadata: ${id}`);
   }
   if (!object(value.settings)) errors.push(`Invalid section settings: ${id}`);
-  else for (const [key, setting] of Object.entries(value.settings)) {
-    if (!settingValue(setting)) errors.push(`Invalid setting value at ${id}.${key}`);
+  else {
+    for (const [key, setting] of Object.entries(value.settings)) {
+      if (!settingValue(setting)) errors.push(`Invalid setting value at ${id}.${key}`);
+    }
+    if (value.type === "collectionGrid" && value.settings.collection_handle !== void 0 && typeof value.settings.collection_handle !== "string") {
+      errors.push(`Invalid Shopify collection handle: ${id}`);
+    }
   }
   if (!styleSettings(value.style)) errors.push(`Invalid style settings in section: ${id}`);
   if (!responsiveSettings(value.responsive)) errors.push(`Invalid responsive settings in section: ${id}`);

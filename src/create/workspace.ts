@@ -17,12 +17,12 @@ export function renderStrategyBackControl(): string {
 }
 
 export function creationActionUrl(action: "generate" | "link" | "image" | "blank", prompt = ""): string {
-  if (action === "link") return "/creer?source=link";
-  if (action === "image") return "/creer?source=image";
-  if (action === "blank") return "/creer?format=blank";
+  if (action === "link") return "/creer?new=1&source=link";
+  if (action === "image") return "/creer?new=1&source=image";
+  if (action === "blank") return "/creer?format=blank&new=1";
   const persistentPrompt = persistentCreationText(prompt);
-  if (!prompt) return "/creer";
-  return persistentPrompt ? `/creer?source=description&prompt=${encodeURIComponent(persistentPrompt)}` : "/creer?source=description";
+  if (!prompt) return "/creer?new=1";
+  return persistentPrompt ? `/creer?new=1&source=description&prompt=${encodeURIComponent(persistentPrompt)}` : "/creer?new=1&source=description";
 }
 
 const creationSources = new Set<CreationSource>(["link", "image", "description", "shopify"]);
@@ -32,7 +32,7 @@ export function sourceForFormat(format: CreationFormatId | null, source: string 
   if (!format || !selectedSource) return selectedSource;
   const allowedSources = flowForFormat(format).allowedSources;
   if (allowedSources.includes(selectedSource)) return selectedSource;
-  return allowedSources.includes("description") ? "description" : allowedSources[0] ?? null;
+  return allowedSources.includes("description") ? "description" : null;
 }
 
 export function creationWorkspaceUrl(format: CreationFormatId | null, templateId: string | null, state: { source: string | null; prompt: string }): string {
@@ -50,12 +50,12 @@ export function creationWorkspaceUrl(format: CreationFormatId | null, templateId
 function esc(value: string): string { return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!); }
 
 type RenderCreateWorkspaceInput =
-  | { workspaceName: string; state: CreationFlowState; missingFieldIds?: string[]; busy?: boolean }
-  | { workspaceName: string; selectedFormat: CreationFormatId | null; selectedTemplateId: string | null; source: string | null; prompt: string; answers: Record<string, string>; missingFieldIds?: string[]; busy?: boolean };
+  | { workspaceName: string; state: CreationFlowState; missingFieldIds?: string[]; busy?: boolean; errorMessage?: string }
+  | { workspaceName: string; selectedFormat: CreationFormatId | null; selectedTemplateId: string | null; source: string | null; prompt: string; answers: Record<string, string>; missingFieldIds?: string[]; busy?: boolean; errorMessage?: string };
 
-function renderIntake(format: CreationFormatId, source: string | null, prompt: string, answers: Record<string, string>, missingFieldIds: string[] = [], busy = false): string {
+function renderIntake(format: CreationFormatId, source: string | null, prompt: string, answers: Record<string, string>, missingFieldIds: string[] = [], busy = false, errorMessage = ""): string {
   const flow = flowForFormat(format);
-  return `<button class="back-template" data-back-template>← Changer de modèle</button><div class="create-heading"><p>${esc(flow.title)}</p><h1>Donne-nous la matière de départ.</h1><span>Weflo utilisera ces informations pour construire une première version fidèle à ton objectif.</span></div>${renderFormatIntake(flow, answers, source, { prompt, missingFieldIds, busy })}`;
+  return `<button class="back-template" data-back-template>← Changer de modèle</button><div class="create-heading"><p>${esc(flow.title)}</p><h1>Donne-nous la matière de départ.</h1><span>Weflo utilisera ces informations pour construire une première version fidèle à ton objectif.</span></div>${renderFormatIntake(flow, answers, source, { prompt, missingFieldIds, busy, error: errorMessage })}`;
 }
 
 export function renderCreateWorkspace(input: RenderCreateWorkspaceInput): string {
@@ -75,6 +75,6 @@ export function renderCreateWorkspace(input: RenderCreateWorkspaceInput): string
     ? `<div class="create-heading"><p>Nouvelle création</p><h1>Qu’est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>`
     : state.step === "create-blank" ? ""
     : state.step === "template" ? `<button class="back-format" data-back-format>← Changer de format</button>${renderTemplateGallery(flow!, null, (template) => creationWorkspaceUrl(flow!.id, template.id, { source, prompt: state.prompt }))}`
-    : renderIntake(selected.id, source, state.prompt, state.answers, input.missingFieldIds, input.busy);
+    : renderIntake(selected.id, source, state.prompt, state.answers, input.missingFieldIds, input.busy, input.errorMessage);
   return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">← Retour à l’espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Stratégie</span></li><li>4 <span>Construction</span></li></ol><small>${esc(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }

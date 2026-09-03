@@ -32,7 +32,9 @@ export function shopifyRoutes(deps: AppDeps) {
   });
 
   app.get("/shopify/products", async (c) => {
-    const result = await loadShopifyCatalog(deps, c.req.raw);
+    const cursor = c.req.query("cursor")?.trim() || null;
+    if (cursor && cursor.length > 1_000) return c.json({ error: "invalid_cursor", message: "Cette page de catalogue n’est plus valide. Recharge le catalogue." }, 400);
+    const result = await loadShopifyCatalog(deps, c.req.raw, cursor);
     if (!result.ok) return c.json(result.body, result.status);
     return c.json({
       shopDomain: result.shopDomain,
@@ -44,6 +46,8 @@ export function shopifyRoutes(deps: AppDeps) {
         currency: product.currency,
         image: product.images[0] ?? null,
       })),
+      nextCursor: result.nextCursor,
+      previousCursor: result.previousCursor,
     });
   });
 

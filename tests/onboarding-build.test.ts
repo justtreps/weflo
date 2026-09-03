@@ -145,10 +145,13 @@ describe("onboarding store compiler", () => {
     });
     const web = renderEditorDocument(document, { mode: "preview", breakpoint: "desktop" });
     const liquid = compileShopifyPage(document, { resource: "home" }).map((file) => file.value).join("\n");
+    const collection = document.pages[0].sections.find((section) => section.type === "collectionGrid")!;
 
     expect(web).toContain("Linge");
     expect(web).toContain("Lumière");
+    expect(collection.settings.collection_handle).toBe("");
     expect(liquid).toContain("block.settings.title");
+    expect(liquid).toContain("{% else %}");
     expect(`${web}\n${liquid}`).not.toMatch(/name=["'](?:id|quantity)["']|action=["']\/cart\/add/);
   });
 

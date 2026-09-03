@@ -15,6 +15,11 @@ describe("format flow registry", () => {
     expect(home.intake.map((field) => field.id)).toEqual(["brand", "activity", "promise", "collections", "story"]);
   });
 
+  it("requires a product-backed source for store and product templates", () => {
+    expect(flowForFormat("store").allowedSources).toEqual(["link", "image", "shopify"]);
+    expect(flowForFormat("product").allowedSources).toEqual(["link", "image", "shopify"]);
+  });
+
   it("resolves templates globally and rejects unknown ids", () => {
     expect(templateById("home-brand-editorial").format).toBe("home");
     expect(() => templateById("missing")).toThrow("Unknown creation template");

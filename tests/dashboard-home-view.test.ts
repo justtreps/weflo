@@ -66,7 +66,7 @@ describe("dashboard home view", () => {
     expect(html).toContain("data-new-page");
     expect(html).toContain("data-format-dialog");
     for (const id of ["store", "product", "landing", "advertorial", "quiz", "home", "blog", "blank"]) {
-      expect(html).toContain(`/creer?format=${id}`);
+      expect(html).toContain(`/creer?format=${id}&amp;new=1`);
     }
     expect(html).toContain("Nouvelle page");
   });

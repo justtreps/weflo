@@ -22,7 +22,7 @@ function projectCard(project: DashboardProject): string {
 function formatCard(flow: (typeof FORMAT_FLOWS)[number]): string {
   const templateCount = flow.templates.length;
   const templateLabel = templateCount === 1 ? "modèle" : "modèles";
-  return `<a class="format-card" href="/creer?format=${encodeURIComponent(flow.id)}"><span class="format-card__count">${templateCount} ${templateLabel}</span><h3>${escapeHtml(flow.title)}</h3><p>${escapeHtml(flow.description)}</p><span class="format-card__arrow" aria-hidden="true">→</span></a>`;
+  return `<a class="format-card" href="/creer?format=${encodeURIComponent(flow.id)}&amp;new=1"><span class="format-card__count">${templateCount} ${templateLabel}</span><h3>${escapeHtml(flow.title)}</h3><p>${escapeHtml(flow.description)}</p><span class="format-card__arrow" aria-hidden="true">→</span></a>`;
 }
 
 export function renderDashboardHome(model: DashboardHomeModel): string {

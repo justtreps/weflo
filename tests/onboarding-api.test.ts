@@ -147,6 +147,49 @@ describe("anonymous onboarding API", () => {
     expect(body.claimToken).toEqual(expect.any(String));
   });
 
+  it("pages through more than 50 active products and imports an exact later product", async () => {
+    const store = new MemoryStore();
+    const workspace = await store.createWorkspace({ name: "Grand catalogue", ownerUserId: "user-1" });
+    await store.saveShopify({ workspaceId: workspace.id, shopDomain: "grand-catalogue.myshopify.com", tokenEncrypted: "encrypted-token", status: "connected" });
+    const catalog = Array.from({ length: 55 }, (_, index) => ({
+      ...product,
+      id: String(index + 1),
+      title: `Produit ${index + 1}`,
+      sourceUrl: `https://grand-catalogue.myshopify.com/products/produit-${index + 1}`,
+    }));
+    const cursors: Array<string | null> = [];
+    const app = createApp({
+      store,
+      session: async () => ({ id: "user-1", email: "owner@example.com" }),
+      shopify: {
+        ping: async () => {},
+        publish: async () => ({ themeId: "theme-1", productId: "product-1" }),
+        rollback: async () => {},
+        listProducts: async (input: { cursor?: string | null }) => {
+          cursors.push(input.cursor ?? null);
+          return input.cursor === "page-2"
+            ? { products: catalog.slice(50), nextCursor: null, previousCursor: "page-1" }
+            : { products: catalog.slice(0, 50), nextCursor: "page-2", previousCursor: null };
+        },
+        getProduct: async ({ productId }: { productId: string }) => catalog.find((item) => item.id === productId) ?? null,
+      },
+    });
+
+    const first = await app.request("/api/shopify/products");
+    const second = await app.request("/api/shopify/products?cursor=page-2");
+    expect(await first.json()).toMatchObject({ products: expect.arrayContaining([expect.objectContaining({ id: "1" })]), nextCursor: "page-2", previousCursor: null });
+    expect(await second.json()).toMatchObject({ products: expect.arrayContaining([expect.objectContaining({ id: "55", title: "Produit 55" })]), nextCursor: null, previousCursor: "page-1" });
+    expect(cursors).toEqual([null, "page-2"]);
+
+    const imported = await app.request("/api/onboarding/import-shopify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ productId: "55", language: "fr" }),
+    });
+    expect(imported.status).toBe(201);
+    expect((await imported.json()).draft.product.title).toBe("Produit 55");
+  });
+
   it("returns a French reconnect destination when no Shopify catalog is connected", async () => {
     const app = createApp({
       store: new MemoryStore(),

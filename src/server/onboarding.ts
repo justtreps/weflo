@@ -11,7 +11,7 @@ import { isCreationFormat, isProductLedCreationFormat } from "../onboarding/crea
 import { recipeForTemplate } from "../onboarding/template-recipe";
 import { flowForFormat } from "../create/format-flow";
 import { ensureWorkspace, requireUser } from "./pages";
-import { loadShopifyCatalog } from "./shopify-catalog";
+import { loadShopifyProduct } from "./shopify-catalog";
 
 function publicDraft(draft: OnboardingDraft): Omit<OnboardingDraft, "claimTokenHash"> {
   const { claimTokenHash: _private, ...safe } = draft;
@@ -101,10 +101,13 @@ export function onboardingRoutes(deps: AppDeps) {
 
   app.post("/onboarding/start", async (c) => {
     const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
-    if (!isCreationFormat(body.creationFormat) || body.creationFormat === "blank" || isProductLedCreationFormat(body.creationFormat)) {
+    if (!isCreationFormat(body.creationFormat) || body.creationFormat === "blank") {
       return c.json({ error: "invalid_creation_format", message: "Choisis un format compatible avant de continuer." }, 400);
     }
     const creationFormat = body.creationFormat;
+    if (isProductLedCreationFormat(creationFormat)) {
+      return c.json({ error: "product_source_required", message: "Importe un lien, une image ou un produit Shopify pour créer ce format." }, 400);
+    }
     if (typeof body.templateId !== "string") {
       return c.json({ error: "invalid_template", message: "Choisis un modèle avant de continuer." }, 400);
     }
@@ -176,9 +179,9 @@ export function onboardingRoutes(deps: AppDeps) {
     const body = await c.req.json<{ productId?: unknown; language?: unknown }>().catch(() => ({} as { productId?: unknown; language?: unknown }));
     const productId = typeof body.productId === "string" ? body.productId.trim() : "";
     if (!productId) return c.json({ error: "invalid_product", message: "Choisis un produit Shopify avant de continuer." }, 400);
-    const catalog = await loadShopifyCatalog(deps, c.req.raw);
+    const catalog = await loadShopifyProduct(deps, c.req.raw, productId);
     if (!catalog.ok) return c.json(catalog.body, catalog.status);
-    const selected = catalog.products.find((product) => product.id === productId);
+    const selected = catalog.product;
     if (!selected) return c.json({ error: "product_not_found", message: "Ce produit n’est plus disponible dans le catalogue Shopify. Actualise la liste." }, 404);
     const { id: _shopifyId, ...product } = selected;
     const language = typeof body.language === "string" && body.language.trim() ? body.language.trim().slice(0, 40) : "fr";

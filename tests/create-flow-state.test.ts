@@ -128,6 +128,9 @@ describe("creation flow state", () => {
     "https://example.test/product?auth=secret",
     "https://example.test/product?signature=secret",
     "https://example.test/product?credential=secret",
+    "https://example.test/callback#access_token=secret",
+    "https://example.test/callback#id_token=secret",
+    "https://example.test/#/oauth/callback?refresh_token=secret",
     "Consulte blob:https://example.test/private-payload",
     "Préfixe data:image/png;base64,secret-image",
   ])("keeps an unsafe prompt transient and omits it from storage and history: %s", (prompt) => {
@@ -224,12 +227,13 @@ describe("creation flow state", () => {
     expect(mergeCompatibleCreationDraft(fromUrl, incompatible, new URL("https://weflo.test/creer?format=home"))).toEqual(fromUrl);
   });
 
-  it("does not infer product import from a URL-shaped description prompt", () => {
+  it("requires an explicit product-backed source instead of promoting a description", () => {
     const describedProduct = initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=description&prompt=https%3A%2F%2Fexample.test%2Fproduct"));
     const normalizedHome = initialCreationState(new URL("https://weflo.test/creer?format=home&template=home-brand-editorial&source=link&prompt=https%3A%2F%2Fexample.test%2Fproduct"));
     const linkedProduct = initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=link&prompt=https%3A%2F%2Fexample.test%2Fproduct"));
 
-    expect(submissionActionForState(describedProduct)).toBe("simple");
+    expect(describedProduct.source).toBeNull();
+    expect(submissionActionForState(describedProduct)).toBe("product-required");
     expect(submissionActionForState(normalizedHome)).toBe("simple");
     expect(submissionActionForState(linkedProduct)).toBe("link");
   });
@@ -241,7 +245,7 @@ describe("creation flow state", () => {
   });
 
   it("returns from strategy to intake without losing the selected draft", () => {
-    let state = initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=description"));
+    let state = initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=link"));
     state = transitionCreationFlow(state, {
       type: "UPDATE_INTAKE",
       prompt: "Une fiche précise",
@@ -253,9 +257,31 @@ describe("creation flow state", () => {
       step: "intake",
       format: "product",
       templateId: "product-buybox-premium",
-      source: "description",
+      source: "link",
       prompt: "Une fiche précise",
       answers: { benefits: "Rapide", offer: "49 €" },
     });
+  });
+
+  it("ignores a completed draft when a dashboard link starts a new flow", () => {
+    const completed = restoreCreationDraft(JSON.stringify({
+      version: 2,
+      format: "home",
+      templateId: "home-brand-editorial",
+      source: "description",
+      prompt: "Ancienne création",
+      answers: {
+        brand: "Ancienne marque",
+        activity: "Maison",
+        promise: "Ancienne promesse",
+        collections: "Ancienne collection",
+        story: "Ancienne histoire",
+      },
+      step: "build",
+    }));
+    const url = new URL("https://weflo.test/creer?format=home&new=1");
+    const fresh = mergeCompatibleCreationDraft(initialCreationState(url), completed, url);
+
+    expect(fresh).toMatchObject({ format: "home", templateId: null, source: null, prompt: "", answers: {}, step: "template" });
   });
 });

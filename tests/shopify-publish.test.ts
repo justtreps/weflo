@@ -24,22 +24,76 @@ describe("Shopify connect and publish", () => {
     try {
       const products = await createShopifyPort().listProducts?.({ shop: "atelier-aube.myshopify.com", token: "secret" });
 
-      expect(products).toEqual([{
-        id: "731",
-        sourceUrl: "https://atelier-aube.myshopify.com/products/lampe-magnetique",
-        title: "Lampe magnétique",
-        description: "Une lampe sans perçage.",
-        vendor: "Atelier Aube",
-        currency: "CAD",
-        price: 49,
-        compareAtPrice: null,
-        images: ["https://cdn.example/lampe.webp"],
-        variants: [{ id: "991", title: "Sable", price: 49, image: "https://cdn.example/lampe.webp" }],
-        rating: null,
-        reviewCount: null,
-        reviews: [],
-      }]);
+      expect(products).toEqual({
+        products: [{
+          id: "731",
+          sourceUrl: "https://atelier-aube.myshopify.com/products/lampe-magnetique",
+          title: "Lampe magnétique",
+          description: "Une lampe sans perçage.",
+          vendor: "Atelier Aube",
+          currency: "CAD",
+          price: 49,
+          compareAtPrice: null,
+          images: ["https://cdn.example/lampe.webp"],
+          variants: [{ id: "991", title: "Sable", price: 49, image: "https://cdn.example/lampe.webp" }],
+          rating: null,
+          reviewCount: null,
+          reviews: [],
+        }],
+        nextCursor: null,
+        previousCursor: null,
+      });
       expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      fetchMock.mockRestore();
+    }
+  });
+
+  it("follows Shopify product cursors so products after the first 50 are reachable", async () => {
+    const requestedUrls: string[] = [];
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      requestedUrls.push(url);
+      if (url.includes("/shop.json")) return Response.json({ shop: { currency: "EUR" } });
+      if (url.includes("page_info=cursor-2")) {
+        return Response.json({ products: [{ id: 51, title: "Produit 51", handle: "produit-51", images: [], variants: [] }] }, {
+          headers: { Link: '<https://atelier-aube.myshopify.com/admin/api/2026-07/products.json?page_info=cursor-1&limit=50>; rel="previous"' },
+        });
+      }
+      return Response.json({ products: [{ id: 1, title: "Produit 1", handle: "produit-1", images: [], variants: [] }] }, {
+        headers: { Link: '<https://atelier-aube.myshopify.com/admin/api/2026-07/products.json?page_info=cursor-2&limit=50>; rel="next"' },
+      });
+    });
+    try {
+      const port = createShopifyPort();
+      const first = await port.listProducts?.({ shop: "atelier-aube.myshopify.com", token: "secret" });
+      const second = await port.listProducts?.({ shop: "atelier-aube.myshopify.com", token: "secret", cursor: "cursor-2" });
+
+      expect(first).toMatchObject({ nextCursor: "cursor-2", previousCursor: null });
+      expect(second).toMatchObject({ products: [{ id: "51", title: "Produit 51" }], nextCursor: null, previousCursor: "cursor-1" });
+      expect(requestedUrls.some((url) => url.includes("page_info=cursor-2"))).toBe(true);
+    } finally {
+      fetchMock.mockRestore();
+    }
+  });
+
+  it("loads an exact catalog product for later-page imports", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/shop.json")) return Response.json({ shop: { currency: "EUR" } });
+      if (url.includes("/products/955.json")) {
+        return Response.json({ product: { id: 955, title: "Produit Shopify 55", handle: "produit-55", images: [], variants: [] } });
+      }
+      return new Response("Not found", { status: 404 });
+    });
+    try {
+      const product = await createShopifyPort().getProduct?.({ shop: "atelier-aube.myshopify.com", token: "secret", productId: "955" });
+
+      expect(product).toMatchObject({
+        id: "955",
+        title: "Produit Shopify 55",
+        sourceUrl: "https://atelier-aube.myshopify.com/products/produit-55",
+      });
     } finally {
       fetchMock.mockRestore();
     }
