@@ -220,7 +220,11 @@ export function mergeCompatibleCreationDraft(urlState: CreationFlowState, saved:
   const source = url.searchParams.has("source") ? sourceForFormat(format, urlState.source) : sourceForFormat(format, saved.source);
   const prompt = url.searchParams.has("prompt") ? urlState.prompt : saved.prompt;
   const answers = safeAnswers(format, saved.answers);
-  const step: CreationStep = !templateId && saved.step === "format" ? "format" : templateId ? "intake" : "template";
+  const step: CreationStep = !templateId && saved.step === "format"
+    ? "format"
+    : templateId && (saved.step === "strategy" || saved.step === "build")
+      ? saved.step
+      : templateId ? "intake" : "template";
   const merged = { format, templateId, source, prompt, answers, step } satisfies CreationFlowState;
   assertState(merged);
   return merged;

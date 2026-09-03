@@ -418,11 +418,11 @@ var sourceLabels = {
   description: { icon: "Aa", title: "D\xE9crire mon id\xE9e", description: "Partir d\u2019une intention claire" },
   shopify: { icon: "S", title: "Depuis Shopify", description: "Choisir dans le catalogue connect\xE9" }
 };
-function esc(value) {
-  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+function esc(value2) {
+  return value2.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 function renderField(field2, answers, missingFields) {
-  const value = esc(answers[field2.id] ?? "");
+  const value2 = esc(answers[field2.id] ?? "");
   const required = field2.required ? " required" : "";
   const missing = missingFields.has(field2.id);
   const error2 = missing ? `<small class="intake-error" id="error-${esc(field2.id)}">Ce champ est obligatoire.</small>` : "";
@@ -430,24 +430,24 @@ function renderField(field2, answers, missingFields) {
   const name = `answers[${esc(field2.id)}]`;
   const label = `<span>${esc(field2.label)}${field2.required ? "" : " (facultatif)"}</span>`;
   if (field2.kind === "textarea" || field2.kind === "list") {
-    return `<label class="intake-field ${field2.kind === "list" ? "intake-list" : ""}">${label}<textarea name="${name}" placeholder="${esc(field2.placeholder)}"${required}${accessibility}>${value}</textarea>${error2}</label>`;
+    return `<label class="intake-field ${field2.kind === "list" ? "intake-list" : ""}">${label}<textarea name="${name}" placeholder="${esc(field2.placeholder)}"${required}${accessibility}>${value2}</textarea>${error2}</label>`;
   }
-  return `<label class="intake-field">${label}<input name="${name}" value="${value}" placeholder="${esc(field2.placeholder)}"${required}${accessibility}>${error2}</label>`;
+  return `<label class="intake-field">${label}<input name="${name}" value="${value2}" placeholder="${esc(field2.placeholder)}"${required}${accessibility}>${error2}</label>`;
 }
 function renderSource(source) {
-  const item = sourceLabels[source];
+  const item2 = sourceLabels[source];
   if (source === "image") {
-    return `<label data-create-source="image"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small><input type="file" accept="image/png,image/jpeg,image/webp" data-create-image hidden></label>`;
+    return `<label data-create-source="image"><b>${item2.icon}</b><strong>${item2.title}</strong><small>${item2.description}</small><input type="file" accept="image/png,image/jpeg,image/webp" data-create-image hidden></label>`;
   }
-  return `<button type="button" data-create-source="${source}"><b>${item.icon}</b><strong>${item.title}</strong><small>${item.description}</small></button>`;
+  return `<button type="button" data-create-source="${source}"><b>${item2.icon}</b><strong>${item2.title}</strong><small>${item2.description}</small></button>`;
 }
 function validateFormatIntake(flow, answers) {
   return flow.intake.filter((field2) => field2.required && !(answers[field2.id] ?? "").trim()).map((field2) => field2.id);
 }
 function answersFromFormData(form) {
-  return Object.fromEntries([...form.entries()].flatMap(([key, value]) => {
+  return Object.fromEntries([...form.entries()].flatMap(([key, value2]) => {
     const fieldId = /^answers\[(.+)\]$/.exec(key)?.[1];
-    return fieldId ? [[fieldId, String(value)]] : [];
+    return fieldId ? [[fieldId, String(value2)]] : [];
   }));
 }
 function renderFormatIntake(flow, answers, source, state2 = {}) {
@@ -460,8 +460,8 @@ function renderFormatIntake(flow, answers, source, state2 = {}) {
 }
 
 // src/create/template-gallery.ts
-function esc2(value) {
-  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+function esc2(value2) {
+  return value2.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 function renderPreview(template2) {
   const title = `Aper\xE7u ${template2.name}`;
@@ -479,7 +479,7 @@ function renderPreview(template2) {
 }
 function renderTemplateGallery(flow, selectedTemplateId, templateUrl = (template2) => `/creer?format=${flow.id}&template=${template2.id}`) {
   const selected = flow.templates.some((template2) => template2.id === selectedTemplateId) ? selectedTemplateId : null;
-  const cards = flow.templates.map((template2) => `<article class="template-card" data-template-card="${esc2(template2.id)}" ${template2.id === selected ? 'data-selected="true"' : ""}>
+  const cards2 = flow.templates.map((template2) => `<article class="template-card" data-template-card="${esc2(template2.id)}" ${template2.id === selected ? 'data-selected="true"' : ""}>
     ${renderPreview(template2)}
     <div class="template-card-copy"><div><h2>${esc2(template2.name)}</h2><p>${esc2(template2.description)}</p></div>
       <div class="template-card-actions"><button type="button" class="template-preview-button" data-template-open="${esc2(template2.id)}">Aper\xE7u</button><a href="${esc2(templateUrl(template2))}" data-template-select="${esc2(template2.id)}">Choisir ce mod\xE8le</a></div>
@@ -487,7 +487,7 @@ function renderTemplateGallery(flow, selectedTemplateId, templateUrl = (template
   </article>`).join("");
   return `<section class="template-gallery" aria-labelledby="template-gallery-title">
     <header class="template-gallery-heading"><p>${esc2(flow.title)}</p><h1 id="template-gallery-title">Choisis une direction pour ta page.</h1><span>Chaque mod\xE8le pose la hi\xE9rarchie, le rythme et les sections de d\xE9part. Tu pourras tout ajuster dans l\u2019\xE9diteur.</span></header>
-    <div class="template-gallery-list">${cards}</div>
+    <div class="template-gallery-list">${cards2}</div>
   </section>
   <dialog class="template-preview-dialog" data-template-dialog aria-labelledby="template-dialog-title">
     <form method="dialog"><button class="template-dialog-close" aria-label="Fermer l\u2019aper\xE7u">\xD7</button></form>
@@ -501,21 +501,21 @@ function renderTemplateGallery(flow, selectedTemplateId, templateUrl = (template
 var sensitiveQueryParts = /* @__PURE__ */ new Set(["token", "key", "apikey", "password", "secret", "auth", "signature", "credential"]);
 var urlCandidate = /\b[a-z][a-z0-9+.-]*:\/\/[^\s<>"']+/gi;
 var queryKey = /[?&#]([^=&#\s/]+)=/g;
-function decoded(value) {
+function decoded(value2) {
   try {
-    return decodeURIComponent(value.replace(/\+/g, " "));
+    return decodeURIComponent(value2.replace(/\+/g, " "));
   } catch {
-    return value;
+    return value2;
   }
 }
-function isSensitiveQueryKey(value) {
-  const normalized = decoded(value).replace(/([a-z\d])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
+function isSensitiveQueryKey(value2) {
+  const normalized = decoded(value2).replace(/([a-z\d])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
   return normalized.split(/[^a-z\d]+/).some((part) => sensitiveQueryParts.has(part));
 }
-function persistentCreationText(value) {
-  if (typeof value !== "string") return "";
-  if (/\b(?:data|blob):/i.test(value)) return "";
-  for (const candidate of value.match(urlCandidate) ?? []) {
+function persistentCreationText(value2) {
+  if (typeof value2 !== "string") return "";
+  if (/\b(?:data|blob):/i.test(value2)) return "";
+  for (const candidate of value2.match(urlCandidate) ?? []) {
     try {
       const url = new URL(candidate);
       if (url.username || url.password) return "";
@@ -526,10 +526,10 @@ function persistentCreationText(value) {
     } catch {
     }
   }
-  for (const match of value.matchAll(queryKey)) {
+  for (const match of value2.matchAll(queryKey)) {
     if (isSensitiveQueryKey(match[1])) return "";
   }
-  return value;
+  return value2;
 }
 
 // src/create/workspace.ts
@@ -566,8 +566,8 @@ function creationWorkspaceUrl(format, templateId, state2) {
   const query = params.toString();
   return query ? `/creer?${query}` : "/creer";
 }
-function esc3(value) {
-  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+function esc3(value2) {
+  return value2.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 function renderIntake(format, source, prompt, answers, missingFieldIds2 = [], busy2 = false, errorMessage = "") {
   const flow = flowForFormat(format);
@@ -582,13 +582,795 @@ function renderCreateWorkspace(input) {
     answers: input.answers,
     step: input.selectedFormat === "blank" ? "create-blank" : !input.selectedFormat ? "format" : input.selectedTemplateId ? "intake" : "template"
   };
-  const cards = creationFormats.map((format) => `<button class="format-card" data-create-format="${format.id}"><span>${format.icon}</span><strong>${format.title}</strong><small>${format.description}</small></button>`).join("");
+  const cards2 = creationFormats.map((format) => `<button class="format-card" data-create-format="${format.id}"><span>${format.icon}</span><strong>${format.title}</strong><small>${format.description}</small></button>`).join("");
   const selected = creationFormats.find((format) => format.id === state2.format);
   const flow = state2.format ? flowForFormat(state2.format) : null;
   const source = sourceForFormat(state2.format, state2.source);
-  const content = state2.step === "format" || !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards}</div>` : state2.step === "create-blank" ? "" : state2.step === "template" ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source, prompt: state2.prompt }))}` : renderIntake(selected.id, source, state2.prompt, state2.answers, input.missingFieldIds, input.busy, input.errorMessage);
+  const content = state2.step === "format" || !selected ? `<div class="create-heading"><p>Nouvelle cr\xE9ation</p><h1>Qu\u2019est-ce que tu veux construire ?</h1><span>Choisis le format. Weflo adapte ensuite la recherche, le copywriting et les sections.</span></div><div class="format-grid">${cards2}</div>` : state2.step === "create-blank" ? "" : state2.step === "template" ? `<button class="back-format" data-back-format>\u2190 Changer de format</button>${renderTemplateGallery(flow, null, (template2) => creationWorkspaceUrl(flow.id, template2.id, { source, prompt: state2.prompt }))}` : renderIntake(selected.id, source, state2.prompt, state2.answers, input.missingFieldIds, input.busy, input.errorMessage);
   return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li class="active">1 <span>Format</span></li><li>2 <span>Produit</span></li><li>3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc3(input.workspaceName)}</small></aside><main>${content}</main></div>`;
 }
+
+// src/section-preview/fixtures.ts
+var images = (ids) => ids.map((id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1600&q=88`);
+function fixture(input) {
+  const [background, surface, ink, accent] = input.colors;
+  return {
+    id: input.id,
+    archetypes: input.archetypes,
+    brand: {
+      name: input.name,
+      palette: input.colors,
+      headingFont: input.fonts[0],
+      bodyFont: input.fonts[1],
+      schemes: [{ name: "Clair", background, text: ink, accent }, { name: "Surface", background: surface, text: ink, accent }]
+    },
+    theme: { background, surface, ink, muted: `${ink}A8`, accent, display: input.fonts[0].includes("Playfair") || input.fonts[0].includes("Libre") ? "serif" : "sans", radius: "soft" },
+    product: {
+      sourceUrl: `https://demo.weflo.app/${input.id}`,
+      title: input.title,
+      description: input.description,
+      vendor: input.name,
+      currency: input.currency ?? "EUR",
+      price: input.price,
+      compareAtPrice: input.compareAtPrice,
+      images: images(input.images),
+      rating: 4.8,
+      reviewCount: 327,
+      variants: [{ id: "classic", title: "Classique", price: input.price }, { id: "duo", title: "Duo", price: Math.round(input.price * 1.72) }],
+      reviews: []
+    },
+    previewOnly: {
+      benefits: input.benefits.map((text, index) => ({ title: ["Pens\xE9 avec pr\xE9cision", "Simple au quotidien", "Une qualit\xE9 durable"][index] ?? `B\xE9n\xE9fice ${index + 1}`, text })),
+      reviews: [
+        { author: "Lina M.", title: "Encore mieux qu\u2019esp\xE9r\xE9", text: `Une exp\xE9rience ${input.name} tr\xE8s soign\xE9e, du produit \xE0 la livraison.`, rating: 5 },
+        { author: "Camille R.", title: "Beau et vraiment utile", text: "Tout est clair, simple et la qualit\xE9 se remarque imm\xE9diatement.", rating: 5 },
+        { author: "Noa B.", title: "Je recommande", text: "Une belle d\xE9couverte que j\u2019utilise maintenant chaque semaine.", rating: 5 }
+      ],
+      faqs: input.faqs.map((question, index) => ({ question, answer: ["Oui, tout a \xE9t\xE9 con\xE7u pour une prise en main imm\xE9diate.", "La commande est suivie et pr\xE9par\xE9e sous 48 heures.", "Tu disposes de trente jours pour changer d\u2019avis."][index] ?? "Notre \xE9quipe te r\xE9pond rapidement." })),
+      bundles: [{ title: "L\u2019essentiel", quantity: 1, price: `${input.price} \u20AC` }, { title: "Le duo", quantity: 2, price: `${Math.round(input.price * 1.72)} \u20AC`, badge: "Le plus choisi" }, { title: "La routine", quantity: 3, price: `${Math.round(input.price * 2.28)} \u20AC`, badge: "Meilleure valeur" }]
+    }
+  };
+}
+var SECTION_PREVIEW_FIXTURES = [
+  fixture({ id: "aurea-serum", archetypes: ["beauty", "wellness"], name: "Aur\xE9a", title: "S\xE9rum \xC9clat 03", description: "Un concentr\xE9 lumineux qui hydrate, apaise et r\xE9v\xE8le l\u2019\xE9clat naturel de la peau.", price: 48, compareAtPrice: 62, colors: ["#F3ECE7", "#FFFDFC", "#261B17", "#C87557"], fonts: ["Playfair Display", "Inter"], images: ["photo-1620916566398-39f1143ab7be", "photo-1556228578-8c89e6adf883", "photo-1598440947619-2c35fc9aa908"], benefits: ["Une formule courte aux actifs essentiels.", "Une texture l\xE9g\xE8re pens\xE9e pour chaque matin.", "Un flacon durable et une routine sans complication."], faqs: ["Convient-il aux peaux sensibles ?", "Quand appliquer le s\xE9rum ?", "Puis-je l\u2019essayer sans risque ?"] }),
+  fixture({ id: "halo-lamp", archetypes: ["home", "gadget", "design"], name: "Halo", title: "Lampe murale Halo One", description: "Une lumi\xE8re chaude, magn\xE9tique et sans fil qui se place exactement o\xF9 tu en as besoin.", price: 59, compareAtPrice: 79, colors: ["#EDE9E1", "#FFFEFA", "#171713", "#D4A72C"], fonts: ["Manrope", "Inter"], images: ["photo-1507473885765-e6ed057f782c", "photo-1540932239986-30128078f3c5", "photo-1513506003901-1e6a229e2d15"], benefits: ["Installation sans c\xE2ble ni per\xE7age.", "Orientation magn\xE9tique en un geste.", "Lumi\xE8re chaude rechargeable et apaisante."], faqs: ["La fixation tient-elle durablement ?", "Quelle est l\u2019autonomie ?", "Comment la recharger ?"] }),
+  fixture({ id: "noma-bag", archetypes: ["fashion"], name: "Noma", title: "Sac Week-end N\xB02", description: "Un sac souple et structur\xE9, con\xE7u pour voyager l\xE9ger sans renoncer aux beaux d\xE9tails.", price: 189, compareAtPrice: 229, colors: ["#EEE9E0", "#FBF8F1", "#211B16", "#8A5638"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1553062407-98eeb64c6a62", "photo-1548036328-c9fa89d128fa", "photo-1594223274512-ad4803739b7c"], benefits: ["Une ouverture large et des poches utiles.", "Une mati\xE8re r\xE9sistante qui se patine bien.", "Le bon format pour deux \xE0 quatre jours."], faqs: ["Passe-t-il en cabine ?", "Comment entretenir la mati\xE8re ?", "Est-il garanti ?"] }),
+  fixture({ id: "pulse-recovery", archetypes: ["sport", "wellness"], name: "Pulse", title: "Recovery Daily", description: "La formule quotidienne pens\xE9e pour mieux r\xE9cup\xE9rer et retrouver ton rythme d\xE8s le lendemain.", price: 39, compareAtPrice: 49, colors: ["#E9F0E7", "#FCFFF9", "#132016", "#79B96A"], fonts: ["Space Grotesk", "Inter"], images: ["photo-1593095948071-474c5cc2989d", "photo-1517836357463-d25dfeac3438", "photo-1538805060514-97d9cc17730c"], benefits: ["Une dose simple apr\xE8s l\u2019effort.", "Des ingr\xE9dients clairement expliqu\xE9s.", "Un format pens\xE9 pour trente jours."], faqs: ["Quand prendre la formule ?", "Que contient-elle ?", "Convient-elle \xE0 tous les sports ?"] }),
+  fixture({ id: "brume-coffee", archetypes: ["food"], name: "Brume", title: "Assemblage Matin Calme", description: "Un caf\xE9 rond et pr\xE9cis, torr\xE9fi\xE9 en petite s\xE9rie pour une tasse douce chaque matin.", price: 16, compareAtPrice: 19, colors: ["#EFE3D3", "#FFF9EF", "#2B1B13", "#D56A35"], fonts: ["Libre Baskerville", "Inter"], images: ["photo-1447933601403-0c6688de566e", "photo-1495474472287-4d71bcdd2085", "photo-1512568400610-62da28bc8a13"], benefits: ["Des grains sourc\xE9s avec transparence.", "Une torr\xE9faction fra\xEEche chaque semaine.", "Un profil doux, chocolat\xE9 et \xE9quilibr\xE9."], faqs: ["Quelle mouture choisir ?", "Quand le caf\xE9 est-il torr\xE9fi\xE9 ?", "Comment le conserver ?"] }),
+  fixture({ id: "forma-table", archetypes: ["home", "design"], name: "Forma", title: "Service Ondes", description: "Des pi\xE8ces de table sculpturales et faciles \xE0 vivre, dessin\xE9es pour les repas de tous les jours.", price: 84, compareAtPrice: 104, colors: ["#E9E4DA", "#FAF8F3", "#1F211B", "#6C7B4B"], fonts: ["Playfair Display", "Inter"], images: ["photo-1610701596007-11502861dcfa", "photo-1578749556568-bc2c40e68b61", "photo-1612196808214-b8e1d6145a8c"], benefits: ["Des formes empilables et agr\xE9ables en main.", "Une finition mate r\xE9sistante au quotidien.", "Chaque pi\xE8ce poss\xE8de de l\xE9g\xE8res nuances."], faqs: ["Les pi\xE8ces passent-elles au lave-vaisselle ?", "Sont-elles fabriqu\xE9es \xE0 la main ?", "Puis-je compl\xE9ter le service plus tard ?"] })
+];
+function fixtureById(id) {
+  const found = SECTION_PREVIEW_FIXTURES.find((item2) => item2.id === id);
+  if (!found) throw new Error(`Unknown preview fixture: ${id}`);
+  return found;
+}
+
+// src/section-preview/manifests.ts
+var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, extra = {}) => {
+  const base9 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
+  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1, ...extra };
+};
+var ALL_ARCHETYPES = ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"];
+var SECTION_PREVIEW_MANIFESTS = [
+  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 100, popular: 95 }),
+  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 96, popular: 86 }),
+  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ALL_ARCHETYPES, "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"], { family: "product-purchase", capabilities: ["product-form", "variant-selection"], requiredData: ["Produit Shopify", "Variantes"], recommended: 98, popular: 100 }),
+  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "product-purchase", capabilities: ["product-form", "fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 94, popular: 91 }),
+  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "benefits", recommended: 83, popular: 82 }),
+  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"], { family: "benefits", recommended: 79, popular: 76 }),
+  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "reviews-ugc", requiredData: ["Avis clients"], recommended: 90, popular: 88 }),
+  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"], { family: "reviews-ugc", requiredData: ["Avis clients", "Photos UGC"], recommended: 89, popular: 93 }),
+  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 97, popular: 89 }),
+  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["quantity-breaks"], requiredData: ["Produit Shopify", "Paliers de quantit\xE9"], recommended: 95, popular: 96 }),
+  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 81, popular: 85 }),
+  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 77, popular: 72 })
+];
+var legacyFamily = { hero: "heroes", product: "product-purchase", benefits: "benefits", proof: "reviews-ugc", offer: "bundles-offers", faq: "faq-trust" };
+var definitionFamily = { navigation: "headers-navigation", announcement: "headers-navigation", footer: "footer-utilities", spacer: "footer-utilities", divider: "footer-utilities", hero: "heroes", productHero: "heroes", videoHero: "heroes", productMain: "product-purchase", productGrid: "collections-recommendations", collectionGrid: "collections-recommendations", bundle: "bundles-offers", comparison: "comparison", ingredients: "ingredients-materials", gallery: "demo-media", beforeAfter: "before-after", imageText: "benefits", benefits: "benefits", testimonials: "reviews-ugc", reviews: "reviews-ugc", faq: "faq-trust", guarantees: "faq-trust", shipping: "faq-trust", quiz: "quiz-forms", form: "quiz-forms", newsletter: "conversion-capture", cta: "conversion-capture", richText: "brand-story", customCode: "custom" };
+function normalize(value2) {
+  return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+function labelCapability(capability) {
+  const labels = { "product-form": "Formulaire produit", "variant-selection": "Variantes Shopify", "quantity-breaks": "Paliers de quantit\xE9", "collection-binding": "Collection Shopify", "recommendations": "Recommandations", "fixed-bundle": "Bundle fixe", "custom-bundle": "Bundle personnalisable", "selling-plan": "Abonnement", "preorder": "Pr\xE9commande", "cart-drawer": "Panier lat\xE9ral", "app-blocks": "Bloc d\u2019application", "markets": "March\xE9s Shopify", "localization": "Localisation" };
+  return labels[capability] ?? capability.replace(/-/g, " ");
+}
+function capabilityState(capability, states) {
+  if (states && typeof states === "object" && !Array.isArray(states)) {
+    const value2 = states[capability];
+    if (value2 === "native" || value2 === "app-required" || value2 === "unavailable") return value2;
+  }
+  return ["custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability) ? "app-required" : "native";
+}
+function familyFrom(value2, fallback) {
+  const raw = Array.isArray(value2) && typeof value2[0] === "string" ? value2[0] : typeof value2 === "string" ? value2 : "";
+  const aliases = { "product-hero": "heroes", "buy-box": "product-purchase", "variant-selector": "variants-options", "quantity-offer": "bundles-offers", "fixed-bundle": "bundles-offers", "benefits-results": "benefits", "product-media": "demo-media", "reviews-ugc-premium": "reviews-ugc", recommendations: "collections-recommendations" };
+  return aliases[raw] ?? (raw ? raw : fallback);
+}
+function dynamicManifests() {
+  const existing = new Set(SECTION_PREVIEW_MANIFESTS.map((manifest) => `${manifest.sectionType}:${manifest.variantId}`));
+  const values = [];
+  for (const definition of listSectionDefinitions()) {
+    const type = typeof definition.type === "string" ? definition.type : "";
+    if (!type) continue;
+    const variants = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : Array.isArray(definition.previewVariants) && definition.previewVariants.length ? definition.previewVariants : ["default"];
+    for (const rawVariant of variants) {
+      const variant = typeof rawVariant === "string" ? { id: rawVariant } : rawVariant && typeof rawVariant === "object" ? rawVariant : null;
+      const variantId = variant && typeof variant.id === "string" ? variant.id : "default";
+      if (existing.has(`${type}:${variantId}`)) continue;
+      const fixtureId = variant && typeof variant.previewFixtureId === "string" && SECTION_PREVIEW_FIXTURES.some((fixture2) => fixture2.id === variant.previewFixtureId) ? variant.previewFixtureId : "aurea-serum";
+      const fallbackPreview = fixtureById(fixtureId).product.images[0];
+      const title = variant && typeof variant.name === "string" ? variant.name : typeof definition.name === "string" ? definition.name : type;
+      const description = variant && typeof variant.description === "string" ? variant.description : `Ajouter ${title.toLocaleLowerCase("fr-FR")}`;
+      const capabilities = Array.isArray(definition.capabilities) ? definition.capabilities.filter((value2) => typeof value2 === "string") : [];
+      values.push({ sectionType: type, variantId, title, conversionGoal: description, category: "product", family: familyFrom(definition.families ?? definition.family, definitionFamily[type] ?? "custom"), capabilities, capabilityStates: definition.capabilityStates, requiredData: Array.isArray(variant?.requiredData) ? variant.requiredData.filter((value2) => typeof value2 === "string") : [], tags: Array.isArray(definition.tags) ? definition.tags.filter((value2) => typeof value2 === "string") : [], recommended: typeof variant?.recommended === "number" ? variant.recommended : 0, newest: typeof variant?.newest === "number" ? variant.newest : 0, popular: typeof variant?.popular === "number" ? variant.popular : 0, supportedPages: Array.isArray(definition.supportedPages) ? definition.supportedPages.filter((value2) => typeof value2 === "string") : void 0, supportedMarkets: Array.isArray(definition.supportedMarkets) ? definition.supportedMarkets.filter((value2) => typeof value2 === "string") : void 0, supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixtureId, compatibleFixtureIds: [fixtureId], preview: { desktop: fallbackPreview, mobile: fallbackPreview }, previewVersion: 1 });
+    }
+  }
+  return values;
+}
+function querySectionCatalog(query = {}) {
+  const family = query.family ?? (query.category ? legacyFamily[query.category] : void 0), needle = normalize(query.search ?? "");
+  const results = [...SECTION_PREVIEW_MANIFESTS, ...dynamicManifests()].filter((manifest) => {
+    if (family && manifest.family !== family) return false;
+    if (query.pageKind && manifest.supportedPages?.length && !manifest.supportedPages.includes(query.pageKind)) return false;
+    if (query.market && manifest.supportedMarkets?.length && !manifest.supportedMarkets.includes("all") && !manifest.supportedMarkets.includes(query.market)) return false;
+    if (query.capability && !(manifest.capabilities ?? []).includes(query.capability)) return false;
+    return !needle || normalize([manifest.title, manifest.conversionGoal, manifest.sectionType, manifest.variantId, manifest.family ?? "", ...manifest.capabilities ?? [], ...manifest.tags ?? []].join(" ")).includes(needle);
+  }).map((manifest) => ({ ...manifest, capabilityBadges: (manifest.capabilities ?? []).map((capability) => ({ capability, label: labelCapability(capability), state: capabilityState(capability, manifest.capabilityStates) })) }));
+  const sort = query.sort ?? "recommended", rank = (value2) => sort === "newest" ? value2.newest ?? 0 : sort === "popular" ? value2.popular ?? 0 : value2.recommended ?? 0;
+  return results.sort((a, b) => rank(b) - rank(a) || a.title.localeCompare(b.title, "fr"));
+}
+function catalogItemForVariant(sectionType, variantId) {
+  return querySectionCatalog().find((item2) => item2.sectionType === sectionType && item2.variantId === variantId);
+}
+var keys = /* @__PURE__ */ new Set();
+for (const manifest of SECTION_PREVIEW_MANIFESTS) {
+  const key = `${manifest.sectionType}:${manifest.variantId}`;
+  if (keys.has(key)) throw new Error(`Duplicate section preview manifest: ${key}`);
+  keys.add(key);
+  fixtureById(manifest.defaultFixtureId);
+  for (const id of manifest.compatibleFixtureIds) fixtureById(id);
+  if (!manifest.compatibleFixtureIds.includes(manifest.defaultFixtureId)) throw new Error(`Default fixture is incompatible: ${key}`);
+}
+function previewManifest(sectionType, variantId) {
+  const found = SECTION_PREVIEW_MANIFESTS.find((item2) => item2.sectionType === sectionType && item2.variantId === variantId);
+  if (found) return found;
+  const catalog = catalogItemForVariant(sectionType, variantId);
+  if (catalog) return catalog;
+  const fixture2 = "aurea-serum", base9 = `/assets/section-previews/${sectionType}/${variantId}-${fixture2}`;
+  return { sectionType, variantId, title: sectionType, conversionGoal: "Aper\xE7u de section", category: "product", family: definitionFamily[sectionType] ?? "custom", supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixture2, compatibleFixtureIds: [fixture2], preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1 };
+}
+
+// src/sections/registry.ts
+var definitions = /* @__PURE__ */ new Map();
+var LEGACY_FAMILY = {
+  brand: "brand-story",
+  media: "demo-media",
+  commerce: "product-purchase",
+  conversion: "conversion-capture",
+  content: "faq-trust",
+  layout: "custom"
+};
+var ALL_PAGES = ["landing", "product", "collection", "home"];
+function assertComplete(definition) {
+  if (!definition.type?.trim()) throw new Error("Section type is required");
+  if (!definition.name?.trim()) throw new Error(`Section ${definition.type} name is required`);
+  if (!definition.category) throw new Error(`Section ${definition.type} category is required`);
+  if (!definition.defaults || !Array.isArray(definition.settings) || !Array.isArray(definition.blocks)) throw new Error(`Section ${definition.type} schema is incomplete`);
+  if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
+  for (const variant of definition.previewVariants ?? []) previewManifest(definition.type, variant);
+}
+function legacyVariant(definition, id = "default") {
+  return { id, name: id === "default" ? "Par d\xE9faut" : id, description: "Variante compatible avec les documents Weflo existants.", composition: id === "default" ? "composition-par-defaut" : `composition-${id}`, previewFixtureId: "", defaults: { ...definition.defaults, ...id === "default" ? {} : { variant: id } } };
+}
+function defaultSchema(pack) {
+  const control = (item2) => ({ id: item2.key, label: item2.label, type: item2.type === "textarea" ? "textarea" : "text" });
+  return {
+    name: pack.name,
+    settings: pack.settings.map(control),
+    blocks: pack.blocks.map((block) => ({ type: block.type, name: block.name, settings: block.settings.map(control) })),
+    presets: pack.variants.map((variant) => ({ name: variant.name, settings: { ...variant.defaults, variant: variant.id } }))
+  };
+}
+function defaultMigrate(section, _fromPackVersion) {
+  return { ...section, settings: { ...section.settings } };
+}
+function normalizeSectionPack(definition) {
+  assertComplete(definition);
+  const candidate = definition;
+  const declaredVariants = candidate.variants;
+  const variants = declaredVariants && declaredVariants.length ? declaredVariants.map((variant) => ({ ...variant, defaults: { ...variant.defaults } })) : (definition.previewVariants?.length ? definition.previewVariants : ["default"]).map((id) => legacyVariant(definition, id));
+  const ids = /* @__PURE__ */ new Set();
+  for (const variant of variants) {
+    if (!variant.id?.trim()) throw new Error(`Section ${definition.type} has a variant without an id`);
+    if (ids.has(variant.id)) throw new Error(`Duplicate section variant: ${definition.type}:${variant.id}`);
+    ids.add(variant.id);
+  }
+  const families = candidate.families?.length ? candidate.families : [LEGACY_FAMILY[definition.category]];
+  const pack = {
+    ...definition,
+    packVersion: 1,
+    families: [...families],
+    tags: candidate.tags ? [...candidate.tags] : [],
+    supportedPages: candidate.supportedPages?.length ? [...candidate.supportedPages] : [...ALL_PAGES],
+    supportedMarkets: candidate.supportedMarkets?.length ? [...candidate.supportedMarkets] : ["all"],
+    capabilities: candidate.capabilities ? [...candidate.capabilities] : [],
+    variants,
+    assets: candidate.assets ? [...candidate.assets] : [],
+    migrate: candidate.migrate ?? defaultMigrate
+  };
+  return { ...pack, renderSchema: candidate.renderSchema ?? (() => defaultSchema(pack)) };
+}
+function registerSection(definition) {
+  const pack = normalizeSectionPack(definition);
+  if (definitions.has(pack.type)) throw new Error(`Section ${pack.type} is already registered`);
+  definitions.set(pack.type, pack);
+  return pack;
+}
+function listSectionDefinitions() {
+  return [...definitions.values()];
+}
+
+// src/sections/shared.ts
+function escapeHtml(value2) {
+  return String(value2 ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+}
+function safeMediaUrl(value2) {
+  if (typeof value2 !== "string") return "";
+  const url = value2.trim();
+  return /^(https?:\/\/|data:image\/(?:png|jpe?g|webp|gif);base64,|\/(?!\/))/i.test(url) ? escapeHtml(url) : "";
+}
+function safeLink(value2) {
+  if (typeof value2 !== "string") return "#";
+  const url = value2.trim();
+  return /^(https?:\/\/|mailto:|tel:|#|\/(?!\/))/i.test(url) ? escapeHtml(url) : "#";
+}
+function value(section, key, fallback = "") {
+  const current = section.settings[key];
+  return typeof current === "string" || typeof current === "number" ? String(current) : fallback;
+}
+function edit(tag, key, content, className = "") {
+  return `<${tag}${className ? ` class="${escapeHtml(className)}"` : ""} data-wf-edit-key="${escapeHtml(key)}">${escapeHtml(content)}</${tag}>`;
+}
+function image(section, key = "image", alt = "", className = "wf-section__image") {
+  const url = safeMediaUrl(section.settings[key]);
+  return url ? `<img class="${escapeHtml(className)}" src="${url}" alt="${escapeHtml(alt)}" loading="lazy" data-wf-media-key="${escapeHtml(key)}">` : `<div class="${escapeHtml(className)} wf-media-empty" data-wf-media-key="${escapeHtml(key)}" role="img" aria-label="Ajouter une image"></div>`;
+}
+function blockValue(block, key, fallback = "") {
+  const current = block.settings[key];
+  return typeof current === "string" || typeof current === "number" ? String(current) : fallback;
+}
+var textControl = (key, label, type = "text") => ({ key, label, type, scope: "settings" });
+
+// src/sections/factory.ts
+var common = [
+  textControl("title", "Titre"),
+  textControl("subtitle", "Sous-titre"),
+  textControl("text", "Texte", "textarea")
+];
+var cta = [textControl("cta_label", "Libell\xE9 du bouton"), textControl("cta_link", "Lien", "link")];
+var media = [textControl("image", "Image", "image"), textControl("image_alt", "Texte alternatif")];
+var itemBlock = { type: "item", name: "\xC9l\xE9ment", defaults: { title: "Nouvel \xE9l\xE9ment", text: "D\xE9cris cet \xE9l\xE9ment." }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("image", "Image", "image"), textControl("link", "Lien", "link")] };
+function renderBlocks(blocks, tag = "article") {
+  return blocks.map((block) => {
+    const rating = Number(block.settings.rating);
+    return `<${tag} class="wf-section__card" data-wf-block-id="${escapeHtml(block.id)}">${block.settings.image ? `<img src="${safeMediaUrl(block.settings.image)}" alt="${escapeHtml(blockValue(block, "image_alt", blockValue(block, "title")))}">` : ""}${Number.isFinite(rating) && rating > 0 ? `<span role="img" aria-label="${rating} \xE9toiles sur 5">${"\u2605".repeat(Math.min(5, rating))}</span>` : ""}<h3>${escapeHtml(blockValue(block, "title", blockValue(block, "label", "\xC9l\xE9ment")))}</h3><p>${escapeHtml(blockValue(block, "text"))}</p>${block.settings.link ? `<a href="${safeLink(block.settings.link)}">${escapeHtml(blockValue(block, "label", "D\xE9couvrir"))}</a>` : ""}</${tag}>`;
+  }).join("");
+}
+function button(section) {
+  const label = value(section, "cta_label");
+  return label ? `<a class="wf-section__button" href="${safeLink(section.settings.cta_link)}">${escapeHtml(label)}</a>` : "";
+}
+function web(layout, section, pageName) {
+  const title = value(section, "title", pageName);
+  const subtitle = value(section, "subtitle");
+  const copy = value(section, "text");
+  const variant = value(section, "variant", "default");
+  const heading = edit(layout === "hero" || layout === "productHero" || layout === "videoHero" ? "h1" : "h2", "title", title);
+  const intro = `${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}`;
+  if (layout === "navigation") return `<nav class="wf-section wf-navigation" aria-label="Navigation principale"><a class="wf-navigation__brand" href="/">${escapeHtml(title)}</a><div>${section.blocks.map((block) => `<a href="${safeLink(block.settings.link)}">${escapeHtml(blockValue(block, "label", "Lien"))}</a>`).join("")}</div>${button(section)}</nav>`;
+  if (layout === "announcement") return `<aside class="wf-section wf-announcement">${edit("p", "text", copy || title)}${button(section)}</aside>`;
+  if (layout === "hero" || layout === "productHero") return `<div class="wf-section wf-hero wf-hero--${layout}"><div class="wf-hero__content">${intro}${layout === "productHero" ? `<strong class="wf-section__price">${escapeHtml(value(section, "price", "49,00 \u20AC"))}</strong>` : ""}${button(section)}</div><figure>${image(section, "image", value(section, "image_alt", title))}</figure></div>`;
+  if (layout === "videoHero") {
+    const source = safeMediaUrl(section.settings.video);
+    return `<div class="wf-section wf-video-hero">${source ? `<video autoplay muted loop playsinline poster="${safeMediaUrl(section.settings.image)}"><source src="${source}"></video>` : image(section, "image", value(section, "image_alt", title))}<div>${intro}${button(section)}</div></div>`;
+  }
+  if (layout === "gallery") return `<div class="wf-section wf-gallery">${intro}<div class="wf-section__grid">${renderBlocks(section.blocks)}</div></div>`;
+  if (layout === "imageText") return `<div class="wf-section wf-image-text">${image(section, "image", value(section, "image_alt", title))}<div>${intro}${button(section)}</div></div>`;
+  if (layout === "beforeAfter") return `<div class="wf-section wf-before-after">${intro}<div class="wf-before-after__media">${image(section, "before_image", value(section, "before_alt", "Avant"))}${image(section, "after_image", value(section, "after_alt", "Apr\xE8s"))}</div></div>`;
+  if (layout === "product") {
+    const variants = section.blocks.filter((block) => block.type === "variant");
+    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section.blocks.filter((block) => block.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants.length ? variants.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section, "cta_label", "Ajouter au panier"))}</button></form></div>`;
+  }
+  if (layout === "bundle") return `<div class="wf-section wf-bundle">${intro}<fieldset><legend>Compose ton bundle</legend>${section.blocks.map((block) => `<label><input type="checkbox" name="bundle" value="${escapeHtml(block.id)}"><span>${escapeHtml(blockValue(block, "title"))}</span><strong>${escapeHtml(blockValue(block, "price"))}</strong></label>`).join("")}</fieldset><output class="wf-bundle__total" aria-live="polite">${escapeHtml(value(section, "price", "Total calcul\xE9 dans le panier"))}</output>${button(section)}</div>`;
+  if (layout === "comparison") return `<div class="wf-section wf-comparison">${intro}<div role="table">${renderBlocks(section.blocks, "div")}</div></div>`;
+  if (layout === "faq") return `<div class="wf-section wf-faq">${intro}${section.blocks.map((block) => `<details><summary>${escapeHtml(blockValue(block, "title", "Question"))}</summary><p>${escapeHtml(blockValue(block, "text"))}</p></details>`).join("")}</div>`;
+  if (layout === "form") return `<div class="wf-section wf-form">${intro}<form><label>Email<input type="email" name="email" autocomplete="email" required></label><button type="submit">${escapeHtml(value(section, "cta_label", "Envoyer"))}</button></form></div>`;
+  if (layout === "quiz") return `<div class="wf-section wf-quiz">${intro}<form>${section.blocks.map((block, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block, "title", `\xC9tape ${index + 1}`))}</legend><label><input type="radio" name="step-${index}" value="yes"> ${escapeHtml(blockValue(block, "text", "Oui"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form></div>`;
+  if (layout === "cta") return `<div class="wf-section wf-cta">${intro}${button(section)}</div>`;
+  if (layout === "richText") return `<article class="wf-section wf-rich-text">${intro}${renderBlocks(section.blocks)}</article>`;
+  if (layout === "footer") return `<footer class="wf-section wf-footer"><div>${heading}${copy ? `<p>${escapeHtml(copy)}</p>` : ""}</div><nav aria-label="Pied de page">${renderBlocks(section.blocks, "div")}</nav></footer>`;
+  if (layout === "spacer") return `<div class="wf-spacer" aria-hidden="true" style="height:${Number(section.settings.height) || 48}px"></div>`;
+  if (layout === "divider") return `<hr class="wf-divider">`;
+  if (variant === "home-stories" || variant === "beauty-journal" || variant === "press-quotes") return `<section class="wf-section wf-cards wf-proof__stories" data-wf-variant="${escapeHtml(variant)}"><header>${intro}</header><div class="wf-proof__editorial-flow">${renderBlocks(section.blocks)}</div>${button(section)}</section>`;
+  if (variant === "results-wall" || variant === "measured-proof" || variant === "field-tests") return `<section class="wf-section wf-cards wf-proof__results" data-wf-variant="${escapeHtml(variant)}"><div class="wf-proof__score">${escapeHtml(value(section, "subtitle", "5/5"))}</div><header>${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${renderBlocks(section.blocks)}</div>${button(section)}</section>`;
+  return `<div class="wf-section wf-cards" data-wf-variant="${escapeHtml(variant)}">${intro}<div class="wf-section__grid">${renderBlocks(section.blocks)}</div>${button(section)}</div>`;
+}
+function createSectionDefinition(type, name, category, layout, extraDefaults = {}, extraSettings = [], blocks = [itemBlock]) {
+  const defaults = { title: name, subtitle: "", text: "", cta_label: "D\xE9couvrir", cta_link: "#", ...extraDefaults };
+  return {
+    type,
+    name,
+    category,
+    defaults,
+    settings: [...common, ...cta, ...layout === "hero" || layout === "productHero" || layout === "imageText" || layout === "videoHero" ? media : [], ...extraSettings],
+    blocks,
+    renderWeb: ({ section, pageName }) => web(layout, section, pageName),
+    renderLiquid: (section) => {
+      const variant = section ? value(section, "variant", "default") : "default";
+      return `<section class="wf-section wf-${escapeHtml(type)} wf-${escapeHtml(type)}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div>{% for block in section.blocks %}<article {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p></article>{% endfor %}</section>`;
+    }
+  };
+}
+
+// src/sections/navigation.ts
+var navigationSection = createSectionDefinition("navigation", "Navigation", "brand", "navigation");
+
+// src/sections/announcement.ts
+var announcementSection = createSectionDefinition("announcement", "Barre d\u2019annonce", "brand", "announcement");
+
+// src/sections/hero.ts
+var heroSection = createSectionDefinition("hero", "Hero de marque", "brand", "hero", { title: "Une marque qui m\xE9rite d\u2019\xEAtre remarqu\xE9e", image: "", image_alt: "" });
+
+// src/sections/product-hero.ts
+var base = createSectionDefinition("productHero", "Hero produit", "commerce", "productHero", { price: "49,00 \u20AC", image: "", image_alt: "", variant: "ambient-editorial" });
+var productHeroSection = {
+  ...base,
+  previewVariants: ["beauty-editorial", "object-editorial"],
+  renderWeb: ({ section, pageName }) => {
+    const title = value(section, "title", pageName);
+    const subtitle = value(section, "subtitle");
+    const body = value(section, "text");
+    const price = value(section, "price");
+    const cta2 = value(section, "cta_label", "Ajouter au panier");
+    const media2 = image(section, "image", value(section, "image_alt", title), "wf-hero__image");
+    const action = `<a class="wf-section__button" href="${safeLink(section.settings.cta_link)}">${escapeHtml(cta2)}</a>`;
+    const requested = value(section, "variant", "ambient-editorial");
+    const variant = (/* @__PURE__ */ new Set(["ambient-editorial", "problem-solution", "clinical-evidence", "beauty-editorial", "object-editorial"])).has(requested) ? requested : "ambient-editorial";
+    if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy">${subtitle ? `<span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>` : ""}${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media2}</figure></section>`;
+    if (variant === "clinical-evidence") return `<section class="wf-section wf-hero wf-hero__clinical" data-wf-variant="clinical-evidence"><div><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}<dl><div><dt>Usage</dt><dd>Clair</dd></div><div><dt>Choix</dt><dd>Guid\xE9</dd></div></dl>${action}</div><figure>${media2}</figure></section>`;
+    return `<section class="wf-section wf-hero wf-hero__atmosphere wf-product-hero--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><figure>${media2}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
+  },
+  renderLiquid: (section) => {
+    const variant = section ? value(section, "variant", "ambient-editorial") : "ambient-editorial";
+    const modifier = variant === "problem-solution" ? "wf-hero__problem" : variant === "clinical-evidence" ? "wf-hero__clinical" : "wf-hero__atmosphere";
+    return `<section class="wf-section wf-hero ${modifier}" data-wf-variant="${escapeHtml(variant)}"><div class="wf-hero__media">{{ section.settings.image | image_url: width: 1800 | image_tag }}</div><div class="wf-hero__content"><p>{{ section.settings.subtitle | escape }}</p><h1>{{ section.settings.title | escape }}</h1><div>{{ section.settings.text }}</div><strong>{{ section.settings.price | escape }}</strong><a href="{{ section.settings.cta_link }}">{{ section.settings.cta_label | escape }}</a></div></section>`;
+  }
+};
+
+// src/sections/video-hero.ts
+var videoHeroSection = createSectionDefinition("videoHero", "Hero vid\xE9o", "media", "videoHero", { video: "", image: "", image_alt: "" });
+
+// src/sections/gallery.ts
+var gallerySection = createSectionDefinition("gallery", "Galerie", "media", "gallery");
+
+// src/sections/image-text.ts
+var imageTextSection = createSectionDefinition("imageText", "Image + texte", "media", "imageText", { image: "", image_alt: "" });
+
+// src/sections/before-after.ts
+var beforeAfterSection = createSectionDefinition("beforeAfter", "Avant / apr\xE8s", "media", "beforeAfter", { before_image: "", after_image: "", before_alt: "Avant", after_alt: "Apr\xE8s" }, [textControl("before_image", "Image avant", "image"), textControl("after_image", "Image apr\xE8s", "image")]);
+
+// src/sections/brand-media.ts
+var brandMediaSections = [navigationSection, announcementSection, heroSection, productHeroSection, videoHeroSection, gallerySection, imageTextSection, beforeAfterSection];
+for (const definition of brandMediaSections) registerSection(definition);
+
+// src/shopify/liquid/product-form.ts
+function renderProductFormLiquid(options = {}) {
+  const sectionClass = options.sectionClass ?? "wf-product";
+  const strategy = options.strategy ?? "one-time";
+  const offers = options.includeQuantityOffers ? `<fieldset class="wf-product__quantity-offers"><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% assign wf_breaks = section.settings.quantity_breaks | default: '1,2,3' | split: ',' %}{% for break in wf_breaks %}{% assign wf_quantity = break | plus: 0 %}<button type="button" data-wf-quantity="{{ wf_quantity }}">{{ wf_quantity }}{% if section.settings.quantity_suffix != blank %} {{ section.settings.quantity_suffix | escape }}{% endif %}</button>{% endfor %}</fieldset>` : "";
+  const sellingPlans = strategy === "selling-plan" ? `<div class="wf-product__selling-plans">{% if selected_product.selling_plan_groups.size > 0 %}<label for="weflo-selling-plan-{{ section.id }}">{{ section.settings.selling_plan_label | default: 'Fr\xE9quence' | escape }}</label><select id="weflo-selling-plan-{{ section.id }}" name="selling_plan">{% for group in selected_product.selling_plan_groups %}{% for plan in group.selling_plans %}<option value="{{ plan.id }}">{{ plan.name | escape }}</option>{% endfor %}{% endfor %}</select>{% else %}<p class="wf-product__setup" role="status">Configure un abonnement Shopify compatible avant de publier cette offre.</p>{% endif %}</div>` : "";
+  const preorder = strategy === "preorder" ? `{% if section.settings.preorder_provider != blank %}<input type="hidden" name="properties[_weflo_preorder_provider]" value="{{ section.settings.preorder_provider | escape }}"><p class="wf-product__preorder-note">{{ section.settings.preorder_note | default: 'Pr\xE9commande \u2014 exp\xE9dition selon les conditions indiqu\xE9es.' | escape }}</p>{% else %}<p class="wf-product__setup" role="status">Configure un fournisseur de pr\xE9commandes compatible avant de publier.</p>{% endif %}` : "";
+  const bundle = strategy === "fixed-bundle" ? `<p class="wf-product__bundle-note">{{ section.settings.bundle_note | default: 'Ce produit correspond \xE0 un bundle fixe Shopify.' | escape }}</p>` : strategy === "multipack" ? `<input type="hidden" name="properties[_weflo_multipack]" value="true">` : "";
+  return `<section class="${sectionClass}" data-wf-product data-wf-purchase-strategy="${strategy}" data-wf-section-id="{{ section.id }}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}{% assign form_id = 'weflo-product-form-' | append: section.id %}{% if selected_product != blank %}{% form 'product', selected_product, id: form_id, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input>{% for option in selected_product.options_with_values %}<label class="wf-product__option" for="weflo-option-{{ section.id }}-{{ forloop.index0 }}"><span>{{ option.name | escape }}</span><select id="weflo-option-{{ section.id }}-{{ forloop.index0 }}" data-wf-option-index="{{ forloop.index0 }}">{% for value in option.values %}<option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value | escape }}</option>{% endfor %}</select></label>{% endfor %}<div class="wf-product__prices" aria-live="polite"><strong data-wf-price>{{ selected_product.selected_or_first_available_variant.price | money }}</strong><s data-wf-compare-price{% unless selected_product.selected_or_first_available_variant.compare_at_price > selected_product.selected_or_first_available_variant.price %} hidden{% endunless %}>{{ selected_product.selected_or_first_available_variant.compare_at_price | money }}</s></div><p data-wf-availability>{% if selected_product.selected_or_first_available_variant.available %}En stock{% else %}Indisponible{% endif %}</p>${bundle}${offers}<label class="wf-product__quantity" for="weflo-quantity-{{ section.id }}">Quantit\xE9<input id="weflo-quantity-{{ section.id }}" name="quantity" type="number" min="1" value="1" inputmode="numeric" data-wf-quantity-input></label>${sellingPlans}${preorder}<button type="submit" data-wf-add-to-cart{% unless selected_product.selected_or_first_available_variant.available %} disabled{% endunless %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script type="application/json" data-wf-variants>{{ selected_product.variants | json }}<\/script><script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"><\/script>{% else %}<p class="wf-product__setup" role="status">Associe un produit Shopify \xE0 cette section avant publication.</p>{% endif %}</section>`;
+}
+
+// src/sections/product-main.ts
+var base2 = createSectionDefinition("productMain", "Fiche produit", "commerce", "product", { cta_label: "Ajouter au panier", product_handle: "", variant: "calm-buy-box" }, [textControl("product_handle", "Produit Shopify", "text")]);
+var productMainSection = {
+  ...base2,
+  previewVariants: ["conversion-split", "bundle-led"],
+  renderWeb: ({ section, pageName }) => {
+    const title = value(section, "title", pageName);
+    const body = value(section, "text");
+    const price = value(section, "price");
+    const compare = value(section, "compare_at_price");
+    const cta2 = value(section, "cta_label", "Ajouter au panier");
+    const requested = value(section, "variant", "calm-buy-box");
+    const variant = (/* @__PURE__ */ new Set(["calm-buy-box", "beauty-buy-box", "technical-buy-box", "luxury-buy-box", "tasting-buy-box", "conversion-split", "bundle-led"])).has(requested) ? requested : "calm-buy-box";
+    const variants = section.blocks.filter((block) => block.type === "variant");
+    const options = variants.length ? variants.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
+    return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box">${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><div class="wf-product__bundle"></div><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust"></p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
+  },
+  renderLiquid: () => renderProductFormLiquid({ sectionClass: "weflo-product-main" })
+};
+
+// src/sections/product-grid.ts
+var productGridSection = {
+  ...createSectionDefinition("productGrid", "Grille de produits", "commerce", "product"),
+  renderLiquid: () => `<section class="weflo-product-grid"><h2>{{ section.settings.title | escape }}</h2><div>{% for product in section.settings.collection.products %}<a href="{{ product.url }}">{{ product.featured_image | image_url: width: 700 | image_tag }}<h3>{{ product.title | escape }}</h3><span>{{ product.price | money }}</span></a>{% endfor %}</div></section>`
+};
+
+// src/sections/collection-grid.ts
+var base3 = createSectionDefinition(
+  "collectionGrid",
+  "Grille de collections",
+  "commerce",
+  "cards",
+  { collection_handle: "" },
+  [textControl("collection_handle", "Collection Shopify", "text")]
+);
+var collectionGridSection = {
+  ...base3,
+  renderWeb: ({ section, pageName }) => {
+    const title = value(section, "title", pageName);
+    const subtitle = value(section, "subtitle");
+    const copy = value(section, "text");
+    const cards2 = section.blocks.map((block) => {
+      const name = blockValue(block, "title", "[Nom de la collection]");
+      const description = blockValue(block, "text");
+      const media2 = safeMediaUrl(block.settings.image);
+      const content = `${media2 ? `<img src="${media2}" alt="${escapeHtml(blockValue(block, "image_alt", name))}" loading="lazy">` : ""}<h3>${escapeHtml(name)}</h3>${description ? `<p>${escapeHtml(description)}</p>` : ""}`;
+      const link = blockValue(block, "link");
+      return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block.id)}">${link ? `<a href="${safeLink(link)}">${content}</a>` : content}</article>`;
+    }).join("");
+    return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards2}</div></section>`;
+  },
+  renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header>{% if section.settings.collection_handle != blank %}{% assign selected_collection = collections[section.settings.collection_handle] %}<div class="wf-section__grid">{% for product in selected_collection.products %}<article class="wf-section__card"><a href="{{ product.url }}">{% if product.featured_image != blank %}{{ product.featured_image | image_url: width: 900 | image_tag: alt: product.title }}{% endif %}<h3>{{ product.title | escape }}</h3><p>{{ product.price | money }}</p></a></article>{% endfor %}</div>{% else %}<div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div>{% endif %}</section>`
+};
+
+// src/sections/bundle.ts
+var base4 = createSectionDefinition("bundle", "Offre bundle", "commerce", "bundle", { title: "Cr\xE9e ton bundle", price: "" });
+var bundleSection = {
+  ...base4,
+  previewVariants: ["routine-set", "quantity-break"],
+  renderWeb: (context) => {
+    const requested = value(context.section, "variant", "routine-set");
+    const variant = (/* @__PURE__ */ new Set(["routine-set", "quantity-break"])).has(requested) ? requested : "routine-set";
+    return base4.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant)}"`);
+  },
+  renderLiquid: () => `<section class="weflo-bundle"><h2>{{ section.settings.title | escape }}</h2><fieldset><legend>{{ section.settings.text }}</legend>{% for block in section.blocks %}<label {{ block.shopify_attributes }}><input type="checkbox" name="items[]" value="{{ block.settings.variant.id }}">{{ block.settings.title | escape }}</label>{% endfor %}</fieldset><button type="button">{{ section.settings.cta_label | escape }}</button></section>`
+};
+
+// src/sections/comparison.ts
+var base5 = createSectionDefinition("comparison", "Comparateur", "conversion", "comparison", { title: "Pourquoi nous choisir" });
+var comparisonSection = {
+  ...base5,
+  families: ["comparison"],
+  tags: ["comparatif", "objections", "diff\xE9rences"],
+  capabilities: [],
+  variants: [
+    { id: "matrix", name: "Matrice", description: "Comparaison en lignes et colonnes.", composition: "Matrice structur\xE9e par crit\xE8res.", previewFixtureId: "", defaults: { variant: "matrix" } },
+    { id: "objection-cards", name: "Objections", description: "Chaque h\xE9sitation devient une carte de r\xE9ponse.", composition: "Cartes de r\xE9ponses aux objections.", previewFixtureId: "", defaults: { variant: "objection-cards" } },
+    { id: "versus", name: "Face-\xE0-face", description: "Deux approches oppos\xE9es avec verdict visuel.", composition: "Comparaison binaire narrative.", previewFixtureId: "", defaults: { variant: "versus" } }
+  ]
+};
+
+// src/sections/ingredients.ts
+var ingredientsSection = createSectionDefinition("ingredients", "Ingr\xE9dients & d\xE9tails", "content", "cards", { title: "Ce qu\u2019il y a dedans" });
+
+// src/sections/commerce.ts
+var commerceSections = [productMainSection, productGridSection, collectionGridSection, bundleSection, comparisonSection, ingredientsSection];
+for (const definition of commerceSections) registerSection(definition);
+
+// src/sections/benefits.ts
+var base6 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var benefitsSection = { ...base6, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "ritual-cards");
+  const variant = (/* @__PURE__ */ new Set(["ritual-cards", "technical-grid"])).has(requested) ? requested : "ritual-cards";
+  return base6.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
+} };
+
+// src/sections/steps.ts
+var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "cards");
+
+// src/sections/stats.ts
+var statsSection = createSectionDefinition("stats", "Chiffres cl\xE9s", "conversion", "cards");
+
+// src/sections/testimonials.ts
+var base7 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var testimonialsSection = { ...base7, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "editorial-stories");
+  const variant = (/* @__PURE__ */ new Set(["editorial-stories", "ugc-grid"])).has(requested) ? requested : "editorial-stories";
+  return base7.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
+} };
+
+// src/sections/reviews.ts
+var reviewsSection = createSectionDefinition("reviews", "Avis clients", "conversion", "cards");
+
+// src/sections/press.ts
+var pressSection = createSectionDefinition("press", "Ils parlent de nous", "conversion", "cards");
+
+// src/sections/guarantees.ts
+var guaranteesSection = createSectionDefinition("guarantees", "Garanties", "conversion", "cards");
+
+// src/sections/shipping.ts
+var shippingSection = createSectionDefinition("shipping", "Livraison", "conversion", "cards");
+
+// src/sections/faq.ts
+var base8 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var faqSection = { ...base8, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
+  const requested = value(context.section, "variant", "editorial-accordion");
+  const variant = (/* @__PURE__ */ new Set(["editorial-accordion", "support-columns"])).has(requested) ? requested : "editorial-accordion";
+  return base8.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
+} };
+
+// src/sections/newsletter.ts
+var newsletterSection = createSectionDefinition("newsletter", "Newsletter", "conversion", "form");
+
+// src/sections/form.ts
+var formSection = createSectionDefinition("form", "Formulaire", "content", "form");
+
+// src/sections/quiz.ts
+var quizSection = createSectionDefinition("quiz", "Quiz", "conversion", "quiz");
+
+// src/sections/cta.ts
+var ctaSection = createSectionDefinition("cta", "Appel \xE0 l\u2019action", "conversion", "cta");
+
+// src/sections/rich-text.ts
+var richTextSection = createSectionDefinition("richText", "Texte riche", "content", "richText");
+
+// src/sections/footer.ts
+var footerSection = createSectionDefinition("footer", "Pied de page", "brand", "footer");
+
+// src/sections/conversion.ts
+var conversionSections = [benefitsSection, stepsSection, statsSection, testimonialsSection, reviewsSection, pressSection, guaranteesSection, shippingSection, faqSection, newsletterSection, formSection, quizSection, ctaSection, richTextSection, footerSection];
+for (const definition of conversionSections) registerSection(definition);
+
+// src/sections/spacer.ts
+var spacerSection = createSectionDefinition("spacer", "Espacement", "layout", "spacer", { height: 64 }, [], []);
+
+// src/sections/divider.ts
+var dividerSection = createSectionDefinition("divider", "S\xE9parateur", "layout", "divider", {}, [], []);
+
+// src/editor/custom-code-policy.ts
+function validateCustomCode(input) {
+  const errors = [];
+  if (/<\/?(?:script|iframe|object|embed|base)\b|\son[a-z]+\s*=/i.test(input.html)) errors.push("HTML interdit : scripts, cadres et gestionnaires inline ne sont pas autoris\xE9s.");
+  if (/{%\s*(?:render|include|section|liquid)\b/i.test(input.html)) errors.push("Balise Liquid non autoris\xE9e.");
+  if (/(?:document\.cookie|localStorage|sessionStorage|indexedDB|window\.top|window\.parent|parent\.|opener\.|fetch\s*\(|XMLHttpRequest|WebSocket|EventSource|eval\s*\(|new\s+Function)/i.test(input.js)) errors.push("JavaScript non autoris\xE9 : acc\xE8s r\xE9seau, identifiants ou contexte parent.");
+  if (/@import|url\s*\(\s*["']?https?:\/\//i.test(input.css)) errors.push("Les imports CSS distants sont interdits.");
+  const root2 = `[data-wf-custom-id="${input.namespace.replace(/[^a-z0-9_-]/gi, "")}"]`;
+  const selectors = [...input.css.matchAll(/(^|})(\s*)([^@}{][^{]*){/g)].map((match) => match[3].trim());
+  if (selectors.some((group) => group.split(",").some((selector) => !selector.trim().startsWith(root2)))) errors.push("Chaque s\xE9lecteur CSS doit \xEAtre limit\xE9 \xE0 la section.");
+  return { ok: errors.length === 0, errors };
+}
+
+// src/sections/custom-code.ts
+var customCodeSection = {
+  type: "customCode",
+  name: "Code personnalis\xE9",
+  category: "layout",
+  defaults: { html: "<div><h2>Ta section sur mesure</h2></div>", css: "", js: "" },
+  settings: [
+    { key: "html", label: "HTML", type: "code", scope: "settings" },
+    { key: "css", label: "CSS", type: "code", scope: "settings" },
+    { key: "js", label: "JavaScript local", type: "code", scope: "settings" }
+  ],
+  blocks: [],
+  renderWeb: ({ section }) => {
+    const html = String(section.settings.html ?? "");
+    const css = String(section.settings.css ?? "");
+    const js = String(section.settings.js ?? "");
+    const validation = validateCustomCode({ html, css, js, allowedDomains: [], namespace: section.id });
+    if (!validation.ok) return `<div class="wf-section wf-custom-error" role="alert"><strong>Cette section doit \xEAtre corrig\xE9e</strong><ul>${validation.errors.map((error2) => `<li>${escapeHtml(error2)}</li>`).join("")}</ul></div>`;
+    const source = `<!doctype html><meta charset="utf-8"><style>html,body{margin:0}${css}</style><div data-wf-custom-id="${escapeHtml(section.id)}">${html}</div>${js ? `<script>${js}<\/script>` : ""}`;
+    return `<iframe class="wf-custom-frame" title="Section personnalis\xE9e" sandbox="allow-scripts" srcdoc="${escapeHtml(source)}"></iframe>`;
+  },
+  renderLiquid: () => `<section class="weflo-custom-code" data-wf-custom-id="{{ section.id }}">{{ section.settings.html }}<style>{{ section.settings.css }}</style><script>{{ section.settings.js }}<\/script></section>`
+};
+
+// src/shopify/liquid/purchase-options.ts
+function renderPurchaseOptionsLiquid(input) {
+  return renderProductFormLiquid({
+    ...input,
+    includeQuantityOffers: input.strategy === "multipack"
+  });
+}
+
+// src/sections/packs/pack-factory.ts
+var baseControls = [
+  textControl("title", "Titre"),
+  textControl("subtitle", "Sous-titre"),
+  textControl("text", "Texte", "textarea"),
+  textControl("image", "Image", "image"),
+  textControl("image_alt", "Texte alternatif"),
+  textControl("cta_label", "Libell\xE9 du bouton"),
+  textControl("cta_link", "Lien", "link")
+];
+var standardBlocks = [
+  { type: "media", name: "M\xE9dia", defaults: { title: "M\xE9dia", image: "", image_alt: "" }, settings: [textControl("title", "Titre"), textControl("image", "Image", "image"), textControl("image_alt", "Texte alternatif")] },
+  { type: "benefit", name: "B\xE9n\xE9fice", defaults: { title: "B\xE9n\xE9fice", text: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea")] },
+  { type: "offer", name: "Offre", defaults: { title: "Offre", text: "", price: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("price", "Prix")] },
+  { type: "review", name: "Avis", defaults: { title: "Avis", text: "", author: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("author", "Auteur")] },
+  { type: "row", name: "Ligne", defaults: { title: "Ligne", text: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea")] },
+  { type: "faq", name: "Question", defaults: { title: "Question", text: "" }, settings: [textControl("title", "Question"), textControl("text", "R\xE9ponse", "textarea")] }
+];
+function cards(blocks) {
+  return blocks.map((block) => {
+    const media2 = safeMediaUrl(block.settings.image);
+    return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block.id)}">${media2 ? `<img src="${media2}" alt="${escapeHtml(blockValue(block, "image_alt", blockValue(block, "title")))}" loading="lazy">` : ""}<h3>${escapeHtml(blockValue(block, "title", "\xC9l\xE9ment"))}</h3>${blockValue(block, "text") ? `<p>${escapeHtml(blockValue(block, "text"))}</p>` : ""}${blockValue(block, "author") ? `<cite>${escapeHtml(blockValue(block, "author"))}</cite>` : ""}${blockValue(block, "price") ? `<strong>${escapeHtml(blockValue(block, "price"))}</strong>` : ""}</article>`;
+  }).join("");
+}
+function liquidFor(pack) {
+  const capabilities = pack.capabilities ?? [];
+  const product = capabilities.includes("product-form") || capabilities.includes("variant-selection");
+  const body = `{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><div>{{ block.settings.text }}</div>{% if block.settings.price != blank %}<strong>{{ block.settings.price | escape }}</strong>{% endif %}</article>{% endfor %}`;
+  if (!product) return `<section class="wf-section wf-${pack.type}" data-wf-variant="{{ section.settings.variant | escape }}"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header><div class="wf-section__grid">${body}</div>{% if section.settings.cta_label != blank %}<a class="wf-section__button" href="{{ section.settings.cta_link }}">{{ section.settings.cta_label | escape }}</a>{% endif %}</section>`;
+  const sectionClass = `wf-section wf-${pack.type}`;
+  if (pack.type === "fixed-bundle") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "fixed-bundle" });
+  if (pack.type === "quantity-offer") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "multipack" });
+  if (pack.type === "subscription-selector") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "selling-plan" });
+  if (pack.type === "preorder-selector") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "preorder" });
+  return renderProductFormLiquid({ sectionClass });
+}
+function premiumPack(input) {
+  const capabilities = input.capabilities ?? [];
+  const variants = input.variants.map(([id, name, composition]) => ({ id, name, description: composition, composition, previewFixtureId: "", defaults: { variant: id } }));
+  const productControls = capabilities.some((capability) => capability === "product-form" || capability === "variant-selection") ? [textControl("product_handle", "Produit Shopify", "text")] : [];
+  const defaults = { title: input.name, subtitle: "", text: "", image: "", image_alt: "", cta_label: capabilities.includes("product-form") ? "Ajouter au panier" : "D\xE9couvrir", cta_link: "#", variant: variants[0].id, ...input.extraDefaults };
+  return {
+    type: input.type,
+    name: input.name,
+    category: input.category,
+    defaults,
+    settings: [...baseControls, ...productControls, ...input.extraSettings ?? []],
+    blocks: standardBlocks,
+    families: [input.family],
+    tags: input.tags,
+    supportedPages: input.supportedPages ?? ["landing", "product", "collection", "home"],
+    supportedMarkets: ["all"],
+    capabilities,
+    variants,
+    assets: [],
+    packVersion: 1,
+    renderWeb: ({ section, pageName, editor }) => {
+      const variant = variants.some((item2) => item2.id === value(section, "variant", variants[0].id)) ? value(section, "variant", variants[0].id) : variants[0].id;
+      const heading = value(section, "title", pageName);
+      const intro = `<header>${value(section, "subtitle") ? `<p class="wf-section__eyebrow">${escapeHtml(value(section, "subtitle"))}</p>` : ""}<h2 data-wf-edit-key="title">${escapeHtml(heading)}</h2>${value(section, "text") ? `<p class="wf-section__copy" data-wf-edit-key="text">${escapeHtml(value(section, "text"))}</p>` : ""}</header>`;
+      const action = value(section, "cta_label") ? `<a class="wf-section__button" href="${safeLink(section.settings.cta_link)}">${escapeHtml(value(section, "cta_label"))}</a>` : "";
+      const setup = editor && capabilities.some((capability) => ["fixed-bundle", "custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability)) ? `<aside class="wf-section__setup" role="status">Configuration Shopify requise avant publication.</aside>` : "";
+      if (input.layout === "product") return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}">${intro}<div class="wf-section__media">${image(section, "image", value(section, "image_alt", heading))}</div><div class="wf-section__grid">${cards(section.blocks)}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Option<select name="id"><option value="">Choisir dans Shopify</option></select></label><label>Quantit\xE9<input name="quantity" type="number" min="1" value="1"></label><button type="submit">${escapeHtml(value(section, "cta_label", "Ajouter au panier"))}</button></form>${setup}</section>`;
+      if (input.layout === "quiz") return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}">${intro}<form class="wf-quiz__form">${section.blocks.map((block, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block, "title", `Question ${index + 1}`))}</legend><label><input type="radio" name="${escapeHtml(block.id)}" value="option-a">${escapeHtml(blockValue(block, "text", "Option"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form>${setup}</section>`;
+      const media2 = input.layout === "editorial" ? `<figure>${image(section, "image", value(section, "image_alt", heading))}</figure>` : "";
+      return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}">${media2}${intro}<div class="wf-section__grid">${cards(section.blocks)}</div>${action}${setup}</section>`;
+    },
+    renderLiquid: () => liquidFor(input),
+    renderSchema: () => ({ name: input.name, settings: [...baseControls, ...productControls, ...input.extraSettings ?? []].map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })), blocks: standardBlocks.map((block) => ({ type: block.type, name: block.name, settings: block.settings.map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })) })), presets: variants.map((variant) => ({ name: variant.name, settings: { ...variant.defaults } })) }),
+    migrate: (section) => ({ ...section, packVersion: 1, variantId: section.variantId ?? value(section, "variant", variants[0].id) })
+  };
+}
+
+// src/sections/packs/product-packs.ts
+var productPacks = [
+  premiumPack({ type: "product-hero", name: "Hero produit", category: "commerce", family: "product-hero", tags: ["produit", "d\xE9sir", "premier \xE9cran"], capabilities: ["product-form", "markets"], layout: "product", variants: [
+    ["gallery-led", "Galerie immersive", "M\xE9dia pleine hauteur suivi d\u2019une proposition d\u2019achat."],
+    ["editorial-split", "Split \xE9ditorial", "Texte de marque et visuel dissym\xE9trique c\xF4te \xE0 c\xF4te."],
+    ["clinical-proof", "Preuve clinique", "Hi\xE9rarchie factuelle avec zone de r\xE9assurance."]
+  ] }),
+  premiumPack({ type: "buy-box", name: "Buy box", category: "commerce", family: "buy-box", tags: ["achat", "prix", "panier"], capabilities: ["product-form", "variant-selection", "cart-drawer"], layout: "product", variants: [
+    ["clean", "Minimal net", "Formulaire vertical sans distraction."],
+    ["premium", "Premium d\xE9taill\xE9", "Prix, r\xE9assurance et offre structur\xE9s en colonnes."],
+    ["sticky", "Achat persistant", "R\xE9sum\xE9 compact pens\xE9 pour rester disponible au d\xE9filement."]
+  ] }),
+  premiumPack({ type: "variant-selector", name: "S\xE9lecteur de variantes", category: "commerce", family: "variant-selector", tags: ["variantes", "options", "couleurs"], capabilities: ["variant-selection", "product-form"], layout: "product", variants: [
+    ["pills", "Pastilles", "Choix horizontal par boutons compacts."],
+    ["swatches", "Nuanciers", "Options visuelles avec rep\xE8res couleur."],
+    ["image-cards", "Cartes image", "Choix pr\xE9sent\xE9 sous forme de cartes m\xE9dia."]
+  ] })
+];
+
+// src/sections/packs/offer-packs.ts
+var select = (key, label, options) => ({ key, label, type: "select", scope: "settings", options });
+var offerPacks = [
+  premiumPack({ type: "quantity-offer", name: "Offre quantit\xE9", category: "commerce", family: "quantity-offer", tags: ["quantit\xE9", "volume", "\xE9conomie"], capabilities: ["product-form", "quantity-breaks"], layout: "product", extraDefaults: { quantity_breaks: "1,2,3", quantity_label: "Choisir la quantit\xE9", quantity_suffix: "unit\xE9s" }, variants: [
+    ["single-duo-trio", "Solo, duo, trio", "Trois offres \xE9gales et imm\xE9diatement comparables."],
+    ["tier-table", "Table de paliers", "Lecture par niveau de quantit\xE9 et \xE9conomie."],
+    ["volume-ladder", "\xC9chelle de volume", "Progression verticale guidant vers le meilleur volume."]
+  ] }),
+  premiumPack({ type: "fixed-bundle", name: "Bundle fixe", category: "commerce", family: "fixed-bundle", tags: ["bundle", "multipack", "offre"], capabilities: ["product-form", "fixed-bundle"], layout: "product", extraDefaults: { bundle_note: "Ce produit correspond \xE0 un bundle fixe Shopify." }, variants: [
+    ["routine", "Routine compl\xE8te", "Produits compl\xE9mentaires ordonn\xE9s par usage."],
+    ["multipack", "Multipack", "M\xEAme produit d\xE9clin\xE9 en quantit\xE9 avec \xE9conomie."],
+    ["gift-set", "Coffret", "Composition cadeau avec contenu pr\xE9sent\xE9 comme un ensemble."]
+  ] }),
+  premiumPack({ type: "subscription-selector", name: "Abonnement", category: "commerce", family: "subscriptions-preorders", tags: ["abonnement", "selling plan", "r\xE9currence"], capabilities: ["product-form", "selling-plan"], layout: "product", extraDefaults: { selling_plan_label: "Fr\xE9quence" }, variants: [
+    ["inline", "Choix direct", "Options d\u2019achat ponctuel et r\xE9current dans le formulaire."],
+    ["benefit-led", "Avantages visibles", "Avantages de l\u2019abonnement pr\xE9sent\xE9s pr\xE8s du choix."],
+    ["compact", "Compact", "S\xE9lecteur r\xE9duit pour une buy box dense."]
+  ] }),
+  premiumPack({ type: "preorder-selector", name: "Pr\xE9commande", category: "commerce", family: "subscriptions-preorders", tags: ["pr\xE9commande", "lancement", "attente"], capabilities: ["product-form", "preorder"], layout: "product", extraDefaults: { preorder_provider: "", preorder_note: "Pr\xE9commande \u2014 exp\xE9dition selon les conditions indiqu\xE9es." }, extraSettings: [select("preorder_provider", "Fournisseur de pr\xE9commande", ["", "preorder-provider"])], variants: [
+    ["launch", "Lancement", "Information de disponibilit\xE9 et bouton de r\xE9servation."],
+    ["date-led", "Date de livraison", "Date et conditions mises au premier plan."],
+    ["limited", "S\xE9rie limit\xE9e", "Disponibilit\xE9 limit\xE9e accompagn\xE9e d\u2019une r\xE9assurance."]
+  ] })
+];
+
+// src/sections/packs/proof-packs.ts
+var proofPacks = [
+  premiumPack({ type: "benefits-results", name: "B\xE9n\xE9fices et r\xE9sultats", category: "conversion", family: "benefits-results", tags: ["b\xE9n\xE9fices", "r\xE9sultats", "preuve"], capabilities: [], variants: [
+    ["outcome-grid", "Grille de r\xE9sultats", "Cartes en grille pour une lecture rapide."],
+    ["proof-timeline", "Chronologie de preuve", "R\xE9sultats organis\xE9s en s\xE9quence progressive."],
+    ["feature-led", "Caract\xE9ristiques", "Lecture structur\xE9e par d\xE9tails et b\xE9n\xE9fices."]
+  ] }),
+  premiumPack({ type: "product-media", name: "D\xE9monstration produit", category: "media", family: "product-media", tags: ["d\xE9mo", "vid\xE9o", "galerie"], capabilities: [], layout: "editorial", variants: [
+    ["video-first", "Vid\xE9o d\u2019abord", "M\xE9dia principal immersif avant les d\xE9tails."],
+    ["masonry", "Mosa\xEFque", "Galerie de formats vari\xE9s et visuels rapproch\xE9s."],
+    ["step-demo", "D\xE9monstration par \xE9tapes", "S\xE9quence de m\xE9dias qui explique l\u2019usage."]
+  ] }),
+  premiumPack({ type: "before-after", name: "Avant / apr\xE8s", category: "media", family: "before-after", tags: ["r\xE9sultats", "transformation", "comparaison"], capabilities: [], variants: [
+    ["slider", "Curseur", "Une comparaison focalis\xE9e sur une paire de visuels."],
+    ["side-by-side", "C\xF4te \xE0 c\xF4te", "Deux \xE9tats visibles simultan\xE9ment."],
+    ["results-story", "Histoire de r\xE9sultat", "Comparaison int\xE9gr\xE9e \xE0 un r\xE9cit et des notes."]
+  ] }),
+  premiumPack({ type: "reviews-ugc", name: "Avis et UGC", category: "conversion", family: "reviews-ugc", tags: ["avis", "ugc", "preuve sociale"], capabilities: [], variants: [
+    ["filmstrip", "Filmstrip UGC", "D\xE9filement visuel de contenus clients."],
+    ["spotlight", "T\xE9moignage phare", "Un avis dominant entour\xE9 de signaux secondaires."],
+    ["review-wall", "Mur d\u2019avis", "Accumulation dense de retours structur\xE9s."]
+  ] }),
+  premiumPack({ type: "faq-trust", name: "FAQ et garanties", category: "content", family: "faq-trust", tags: ["faq", "garantie", "confiance"], capabilities: [], variants: [
+    ["accordion", "Accord\xE9on", "Questions compactes r\xE9v\xE9l\xE9es \xE0 la demande."],
+    ["guarantee-cards", "Cartes de garantie", "R\xE9assurance pr\xE9sent\xE9e comme preuves ind\xE9pendantes."],
+    ["support-columns", "Colonnes support", "Intro de confiance et r\xE9ponses d\xE9taill\xE9es s\xE9par\xE9es."]
+  ] })
+];
+
+// src/sections/packs/discovery-packs.ts
+var discoveryPacks = [
+  premiumPack({ type: "recommendations", name: "Recommandations produit", category: "commerce", family: "recommendations", tags: ["collection", "cross-sell", "d\xE9couverte"], capabilities: ["collection-binding", "recommendations"], variants: [
+    ["related-grid", "Produits associ\xE9s", "Grille directe de suggestions compl\xE9mentaires."],
+    ["editorial-picks", "S\xE9lection \xE9ditoriale", "Recommandations contextualis\xE9es par un angle de marque."],
+    ["cross-sell-stack", "Ajouts utiles", "Offres compl\xE9mentaires dans une pile prioris\xE9e."]
+  ] })
+];
+
+// src/sections/packs/advertorial-packs.ts
+var advertorialPacks = [
+  premiumPack({ type: "advertorialMasthead", name: "Masthead advertorial", category: "content", family: "advertorial", tags: ["advertorial", "ouverture", "\xE9ditorial"], layout: "editorial", variants: [["journal", "Journal", "Titre et m\xE9dia de magazine."], ["reportage", "Reportage", "Ouverture factuelle avec contexte."], ["opinion", "Chronique", "Angle sign\xE9 et personnel."]] }),
+  premiumPack({ type: "authorLine", name: "Ligne d\u2019auteur", category: "content", family: "advertorial", tags: ["advertorial", "auteur"], variants: [["byline", "Signature", "Une ligne d\u2019auteur minimaliste."], ["profile", "Profil", "Auteur accompagn\xE9 d\u2019un bloc de contexte."], ["expert", "Expert", "Signature soutenue par une qualification."]] }),
+  premiumPack({ type: "editorialBody", name: "Corps \xE9ditorial", category: "content", family: "advertorial", tags: ["advertorial", "article", "chapitre"], layout: "editorial", variants: [["longform", "Long format", "Colonne de lecture continue."], ["chaptered", "Chapitres", "Lecture s\xE9quenc\xE9e en \xE9pisodes."], ["scannable", "Scannable", "Paragraphes courts et points cl\xE9s."]] }),
+  premiumPack({ type: "evidenceCallout", name: "Encadr\xE9 de preuve", category: "content", family: "advertorial", tags: ["preuve", "source", "advertorial"], variants: [["citation", "Citation", "Une preuve isol\xE9e dans un encadr\xE9."], ["data", "Donn\xE9es", "Preuve organis\xE9e en chiffres et notes."], ["expert-note", "Note d\u2019expert", "Observation contextualis\xE9e par un sp\xE9cialiste."]] }),
+  premiumPack({ type: "inlineProduct", name: "Produit int\xE9gr\xE9", category: "commerce", family: "advertorial", tags: ["produit", "advertorial", "achat"], capabilities: ["product-form", "variant-selection"], layout: "product", variants: [["compact", "Compact", "Produit pr\xE9sent\xE9 au fil de la lecture."], ["feature", "Produit vedette", "Carte produit plus expressive dans l\u2019article."], ["offer", "Offre \xE9ditoriale", "Produit et b\xE9n\xE9fice r\xE9unis dans un encadr\xE9."]] }),
+  premiumPack({ type: "conversionClose", name: "Conclusion conversion", category: "conversion", family: "conversion-capture", tags: ["cta", "conversion", "conclusion"], variants: [["final-cta", "CTA final", "Cl\xF4ture simple avec une action unique."], ["offer-stack", "Pile d\u2019offre", "R\xE9assurance et action regroup\xE9es."], ["decision", "Aide \xE0 la d\xE9cision", "R\xE9sum\xE9 final qui r\xE9pond aux derni\xE8res h\xE9sitations."]] })
+];
+
+// src/sections/packs/listicle-packs.ts
+var listiclePacks = [
+  premiumPack({ type: "listicleIndex", name: "Index listicle", category: "content", family: "listicle", tags: ["listicle", "sommaire", "lecture"], variants: [["numbered", "Num\xE9rot\xE9", "Sommaire lin\xE9aire et num\xE9rot\xE9."], ["cards", "Cartes", "Sommaire visuel sous forme de cartes."], ["rail", "Rail", "Index lat\xE9ral pour une lecture longue."]] }),
+  premiumPack({ type: "numberedReason", name: "Raison num\xE9rot\xE9e", category: "content", family: "listicle", tags: ["listicle", "raison", "argument"], variants: [["editorial", "\xC9ditorial", "Grand num\xE9ro et texte respirant."], ["proof", "Avec preuve", "Argument soutenu par un d\xE9tail de preuve."], ["media", "Avec m\xE9dia", "Argument altern\xE9 avec un visuel."]] }),
+  premiumPack({ type: "comparisonInsert", name: "Insertion comparative", category: "content", family: "listicle", tags: ["listicle", "comparaison"], variants: [["quick-table", "Table rapide", "Tableau concis ins\xE9r\xE9 entre deux raisons."], ["versus", "Face-\xE0-face", "Comparaison binaire plus narrative."], ["scorecard", "Scorecard", "Crit\xE8res not\xE9s dans une carte."]] }),
+  premiumPack({ type: "productRecommendation", name: "Recommandation produit", category: "commerce", family: "listicle", tags: ["produit", "recommandation", "listicle"], capabilities: ["product-form", "recommendations"], layout: "product", variants: [["editor-choice", "Choix de la r\xE9daction", "Produit recommand\xE9 avec justification \xE9ditoriale."], ["best-for", "Le meilleur pour", "Recommandation segment\xE9e selon le besoin."], ["shortlist", "S\xE9lection courte", "Plusieurs choix hi\xE9rarchis\xE9s."]] })
+];
+
+// src/sections/packs/quiz-packs.ts
+var quizPacks = [
+  premiumPack({ type: "quizProgress", name: "Progression quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "progression"], variants: [["steps", "\xC9tapes", "\xC9tapes explicitement num\xE9rot\xE9es."], ["bar", "Barre", "Progression continue en barre."], ["minimal", "Minimal", "Indicateur discret et compact."]] }),
+  premiumPack({ type: "quizQuestion", name: "Question quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "question", "funnel"], layout: "quiz", variants: [["single-choice", "Choix unique", "Une r\xE9ponse pour avancer."], ["multiple-choice", "Choix multiples", "Plusieurs besoins peuvent \xEAtre s\xE9lectionn\xE9s."], ["visual-choice", "Choix visuel", "R\xE9ponses pr\xE9sent\xE9es en cartes m\xE9dia."]] }),
+  premiumPack({ type: "quizResult", name: "R\xE9sultat quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "r\xE9sultat", "recommandation"], variants: [["profile", "Profil", "R\xE9sultat formul\xE9 comme un profil."], ["routine", "Routine", "R\xE9sultat organis\xE9 en \xE9tapes d\u2019usage."], ["next-step", "Prochaine \xE9tape", "R\xE9sultat focalis\xE9 sur l\u2019action suivante."]] }),
+  premiumPack({ type: "leadCapture", name: "Capture de contact", category: "conversion", family: "conversion-capture", tags: ["email", "consentement", "lead"], variants: [["consent", "Consentement", "Capture avec rappel du consentement."], ["reward", "Contrepartie", "Capture associ\xE9e \xE0 une ressource ou avantage."], ["minimal", "Minimal", "Champ unique et action courte."]] })
+];
+
+// src/sections/packs/brand-story-packs.ts
+var brandStoryPacks = [
+  premiumPack({ type: "brandManifesto", name: "Manifeste de marque", category: "brand", family: "brand-story", tags: ["marque", "manifeste", "valeurs"], layout: "editorial", variants: [["statement", "D\xE9claration", "Texte manifeste assum\xE9."], ["principles", "Principes", "Valeurs s\xE9par\xE9es en principes."], ["letter", "Lettre", "Adresse personnelle de la marque."]] }),
+  premiumPack({ type: "founderStory", name: "Histoire du fondateur", category: "brand", family: "brand-story", tags: ["fondateur", "histoire", "marque"], layout: "editorial", variants: [["portrait", "Portrait", "Photo et r\xE9cit \xE0 la premi\xE8re personne."], ["timeline", "Chronologie", "Parcours structur\xE9 en moments cl\xE9s."], ["letter", "Lettre du fondateur", "Message intime et direct."]] }),
+  premiumPack({ type: "editorialChapter", name: "Chapitre \xE9ditorial", category: "brand", family: "brand-story", tags: ["chapitre", "r\xE9cit", "marque"], layout: "editorial", variants: [["split", "Split", "Texte et image en dialogue."], ["full-bleed", "Plein cadre", "M\xE9dia dominant et texte superpos\xE9."], ["quiet", "Lecture calme", "Colonne centr\xE9e avec rythme lent."]] }),
+  premiumPack({ type: "campaignLookbook", name: "Lookbook de campagne", category: "media", family: "brand-story", tags: ["lookbook", "campagne", "m\xE9dias"], variants: [["masonry", "Mosa\xEFque", "Images de formats vari\xE9s."], ["sequence", "S\xE9quence", "R\xE9cit visuel dans l\u2019ordre."], ["catalogue", "Catalogue", "Grille r\xE9guli\xE8re et informative."]] })
+];
+
+// src/sections/index.ts
+registerSection(spacerSection);
+registerSection(dividerSection);
+registerSection(customCodeSection);
+for (const pack of [...productPacks, ...offerPacks, ...proofPacks, ...discoveryPacks, ...advertorialPacks, ...listiclePacks, ...quizPacks, ...brandStoryPacks]) registerSection(pack);
 
 // src/onboarding/template-recipe.ts
 var TEMPLATE_RECIPES = [
@@ -631,8 +1413,8 @@ var TEMPLATE_RECIPES = [
   {
     id: "landing-direct-response",
     format: "landing",
-    sections: ["announcement", "navigation", "hero", "benefits", "comparison", "faq", "form", "cta", "footer"],
-    variants: { hero: "direct-response", benefits: "icon-grid", comparison: "feature-led", form: "lead-capture", cta: "repeated" }
+    sections: ["announcement", "navigation", "hero", "benefits", "comparison", "faq", "form", "conversionClose", "cta", "footer"],
+    variants: { hero: "direct-response", benefits: "icon-grid", comparison: "feature-led", form: "lead-capture", conversionClose: "offer-stack", cta: "repeated" }
   },
   {
     id: "landing-editorial-premium",
@@ -649,8 +1431,8 @@ var TEMPLATE_RECIPES = [
   {
     id: "advertorial-journal",
     format: "advertorial",
-    sections: ["navigation", "hero", "press", "richText", "imageText", "comparison", "faq", "cta", "footer"],
-    variants: { hero: "editorial", press: "inline", richText: "journal", imageText: "story" }
+    sections: ["navigation", "advertorialMasthead", "authorLine", "hero", "press", "editorialBody", "richText", "evidenceCallout", "inlineProduct", "imageText", "comparison", "faq", "conversionClose", "cta", "footer"],
+    variants: { advertorialMasthead: "journal", authorLine: "byline", hero: "editorial", press: "inline", editorialBody: "longform", richText: "journal", evidenceCallout: "citation", inlineProduct: "compact", imageText: "story", conversionClose: "final-cta" }
   },
   {
     id: "advertorial-founder-story",
@@ -667,8 +1449,8 @@ var TEMPLATE_RECIPES = [
   {
     id: "quiz-diagnostic",
     format: "quiz",
-    sections: ["navigation", "hero", "benefits", "quiz", "form", "faq", "cta", "footer"],
-    variants: { hero: "diagnostic", quiz: "diagnostic", form: "stepper", benefits: "icon-grid" }
+    sections: ["navigation", "hero", "quizProgress", "quizQuestion", "benefits", "quiz", "quizResult", "productRecommendation", "leadCapture", "form", "faq", "cta", "footer"],
+    variants: { hero: "diagnostic", quizProgress: "steps", quizQuestion: "single-choice", quiz: "diagnostic", quizResult: "profile", productRecommendation: "best-for", leadCapture: "consent", form: "stepper", benefits: "icon-grid" }
   },
   {
     id: "quiz-routine",
@@ -703,8 +1485,8 @@ var TEMPLATE_RECIPES = [
   {
     id: "blog-magazine",
     format: "blog",
-    sections: ["navigation", "hero", "richText", "imageText", "press", "newsletter", "footer"],
-    variants: { hero: "magazine", richText: "longform", imageText: "editorial", press: "inline" }
+    sections: ["navigation", "hero", "listicleIndex", "numberedReason", "richText", "comparisonInsert", "imageText", "productRecommendation", "press", "newsletter", "footer"],
+    variants: { hero: "magazine", listicleIndex: "numbered", numberedReason: "editorial", richText: "longform", comparisonInsert: "quick-table", imageText: "editorial", productRecommendation: "editor-choice", press: "inline" }
   },
   {
     id: "blog-guide",
@@ -723,8 +1505,8 @@ var recipesById = new Map(TEMPLATE_RECIPES.map((recipe) => [recipe.id, recipe]))
 
 // src/onboarding/creation-recipe.ts
 var CREATION_FORMATS = /* @__PURE__ */ new Set(["store", "product", "landing", "advertorial", "quiz", "home", "blog", "blank"]);
-function isCreationFormat(value) {
-  return typeof value === "string" && CREATION_FORMATS.has(value);
+function isCreationFormat(value2) {
+  return typeof value2 === "string" && CREATION_FORMATS.has(value2);
 }
 
 // src/create/flow-state.ts
@@ -734,9 +1516,9 @@ function assertCompatibleTemplate(format, templateId) {
   const template2 = templateById(templateId);
   if (template2.format !== format) throw new Error(`Template ${templateId} is not compatible with ${format}`);
 }
-function safeAnswers(format, value) {
-  if (!format || format === "blank" || !value || typeof value !== "object" || Array.isArray(value)) return {};
-  const raw = value;
+function safeAnswers(format, value2) {
+  if (!format || format === "blank" || !value2 || typeof value2 !== "object" || Array.isArray(value2)) return {};
+  const raw = value2;
   return Object.fromEntries(flowForFormat(format).intake.flatMap((field2) => {
     const answer = raw[field2.id];
     return typeof answer === "string" && persistentCreationText(answer) === answer ? [[field2.id, answer]] : [];
@@ -862,23 +1644,23 @@ function serializeCreationDraft(state2) {
 function restoreCreationDraft(raw) {
   if (!raw) return null;
   try {
-    const value = JSON.parse(raw);
-    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-    if (value.version !== void 0 && value.version !== 2) return null;
-    const format = value.format === null ? null : isCreationFormat(value.format) ? value.format : null;
-    if (value.format !== null && !format) return null;
-    const templateId = value.templateId === null ? null : typeof value.templateId === "string" ? value.templateId : null;
-    if (value.templateId !== null && !templateId) return null;
-    const source = value.source === null ? null : sources.has(value.source) ? value.source : null;
-    if (value.source !== null && !source) return null;
-    const step = value.step === void 0 ? format === "blank" ? "create-blank" : !format ? "format" : templateId ? "intake" : "template" : steps.has(value.step) ? value.step : null;
+    const value2 = JSON.parse(raw);
+    if (!value2 || typeof value2 !== "object" || Array.isArray(value2)) return null;
+    if (value2.version !== void 0 && value2.version !== 2) return null;
+    const format = value2.format === null ? null : isCreationFormat(value2.format) ? value2.format : null;
+    if (value2.format !== null && !format) return null;
+    const templateId = value2.templateId === null ? null : typeof value2.templateId === "string" ? value2.templateId : null;
+    if (value2.templateId !== null && !templateId) return null;
+    const source = value2.source === null ? null : sources.has(value2.source) ? value2.source : null;
+    if (value2.source !== null && !source) return null;
+    const step = value2.step === void 0 ? format === "blank" ? "create-blank" : !format ? "format" : templateId ? "intake" : "template" : steps.has(value2.step) ? value2.step : null;
     if (!step) return null;
     const state2 = {
       format,
       templateId,
       source,
-      prompt: persistentCreationText(value.prompt),
-      answers: safeAnswers(format, value.answers),
+      prompt: persistentCreationText(value2.prompt),
+      answers: safeAnswers(format, value2.answers),
       step
     };
     assertState(state2);
@@ -908,7 +1690,7 @@ function mergeCompatibleCreationDraft(urlState, saved, url) {
   const source = url.searchParams.has("source") ? sourceForFormat(format, urlState.source) : sourceForFormat(format, saved.source);
   const prompt = url.searchParams.has("prompt") ? urlState.prompt : saved.prompt;
   const answers = safeAnswers(format, saved.answers);
-  const step = !templateId && saved.step === "format" ? "format" : templateId ? "intake" : "template";
+  const step = !templateId && saved.step === "format" ? "format" : templateId && (saved.step === "strategy" || saved.step === "build") ? saved.step : templateId ? "intake" : "template";
   const merged = { format, templateId, source, prompt, answers, step };
   assertState(merged);
   return merged;
@@ -964,8 +1746,8 @@ async function readApiJson(response, fallbackMessage) {
 }
 
 // src/create/build-view.ts
-function esc4(value) {
-  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+function esc4(value2) {
+  return value2.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 function renderBuildExperience(input) {
   const total = Math.max(input.stages.length, 1);
@@ -973,7 +1755,7 @@ function renderBuildExperience(input) {
   const progress = Math.round((activeIndex + 1) / total * 100);
   const current = input.stages[activeIndex]?.label ?? "Finalisation de la page";
   const visible = input.stages.slice(Math.max(0, activeIndex - 2), Math.min(total, activeIndex + 4));
-  const image = input.productImage && /^(https:\/\/|data:image\/)/.test(input.productImage) ? input.productImage : null;
+  const image2 = input.productImage && /^(https:\/\/|data:image\/)/.test(input.productImage) ? input.productImage : null;
   const previewSections = ["navigation", "hero", "offre", "b\xE9n\xE9fices", "preuves sociales"];
   return `<main class="build-experience">
     <header class="build-topbar"><div><span>${esc4(input.formatTitle)}</span><strong>${esc4(input.brandName)} prend forme</strong></div><div class="build-percent"><b>${progress}%</b><span>Construction</span></div></header>
@@ -992,7 +1774,7 @@ function renderBuildExperience(input) {
         <div class="browser-chrome"><i></i><i></i><i></i><span>${esc4(input.brandName.toLowerCase().replace(/[^a-z0-9]+/g, "")) || "boutique"}.com</span><b>aper\xE7u en direct</b></div>
         <div class="storefront-canvas">
           <div class="preview-nav preview-part ${activeIndex >= 0 ? "is-built" : ""}" data-preview-section="navigation"><strong>${esc4(input.brandName)}</strong><span>Boutique&nbsp;&nbsp; \xC0 propos&nbsp;&nbsp; Journal</span><button>Panier (0)</button></div>
-          <div class="preview-hero preview-part ${activeIndex >= 1 ? "is-built" : ""}" data-preview-section="hero"><div><small>La s\xE9lection ${esc4(input.brandName)}</small><h2>Le produit pens\xE9 pour ton quotidien.</h2><p>Une promesse claire, une preuve cr\xE9dible et un parcours sans friction.</p><button>D\xE9couvrir le produit</button></div><div class="preview-media">${image ? `<img src="${esc4(image)}" alt="Produit import\xE9">` : "<span></span>"}</div></div>
+          <div class="preview-hero preview-part ${activeIndex >= 1 ? "is-built" : ""}" data-preview-section="hero"><div><small>La s\xE9lection ${esc4(input.brandName)}</small><h2>Le produit pens\xE9 pour ton quotidien.</h2><p>Une promesse claire, une preuve cr\xE9dible et un parcours sans friction.</p><button>D\xE9couvrir le produit</button></div><div class="preview-media">${image2 ? `<img src="${esc4(image2)}" alt="Produit import\xE9">` : "<span></span>"}</div></div>
           <div class="preview-trust preview-part ${activeIndex >= 2 ? "is-built" : ""}" data-preview-section="offre"><span>Livraison suivie</span><span>Paiement s\xE9curis\xE9</span><span>30 jours pour essayer</span></div>
           <div class="preview-benefits preview-part ${activeIndex >= 3 ? "is-built" : ""}" data-preview-section="b\xE9n\xE9fices"><article><i>01</i><strong>Con\xE7u avec intention</strong><p>Le b\xE9n\xE9fice principal expliqu\xE9 sans d\xE9tour.</p></article><article><i>02</i><strong>Simple \xE0 adopter</strong><p>Une d\xE9monstration visuelle qui rassure.</p></article><article><i>03</i><strong>Fait pour durer</strong><p>Des preuves concr\xE8tes avant la promesse.</p></article></div>
           <div class="preview-proof preview-part ${activeIndex >= 4 ? "is-built" : ""}" data-preview-section="preuves"><div><span>\u2605\u2605\u2605\u2605\u2605</span><strong>\u201CC\u2019est exactement ce que je cherchais.\u201D</strong><small>Acheteur v\xE9rifi\xE9</small></div><div class="proof-image"></div></div>
@@ -1039,8 +1821,37 @@ async function synchronizeOnboardingDraft(input) {
   });
 }
 
+// src/onboarding/wizard.ts
+var WIZARD_STEPS = [
+  "source",
+  "audience",
+  "problem-outcome",
+  "reasons-to-buy",
+  "offer",
+  "brand-personality",
+  "market",
+  "page-scope",
+  "review"
+];
+var WIZARD_COPY = {
+  source: { title: "Confirmons votre produit", prompt: "Quelle facette du produit doit guider la page ?", multiple: false },
+  audience: { title: "\xC0 qui s\u2019adresse cette page ?", prompt: "Choisissez votre audience prioritaire.", multiple: true },
+  "problem-outcome": { title: "Quel r\xE9sultat compte le plus ?", prompt: "D\xE9crivez le probl\xE8me r\xE9solu ou le r\xE9sultat recherch\xE9.", multiple: false },
+  "reasons-to-buy": { title: "Pourquoi acheter maintenant ?", prompt: "S\xE9lectionnez les raisons d\u2019achat \xE0 mettre en avant.", multiple: true },
+  offer: { title: "Quelle offre proposer ?", prompt: "Choisissez un mod\xE8le d\u2019offre r\xE9aliste pour ce produit.", multiple: false },
+  "brand-personality": { title: "Quelle personnalit\xE9 pour la marque ?", prompt: "D\xE9finissez le ton et la direction visuelle.", multiple: true },
+  market: { title: "Quel march\xE9 viser ?", prompt: "Choisissez le pays, la langue et la devise de la page.", multiple: false },
+  "page-scope": { title: "Quel objectif pour cette page ?", prompt: "D\xE9terminez la port\xE9e de la page et son objectif de conversion.", multiple: false },
+  review: { title: "Pr\xEAt \xE0 construire ?", prompt: "V\xE9rifiez vos choix avant de g\xE9n\xE9rer votre Blueprint.", multiple: false }
+};
+function previousWizardStep(stepId) {
+  const index = WIZARD_STEPS.indexOf(stepId);
+  return index > 0 ? WIZARD_STEPS[index - 1] : null;
+}
+
 // src/hydrate/creer.ts
 var CREATION_DRAFT_KEY = "weflo-create-draft-v2";
+var ONBOARDING_RESUME_KEY = "weflo:create-onboarding-v1";
 var root = document.querySelector("#create-app");
 var state = initialCreationState(new URL(location.href));
 var missingFieldIds = [];
@@ -1055,6 +1866,8 @@ var shopifyCatalog = { status: "idle", products: [], message: "", selectedId: nu
 var submissionLock = createSubmissionLock();
 var intakeGeneration = 0;
 var activeIntakeGeneration = null;
+var wizardLoadingStep = null;
+var wizardController = null;
 function emptyShopifyCatalog() {
   return { status: "idle", products: [], message: "", selectedId: null, selectedTitle: "", nextCursor: null, previousCursor: null, page: 1 };
 }
@@ -1081,12 +1894,23 @@ function clearDraft() {
   draft = null;
   token = "";
   draftProvenance = null;
+  try {
+    sessionStorage.removeItem(ONBOARDING_RESUME_KEY);
+  } catch {
+  }
+}
+function persistOnboardingResume() {
+  try {
+    if (draft && token && draftProvenance) sessionStorage.setItem(ONBOARDING_RESUME_KEY, JSON.stringify({ id: draft.id, token, provenance: draftProvenance }));
+  } catch {
+  }
 }
 function acceptDraft(body, provenance) {
   if (!body.draft || typeof body.claimToken !== "string" || !body.claimToken) throw new Error("La r\xE9ponse du serveur est invalide. R\xE9essaie.");
   draft = body.draft;
   token = body.claimToken;
   draftProvenance = provenance;
+  persistOnboardingResume();
 }
 function draftMatchesSource(source) {
   return Boolean(draft && token && draftProvenance?.source === source);
@@ -1102,8 +1926,8 @@ function resetArtifactsForSourceChange(nextSource) {
   shopifyCatalog = emptyShopifyCatalog();
   error = "";
 }
-function esc5(value) {
-  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+function esc5(value2) {
+  return value2.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 function requestCopy(url) {
   if (url === "/api/pages") return { timeout: "La cr\xE9ation de la page vierge prend trop de temps. R\xE9essaie.", failure: "Impossible de cr\xE9er la page vierge. R\xE9essaie." };
@@ -1136,6 +1960,26 @@ function readSavedState() {
     return null;
   }
 }
+async function restoreOnboardingResume() {
+  try {
+    const raw = sessionStorage.getItem(ONBOARDING_RESUME_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (typeof saved.id !== "string" || typeof saved.token !== "string" || !saved.provenance) return;
+    const body = await request(`/api/onboarding/${encodeURIComponent(saved.id)}`, { method: "GET", headers: { "x-weflo-claim-token": saved.token } });
+    if (!body.draft) return;
+    draft = body.draft;
+    token = saved.token;
+    draftProvenance = saved.provenance;
+    persistOnboardingResume();
+    if (state.templateId && state.step !== "build") state = { ...state, step: "strategy" };
+  } catch {
+    try {
+      sessionStorage.removeItem(ONBOARDING_RESUME_KEY);
+    } catch {
+    }
+  }
+}
 function persistState() {
   try {
     sessionStorage.setItem(CREATION_DRAFT_KEY, serializeCreationDraft(state));
@@ -1161,8 +2005,10 @@ function commitState(next, shouldRender = true, historyMode = "push") {
 function render() {
   if (!root) return;
   if (state.step === "create-blank") root.innerHTML = renderBlankCreation();
-  else if (state.step === "strategy" && draft) root.innerHTML = renderStrategy();
-  else if (state.step === "build" && draft) renderBuild();
+  else if (state.step === "strategy" && draft) {
+    root.innerHTML = renderStrategy();
+    queueMicrotask(() => void loadWizardSuggestions());
+  } else if (state.step === "build" && draft) renderBuild();
   else root.innerHTML = renderCreateWorkspace({ workspaceName, state, missingFieldIds, busy: submissionLock.locked, errorMessage: error });
   if (state.step === "intake" && state.source === "shopify") root.querySelector(".source-grid")?.insertAdjacentHTML("afterend", renderShopifyCatalog());
   bind();
@@ -1187,13 +2033,70 @@ function renderShopifyCatalog() {
   const message = shopifyCatalog.message ? `<p class="create-error" role="alert">${esc5(shopifyCatalog.message)}</p>` : "";
   return `<section class="shopify-catalog" data-shopify-catalog><h2>Choisis un produit Shopify</h2>${selected}${message}<div class="shopify-product-list">${shopifyCatalog.products.map((product) => `<button type="button" data-shopify-product="${esc5(product.id)}" aria-pressed="${product.id === shopifyCatalog.selectedId}">${product.image ? `<img src="${esc5(product.image)}" alt="">` : `<span aria-hidden="true">\u25A3</span>`}<strong>${esc5(product.title)}</strong><small>${esc5(product.vendor)} \xB7 ${esc5(shopifyPrice(product))}</small></button>`).join("")}</div>${renderShopifyPagination()}<button type="button" class="shopify-refresh" data-shopify-load>Actualiser le catalogue</button></section>`;
 }
+function wizardAnswer(stepId) {
+  return draft?.wizard.answers.find((answer) => answer.stepId === stepId);
+}
 function renderStrategy() {
-  const choices = [...draft.personas.map((item) => ({ ...item, kind: "persona" })), ...draft.angles.map((item) => ({ ...item, kind: "angle", insight: item.description }))];
-  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li class="active">3 <span>Strat\xE9gie</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<div class="create-heading"><p>${esc5(creationFormats.find((item) => item.id === state.format)?.title ?? "Cr\xE9ation")}</p><h1>\xC0 qui doit parler cette page ?</h1><span>Canardo a pr\xE9par\xE9 ces pistes \xE0 partir de tes informations. Active celles qui doivent guider les titres, les preuves et l\u2019offre.</span></div><div class="strategy-grid">${choices.map((item) => `<button class="strategy-card" data-strategy="${item.kind}:${esc5(item.id)}" aria-pressed="${item.selected}"><strong>${esc5(item.icon)} ${esc5(item.title)}</strong><small>${esc5(item.insight)}</small></button>`).join("")}</div>${error ? `<p class="create-error" role="alert">${esc5(error)}</p>` : ""}<div class="strategy-actions"><button data-build ${busy ? "disabled" : ""}>${busy ? "Construction\u2026" : "Construire la page"}</button></div></main></div>`;
+  const current = draft.wizard.currentStep;
+  const copy = WIZARD_COPY[current];
+  const choices = draft.wizard.suggestions[current] ?? [];
+  const saved = wizardAnswer(current);
+  const selected = new Set(saved?.selectedSuggestionIds ?? []);
+  const review = current === "review";
+  const summary = draft.wizard.answers.filter((answer) => answer.stepId !== "review").map((answer) => `<li><strong>${esc5(WIZARD_COPY[answer.stepId].title)}</strong><span>${esc5(answer.customText || answer.selectedSuggestionIds.map((id) => draft.wizard.suggestions[answer.stepId]?.find((item2) => item2.id === id)?.title || "").filter(Boolean).join(" \xB7 "))}</span></li>`).join("");
+  const loading = wizardLoadingStep === current;
+  const ordered = copy.multiple && selected.size ? `<ol class="wizard-order">${[...selected].map((id, index) => `<li>${esc5(choices.find((item2) => item2.id === id)?.title ?? id)}<span><button type="button" data-wizard-move="${esc5(id)}:-1" ${index === 0 ? "disabled" : ""}>\u2191</button><button type="button" data-wizard-move="${esc5(id)}:1" ${index === selected.size - 1 ? "disabled" : ""}>\u2193</button></span></li>`).join("")}</ol>` : "";
+  return `<div class="create-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><a href="/dashboard">\u2190 Retour \xE0 l\u2019espace</a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li class="active">3 <span>Assistant IA</span></li><li>4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside><main>${renderStrategyBackControl()}<section class="wizard" data-wizard-step="${current}"><div class="wizard-progress" aria-label="\xC9tape ${Object.keys(WIZARD_COPY).indexOf(current) + 1} sur 9"><i style="width:${(Object.keys(WIZARD_COPY).indexOf(current) + 1) / 9 * 100}%"></i></div><div class="create-heading"><p>\xC9tape ${Object.keys(WIZARD_COPY).indexOf(current) + 1} sur 9</p><h1>${esc5(copy.title)}</h1><span>${esc5(copy.prompt)}</span></div>${review ? `<ul class="wizard-summary">${summary || "<li>Ajoutez vos choix avant de construire.</li>"}</ul>` : `<div class="wizard-grid">${choices.map((item2) => `<button type="button" class="wizard-card" data-wizard-select="${esc5(item2.id)}" aria-pressed="${selected.has(item2.id)}"><strong>${esc5(item2.title)}</strong><small>${esc5(item2.explanation)}</small><em>${item2.tags.map(esc5).join(" \xB7 ")}</em></button>`).join("") || `<p class="wizard-loading">${loading ? "Suggestions en cours\u2026" : "Aucune suggestion disponible."}</p>`}</div>${ordered}<label class="wizard-custom">Ajouter ma r\xE9ponse<textarea data-wizard-custom placeholder="\xC9cris une r\xE9ponse personnalis\xE9e\u2026">${esc5(saved?.customText ?? "")}</textarea></label><button type="button" class="wizard-regenerate" data-wizard-regenerate ${loading ? "disabled" : ""}>${loading ? "G\xE9n\xE9ration\u2026" : "R\xE9g\xE9n\xE9rer les suggestions"}</button>`}${error ? `<p class="create-error" role="alert">${esc5(error)}</p>` : ""}<div class="wizard-actions"><button type="button" class="wizard-back" data-wizard-back ${current === "source" ? "disabled" : ""}>Retour</button><button type="button" data-wizard-continue ${busy || !review && !selected.size && !saved?.customText.trim() ? "disabled" : ""}>${review ? "Construire le Blueprint" : "Continuer"}</button></div></section></main></div>`;
+}
+async function loadWizardSuggestions(regenerate = false) {
+  if (!draft) return;
+  const stepId = draft.wizard.currentStep;
+  if (stepId === "review") return;
+  if (!regenerate && (wizardLoadingStep === stepId || draft.wizard.suggestions[stepId]?.length)) return;
+  wizardController?.abort();
+  wizardController = new AbortController();
+  wizardLoadingStep = stepId;
+  error = "";
+  render();
+  try {
+    const body = await request(`/api/onboarding/${draft.id}/suggestions`, { method: "POST", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ stepId }), signal: wizardController.signal });
+    if (!draft || draft.wizard.currentStep !== stepId) return;
+    draft = body.draft;
+    persistOnboardingResume();
+  } catch (reason) {
+    if (reason?.name !== "AbortError") error = reason instanceof Error ? reason.message : "Les suggestions ne sont pas disponibles. R\xE9essaie.";
+  } finally {
+    if (wizardLoadingStep === stepId) {
+      wizardLoadingStep = null;
+      render();
+    }
+  }
+}
+async function saveWizardAnswer() {
+  if (!draft) return;
+  const stepId = draft.wizard.currentStep;
+  if (stepId === "review") {
+    await build();
+    return;
+  }
+  const textarea = root?.querySelector("[data-wizard-custom]");
+  const selected = wizardAnswer(stepId)?.selectedSuggestionIds ?? [];
+  busy = true;
+  render();
+  try {
+    const body = await request(`/api/onboarding/${draft.id}/wizard`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ stepId, answer: { selectedSuggestionIds: selected, customText: textarea?.value ?? "" } }) });
+    draft = body.draft;
+    persistOnboardingResume();
+    error = "";
+  } finally {
+    busy = false;
+    render();
+    if (draft && draft.wizard.currentStep !== "review") void loadWizardSuggestions();
+  }
 }
 function renderBuild() {
   if (!root || !draft) return;
-  const formatTitle = creationFormats.find((item) => item.id === state.format)?.title ?? "Boutique";
+  const formatTitle = creationFormats.find((item2) => item2.id === state.format)?.title ?? "Boutique";
   root.innerHTML = `<div class="create-shell build-shell"><aside><a href="/dashboard" class="create-logo">weflo<span>.</span></a><ol><li>\u2713 <span>Format</span></li><li>\u2713 <span>Informations</span></li><li>\u2713 <span>Strat\xE9gie</span></li><li class="active">4 <span>Construction</span></li></ol><small>${esc5(workspaceName)}</small></aside>${renderBuildExperience({ brandName: draft.brandName || "Ta marque", formatTitle, stages: draft.stages, activeIndex: buildStageIndex, productImage: draft.product?.images[0] })}</div>`;
 }
 async function syncDraft(includeStrategy = false) {
@@ -1201,8 +2104,8 @@ async function syncDraft(includeStrategy = false) {
   const strategy = includeStrategy ? { personas: draft.personas, angles: draft.angles } : void 0;
   await synchronizeOnboardingDraft({ draftId: draft.id, claimToken: token, state, strategy, request });
 }
-async function importLink(value, generation) {
-  const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value, language: "fr" }) });
+async function importLink(value2, generation) {
+  const body = await request("/api/onboarding/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sourceUrl: value2, language: "fr" }) });
   if (!currentIntakeOperation(generation, "link")) return false;
   acceptDraft(body, { source: "link", shopifyProductId: null });
   await syncDraft();
@@ -1255,7 +2158,7 @@ async function loadShopifyProducts(cursor = null, page = 1) {
   }
 }
 async function importShopifyProduct(productId) {
-  const product = shopifyCatalog.products.find((item) => item.id === productId);
+  const product = shopifyCatalog.products.find((item2) => item2.id === productId);
   if (!product) return;
   const generation = beginIntakeOperation();
   if (generation === null) return;
@@ -1337,12 +2240,12 @@ async function build() {
   }
 }
 function bind() {
-  root?.querySelectorAll("[data-create-format]").forEach((button) => button.addEventListener("click", () => {
+  root?.querySelectorAll("[data-create-format]").forEach((button2) => button2.addEventListener("click", () => {
     cancelIntakeOperation();
     missingFieldIds = [];
     clearDraft();
     shopifyCatalog = emptyShopifyCatalog();
-    commitState(transitionCreationFlow(state, { type: "SELECT_FORMAT", format: button.dataset.createFormat }));
+    commitState(transitionCreationFlow(state, { type: "SELECT_FORMAT", format: button2.dataset.createFormat }));
     if (state.step === "create-blank") void createBlankPage();
   }));
   root?.querySelector("[data-back-format]")?.addEventListener("click", () => {
@@ -1357,8 +2260,8 @@ function bind() {
     missingFieldIds = [];
     commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
-  root?.querySelectorAll("button[data-create-source]").forEach((button) => button.addEventListener("click", () => {
-    const source = button.dataset.createSource;
+  root?.querySelectorAll("button[data-create-source]").forEach((button2) => button2.addEventListener("click", () => {
+    const source = button2.dataset.createSource;
     resetArtifactsForSourceChange(source);
     commitState(transitionCreationFlow(state, { type: "SELECT_SOURCE", source }));
     if (source === "shopify") void loadShopifyProducts();
@@ -1371,8 +2274,8 @@ function bind() {
   root?.querySelector("[data-shopify-previous]")?.addEventListener("click", () => {
     if (shopifyCatalog.previousCursor) void loadShopifyProducts(shopifyCatalog.previousCursor, Math.max(1, shopifyCatalog.page - 1));
   });
-  root?.querySelectorAll("[data-shopify-product]").forEach((button) => button.addEventListener("click", () => {
-    const id = button.dataset.shopifyProduct;
+  root?.querySelectorAll("[data-shopify-product]").forEach((button2) => button2.addEventListener("click", () => {
+    const id = button2.dataset.shopifyProduct;
     if (id) void importShopifyProduct(id);
   }));
   root?.querySelector("[data-blank-retry]")?.addEventListener("click", () => void createBlankPage());
@@ -1427,7 +2330,7 @@ function bind() {
       render();
       return;
     }
-    const firstAnswer = Object.values(updated.answers).find((value) => value.trim()) ?? "";
+    const firstAnswer = Object.values(updated.answers).find((value2) => value2.trim()) ?? "";
     if (!updated.prompt && !firstAnswer) {
       finishIntakeOperation(generation);
       render();
@@ -1490,53 +2393,53 @@ function bind() {
     }
   }));
   const dialog = root?.querySelector("[data-template-dialog]");
-  root?.querySelectorAll("[data-template-device]").forEach((button) => button.addEventListener("click", () => {
-    const preview = button.closest("[data-template-preview]");
+  root?.querySelectorAll("[data-template-device]").forEach((button2) => button2.addEventListener("click", () => {
+    const preview = button2.closest("[data-template-preview]");
     if (!preview) return;
-    const device = button.dataset.templateDevice;
+    const device = button2.dataset.templateDevice;
     if (device !== "desktop" && device !== "mobile") return;
     preview.dataset.previewDevice = device;
-    preview.querySelectorAll("[data-template-device]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+    preview.querySelectorAll("[data-template-device]").forEach((item2) => item2.setAttribute("aria-pressed", String(item2 === button2)));
   }));
   const setDialogDevice = (device) => {
     if (!dialog) return;
-    const image = dialog.querySelector("[data-template-dialog-image]");
+    const image2 = dialog.querySelector("[data-template-dialog-image]");
     const stage = dialog.querySelector("[data-template-dialog-stage]");
-    if (!image || !stage) return;
-    const source = image.dataset[device];
+    if (!image2 || !stage) return;
+    const source = image2.dataset[device];
     if (!source) return;
-    image.src = source;
+    image2.src = source;
     stage.dataset.previewDevice = device;
-    dialog.querySelectorAll("[data-template-dialog-device]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.templateDialogDevice === device)));
+    dialog.querySelectorAll("[data-template-dialog-device]").forEach((button2) => button2.setAttribute("aria-pressed", String(button2.dataset.templateDialogDevice === device)));
   };
-  dialog?.querySelectorAll("[data-template-dialog-device]").forEach((button) => button.addEventListener("click", () => {
-    const device = button.dataset.templateDialogDevice;
+  dialog?.querySelectorAll("[data-template-dialog-device]").forEach((button2) => button2.addEventListener("click", () => {
+    const device = button2.dataset.templateDialogDevice;
     if (device === "desktop" || device === "mobile") setDialogDevice(device);
   }));
   let dialogTrigger = null;
-  root?.querySelectorAll("[data-template-open]").forEach((button) => button.addEventListener("click", () => {
-    const id = button.dataset.templateOpen;
+  root?.querySelectorAll("[data-template-open]").forEach((button2) => button2.addEventListener("click", () => {
+    const id = button2.dataset.templateOpen;
     const card = id ? root.querySelector(`[data-template-card="${id}"]`) : null;
     if (!id || !card || !dialog) return;
-    const image = dialog.querySelector("[data-template-dialog-image]");
+    const image2 = dialog.querySelector("[data-template-dialog-image]");
     const desktop = card.querySelector('[data-preview-image="desktop"]');
     const mobile = card.querySelector('[data-preview-image="mobile"]');
     const name = card.querySelector("h2")?.textContent ?? "Mod\xE8le";
     const description = card.querySelector("p")?.textContent ?? "";
-    if (image && desktop && mobile) {
-      image.dataset.desktop = desktop.src;
-      image.dataset.mobile = mobile.src;
-      image.alt = desktop.alt;
+    if (image2 && desktop && mobile) {
+      image2.dataset.desktop = desktop.src;
+      image2.dataset.mobile = mobile.src;
+      image2.alt = desktop.alt;
       setDialogDevice("desktop");
     }
     dialog.querySelector("[data-template-dialog-title]").textContent = name;
     dialog.querySelector("[data-template-dialog-description]").textContent = description;
-    const select = dialog.querySelector("[data-template-dialog-select]");
-    if (select) {
-      select.href = creationWorkspaceUrl(state.format, id, { source: state.source, prompt: state.prompt });
-      select.dataset.templateId = id;
+    const select2 = dialog.querySelector("[data-template-dialog-select]");
+    if (select2) {
+      select2.href = creationWorkspaceUrl(state.format, id, { source: state.source, prompt: state.prompt });
+      select2.dataset.templateId = id;
     }
-    dialogTrigger = button;
+    dialogTrigger = button2;
     dialog.showModal();
   }));
   dialog?.addEventListener("close", () => dialogTrigger?.focus());
@@ -1555,19 +2458,53 @@ function bind() {
     missingFieldIds = [];
     commitState(transitionCreationFlow(state, { type: "BACK" }));
   });
-  root?.querySelectorAll("[data-strategy]").forEach((button) => button.addEventListener("click", () => {
-    const [kind, id] = (button.dataset.strategy ?? "").split(":");
-    const list = kind === "persona" ? draft?.personas : draft?.angles;
-    const item = list?.find((entry) => entry.id === id);
-    if (item) item.selected = !item.selected;
+  root?.querySelectorAll("[data-wizard-select]").forEach((button2) => button2.addEventListener("click", () => {
+    if (!draft) return;
+    const stepId = draft.wizard.currentStep;
+    const id = button2.dataset.wizardSelect ?? "";
+    const selected = new Set(wizardAnswer(stepId)?.selectedSuggestionIds ?? []);
+    if (selected.has(id)) selected.delete(id);
+    else {
+      if (!WIZARD_COPY[stepId].multiple) selected.clear();
+      selected.add(id);
+    }
+    const existing = wizardAnswer(stepId);
+    draft.wizard.answers = [...draft.wizard.answers.filter((answer) => answer.stepId !== stepId), { stepId, selectedSuggestionIds: [...selected], customText: existing?.customText ?? "", acceptedAt: existing?.acceptedAt ?? (/* @__PURE__ */ new Date()).toISOString() }];
     render();
   }));
-  root?.querySelector("[data-build]")?.addEventListener("click", () => void build().catch((reason) => {
+  root?.querySelectorAll("[data-wizard-move]").forEach((button2) => button2.addEventListener("click", () => {
+    if (!draft) return;
+    const stepId = draft.wizard.currentStep;
+    const [id, offsetRaw] = (button2.dataset.wizardMove ?? "").split(":");
+    const selected = [...wizardAnswer(stepId)?.selectedSuggestionIds ?? []];
+    const index = selected.indexOf(id);
+    const target = index + Number(offsetRaw);
+    if (index < 0 || target < 0 || target >= selected.length) return;
+    [selected[index], selected[target]] = [selected[target], selected[index]];
+    const existing = wizardAnswer(stepId);
+    draft.wizard.answers = [...draft.wizard.answers.filter((answer) => answer.stepId !== stepId), { stepId, selectedSuggestionIds: selected, customText: existing?.customText ?? "", acceptedAt: existing?.acceptedAt ?? (/* @__PURE__ */ new Date()).toISOString() }];
+    render();
+  }));
+  root?.querySelector("[data-wizard-regenerate]")?.addEventListener("click", () => void loadWizardSuggestions(true));
+  root?.querySelector("[data-wizard-custom]")?.addEventListener("input", (event) => {
+    const value2 = event.currentTarget.value.trim();
+    const stepId = draft?.wizard.currentStep;
+    const selected = stepId ? wizardAnswer(stepId)?.selectedSuggestionIds.length ?? 0 : 0;
+    const button2 = root?.querySelector("[data-wizard-continue]");
+    if (button2) button2.disabled = !value2 && !selected;
+  });
+  root?.querySelector("[data-wizard-back]")?.addEventListener("click", async () => {
+    if (!draft) return;
+    const previous = previousWizardStep(draft.wizard.currentStep);
+    if (!previous) return;
+    const body = await request(`/api/onboarding/${draft.id}/wizard`, { method: "PATCH", headers: { "content-type": "application/json", "x-weflo-claim-token": token }, body: JSON.stringify({ currentStep: previous }) });
+    draft = body.draft;
+    persistOnboardingResume();
+    render();
+  });
+  root?.querySelector("[data-wizard-continue]")?.addEventListener("click", () => void saveWizardAnswer().catch((reason) => {
     busy = false;
-    if (state.step === "build") state = transitionCreationFlow(state, { type: "BACK" });
-    persistState();
-    replaceWorkspaceUrl();
-    error = reason instanceof Error ? reason.message : "Construction impossible";
+    error = reason instanceof Error ? reason.message : "Impossible d\u2019enregistrer cette r\xE9ponse.";
     render();
   }));
 }
@@ -1589,6 +2526,7 @@ void (async () => {
   workspaceName = me.workspace.name;
   const url = new URL(location.href);
   state = mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
+  await restoreOnboardingResume();
   persistState();
   replaceWorkspaceUrl();
   if (creationStartupAction(state) === "create-blank") void createBlankPage();

@@ -1,0 +1,22 @@
+{% comment %}
+  Weflo mix-and-match is an app block. It never claims a bundle without the
+  paired Cart Transform Function installed by the Weflo app.
+{% endcomment %}
+<div class="weflo-mix-and-match" data-weflo-mix-and-match data-config-id="{{ block.settings.configuration_id | escape }}" {{ block.shopify_attributes }}>
+  <p>{{ block.settings.heading | escape }}</p>
+  <div data-weflo-bundle-components></div>
+  <input type="hidden" name="properties[_weflo_bundle_configuration]" value="{{ block.settings.configuration_id | escape }}" data-weflo-bundle-config>
+  <input type="hidden" name="properties[_weflo_bundle_components]" value="" data-weflo-bundle-components-input>
+</div>
+<script src="{{ 'mix-and-match.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Weflo mix-and-match",
+  "target": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Titre", "default": "Composez votre sélection" },
+    { "type": "text", "id": "configuration_id", "label": "ID de configuration Weflo" }
+  ]
+}
+{% endschema %}

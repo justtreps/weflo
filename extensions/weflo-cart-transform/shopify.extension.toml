@@ -1,0 +1,7 @@
+name = "Weflo cart transform"
+type = "cart_transform"
+api_version = "2026-07"
+
+[[extension_points]]
+target = "cart.transform.run"
+module = "src/run.ts"

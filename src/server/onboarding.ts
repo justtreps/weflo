@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { importProduct } from "../import/product-extractor";
 import { fallbackOnboardingAnalysis } from "../onboarding/fallback-analysis";
 import { createBrandKit } from "../onboarding/brand-kit";
-import { buildStoreDocument } from "../onboarding/compile-store";
+import { buildStoreDocument, compileBlueprint } from "../onboarding/compile-store";
 import { createOnboardingDraftInput, initialBuildStages } from "../onboarding/schema";
 import { claimTokenMatches, createClaimToken } from "../onboarding/token";
 import type { ImportedProduct, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
@@ -12,6 +12,11 @@ import { recipeForTemplate } from "../onboarding/template-recipe";
 import { flowForFormat } from "../create/format-flow";
 import { ensureWorkspace, requireUser } from "./pages";
 import { loadShopifyProduct } from "./shopify-catalog";
+import { buildProductTruthSheet } from "../onboarding/product-truth";
+import { suggestWizardStep } from "../onboarding/suggestions";
+import { isWizardStepId, normalizeWizardAnswer, nextWizardStep } from "../onboarding/wizard";
+import { generateBlueprint } from "../onboarding/blueprint-generator";
+import { validateStoreBlueprint } from "../onboarding/blueprint";
 
 function publicDraft(draft: OnboardingDraft): Omit<OnboardingDraft, "claimTokenHash"> {
   const { claimTokenHash: _private, ...safe } = draft;
@@ -247,6 +252,55 @@ export function onboardingRoutes(deps: AppDeps) {
     return draft ? c.json({ draft: publicDraft(draft) }) : c.json({ error: "unauthorized" }, 401);
   });
 
+  app.post("/onboarding/:id/suggestions", async (c) => {
+    const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
+    if (!draft) return c.json({ error: "unauthorized" }, 401);
+    const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
+    if (!isWizardStepId(body.stepId)) return c.json({ error: "invalid_step", message: "Cette étape d’onboarding est inconnue." }, 400);
+    const suggestions = await suggestWizardStep({
+      stepId: body.stepId,
+      truth: draft.product ? buildProductTruthSheet(draft.product) : buildProductTruthSheet({
+        sourceUrl: draft.sourceUrl,
+        title: draft.brandName || draft.answers.topic || "votre projet",
+        description: draft.answers.prompt || draft.answers.objective || "",
+        vendor: draft.brandName,
+        currency: "EUR",
+        price: null,
+        compareAtPrice: null,
+        images: [],
+        variants: [],
+        rating: null,
+        reviewCount: null,
+        reviews: [],
+      }),
+      answers: draft.wizard.answers,
+      language: draft.language,
+      ai: deps.onboardingAi,
+      timeoutMs: deps.onboardingAiTimeoutMs ?? 8_000,
+    });
+    const wizard = { ...draft.wizard, suggestions: { ...draft.wizard.suggestions, [body.stepId]: suggestions } };
+    const updated = await deps.store.updateOnboardingDraft(draft.id, { wizard });
+    return c.json({ suggestions, draft: publicDraft(updated) });
+  });
+
+  app.patch("/onboarding/:id/wizard", async (c) => {
+    const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
+    if (!draft) return c.json({ error: "unauthorized" }, 401);
+    const body = await c.req.json<Record<string, unknown>>().catch(() => ({} as Record<string, unknown>));
+    const stepId = isWizardStepId(body.stepId) ? body.stepId : draft.wizard.currentStep;
+    const suggestions = draft.wizard.suggestions[stepId] ?? [];
+    const wizard = { ...draft.wizard, suggestions: { ...draft.wizard.suggestions } };
+    if (body.answer !== undefined) {
+      const answer = normalizeWizardAnswer(body.answer, suggestions, stepId);
+      if (!answer) return c.json({ error: "invalid_answer", message: "Choisis une suggestion ou ajoute ta réponse avant de continuer." }, 400);
+      wizard.answers = [...wizard.answers.filter((item) => item.stepId !== stepId), answer];
+    }
+    if (body.currentStep !== undefined && !isWizardStepId(body.currentStep)) return c.json({ error: "invalid_step" }, 400);
+    wizard.currentStep = isWizardStepId(body.currentStep) ? body.currentStep : nextWizardStep(stepId, wizard.answers) ?? stepId;
+    const updated = await deps.store.updateOnboardingDraft(draft.id, { wizard });
+    return c.json({ draft: publicDraft(updated) });
+  });
+
   app.patch("/onboarding/:id", async (c) => {
     const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
     if (!draft) return c.json({ error: "unauthorized" }, 401);
@@ -308,10 +362,16 @@ export function onboardingRoutes(deps: AppDeps) {
       templateId: draft.templateId ?? null,
       answers: draft.answers ?? {},
     };
-    const document = isProductLedCreationFormat(draft.creationFormat)
+    let blueprint = draft.blueprint;
+    if (draft.product && (!blueprint || !validateStoreBlueprint(blueprint).ok)) {
+      blueprint = await generateBlueprint({ product: draft.product, language: draft.language, answers: draft.wizard.answers, name: brandName });
+    }
+    const document = blueprint && draft.product
+      ? compileBlueprint(blueprint, { ...buildInput, product: draft.product })
+      : isProductLedCreationFormat(draft.creationFormat)
       ? buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat, product: draft.product! })
       : buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat });
-    const updated = await deps.store.updateOnboardingDraft(draft.id, { status: "ready", stages, brandKit, document, brandName, modelId, error: null });
+    const updated = await deps.store.updateOnboardingDraft(draft.id, { status: "ready", stages, brandKit, document, blueprint, brandName, modelId, error: null });
     return c.json({ draft: publicDraft(updated) });
   });
 

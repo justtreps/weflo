@@ -45,6 +45,29 @@
   background: #f4c22e;
   color: #17130a;
 }
+.section-catalog-search input,
+.section-catalog-sort select {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #3a3935;
+  border-radius: 8px;
+  background: #24231f;
+  color: #fff;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 11px;
+}
+.section-catalog-sort {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+.section-catalog-sort label {
+  display: grid;
+  gap: 4px;
+  color: #aaa69d;
+  font-size: 9px;
+}
 .section-catalog-filters {
   display: flex;
   gap: 5px;
@@ -61,6 +84,11 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+}
+.section-catalog-empty {
+  margin: 0;
+  color: #aaa69d;
+  font-size: 11px;
 }
 .section-catalog-card {
   overflow: hidden;
@@ -109,7 +137,7 @@
 }
 .section-catalog-copy {
   display: grid;
-  gap: 3px;
+  gap: 5px;
   padding: 11px 11px 7px;
 }
 .section-catalog-copy small {
@@ -125,6 +153,35 @@
   color: #8b887f;
   font-size: 9px;
   font-style: normal;
+}
+.section-catalog-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.section-catalog-badge {
+  padding: 3px 5px;
+  border: 1px solid #515047;
+  border-radius: 999px;
+  color: #d9d6ce;
+  font-size: 8px;
+}
+.section-catalog-badge.is-native {
+  border-color: #557c66;
+  color: #b8d6c0;
+}
+.section-catalog-badge.is-app-required {
+  border-color: #9d7c32;
+  color: #efd184;
+}
+.section-catalog-badge.is-unavailable {
+  border-color: #904b4b;
+  color: #efadad;
+}
+.section-catalog-required {
+  color: #aaa69d !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
 }
 .section-catalog-add {
   width: calc(100% - 22px);
@@ -245,6 +302,9 @@
   font-weight: 800;
 }
 @media (max-width: 760px) {
+  .section-catalog-sort {
+    grid-template-columns: 1fr;
+  }
   .section-preview-dialog {
     width: 100vw;
     height: 100vh;

@@ -1,5 +1,6 @@
 import type { EditorDocument } from "./editor/document";
 import type { ShopifyCatalogProduct } from "./onboarding/types";
+import type { CustomSectionPublication } from "./custom-sections/service";
 
 export type User = { id: string; email: string; name?: string | null };
 
@@ -111,7 +112,7 @@ export type ShopifyPort = {
     previousCursor: string | null;
   }>;
   getProduct?(input: { shop: string; token: string; productId: string }): Promise<ShopifyCatalogProduct | null>;
-  publishEditor?(input: { shop: string; token: string; document: unknown; pageName: string; strategy: "active" | "duplicate_active" | "new_weflo"; themeId?: string; replaceGlobalTemplate?: boolean }): Promise<{ themeId: string; previewUrl: string }>;
+  publishEditor?(input: { shop: string; token: string; document: unknown; pageName: string; strategy: "active" | "duplicate_active" | "new_weflo"; themeId?: string; replaceGlobalTemplate?: boolean; customSections?: readonly CustomSectionPublication[] }): Promise<{ themeId: string; previewUrl: string }>;
 };
 
 export type WhopPort = {

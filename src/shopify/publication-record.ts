@@ -6,7 +6,7 @@ export type PublicationRecord = {
   themeId: string;
   sourceThemeId?: string;
   status: "running" | "completed" | "failed" | "rolled_back";
-  backups: Array<{ key: string; value: string | null }>;
+  backups: Array<{ key: string; value: string | null; checksum?: string }>;
   results: Array<{ key: string; status: "written" | "unchanged" | "restored" }>;
   previewUrl?: string;
   createdAt: string;

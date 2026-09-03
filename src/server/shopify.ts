@@ -3,6 +3,8 @@ import { encryptSecret } from "../lib/encrypt";
 import { ensureWorkspace, requireUser } from "./pages";
 import type { AppDeps } from "./app";
 import { loadShopifyCatalog } from "./shopify-catalog";
+import { buildCapabilityReport } from "../shopify/capability-report";
+import { getSectionDefinition } from "../sections";
 
 function normalizeShop(shop: string): string {
   return shop.replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
@@ -29,6 +31,28 @@ export function shopifyRoutes(deps: AppDeps) {
       status: conn?.status ?? "none",
       shopDomain: conn?.shopDomain ?? null,
     });
+  });
+
+  app.post("/shopify/capabilities", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const workspace = await ensureWorkspace(deps.store, user.id);
+    const connection = await deps.store.getShopify(workspace.id);
+    const body = await c.req.json<{ sections?: unknown }>().catch(() => ({}));
+    const sections = Array.isArray(body.sections) ? body.sections.flatMap((item) => {
+      if (!item || typeof item !== "object" || typeof (item as { type?: unknown }).type !== "string") return [];
+      const type = (item as { type: string }).type;
+      return getSectionDefinition(type) ? [{ type, settings: {} }] : [];
+    }) : [];
+    // App-installation metadata will be supplied by the Shopify webhook; absent
+    // facts intentionally remain setup-required rather than being inferred from UI.
+    const report = buildCapabilityReport({ sections, shopify: {
+      connected: connection?.status === "connected",
+      hasProductData: connection?.status === "connected",
+      markets: connection?.status === "connected",
+      localization: connection?.status === "connected",
+    } });
+    return c.json(report);
   });
 
   app.get("/shopify/products", async (c) => {

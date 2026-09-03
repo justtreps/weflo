@@ -2,11 +2,14 @@ import { decryptSecret } from "./encrypt";
 import { shopifyThemeAssets } from "./theme-files";
 import type { PageDocument, ShopifyPort } from "../types";
 import type { EditorDocument } from "../editor/document";
-import { compileShopifyPage } from "../shopify/compiler";
-import { publishToShopify } from "../shopify/publisher";
+import { compileShopifyPage, compileThemeFile } from "../shopify/compiler";
+import { planShopifyPublication, publishToShopify } from "../shopify/publisher";
 import type { ShopifyTheme } from "../shopify/themes";
 import { bindingForDocument } from "../shopify/page-binding";
 import type { ShopifyCatalogProduct } from "../onboarding/types";
+import { compileWefloTheme } from "../shopify/adapters/weflo-native";
+import { buildCapabilityReport } from "../shopify/capability-report";
+import { getSectionDefinition } from "../sections";
 
 export const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION?.trim() || "2026-07";
 
@@ -195,8 +198,19 @@ export function createShopifyPort(): ShopifyPort {
     async publishEditor(input) {
       const document = input.document as EditorDocument;
       const resource = document.kind === "product" ? "product" : document.kind === "collection" ? "collection" : document.kind === "home" ? "home" : "page";
-      const files = compileShopifyPage(document, { resource, replaceGlobalTemplate: input.replaceGlobalTemplate });
-      const suffix = files.find((file) => file.key.startsWith(`templates/${resource}.`))?.key.match(/\.([^/.]+)\.json$/)?.[1] ?? `weflo-${document.modelId ?? "page"}`;
+      const capabilityReport = buildCapabilityReport({
+        capabilities: [
+          ...document.pages.flatMap((page) => page.sections.flatMap((section) => getSectionDefinition(section.type)?.capabilities ?? [])),
+          ...(input.customSections ?? []).flatMap((section) => section.section.spec.requiredCapabilities),
+        ],
+        shopify: { connected: true, hasProductData: true, cartDrawer: true, markets: true, localization: true },
+      });
+      const files = input.strategy === "new_weflo"
+        ? compileWefloTheme(document, input.customSections).map((entry) => compileThemeFile(entry.key, entry.value))
+        : compileShopifyPage(document, { resource, replaceGlobalTemplate: input.replaceGlobalTemplate, capabilityReport, enforceCapabilities: true, customSections: input.customSections });
+      const suffix = input.strategy === "new_weflo"
+        ? ""
+        : files.find((file) => file.key.startsWith(`templates/${resource}.`))?.key.match(/\.([^/.]+)\.json$/)?.[1] ?? `weflo-${document.modelId ?? "page"}`;
       const transport = {
         listThemes: () => port.listThemes!({ shop: input.shop, token: input.token }),
         createTheme: async (name: string) => {
@@ -219,6 +233,7 @@ export function createShopifyPort(): ShopifyPort {
         bindResource: async (_themeId: string, templateSuffix: string) => {
           const binding = bindingForDocument(document, templateSuffix);
           if (!binding.create && binding.resourceId) {
+            if (!templateSuffix) return { resourceId: binding.resourceId };
             await admin(input.shop, input.token, `/${binding.resource}s/${binding.resourceId}.json`, { method: "PUT", body: JSON.stringify({ [binding.resource]: { id: binding.resourceId, template_suffix: templateSuffix } }) });
             return { resourceId: binding.resourceId };
           }
@@ -227,7 +242,10 @@ export function createShopifyPort(): ShopifyPort {
           return { resourceId: page?.id == null ? undefined : String(page.id) };
         },
       };
-      const result = await publishToShopify({ strategy: input.strategy, themeId: input.themeId, files, templateSuffix: suffix, transport, shopDomain: input.shop });
+      // A dry run reads the current file inventory and catches capability/output
+      // blockers before Shopify receives a single write.
+      await planShopifyPublication({ strategy: input.strategy, themeId: input.themeId, files, transport, shopDomain: input.shop, capabilityReport });
+      const result = await publishToShopify({ strategy: input.strategy, themeId: input.themeId, files, templateSuffix: suffix, transport, shopDomain: input.shop, capabilityReport });
       return { themeId: result.themeId, previewUrl: result.previewUrl };
     },
 

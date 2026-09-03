@@ -10,6 +10,14 @@ function requiredDefinition(type:string) {
   return definition;
 }
 
+function variantDefaults(type:string, variantId:string):Record<string,SettingValue> {
+  const definition=requiredDefinition(type) as unknown as Record<string,unknown>;
+  const variants=Array.isArray(definition.variants) ? definition.variants : [];
+  const variant=variants.find((candidate)=>candidate && typeof candidate === "object" && (candidate as Record<string,unknown>).id === variantId) as Record<string,unknown>|undefined;
+  return variant && variant.defaults && typeof variant.defaults === "object" && !Array.isArray(variant.defaults)
+    ? structuredClone(variant.defaults as Record<string,SettingValue>) : {};
+}
+
 function block(id:string, type:string, settings:Record<string,SettingValue>):EditorBlock { return {id,type,settings}; }
 
 function fixtureBlocks(type:string, fixture:SectionPreviewFixture, id:string):EditorBlock[] {
@@ -22,7 +30,7 @@ function fixtureBlocks(type:string, fixture:SectionPreviewFixture, id:string):Ed
 
 function previewSettings(type:string, fixture:SectionPreviewFixture, variantId:string):Record<string,SettingValue> {
   const settings:Record<string,SettingValue> = {
-    ...requiredDefinition(type).defaults, variant:variantId, previewFixtureId:fixture.id, previewOnly:true,
+    ...requiredDefinition(type).defaults, ...variantDefaults(type,variantId), variant:variantId, previewFixtureId:fixture.id, previewOnly:true,
     title:fixture.product.title, heading:fixture.product.title, text:fixture.product.description, body:fixture.product.description,
     subtitle:`La sélection ${fixture.brand.name}`, price:fixture.product.price ?? 0, compare_price:fixture.product.compareAtPrice ?? 0,
     image:fixture.product.images[0], image_alt:fixture.product.title, cta_label:"Ajouter au panier", rating:fixture.product.rating ?? 5, review_count:fixture.product.reviewCount ?? 0,
@@ -32,7 +40,7 @@ function previewSettings(type:string, fixture:SectionPreviewFixture, variantId:s
 
 function makeSection(id:string,type:string,settings:Record<string,SettingValue>,blocks:EditorBlock[]):EditorSection {
   const definition = requiredDefinition(type);
-  return { id, type, name:definition.name, hidden:false, locked:false, settings, style:{}, responsive:{}, blocks };
+  return { id, type, name:definition.name, hidden:false, locked:false, packVersion:1, variantId:typeof settings.variant === "string" ? settings.variant : "default", settings, style:{}, responsive:{}, blocks };
 }
 
 export function sectionFromFixture(type:string,variantId:string,fixtureId:string,sectionId:string):EditorSection {
@@ -61,7 +69,7 @@ export function materializeSectionVariant(input:MaterializeInput):MaterializeRes
   previewManifest(input.sectionType,input.variantId);
   const definition = requiredDefinition(input.sectionType);
   const product = input.document.commerce?.sourceProduct;
-  const settings:Record<string,SettingValue> = {...definition.defaults,variant:input.variantId};
+  const settings:Record<string,SettingValue> = {...definition.defaults,...variantDefaults(input.sectionType,input.variantId),variant:input.variantId};
   const missingFields:string[] = [];
   if (product?.title) { settings.title=product.title; settings.heading=product.title; } else missingFields.push("product.title");
   if (product?.description) { settings.text=product.description; settings.body=product.description; } else missingFields.push("product.description");

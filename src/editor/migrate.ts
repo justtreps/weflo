@@ -9,6 +9,7 @@ import type {
 } from "./document";
 import { isEditorDocument } from "./document";
 import { buildModelDocument } from "../models/model-manifest";
+import { profileFromArtDirection } from "../design/profile";
 
 function slug(value: string): string {
   return value
@@ -60,6 +61,8 @@ function migrateSection(section: Section, index: number): EditorSection {
     style: {},
     responsive: {},
     blocks: legacyBlocks(section),
+    packVersion: 1,
+    variantId: typeof section.settings.variant === "string" ? section.settings.variant : "default",
   };
 }
 
@@ -70,8 +73,17 @@ export function editorKind(type: PageType | EditorPageKind): EditorPageKind {
 }
 
 export function migrateDocument(document: PageDocument | EditorDocument, kind: PageType | EditorPageKind = "landing"): EditorDocument {
-  if (isEditorDocument(document)) return structuredClone(document);
+  if (isEditorDocument(document)) {
+    const migrated = structuredClone(document);
+    for (const page of migrated.pages) for (const section of page.sections) {
+      section.packVersion ??= 1;
+      section.variantId ??= typeof section.settings.variant === "string" ? section.settings.variant : "default";
+    }
+    if (!migrated.designProfile && migrated.commerce?.artDirection) migrated.designProfile = profileFromArtDirection(migrated.commerce.artDirection);
+    return migrated;
+  }
   const pageSlug = slug(document.path === "/" ? document.name : document.path);
+  const legacyDirection = (document as PageDocument & { commerce?: { artDirection?: import("../onboarding/types").ArtDirectionProfile } }).commerce?.artDirection;
   return {
     version: 2,
     name: document.name,
@@ -88,6 +100,7 @@ export function migrateDocument(document: PageDocument | EditorDocument, kind: P
       sections: document.sections.map(migrateSection),
     }],
     assets: [],
+    ...(legacyDirection ? { designProfile: profileFromArtDirection(legacyDirection) } : {}),
   };
 }
 

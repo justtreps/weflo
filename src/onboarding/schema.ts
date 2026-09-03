@@ -1,4 +1,4 @@
-import type { BuildStage, CreateOnboardingDraftInput } from "./types";
+import type { BuildStage, CreateOnboardingDraftInput, OnboardingDraft, StoreBlueprint, WizardState } from "./types";
 
 export const BUILD_STAGE_LABELS = [
   "Analyse des avis",
@@ -24,6 +24,21 @@ export function initialBuildStages(): BuildStage[] {
   return BUILD_STAGE_LABELS.map((label, index) => ({ id: `stage-${index + 1}`, label, state: "waiting" }));
 }
 
+export function initialWizardState(): WizardState {
+  return { currentStep: "source", answers: [], suggestions: {} };
+}
+
+/** Keeps persisted drafts created before the wizard release readable. */
+export function migrateOnboardingDraft(draft: OnboardingDraft): OnboardingDraft {
+  return {
+    ...draft,
+    wizard: draft.wizard && typeof draft.wizard === "object"
+      ? { currentStep: draft.wizard.currentStep ?? "source", answers: Array.isArray(draft.wizard.answers) ? draft.wizard.answers : [], suggestions: draft.wizard.suggestions && typeof draft.wizard.suggestions === "object" ? draft.wizard.suggestions : {} }
+      : initialWizardState(),
+    blueprint: draft.blueprint && typeof draft.blueprint === "object" ? draft.blueprint as StoreBlueprint : null,
+  };
+}
+
 export function createOnboardingDraftInput(input: { claimTokenHash: string; sourceUrl: string }): CreateOnboardingDraftInput {
   return {
     version: 1,
@@ -42,6 +57,8 @@ export function createOnboardingDraftInput(input: { claimTokenHash: string; sour
     angles: [],
     brandKit: null,
     stages: initialBuildStages(),
+    wizard: initialWizardState(),
+    blueprint: null,
     document: null,
     error: null,
     claimedUserId: null,

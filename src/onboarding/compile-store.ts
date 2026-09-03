@@ -5,7 +5,8 @@ import { isProductLedCreationFormat, type CreationFormatId } from "./creation-re
 import { buildProductTruthSheet } from "./product-truth";
 import { buildStoreRecipe } from "./store-recipe";
 import { defaultRecipeForFormat, recipeForTemplate, TEMPLATE_RECIPE_VERSION, type TemplateRecipe } from "./template-recipe";
-import type { BrandKit, BuyerPersona, ImportedProduct, MarketingAngle } from "./types";
+import { validateStoreBlueprint } from "./blueprint";
+import type { BrandKit, BuyerPersona, ImportedProduct, MarketingAngle, StoreBlueprint } from "./types";
 
 type BuildStoreCommonInput = {
   language: string;
@@ -309,4 +310,40 @@ export function buildStoreDocument(rawInput: BuildStoreInput | LegacyProductBuil
     assets: (product?.images ?? []).map((url, index) => ({ id: `source-image-${index + 1}`, type: "image", url, alt: `${product?.title ?? ""} ${index + 1}`.trim() })),
     ...(product && truth && artDirection ? { commerce: { sourceProduct: product, personas: input.personas, angles: input.angles, brandKit: input.brandKit, storefrontLanguage: input.language, productTruth: truth, artDirection, recipeId: selected.id ?? `recipe-${artDirection.id}` } } : {}),
   };
+}
+
+type CompileBlueprintInput = BuildStoreCommonInput & {
+  product: ImportedProduct;
+  answers?: Record<string, string>;
+  templateId?: string | null;
+};
+
+/**
+ * Blueprint fields stay at the onboarding boundary. The editor receives only
+ * its established document shape, assembled from registered section defaults.
+ */
+export function compileBlueprint(blueprint: StoreBlueprint, input: CompileBlueprintInput): EditorDocument {
+  const validation = validateStoreBlueprint(blueprint);
+  if (!validation.ok) throw new Error(validation.errors.join(" "));
+  const firstPage = blueprint.pages[0];
+  if (!firstPage) throw new Error("Le Blueprint ne contient aucune page.");
+  const base = buildStoreDocument({
+    ...input,
+    creationFormat: "store",
+    templateId: input.templateId ?? null,
+    answers: input.answers ?? {},
+  });
+  const pages = blueprint.pages.map((page) => ({
+    id: page.id,
+    name: page.name,
+    slug: page.slug,
+    sections: blueprint.sections.filter((section) => section.pageId === page.id).map((section, index) => makeSection(
+      section.sectionType,
+      index,
+      { ...section.content, variant: section.variantId, purpose: section.purpose, ...Object.fromEntries(Object.entries(section.bindings).map(([key, value]) => [`binding_${key}`, value])) },
+    )),
+  }));
+  // This is structural assignment on purpose: Blueprint is not a shared editor
+  // type and page kind has exactly the existing EditorDocument union.
+  return { ...base, name: blueprint.name, path: `/${firstPage.slug}`, kind: firstPage.kind, pages, designProfile: blueprint.designProfile };
 }

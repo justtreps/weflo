@@ -47,6 +47,7 @@ function nextSection(state: EditorState, type: string): EditorSection {
     name: definition?.name ?? type,
     hidden: false,
     locked: false,
+    ...(definition ? { packVersion: definition.packVersion, variantId: definition.variants?.[0]?.id ?? "default" } : {}),
     settings: definition ? structuredClone(definition.defaults) : { title: "Nouvelle section" },
     style: {}, responsive: {}, blocks: [],
   };
@@ -96,6 +97,15 @@ export function runPanelAction(store: EditorStore, action: PanelAction): void {
 }
 
 export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void {
+  const refreshCatalog = (catalog: HTMLElement) => {
+    const viewport=(catalog.dataset.catalogViewport as "desktop"|"mobile")||"desktop";
+    const family=catalog.dataset.catalogFamily || undefined;
+    const search=catalog.dataset.catalogSearch || undefined;
+    const sort=catalog.dataset.catalogSort as "recommended"|"newest"|"popular"|undefined;
+    const capability=catalog.dataset.catalogCapability || undefined;
+    const grid=catalog.querySelector<HTMLElement>("[data-section-catalog-grid]");
+    if (grid) grid.innerHTML=sectionCatalogMarkup({viewport,query:{family:family as never,search,sort,capability}});
+  };
   const click = (event: Event) => {
     const target = (event.target as HTMLElement).closest<HTMLElement>("[data-editor-panel-button],[data-panel-action],[data-section-preview-open],[data-section-variant-insert],[data-catalog-filter],[data-catalog-viewport]");
     if (!target) return;
@@ -123,11 +133,10 @@ export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void 
     if (target.dataset.catalogFilter !== undefined) {
       const catalog=target.closest<HTMLElement>("[data-section-catalog]");
       if (!catalog) return;
-      const category=target.dataset.catalogFilter || undefined;
-      catalog.dataset.catalogCategory=category??"";
+      const family=target.dataset.catalogFilter || undefined;
+      catalog.dataset.catalogFamily=family??"";
       catalog.querySelectorAll<HTMLElement>("[data-catalog-filter]").forEach((button)=>button.setAttribute("aria-pressed",String(button===target)));
-      const grid=catalog.querySelector<HTMLElement>("[data-section-catalog-grid]");
-      if (grid) grid.innerHTML=sectionCatalogMarkup({category,viewport:(catalog.dataset.catalogViewport as "desktop"|"mobile")||"desktop"});
+      refreshCatalog(catalog);
       return;
     }
     const panel = target.dataset.editorPanelButton as EditorPanel | undefined;
@@ -157,6 +166,16 @@ export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void 
     }
   };
   const change = (event: Event) => {
+    const catalogControl=(event.target as HTMLElement).closest<HTMLInputElement|HTMLSelectElement>("[data-catalog-search],[data-catalog-sort-select],[data-catalog-capability]");
+    if (catalogControl) {
+      const catalog=catalogControl.closest<HTMLElement>("[data-section-catalog]");
+      if (!catalog) return;
+      if (catalogControl.matches("[data-catalog-search]")) catalog.dataset.catalogSearch=catalogControl.value;
+      if (catalogControl.matches("[data-catalog-sort-select]")) catalog.dataset.catalogSort=catalogControl.value;
+      if (catalogControl.matches("[data-catalog-capability]")) catalog.dataset.catalogCapability=catalogControl.value;
+      refreshCatalog(catalog);
+      return;
+    }
     const control = (event.target as HTMLInputElement | HTMLSelectElement).closest<HTMLInputElement | HTMLSelectElement>("[data-theme-key]");
     if (!control) return;
     const state = store.getState();
@@ -171,5 +190,14 @@ export function bindLeftRail(root: HTMLElement, store: EditorStore): () => void 
   };
   root.addEventListener("click", click);
   root.addEventListener("change", change);
-  return () => { root.removeEventListener("click", click); root.removeEventListener("change", change); };
+  const input = (event: Event) => {
+    const control=(event.target as HTMLElement).closest<HTMLInputElement>("[data-catalog-search]");
+    if (!control) return;
+    const catalog=control.closest<HTMLElement>("[data-section-catalog]");
+    if (!catalog) return;
+    catalog.dataset.catalogSearch=control.value;
+    refreshCatalog(catalog);
+  };
+  root.addEventListener("input", input);
+  return () => { root.removeEventListener("click", click); root.removeEventListener("change", change); root.removeEventListener("input", input); };
 }

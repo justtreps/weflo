@@ -13,6 +13,7 @@ type ShopifyTemplate = {
 const SECTION_KEY = /^sections\/weflo-[a-z0-9-]+\.liquid$/;
 const ASSET_KEY = /^assets\/weflo(?:-[a-z0-9-]+)?\.(?:css|js)$/;
 const TEMPLATE_KEY = /^templates\/[a-z0-9-]+\.weflo-[a-z0-9-]+\.json$/;
+const NATIVE_TEMPLATE_KEY = /^templates\/(?:index|product|collection|page)\.json$/;
 
 function parseSchema(value: string): unknown {
   const match = value.match(/{%\s*schema\s*%}([\s\S]*?){%\s*endschema\s*%}/i);
@@ -26,6 +27,7 @@ export function validateThemeOutput(files: CompiledThemeFile[]): ThemeValidation
   const templates: Array<{ key: string; value: ShopifyTemplate }> = [];
 
   if (files.length === 0) errors.push("L’export Shopify ne contient aucun fichier.");
+  const fullTheme = files.some((file) => file.key === "layout/theme.liquid");
 
   for (const file of files) {
     if (keys.has(file.key)) errors.push(`Le fichier ${file.key} apparaît en doublon.`);
@@ -37,11 +39,11 @@ export function validateThemeOutput(files: CompiledThemeFile[]): ThemeValidation
     if (file.key.startsWith("assets/") && !ASSET_KEY.test(file.key)) {
       errors.push(`La ressource ${file.key} n’est pas dans l’espace de noms Weflo.`);
     }
-    if (file.key.startsWith("templates/") && !TEMPLATE_KEY.test(file.key)) {
+    if (file.key.startsWith("templates/") && !TEMPLATE_KEY.test(file.key) && !(fullTheme && NATIVE_TEMPLATE_KEY.test(file.key))) {
       errors.push(`Le modèle ${file.key} n’est pas un modèle Weflo isolé.`);
     }
 
-    if (file.key.endsWith(".liquid")) {
+    if (file.key.startsWith("sections/") && file.key.endsWith(".liquid")) {
       try {
         const schema = parseSchema(file.value) as { presets?: unknown };
         if (!Array.isArray(schema?.presets) || schema.presets.length === 0) {
@@ -53,7 +55,7 @@ export function validateThemeOutput(files: CompiledThemeFile[]): ThemeValidation
       }
     }
 
-    if (file.key.endsWith(".json")) {
+    if (file.key.startsWith("templates/") && file.key.endsWith(".json")) {
       try {
         const value = JSON.parse(file.value) as ShopifyTemplate;
         templates.push({ key: file.key, value });
@@ -64,6 +66,12 @@ export function validateThemeOutput(files: CompiledThemeFile[]): ThemeValidation
       } catch {
         errors.push(`Le JSON du modèle ${file.key} est invalide.`);
       }
+    }
+  }
+
+  if (fullTheme) {
+    for (const required of ["layout/theme.liquid", "config/settings_schema.json", "config/settings_data.json", "locales/fr.default.json", "templates/index.json", "templates/product.json", "templates/collection.json", "templates/page.json"]) {
+      if (!keys.has(required)) errors.push(`Le thème Weflo complet doit contenir ${required}.`);
     }
   }
 

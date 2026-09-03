@@ -1,0 +1,6 @@
+name = "Weflo purchase options"
+type = "theme"
+
+[[extension_points]]
+target = "section"
+module = "blocks/mix-and-match.liquid"

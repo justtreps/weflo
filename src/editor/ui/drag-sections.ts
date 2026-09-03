@@ -1,6 +1,8 @@
 import type { EditorDocument } from "../document";
 
-export function sectionMoveTarget(document: EditorDocument, sectionId: string, direction: -1 | 1): { pageId: string; toIndex: number } | null {
+export type SectionDragTarget = { pageId: string; toIndex: number };
+
+export function sectionMoveTarget(document: EditorDocument, sectionId: string, direction: -1 | 1): SectionDragTarget | null {
   for (const page of document.pages) {
     const index = page.sections.findIndex((section) => section.id === sectionId);
     if (index < 0) continue;
@@ -11,3 +13,23 @@ export function sectionMoveTarget(document: EditorDocument, sectionId: string, d
   return null;
 }
 
+/**
+ * Turns a pointer drop into the immutable command index used by the editor.
+ * `after` is explicit so dropping at the end is not confused with dropping on
+ * the last section itself.
+ */
+export function sectionDropTarget(document: EditorDocument, sectionId: string, targetSectionId: string | null, after = false): SectionDragTarget | null {
+  for (const page of document.pages) {
+    if (!page.sections.some((section) => section.id === sectionId)) continue;
+    if (!targetSectionId) return { pageId: page.id, toIndex: page.sections.length };
+    const targetIndex=page.sections.findIndex((section)=>section.id===targetSectionId);
+    if (targetIndex >= 0) return { pageId:page.id,toIndex:targetIndex+(after ? 1 : 0) };
+  }
+  return null;
+}
+
+export function sectionKeyboardMove(document: EditorDocument, sectionId: string, key: string): SectionDragTarget | null {
+  if (key === "ArrowUp") return sectionMoveTarget(document,sectionId,-1);
+  if (key === "ArrowDown") return sectionMoveTarget(document,sectionId,1);
+  return null;
+}

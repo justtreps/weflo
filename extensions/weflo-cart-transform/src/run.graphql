@@ -1,0 +1,18 @@
+query CartInput {
+  cart {
+    lines {
+      id
+      quantity
+      sellingPlanAllocation { sellingPlan { id } }
+      attributes { key value }
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          product {
+            metafield(namespace: "weflo", key: "bundle_configurations") { value }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import type { CreditLedger, Membership, Page, ReferralAttribution, ShopifyConnection, User, WhopLink, Workspace } from "../types";
 import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
 import type { ImageGeneration } from "../studio/types";
+import type { StoredCustomSection } from "../custom-sections/repository";
 
 export class PageVersionConflictError extends Error {
   constructor() {
@@ -44,4 +45,8 @@ export interface Store {
   claimOnboardingDraft(id: string, claimTokenHash: string, userId: string, pageId: string): Promise<OnboardingDraft>;
   listImageGenerations(workspaceId: string): Promise<ImageGeneration[]>;
   saveImageGeneration(generation: ImageGeneration): Promise<void>;
+  /** Immutable, workspace-scoped Canardo custom-section history. */
+  saveCustomSection(row: StoredCustomSection): Promise<StoredCustomSection>;
+  listCustomSections(workspaceId: string, id?: string): Promise<StoredCustomSection[]>;
+  getCustomSection(workspaceId: string, id: string, version: number): Promise<StoredCustomSection | null>;
 }

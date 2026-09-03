@@ -9,7 +9,9 @@ import type {
   Workspace,
 } from "../types";
 import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
+import { migrateOnboardingDraft } from "../onboarding/schema";
 import type { ImageGeneration } from "../studio/types";
+import type { StoredCustomSection } from "../custom-sections/repository";
 import { PageVersionConflictError, type Store } from "./types";
 
 function randomId(prefix: string): string {
@@ -37,6 +39,7 @@ export class MemoryStore implements Store {
   private users = new Map<string, User>();
   private onboardingDrafts = new Map<string, OnboardingDraft>();
   private imageGenerations = new Map<string, ImageGeneration>();
+  private customSections = new Map<string, StoredCustomSection>();
 
   async createWorkspace(input: { name: string; ownerUserId: string }): Promise<Workspace> {
     const ws: Workspace = {
@@ -84,6 +87,9 @@ export class MemoryStore implements Store {
     this.shopify.delete(id);
     this.whop.delete(id);
     this.attributions.delete(id);
+    for (const [key, row] of [...this.customSections.entries()]) {
+      if (row.workspaceId === id) this.customSections.delete(key);
+    }
     for (const [key, row] of [...this.attributions.entries()]) {
       if (row.referrerWorkspaceId === id) this.attributions.delete(key);
     }
@@ -212,20 +218,20 @@ export class MemoryStore implements Store {
 
   async createOnboardingDraft(input: CreateOnboardingDraftInput): Promise<OnboardingDraft> {
     const now = new Date().toISOString();
-    const draft: OnboardingDraft = { ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now };
+    const draft = migrateOnboardingDraft({ ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now } as OnboardingDraft);
     this.onboardingDrafts.set(draft.id, draft);
     return structuredClone(draft);
   }
 
   async getOnboardingDraft(id: string): Promise<OnboardingDraft | null> {
     const draft = this.onboardingDrafts.get(id);
-    return draft ? structuredClone(draft) : null;
+    return draft ? structuredClone(migrateOnboardingDraft(draft)) : null;
   }
 
   async updateOnboardingDraft(id: string, patch: OnboardingDraftPatch): Promise<OnboardingDraft> {
     const draft = this.onboardingDrafts.get(id);
     if (!draft) throw new Error("onboarding draft not found");
-    const updated = { ...draft, ...structuredClone(patch), updatedAt: new Date().toISOString() };
+    const updated = migrateOnboardingDraft({ ...draft, ...structuredClone(patch), updatedAt: new Date().toISOString() });
     this.onboardingDrafts.set(id, updated);
     return structuredClone(updated);
   }
@@ -244,5 +250,29 @@ export class MemoryStore implements Store {
 
   async saveImageGeneration(generation: ImageGeneration): Promise<void> {
     this.imageGenerations.set(generation.id, structuredClone(generation));
+  }
+
+  private customSectionKey(workspaceId: string, id: string, version: number): string {
+    return `${workspaceId}:${id}:${version}`;
+  }
+
+  async saveCustomSection(row: StoredCustomSection): Promise<StoredCustomSection> {
+    const copy = structuredClone(row);
+    const key = this.customSectionKey(copy.workspaceId, copy.id, copy.version);
+    if (this.customSections.has(key)) throw new Error("custom section version already exists");
+    this.customSections.set(key, copy);
+    return structuredClone(copy);
+  }
+
+  async listCustomSections(workspaceId: string, id?: string): Promise<StoredCustomSection[]> {
+    return [...this.customSections.values()]
+      .filter((row) => row.workspaceId === workspaceId && (!id || row.id === id))
+      .sort((a, b) => b.version - a.version || b.createdAt.localeCompare(a.createdAt))
+      .map((row) => structuredClone(row));
+  }
+
+  async getCustomSection(workspaceId: string, id: string, version: number): Promise<StoredCustomSection | null> {
+    const row = this.customSections.get(this.customSectionKey(workspaceId, id, version));
+    return row ? structuredClone(row) : null;
   }
 }

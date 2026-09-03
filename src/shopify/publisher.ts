@@ -1,8 +1,11 @@
 import type { CompiledThemeFile } from "./compiler";
-import type { PublicationStrategy } from "./publication-plan";
+import type { PublicationStrategy, RemoteThemeFile } from "./publication-plan";
 import type { PublicationRecord } from "./publication-record";
 import type { ShopifyTheme } from "./themes";
 import { validateThemeOutput } from "./validate-theme-output";
+import { createPublicationPlan, type ShopifyPublicationPlan } from "./publication-plan";
+import { assertPublishCapabilities, type ShopifyCapabilityReport } from "./capability-report";
+import { createHash } from "node:crypto";
 
 export type ShopifyThemeTransport = {
   listThemes(): Promise<ShopifyTheme[]>;
@@ -14,9 +17,40 @@ export type ShopifyThemeTransport = {
   bindResource(themeId: string, templateSuffix: string): Promise<{ resourceId?: string; previousTemplateSuffix?: string | null }>;
 };
 
-export type PublishToShopifyInput = { strategy: PublicationStrategy; themeId?: string; files: CompiledThemeFile[]; templateSuffix: string; transport: ShopifyThemeTransport; shopDomain?: string };
+export type PublishToShopifyInput = { strategy: PublicationStrategy; themeId?: string; files: CompiledThemeFile[]; templateSuffix: string; transport: ShopifyThemeTransport; shopDomain?: string; capabilityReport?: ShopifyCapabilityReport };
+export type ShopifyPublicationDryRun = { plan: ShopifyPublicationPlan; blockers: string[] };
+
+const checksum = (value: string | null) => value === null ? undefined : createHash("sha256").update(value).digest("hex");
+
+/** Read-only dry run. It does not create, duplicate, write, activate, or bind a theme. */
+export async function planShopifyPublication(input: Omit<PublishToShopifyInput, "templateSuffix">): Promise<ShopifyPublicationDryRun> {
+  if (input.capabilityReport) assertPublishCapabilities(input.capabilityReport);
+  const validation = validateThemeOutput(input.files);
+  if (!validation.ok) throw new Error(`Export Shopify invalide : ${validation.errors.join(" ")}`);
+  const themes = await input.transport.listThemes();
+  const active = themes.find((theme) => theme.role === "main");
+  const sourceId = input.strategy === "new_weflo" ? undefined : input.themeId ?? active?.id;
+  const inspected = sourceId ? await Promise.all(input.files.map(async (file) => {
+    const value = await input.transport.readFile(sourceId, file.key);
+    return value === null ? null : { key: file.key, value, checksum: checksum(value) ?? "" };
+  })) : [];
+  const remoteFiles = inspected.filter((file): file is RemoteThemeFile => file !== null);
+  const plan = createPublicationPlan({ strategy: input.strategy, themeId: input.themeId, themes, compiledFiles: input.files, remoteFiles, capabilityReport: input.capabilityReport });
+  return { plan, blockers: input.capabilityReport?.blockers ?? [] };
+}
+
+export async function rollbackPublication(record: PublicationRecord, transport: Pick<ShopifyThemeTransport, "writeFile" | "deleteFile">): Promise<PublicationRecord> {
+  for (const backup of [...record.backups].reverse()) {
+    if (backup.value === null) await transport.deleteFile(record.themeId, backup.key);
+    else await transport.writeFile(record.themeId, backup.key, backup.value);
+    record.results.push({ key: backup.key, status: "restored" });
+  }
+  record.status = "rolled_back";
+  return record;
+}
 
 export async function publishToShopify(input: PublishToShopifyInput): Promise<{ themeId: string; previewUrl: string; record: PublicationRecord }> {
+  if (input.capabilityReport) assertPublishCapabilities(input.capabilityReport);
   const validation = validateThemeOutput(input.files);
   if (!validation.ok) throw new Error(`Export Shopify invalide : ${validation.errors.join(" ")}`);
   const themes = await input.transport.listThemes();
@@ -32,7 +66,7 @@ export async function publishToShopify(input: PublishToShopifyInput): Promise<{ 
   try {
     for (const file of input.files) {
       const previous = await input.transport.readFile(theme.id, file.key);
-      record.backups.push({ key: file.key, value: previous });
+      record.backups.push({ key: file.key, value: previous, checksum: checksum(previous) });
       if (previous === file.value) { record.results.push({ key: file.key, status: "unchanged" }); continue; }
       await input.transport.writeFile(theme.id, file.key, file.value);
       written.push({ key: file.key, value: previous });
@@ -44,10 +78,7 @@ export async function publishToShopify(input: PublishToShopifyInput): Promise<{ 
     record.status = "completed"; record.previewUrl = previewUrl;
     return { themeId: theme.id, previewUrl, record };
   } catch (error) {
-    for (const backup of written.reverse()) {
-      if (backup.value === null) await input.transport.deleteFile(theme.id, backup.key).catch(() => {});
-      else await input.transport.writeFile(theme.id, backup.key, backup.value).catch(() => {});
-    }
+    await rollbackPublication({ ...record, backups: written.map((backup) => ({ ...backup, checksum: checksum(backup.value) })) }, input.transport).catch(() => {});
     record.status = "rolled_back";
     throw error;
   }

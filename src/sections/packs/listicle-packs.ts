@@ -1,0 +1,8 @@
+import { premiumPack } from "./pack-factory";
+
+export const listiclePacks = [
+  premiumPack({ type: "listicleIndex", name: "Index listicle", category: "content", family: "listicle", tags: ["listicle", "sommaire", "lecture"], variants: [["numbered", "Numéroté", "Sommaire linéaire et numéroté."], ["cards", "Cartes", "Sommaire visuel sous forme de cartes."], ["rail", "Rail", "Index latéral pour une lecture longue."]] }),
+  premiumPack({ type: "numberedReason", name: "Raison numérotée", category: "content", family: "listicle", tags: ["listicle", "raison", "argument"], variants: [["editorial", "Éditorial", "Grand numéro et texte respirant."], ["proof", "Avec preuve", "Argument soutenu par un détail de preuve."], ["media", "Avec média", "Argument alterné avec un visuel."]] }),
+  premiumPack({ type: "comparisonInsert", name: "Insertion comparative", category: "content", family: "listicle", tags: ["listicle", "comparaison"], variants: [["quick-table", "Table rapide", "Tableau concis inséré entre deux raisons."], ["versus", "Face-à-face", "Comparaison binaire plus narrative."], ["scorecard", "Scorecard", "Critères notés dans une carte."]] }),
+  premiumPack({ type: "productRecommendation", name: "Recommandation produit", category: "commerce", family: "listicle", tags: ["produit", "recommandation", "listicle"], capabilities: ["product-form", "recommendations"], layout: "product", variants: [["editor-choice", "Choix de la rédaction", "Produit recommandé avec justification éditoriale."], ["best-for", "Le meilleur pour", "Recommandation segmentée selon le besoin."], ["shortlist", "Sélection courte", "Plusieurs choix hiérarchisés."]] }),
+];

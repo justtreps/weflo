@@ -1,11 +1,14 @@
 import { applyCommand, type EditorCommand } from "../editor/commands";
 import type { EditorDocument, EditorSection } from "../editor/document";
 import { validateEditorDocument } from "../editor/schema";
-import { validateCustomCode } from "../editor/custom-code-policy";
 import { getSectionDefinition } from "../sections/index";
 import type { CanardoResponse, CanardoValidationResult } from "./protocol";
+import { compileCustomWeb } from "./custom-compile-web";
+import { compileCustomLiquid } from "./custom-compile-liquid";
+import { customSectionChecksum } from "./custom-planner";
+import { validateCustomSectionSpec } from "./custom-validate";
 
-const RESPONSE_KEYS = new Set(["message", "summary", "commands"]);
+const RESPONSE_KEYS = new Set(["message", "summary", "commands", "requiresConfirmation", "operations"]);
 const COMMAND_KEYS: Record<string, Set<string>> = {
   insertSection: new Set(["type", "pageId", "index", "section"]), moveSection: new Set(["type", "sectionId", "toPageId", "toIndex"]),
   updateSetting: new Set(["type", "sectionId", "key", "value"]), updateStyle: new Set(["type", "sectionId", "key", "value"]),
@@ -20,8 +23,19 @@ function validateInsertedSection(section: unknown, errors: string[]): void {
   if (!object(section) || typeof section.type !== "string" || !getSectionDefinition(section.type)) { errors.push("Type de section inconnu."); return; }
   if (section.type === "customCode") {
     const settings = object(section.settings) ? section.settings : {};
-    const result = validateCustomCode({ html: String(settings.html ?? ""), css: String(settings.css ?? ""), js: String(settings.js ?? ""), allowedDomains: [], namespace: String(section.id ?? "custom") });
-    errors.push(...result.errors);
+    const rawSpec = typeof settings.custom_spec === "string" ? settings.custom_spec : null;
+    const checksum = typeof settings.custom_checksum === "string" ? settings.custom_checksum : null;
+    if (rawSpec) {
+      try {
+        const spec = validateCustomSectionSpec(JSON.parse(rawSpec));
+        if (!spec.ok || checksum !== customSectionChecksum(spec.value)) { errors.push("Section sur mesure non vérifiée."); return; }
+        const html = compileCustomWeb({ spec: spec.value, designProfile: document.designProfile });
+        const liquid = compileCustomLiquid({ spec: spec.value, designProfile: document.designProfile });
+        if (settings.html !== html || settings.css !== "" || settings.js !== "" || !liquid.includes("{% schema %}")) errors.push("Compilation de section sur mesure incohérente.");
+      } catch { errors.push("Spécification de section sur mesure invalide."); }
+      return;
+    }
+    errors.push("Les sections Canardo sur mesure doivent utiliser la spécification déclarative vérifiée.");
   }
 }
 
@@ -31,6 +45,8 @@ export function validateCanardoResponse(value: unknown, document: EditorDocument
   if (Object.keys(value).some((key) => !RESPONSE_KEYS.has(key))) errors.push("Propriété inattendue dans la réponse.");
   if (typeof value.message !== "string" || typeof value.summary !== "string") errors.push("Message et résumé obligatoires.");
   if (!Array.isArray(value.commands)) errors.push("La liste de commandes est obligatoire.");
+  if (value.requiresConfirmation !== undefined && typeof value.requiresConfirmation !== "boolean") errors.push("Confirmation invalide.");
+  if (value.operations !== undefined && (!Array.isArray(value.operations) || JSON.stringify(value.operations) !== JSON.stringify(value.commands))) errors.push("Les opérations de composition sont incohérentes.");
   else if (value.commands.length > 30) errors.push("Canardo est limité à 30 opérations.");
 
   let next = structuredClone(document);

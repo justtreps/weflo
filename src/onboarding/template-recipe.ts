@@ -1,4 +1,7 @@
 import type { CreationFormatId } from "./creation-recipe";
+import "../sections/index";
+import { listSectionPacks } from "../sections/registry";
+import type { SectionFamily } from "../sections/types";
 
 export const TEMPLATE_RECIPE_VERSION = 1;
 
@@ -42,8 +45,8 @@ export const TEMPLATE_RECIPES: TemplateRecipe[] = [
   },
   {
     id: "landing-direct-response", format: "landing",
-    sections: ["announcement", "navigation", "hero", "benefits", "comparison", "faq", "form", "cta", "footer"],
-    variants: { hero: "direct-response", benefits: "icon-grid", comparison: "feature-led", form: "lead-capture", cta: "repeated" },
+    sections: ["announcement", "navigation", "hero", "benefits", "comparison", "faq", "form", "conversionClose", "cta", "footer"],
+    variants: { hero: "direct-response", benefits: "icon-grid", comparison: "feature-led", form: "lead-capture", conversionClose: "offer-stack", cta: "repeated" },
   },
   {
     id: "landing-editorial-premium", format: "landing",
@@ -57,8 +60,8 @@ export const TEMPLATE_RECIPES: TemplateRecipe[] = [
   },
   {
     id: "advertorial-journal", format: "advertorial",
-    sections: ["navigation", "hero", "press", "richText", "imageText", "comparison", "faq", "cta", "footer"],
-    variants: { hero: "editorial", press: "inline", richText: "journal", imageText: "story" },
+    sections: ["navigation", "advertorialMasthead", "authorLine", "hero", "press", "editorialBody", "richText", "evidenceCallout", "inlineProduct", "imageText", "comparison", "faq", "conversionClose", "cta", "footer"],
+    variants: { advertorialMasthead: "journal", authorLine: "byline", hero: "editorial", press: "inline", editorialBody: "longform", richText: "journal", evidenceCallout: "citation", inlineProduct: "compact", imageText: "story", conversionClose: "final-cta" },
   },
   {
     id: "advertorial-founder-story", format: "advertorial",
@@ -72,8 +75,8 @@ export const TEMPLATE_RECIPES: TemplateRecipe[] = [
   },
   {
     id: "quiz-diagnostic", format: "quiz",
-    sections: ["navigation", "hero", "benefits", "quiz", "form", "faq", "cta", "footer"],
-    variants: { hero: "diagnostic", quiz: "diagnostic", form: "stepper", benefits: "icon-grid" },
+    sections: ["navigation", "hero", "quizProgress", "quizQuestion", "benefits", "quiz", "quizResult", "productRecommendation", "leadCapture", "form", "faq", "cta", "footer"],
+    variants: { hero: "diagnostic", quizProgress: "steps", quizQuestion: "single-choice", quiz: "diagnostic", quizResult: "profile", productRecommendation: "best-for", leadCapture: "consent", form: "stepper", benefits: "icon-grid" },
   },
   {
     id: "quiz-routine", format: "quiz",
@@ -102,8 +105,8 @@ export const TEMPLATE_RECIPES: TemplateRecipe[] = [
   },
   {
     id: "blog-magazine", format: "blog",
-    sections: ["navigation", "hero", "richText", "imageText", "press", "newsletter", "footer"],
-    variants: { hero: "magazine", richText: "longform", imageText: "editorial", press: "inline" },
+    sections: ["navigation", "hero", "listicleIndex", "numberedReason", "richText", "comparisonInsert", "imageText", "productRecommendation", "press", "newsletter", "footer"],
+    variants: { hero: "magazine", listicleIndex: "numbered", numberedReason: "editorial", richText: "longform", comparisonInsert: "quick-table", imageText: "editorial", productRecommendation: "editor-choice", press: "inline" },
   },
   {
     id: "blog-guide", format: "blog",
@@ -129,4 +132,21 @@ export function defaultRecipeForFormat(format: Exclude<CreationFormatId, "blank"
   const recipe = TEMPLATE_RECIPES.find((candidate) => candidate.format === format);
   if (!recipe) throw new Error(`No template recipe registered for ${format}`);
   return recipe;
+}
+
+/** Registry-driven helper used by page-format catalogues and recipe validation. */
+export function packTypesFor(family: SectionFamily): string[] {
+  return listSectionPacks().filter((pack) => pack.families.includes(family)).map((pack) => pack.type);
+}
+
+const FORMAT_REQUIRED_TYPES: Record<"advertorial" | "listicle" | "quiz" | "landing", string[]> = {
+  advertorial: ["advertorialMasthead", "editorialBody", "evidenceCallout", "inlineProduct", "conversionClose"],
+  listicle: ["listicleIndex", "numberedReason", "comparisonInsert", "productRecommendation"],
+  quiz: ["quizProgress", "quizQuestion", "quizResult", "productRecommendation", "leadCapture"],
+  landing: ["conversionClose"],
+};
+
+export function validateRecipe(format: keyof typeof FORMAT_REQUIRED_TYPES): { missing: string[] } {
+  const available = new Set(listSectionPacks().map((pack) => pack.type));
+  return { missing: FORMAT_REQUIRED_TYPES[format].filter((type) => !available.has(type)) };
 }

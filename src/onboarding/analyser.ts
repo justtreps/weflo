@@ -1,4 +1,4 @@
-import type { ArtDirectionProfile, BuyerPersona, ImportedProduct, MarketingAngle, ProductTruthSheet } from "./types";
+import type { ArtDirectionProfile, BuyerPersona, ImportedProduct, MarketingAngle, ProductTruthSheet, WizardAnswer, WizardStepId } from "./types";
 import { buildProductTruthSheet } from "./product-truth";
 import { artDirectionById, selectArtDirection } from "./art-direction";
 
@@ -7,6 +7,7 @@ export type ImageOnboardingAnalysis = { product: ImportedProduct; analysis: Onbo
 export type OnboardingAiPort = {
   analyse(input: { product: ImportedProduct; language: string }): Promise<OnboardingAnalysis>;
   analyseImage?(input: { imageDataUrl: string; fileName: string; language: string }): Promise<ImageOnboardingAnalysis>;
+  suggestWizard?(input: { stepId: WizardStepId; truth: ProductTruthSheet; answers: WizardAnswer[]; language: string }): Promise<unknown>;
 };
 
 function clean(value: unknown, max = 180): string { return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : ""; }

@@ -19,8 +19,13 @@ import { recipeForTemplate } from "../onboarding/template-recipe";
 import { buildCanardoContext } from "../canardo/context";
 import { planCanardoLocally } from "../canardo/local-planner";
 import { applyCanardoOperations } from "../canardo/apply";
+import { confirmCustomProposal } from "../canardo/apply";
 import { validateCanardoResponse } from "../canardo/validate";
-import type { CanardoResponse } from "../canardo/protocol";
+import type { CanardoCustomProposal, CanardoResponse } from "../canardo/protocol";
+import { CUSTOM_SECTION_JSON_SCHEMA, customSectionNeeded, planCustomSection } from "../canardo/custom-planner";
+import { buildCapabilityReport } from "../shopify/capability-report";
+import { StoreCustomSectionRepository } from "../custom-sections/repository";
+import { CustomSectionService, type CustomSectionPublication } from "../custom-sections/service";
 
 const PAGE_TYPES: PageType[] = ["sell", "write", "blank"];
 const PAGE_STATUSES: PageStatus[] = ["draft", "published_hosted", "published_shopify"];
@@ -28,6 +33,32 @@ const INVALID_STORED_DOCUMENT = {
   error: "invalid_stored_document",
   message: "Le contenu de cette page est invalide et ne peut pas être ouvert.",
 } as const;
+
+function customSectionService(store: Store): CustomSectionService {
+  return new CustomSectionService(new StoreCustomSectionRepository(store));
+}
+
+async function customPublicationsForDocument(
+  store: Store,
+  workspaceId: string,
+  document: EditorDocument,
+): Promise<CustomSectionPublication[]> {
+  const service = customSectionService(store);
+  const publications = new Map<string, CustomSectionPublication>();
+  for (const section of document.pages.flatMap((page) => page.sections)) {
+    if (section.type !== "customCode" || typeof section.settings.custom_spec !== "string") continue;
+    const id = section.settings.custom_section_id;
+    const version = section.settings.custom_section_version;
+    const checksum = section.settings.custom_checksum;
+    if (typeof id !== "string" || typeof version !== "number" || !Number.isInteger(version) || version < 1 || typeof checksum !== "string") {
+      throw new Error("La section Canardo doit être enregistrée avant publication.");
+    }
+    const publication = await service.compileForPublication({ workspaceId, id, version });
+    if (publication.section.checksum !== checksum) throw new Error("La version enregistrée de la section Canardo ne correspond plus.");
+    publications.set(`${id}:${version}`, publication);
+  }
+  return [...publications.values()];
+}
 
 export async function requireUser(deps: AppDeps, req: Request): Promise<User | null> {
   return deps.session(req);
@@ -311,7 +342,12 @@ export function pagesRoutes(deps: AppDeps) {
     if (connection?.status === "connected" && deps.shopify?.listThemes) {
       try { themes = await deps.shopify.listThemes({ shop: connection.shopDomain, token: resolveShopifyToken(connection.tokenEncrypted, deps.encryptionKey) }); } catch { themes = []; }
     }
-    return c.json({ pro: access.allowed, documentVersion: loaded.page.documentVersion, shopify: { connected: connection?.status === "connected", shopDomain: connection?.shopDomain ?? null, themes } });
+    const document = editorDocumentFromStored(loaded.page.document, loaded.page.type);
+    const capabilityReport = document ? buildCapabilityReport({
+      sections: document.pages.flatMap((page) => page.sections),
+      shopify: { connected: connection?.status === "connected", hasProductData: connection?.status === "connected", markets: connection?.status === "connected", localization: connection?.status === "connected" },
+    }) : undefined;
+    return c.json({ pro: access.allowed, documentVersion: loaded.page.documentVersion, capabilityReport, shopify: { connected: connection?.status === "connected", shopDomain: connection?.shopDomain ?? null, themes } });
   });
 
   app.post("/pages/:id/publish", async (c) => {
@@ -343,6 +379,25 @@ export function pagesRoutes(deps: AppDeps) {
     if (destination !== "shopify" || !shopify || shopify.status !== "connected") return c.json({ error: "shopify_required", message: "Connecte Shopify avant de publier." }, 409);
     const updated = loaded.page;
     const previewUrl = `/s/${workspace.slug}/${updated.slug}`;
+    const editorDocument = isEditorDocument(updated.document) ? updated.document : null;
+    let customSections: CustomSectionPublication[] = [];
+    if (editorDocument) {
+      try {
+        customSections = await customPublicationsForDocument(deps.store, workspace.id, editorDocument);
+      } catch (error) {
+        return c.json({ error: "custom_section_unavailable", message: error instanceof Error ? error.message : "La section Canardo ne peut pas être publiée." }, 409);
+      }
+    }
+    const capabilityReport = editorDocument ? buildCapabilityReport({
+      sections: editorDocument.pages.flatMap((page) => page.sections),
+      shopify: { connected: true, hasProductData: true, markets: true, localization: true },
+    }) : undefined;
+    const customCapabilityReport = customSections.length ? buildCapabilityReport({
+      capabilities: customSections.flatMap((section) => section.section.spec.requiredCapabilities),
+      shopify: { connected: true, hasProductData: true, markets: true, localization: true },
+    }) : undefined;
+    const capabilityBlockers = [...(capabilityReport?.blockers ?? []), ...(customCapabilityReport?.blockers ?? [])];
+    if (capabilityBlockers.length) return c.json({ error: "shopify_capability_setup_required", message: capabilityBlockers.join(" "), capabilityReport: { ...capabilityReport, blockers: capabilityBlockers } }, 409);
     if (!deps.shopify) {
       return c.json({
         status: "draft",
@@ -353,10 +408,10 @@ export function pagesRoutes(deps: AppDeps) {
     }
 
     const token = resolveShopifyToken(shopify.tokenEncrypted, deps.encryptionKey);
-    if (isEditorDocument(updated.document)) {
+    if (editorDocument) {
       if (!deps.shopify.publishEditor) return c.json({ error: "editor_publish_unavailable", status: "draft", previewUrl }, 503);
       try {
-        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: updated.document, pageName: updated.name, strategy, ...(typeof body.themeId === "string" ? { themeId: body.themeId } : {}), replaceGlobalTemplate: body.replaceGlobalTemplate === true });
+        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: editorDocument, pageName: updated.name, strategy, ...(typeof body.themeId === "string" ? { themeId: body.themeId } : {}), replaceGlobalTemplate: body.replaceGlobalTemplate === true, customSections });
         const published = await deps.store.updatePage(loaded.page.id, { status: "published_shopify" });
         return c.json({ status: published.status, shopify: "published", previewUrl, shopifyPreviewUrl: result.previewUrl, themeId: result.themeId, message: "Page publiée dans le thème Shopify choisi." });
       } catch {
@@ -409,12 +464,46 @@ export function pagesRoutes(deps: AppDeps) {
       let proposal: unknown = body.confirm === true && body.response ? body.response : null;
       if (!proposal) {
         try {
-          proposal = deps.llm?.completeEditor
-            ? await deps.llm.completeEditor({ prompt, context: buildCanardoContext(editorDocument, selectedId, { connected: false }) })
+          const generated = deps.llm?.completeEditor
+            ? await deps.llm.completeEditor({ prompt, context: { ...buildCanardoContext(editorDocument, selectedId, { connected: false }), customSectionSchema: CUSTOM_SECTION_JSON_SCHEMA } })
             : planCanardoLocally(prompt, editorDocument, selectedId);
-        } catch {
+          const context = buildCanardoContext(editorDocument, selectedId, { connected: false });
+          const catalog = (context.catalog ?? []).map((item) => ({ type: item.type, purpose: item.purpose, title: item.title }));
+          if (customSectionNeeded(prompt, catalog)) {
+            const plannerContext = { document: editorDocument, selectedId, catalog, shopify: { connected: false, hasProductData: false } } as const;
+            proposal = record(generated) && generated.mode === "custom-section"
+              ? await planCustomSection(prompt, plannerContext, async () => generated.spec)
+              : await planCustomSection(prompt, plannerContext);
+          } else proposal = generated;
+        } catch (error) {
+          if (error instanceof Error && error.message.startsWith("proposition non sécurisée")) return c.json({ error: "invalid_operations", message: "La proposition Canardo n’est pas sûre." }, 400);
           return c.json({ error: "generation", message: "Canardo n’a pas pu terminer la génération. Ta page est conservée." }, 502);
         }
+      }
+      if (record(proposal) && proposal.mode === "custom-section") {
+        const custom = proposal as CanardoCustomProposal;
+        if (body.confirm !== true) return c.json(custom);
+        let confirmed: CanardoResponse;
+        try {
+          const stored = await customSectionService(deps.store).save({
+            workspaceId: loaded.page.workspaceId,
+            spec: custom.spec,
+            checksum: custom.checksum,
+            validation: custom.validation,
+            authorUserId: user.id,
+          });
+          confirmed = confirmCustomProposal(custom, editorDocument, selectedId, stored);
+        }
+        catch (error) { return c.json({ error: "invalid_operations", message: error instanceof Error ? error.message : "La proposition Canardo n’est pas sûre." }, 400); }
+        const customValidation = validateCanardoResponse(confirmed, editorDocument);
+        if (!customValidation.ok) return c.json({ error: "invalid_operations", message: "La proposition Canardo n’est pas sûre.", details: customValidation.errors }, 400);
+        const applied = applyCanardoOperations(editorDocument, confirmed);
+        const cost = /\b(image|photo|visuel)\b/i.test(prompt) ? 3 : 1;
+        let nextLedger;
+        try { nextLedger = spendCredits(ledger, cost); } catch { return c.json({ error: "credits", cta: "Ajouter des crédits" }, 402); }
+        const page = await deps.store.updatePage(loaded.page.id, { document: applied.document });
+        await deps.store.saveCredits(nextLedger);
+        return c.json({ ...confirmed, document: page.document, credits: nextLedger, requiresConfirmation: false });
       }
       const validation = validateCanardoResponse(proposal, editorDocument);
       if (!validation.ok) return c.json({ error: "invalid_operations", message: "La proposition Canardo n’est pas sûre.", details: validation.errors }, 400);

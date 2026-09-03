@@ -1,5 +1,7 @@
 import type { EditorDocument, EditorSection } from "../editor/document";
 import { getSectionDefinition } from "../sections/index";
+import { querySectionCatalog, type SectionCatalogItem } from "../section-preview/manifests";
+import { materializeSectionVariant } from "../section-preview/materialize";
 import type { CanardoResponse } from "./protocol";
 
 function uniqueId(document: EditorDocument, type: string): string {
@@ -9,25 +11,63 @@ function uniqueId(document: EditorDocument, type: string): string {
   return `${type}-${index}`;
 }
 
-function customSection(document: EditorDocument, kind: "accordion" | "calculator"): EditorSection {
-  const id = uniqueId(document, "customCode");
-  const html = kind === "accordion"
-    ? '<div class="accordion"><button type="button" aria-expanded="false">Afficher les détails</button><div hidden>Ajoute ici ton contenu.</div></div>'
-    : '<div class="calculator"><label>Quantité <input type="number" min="1" value="1"></label><output>29 €</output></div>';
-  const css = `[data-wf-custom-id="${id}"] .${kind === "accordion" ? "accordion" : "calculator"}{padding:24px;border:1px solid #ddd;border-radius:16px}`;
-  const js = kind === "accordion"
-    ? 'const button=document.querySelector("button");const panel=document.querySelector("[hidden]");button.addEventListener("click",()=>{const open=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!open));panel.hidden=open})'
-    : 'const input=document.querySelector("input");const output=document.querySelector("output");input.addEventListener("input",()=>{output.textContent=(Math.max(1,Number(input.value))*29)+" €"})';
-  return { id, type: "customCode", name: kind === "accordion" ? "Accordéon sur mesure" : "Calculateur sur mesure", hidden: false, locked: false, settings: { html, css, js }, style: {}, responsive: {}, blocks: [] };
+type CatalogIntent = { family?: string; search?: string; quantity?: number };
+
+function catalogIntent(prompt:string):CatalogIntent[] {
+  const lower=prompt.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+  const intents:CatalogIntent[]=[];
+  if (/bundle|pack|lot|multipack/.test(lower)) intents.push({family:"bundles-offers",search:"bundle"});
+  if (/quantite|palier|duo|trio/.test(lower)) intents.push({family:"bundles-offers",search:"quantité"});
+  if (/avis|temoignage|ugc|review/.test(lower)) intents.push({family:"reviews-ugc",search:"avis"});
+  if (/faq|question|objection/.test(lower)) intents.push({family:"faq-trust",search:"faq"});
+  if (/compar/.test(lower)) intents.push({family:"comparison",search:"comparaison"});
+  if (/avant.*apres|resultat/.test(lower)) intents.push({family:"before-after"});
+  if (/galerie|video|demonstration|photo/.test(lower)) intents.push({family:"demo-media"});
+  if (/benefice|avantage|caracteristique/.test(lower)) intents.push({family:"benefits"});
+  if (/produit|buy.?box|achat/.test(lower)) intents.push({family:"product-purchase"});
+  return intents;
+}
+
+function chooseCatalogVariant(intent:CatalogIntent):SectionCatalogItem|undefined {
+  const byFamily=querySectionCatalog({family:intent.family as never,search:intent.search});
+  return byFamily[0] ?? querySectionCatalog({family:intent.family as never})[0];
+}
+
+/**
+ * Composes only registered packs, then materializes them against the current
+ * document. Preview fixtures never cross this boundary.
+ */
+export function proposeCatalogComposition(prompt:string, context:EditorDocument | {document:EditorDocument; selectedId?:string|null}, selectedId:string|null = null):CanardoResponse {
+  const document="pages" in context ? context : context.document;
+  const selection="pages" in context ? selectedId : context.selectedId ?? selectedId;
+  const page=document.pages.find((item)=>item.sections.some((section)=>section.id===selection)) ?? document.pages[0];
+  const intents=catalogIntent(prompt);
+  const seen=new Set<string>();
+  const reserved=new Set(document.pages.flatMap((candidate)=>candidate.sections.map((section)=>section.id)));
+  const commands:CanardoResponse["commands"]=[];
+  let index=Math.max(0,page.sections.findIndex((section)=>section.id===selection)+1);
+  if (index === 0 && selection) index=page.sections.length;
+  for (const intent of intents) {
+    const variant=chooseCatalogVariant(intent);
+    if (!variant || seen.has(`${variant.sectionType}:${variant.variantId}`)) continue;
+    seen.add(`${variant.sectionType}:${variant.variantId}`);
+    let ordinal=1, sectionId=`${variant.sectionType}-${ordinal}`;
+    while (reserved.has(sectionId)) sectionId=`${variant.sectionType}-${++ordinal}`;
+    reserved.add(sectionId);
+    const section=materializeSectionVariant({document,sectionType:variant.sectionType,variantId:variant.variantId,sectionId}).section;
+    commands.push({type:"insertSection",pageId:page.id,index:index++,section});
+  }
+  if (!commands.length) return {message:"Je n’ai pas trouvé de composition enregistrée pour cette demande.",summary:"Aucune section ajoutée",commands:[],operations:[],requiresConfirmation:true};
+  const names=commands.map((command)=>command.type === "insertSection" ? command.section.name : "section");
+  return {message:"J’ai préparé une composition à partir du catalogue premium. Vérifie les prérequis Shopify avant de confirmer.",summary:`Ajouter : ${names.join(" · ")}`,commands,operations:commands,requiresConfirmation:true};
 }
 
 export function planCanardoLocally(prompt: string, document: EditorDocument, selectedId: string | null): CanardoResponse {
   const page = document.pages.find((item) => item.sections.some((section) => section.id === selectedId)) ?? document.pages[0];
   const lower = prompt.toLowerCase();
-  if (/accord[ée]on/.test(lower) || /calculat(?:eur|rice)/.test(lower)) {
-    const kind = /accord[ée]on/.test(lower) ? "accordion" : "calculator";
-    const section = customSection(document, kind);
-    return { message: "J’ai préparé une section interactive isolée.", summary: `Ajouter : ${section.name}`, commands: [{ type: "insertSection", pageId: page.id, index: page.sections.length, section }] };
+  if (/ajout|cr[ée][ée]|nouvelle section|ins[èe]re/.test(lower)) {
+    const composition=proposeCatalogComposition(prompt,document,selectedId);
+    if (composition.commands.length) return composition;
   }
   const typeAliases: Array<[RegExp, string]> = [[/t[ée]moignage|avis/, "testimonials"], [/faq|question/, "faq"], [/bundle|pack/, "bundle"], [/compar/, "comparison"], [/galerie|photos?/, "gallery"], [/quiz/, "quiz"], [/newsletter|email/, "newsletter"], [/b[ée]n[ée]fice|avantage/, "benefits"], [/produit/, "productMain"], [/appel .? l.action|cta/, "cta"]];
   if (/ajout|cr[ée][ée]|nouvelle section|ins[èe]re/.test(lower)) {

@@ -1,13 +1,15 @@
 import type { CompiledThemeFile } from "./compiler";
 import type { ShopifyTheme } from "./themes";
+import { assertPublishCapabilities, type ShopifyCapabilityReport } from "./capability-report";
 
 export type PublicationStrategy = "active" | "duplicate_active" | "new_weflo";
 export type RemoteThemeFile = { key: string; value: string; checksum: string };
 export type PlannedFile = CompiledThemeFile & { action: "create" | "update" | "unchanged"; backup?: string };
 export type ShopifyPublicationPlan = { strategy: PublicationStrategy; themeAction: "use" | "duplicate" | "create"; targetThemeId?: string; sourceThemeId?: string; files: PlannedFile[] };
 
-export function createPublicationPlan(input: { strategy: PublicationStrategy; themeId?: string; themes: ShopifyTheme[]; compiledFiles: CompiledThemeFile[]; remoteFiles: RemoteThemeFile[]; allowGlobalReplacement?: boolean }): ShopifyPublicationPlan {
-  if (!input.allowGlobalReplacement && input.compiledFiles.some((file) => /^templates\/(?:index|product)\.json$/.test(file.key))) throw new Error("Global template replacement requires explicit confirmation");
+export function createPublicationPlan(input: { strategy: PublicationStrategy; themeId?: string; themes: ShopifyTheme[]; compiledFiles: CompiledThemeFile[]; remoteFiles: RemoteThemeFile[]; allowGlobalReplacement?: boolean; capabilityReport?: ShopifyCapabilityReport }): ShopifyPublicationPlan {
+  if (input.capabilityReport) assertPublishCapabilities(input.capabilityReport);
+  if (input.strategy !== "new_weflo" && !input.allowGlobalReplacement && input.compiledFiles.some((file) => /^templates\/(?:index|product)\.json$/.test(file.key))) throw new Error("Global template replacement requires explicit confirmation");
   const active = input.themes.find((theme) => theme.role === "main");
   if ((input.strategy === "active" || input.strategy === "duplicate_active") && !active) throw new Error("Active Shopify theme not found");
   if (input.themeId && !input.themes.some((theme) => theme.id === input.themeId)) throw new Error("Selected Shopify theme not found");

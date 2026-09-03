@@ -286,113 +286,17 @@ function fixtureById(id2) {
   return found;
 }
 
-// src/section-preview/manifests.ts
-var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds) => {
-  const base8 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
-  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base8}-desktop.webp`, mobile: `${base8}-mobile.webp` }, previewVersion: 1 };
-};
-var SECTION_PREVIEW_MANIFESTS = [
-  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"]),
-  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"]),
-  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"], "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"]),
-  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
-  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
-  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"]),
-  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"]),
-  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"]),
-  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
-  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"]),
-  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"]),
-  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"])
-];
-var keys = /* @__PURE__ */ new Set();
-for (const manifest of SECTION_PREVIEW_MANIFESTS) {
-  const key = `${manifest.sectionType}:${manifest.variantId}`;
-  if (keys.has(key)) throw new Error(`Duplicate section preview manifest: ${key}`);
-  keys.add(key);
-  fixtureById(manifest.defaultFixtureId);
-  for (const id2 of manifest.compatibleFixtureIds) fixtureById(id2);
-  if (!manifest.compatibleFixtureIds.includes(manifest.defaultFixtureId)) throw new Error(`Default fixture is incompatible: ${key}`);
-}
-function previewManifest(sectionType, variantId) {
-  const found = SECTION_PREVIEW_MANIFESTS.find((item2) => item2.sectionType === sectionType && item2.variantId === variantId);
-  if (!found) throw new Error(`Unknown section preview manifest: ${sectionType}:${variantId}`);
-  return found;
-}
-function previewManifestsForCategory(category) {
-  return category ? SECTION_PREVIEW_MANIFESTS.filter((item2) => item2.category === category) : [...SECTION_PREVIEW_MANIFESTS];
-}
-
-// src/editor/ui/section-catalog.ts
-function escape(value2) {
-  return value2.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
-}
-function sectionCatalogMarkup(input) {
-  return previewManifestsForCategory(input.category).map((manifest) => {
-    const key = `${manifest.sectionType}:${manifest.variantId}`;
-    return `<article class="section-catalog-card" data-section-variant="${escape(key)}">
-      <button type="button" class="section-catalog-media" data-section-preview-open="${escape(key)}" aria-label="Voir ${escape(manifest.title)} en grand">
-        <img src="${escape(manifest.preview[input.viewport])}" data-preview-desktop="${escape(manifest.preview.desktop)}" data-preview-mobile="${escape(manifest.preview.mobile)}" alt="Aper\xE7u ${escape(manifest.title)}" loading="lazy">
-        <span>Voir en grand \u2197</span>
-      </button>
-      <div class="section-catalog-copy"><small>${escape(manifest.conversionGoal)}</small><strong>${escape(manifest.title)}</strong><em>${manifest.supportedArchetypes.map(escape).join(" \xB7 ")}</em></div>
-      <button type="button" class="section-catalog-add" data-section-variant-insert="${escape(key)}">+ Ajouter</button>
-    </article>`;
-  }).join("");
-}
-function sectionCatalogShellMarkup() {
-  const categories = [{ id: "", label: "Tout" }, { id: "hero", label: "Hero" }, { id: "product", label: "Produit" }, { id: "benefits", label: "B\xE9n\xE9fices" }, { id: "proof", label: "Avis" }, { id: "offer", label: "Offres" }, { id: "faq", label: "FAQ" }];
-  return `<div class="section-catalog" data-section-catalog data-catalog-category="" data-catalog-viewport="desktop">
-    <div class="section-catalog-head"><div><strong>Sections premium</strong><small>Construites comme de vraies sections Shopify.</small></div><div class="section-catalog-viewports"><button type="button" data-catalog-viewport="desktop" aria-pressed="true">Bureau</button><button type="button" data-catalog-viewport="mobile" aria-pressed="false">Mobile</button></div></div>
-    <div class="section-catalog-filters">${categories.map((item2) => `<button type="button" data-catalog-filter="${item2.id}" aria-pressed="${item2.id === ""}">${item2.label}</button>`).join("")}</div>
-    <div class="section-catalog-grid" data-section-catalog-grid>${sectionCatalogMarkup({ viewport: "desktop" })}</div>
-  </div>`;
-}
-
-// src/editor/ui/panels/add-section.ts
-function addSectionPanel() {
-  return `<section data-panel="add"><p class="editor-panel-help">Choisis une vraie composition, teste-la avec un produit fictif puis adapte-la \xE0 ta marque.</p>${sectionCatalogShellMarkup()}</section>`;
-}
-
-// src/editor/ui/panels/commerce.ts
-function commercePanel(state) {
-  const product = state.document.commerce?.sourceProduct;
-  const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
-  const groups = [["Produit", ["productHero", "gallery", "productMain"]], ["Offres group\xE9es", ["bundle", "cta"]], ["Client cible", ["benefits", "reviews", "testimonials"]], ["Angle marketing", ["imageText", "comparison", "guarantees"]]];
-  return `<section data-panel="commerce">${product ? `<div class="editor-product-card">${product.images[0] ? `<img src="${product.images[0]}" alt="">` : ""}<div><strong>${product.title}</strong><small>${product.vendor}</small></div></div>` : ""}<p class="editor-panel-help">Sections e-commerce cr\xE9\xE9es \xE0 partir de ton produit et de ta strat\xE9gie.</p><div class="editor-commerce-groups">${groups.map(([label, types]) => {
-    const section2 = page.sections.find((item2) => types.includes(item2.type));
-    return `<button type="button" data-panel-action="${section2 ? "select" : "insert"}" ${section2 ? `data-section-id="${section2.id}"` : `data-section-type="${types[0]}"`}><span><b>${label}</b><small>${section2 ? section2.name : "Ajouter \xE0 la page"}</small></span><i>\u203A</i></button>`;
-  }).join("")}</div><a class="editor-shopify-link" href="/dashboard#shopify">Connexion et publication Shopify \u2192</a></section>`;
-}
-
-// src/editor/ui/panels/layers.ts
-function layersPanel(state) {
-  const kit = state.document.commerce?.brandKit;
-  const fonts = ["Inter", "DM Sans", "Manrope", "Space Grotesk", "Playfair Display", "Libre Baskerville"];
-  const fontSelect = (key, value2) => `<select data-theme-key="${key}">${fonts.map((font) => `<option value="${font}"${font === value2 ? " selected" : ""}>${font}</option>`).join("")}</select>`;
-  const colorLabels = { background: "Arri\xE8re-plan", surface: "Surface", ink: "Texte", accent: "Accent" };
-  return `<section data-panel="layers"><p class="editor-panel-help">L\u2019identit\xE9 globale de ta marque. Les changements s\u2019appliquent \xE0 toutes les sections.</p><div class="editor-brand-preview"><small>IDENTIT\xC9 DE MARQUE</small><strong>${state.document.name}</strong><span style="font-family:${kit?.headingFont ?? "Inter"}">Aa</span></div><h3 class="editor-panel-heading">Couleurs</h3><div class="editor-theme-colors">${["background", "surface", "ink", "accent"].map((key) => `<label><input type="color" data-theme-key="${key}" value="${state.document.theme[key]}"><small>${colorLabels[key]}</small></label>`).join("")}</div><h3 class="editor-panel-heading">Typographie</h3><label class="editor-theme-field"><small>Titres</small>${fontSelect("headingFont", kit?.headingFont ?? "Inter")}</label><label class="editor-theme-field"><small>Texte</small>${fontSelect("bodyFont", kit?.bodyFont ?? "Inter")}</label></section>`;
-}
-
-// src/editor/ui/panels/media.ts
-function mediaPanel(state) {
-  return `<section data-panel="media"><button type="button" class="editor-panel-primary" data-panel-action="uploadMedia">Importer un m\xE9dia</button><div class="editor-media-grid">${state.document.assets.length ? state.document.assets.map((asset) => `<button type="button" data-panel-action="pickMedia" data-asset-id="${asset.id}"><img src="${asset.url}" alt="${asset.alt ?? ""}"></button>`).join("") : "<p>Aucun m\xE9dia. Importe une image ou une vid\xE9o.</p>"}</div></section>`;
-}
-
-// src/editor/ui/panels/pages.ts
-function pagesPanel(state) {
-  return `<section data-panel="pages"><button type="button" class="editor-panel-primary" data-panel-action="addPage">Ajouter une page</button>${state.document.pages.map((page) => `<button type="button" class="editor-panel-row" data-panel-action="selectPage" data-page-id="${page.id}" aria-pressed="${page.id === state.pageId}"><span>${page.name}</span><small>/${page.slug}</small></button>`).join("")}</section>`;
-}
-
-// src/editor/ui/panels/structure.ts
-function structurePanel(state) {
-  const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
-  const rows = page.sections.map((section2, index) => `<button type="button" class="editor-panel-row" data-panel-action="select" data-section-id="${section2.id}" aria-pressed="${state.selectedId === section2.id}"><i>${String(index + 1).padStart(2, "0")}</i><span>${section2.name}</span><small>${section2.hidden ? "Masqu\xE9e" : "Modifier"}</small></button>`).join("");
-  return `<section data-panel="structure"><p class="editor-panel-help">S\xE9lectionne, modifie et r\xE9organise chaque section r\xE9elle de la boutique.</p><div class="editor-panel-list">${rows}</div></section>`;
-}
-
 // src/sections/registry.ts
 var definitions = /* @__PURE__ */ new Map();
+var LEGACY_FAMILY = {
+  brand: "brand-story",
+  media: "demo-media",
+  commerce: "product-purchase",
+  conversion: "conversion-capture",
+  content: "faq-trust",
+  layout: "custom"
+};
+var ALL_PAGES = ["landing", "product", "collection", "home"];
 function assertComplete(definition) {
   if (!definition.type?.trim()) throw new Error("Section type is required");
   if (!definition.name?.trim()) throw new Error(`Section ${definition.type} name is required`);
@@ -401,14 +305,58 @@ function assertComplete(definition) {
   if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
   for (const variant of definition.previewVariants ?? []) previewManifest(definition.type, variant);
 }
-function registerSection(definition) {
+function legacyVariant(definition, id2 = "default") {
+  return { id: id2, name: id2 === "default" ? "Par d\xE9faut" : id2, description: "Variante compatible avec les documents Weflo existants.", composition: id2 === "default" ? "composition-par-defaut" : `composition-${id2}`, previewFixtureId: "", defaults: { ...definition.defaults, ...id2 === "default" ? {} : { variant: id2 } } };
+}
+function defaultSchema(pack) {
+  const control = (item2) => ({ id: item2.key, label: item2.label, type: item2.type === "textarea" ? "textarea" : "text" });
+  return {
+    name: pack.name,
+    settings: pack.settings.map(control),
+    blocks: pack.blocks.map((block3) => ({ type: block3.type, name: block3.name, settings: block3.settings.map(control) })),
+    presets: pack.variants.map((variant) => ({ name: variant.name, settings: { ...variant.defaults, variant: variant.id } }))
+  };
+}
+function defaultMigrate(section2, _fromPackVersion) {
+  return { ...section2, settings: { ...section2.settings } };
+}
+function normalizeSectionPack(definition) {
   assertComplete(definition);
-  if (definitions.has(definition.type)) throw new Error(`Section ${definition.type} is already registered`);
-  definitions.set(definition.type, definition);
-  return definition;
+  const candidate = definition;
+  const declaredVariants = candidate.variants;
+  const variants = declaredVariants && declaredVariants.length ? declaredVariants.map((variant) => ({ ...variant, defaults: { ...variant.defaults } })) : (definition.previewVariants?.length ? definition.previewVariants : ["default"]).map((id2) => legacyVariant(definition, id2));
+  const ids = /* @__PURE__ */ new Set();
+  for (const variant of variants) {
+    if (!variant.id?.trim()) throw new Error(`Section ${definition.type} has a variant without an id`);
+    if (ids.has(variant.id)) throw new Error(`Duplicate section variant: ${definition.type}:${variant.id}`);
+    ids.add(variant.id);
+  }
+  const families = candidate.families?.length ? candidate.families : [LEGACY_FAMILY[definition.category]];
+  const pack = {
+    ...definition,
+    packVersion: 1,
+    families: [...families],
+    tags: candidate.tags ? [...candidate.tags] : [],
+    supportedPages: candidate.supportedPages?.length ? [...candidate.supportedPages] : [...ALL_PAGES],
+    supportedMarkets: candidate.supportedMarkets?.length ? [...candidate.supportedMarkets] : ["all"],
+    capabilities: candidate.capabilities ? [...candidate.capabilities] : [],
+    variants,
+    assets: candidate.assets ? [...candidate.assets] : [],
+    migrate: candidate.migrate ?? defaultMigrate
+  };
+  return { ...pack, renderSchema: candidate.renderSchema ?? (() => defaultSchema(pack)) };
+}
+function registerSection(definition) {
+  const pack = normalizeSectionPack(definition);
+  if (definitions.has(pack.type)) throw new Error(`Section ${pack.type} is already registered`);
+  definitions.set(pack.type, pack);
+  return pack;
 }
 function getSectionDefinition(type) {
   return definitions.get(type);
+}
+function listSectionDefinitions() {
+  return [...definitions.values()];
 }
 
 // src/sections/shared.ts
@@ -564,6 +512,17 @@ var beforeAfterSection = createSectionDefinition("beforeAfter", "Avant / apr\xE8
 var brandMediaSections = [navigationSection, announcementSection, heroSection, productHeroSection, videoHeroSection, gallerySection, imageTextSection, beforeAfterSection];
 for (const definition of brandMediaSections) registerSection(definition);
 
+// src/shopify/liquid/product-form.ts
+function renderProductFormLiquid(options = {}) {
+  const sectionClass = options.sectionClass ?? "wf-product";
+  const strategy = options.strategy ?? "one-time";
+  const offers = options.includeQuantityOffers ? `<fieldset class="wf-product__quantity-offers"><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% assign wf_breaks = section.settings.quantity_breaks | default: '1,2,3' | split: ',' %}{% for break in wf_breaks %}{% assign wf_quantity = break | plus: 0 %}<button type="button" data-wf-quantity="{{ wf_quantity }}">{{ wf_quantity }}{% if section.settings.quantity_suffix != blank %} {{ section.settings.quantity_suffix | escape }}{% endif %}</button>{% endfor %}</fieldset>` : "";
+  const sellingPlans = strategy === "selling-plan" ? `<div class="wf-product__selling-plans">{% if selected_product.selling_plan_groups.size > 0 %}<label for="weflo-selling-plan-{{ section.id }}">{{ section.settings.selling_plan_label | default: 'Fr\xE9quence' | escape }}</label><select id="weflo-selling-plan-{{ section.id }}" name="selling_plan">{% for group in selected_product.selling_plan_groups %}{% for plan in group.selling_plans %}<option value="{{ plan.id }}">{{ plan.name | escape }}</option>{% endfor %}{% endfor %}</select>{% else %}<p class="wf-product__setup" role="status">Configure un abonnement Shopify compatible avant de publier cette offre.</p>{% endif %}</div>` : "";
+  const preorder = strategy === "preorder" ? `{% if section.settings.preorder_provider != blank %}<input type="hidden" name="properties[_weflo_preorder_provider]" value="{{ section.settings.preorder_provider | escape }}"><p class="wf-product__preorder-note">{{ section.settings.preorder_note | default: 'Pr\xE9commande \u2014 exp\xE9dition selon les conditions indiqu\xE9es.' | escape }}</p>{% else %}<p class="wf-product__setup" role="status">Configure un fournisseur de pr\xE9commandes compatible avant de publier.</p>{% endif %}` : "";
+  const bundle = strategy === "fixed-bundle" ? `<p class="wf-product__bundle-note">{{ section.settings.bundle_note | default: 'Ce produit correspond \xE0 un bundle fixe Shopify.' | escape }}</p>` : strategy === "multipack" ? `<input type="hidden" name="properties[_weflo_multipack]" value="true">` : "";
+  return `<section class="${sectionClass}" data-wf-product data-wf-purchase-strategy="${strategy}" data-wf-section-id="{{ section.id }}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}{% assign form_id = 'weflo-product-form-' | append: section.id %}{% if selected_product != blank %}{% form 'product', selected_product, id: form_id, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input>{% for option in selected_product.options_with_values %}<label class="wf-product__option" for="weflo-option-{{ section.id }}-{{ forloop.index0 }}"><span>{{ option.name | escape }}</span><select id="weflo-option-{{ section.id }}-{{ forloop.index0 }}" data-wf-option-index="{{ forloop.index0 }}">{% for value in option.values %}<option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value | escape }}</option>{% endfor %}</select></label>{% endfor %}<div class="wf-product__prices" aria-live="polite"><strong data-wf-price>{{ selected_product.selected_or_first_available_variant.price | money }}</strong><s data-wf-compare-price{% unless selected_product.selected_or_first_available_variant.compare_at_price > selected_product.selected_or_first_available_variant.price %} hidden{% endunless %}>{{ selected_product.selected_or_first_available_variant.compare_at_price | money }}</s></div><p data-wf-availability>{% if selected_product.selected_or_first_available_variant.available %}En stock{% else %}Indisponible{% endif %}</p>${bundle}${offers}<label class="wf-product__quantity" for="weflo-quantity-{{ section.id }}">Quantit\xE9<input id="weflo-quantity-{{ section.id }}" name="quantity" type="number" min="1" value="1" inputmode="numeric" data-wf-quantity-input></label>${sellingPlans}${preorder}<button type="submit" data-wf-add-to-cart{% unless selected_product.selected_or_first_available_variant.available %} disabled{% endunless %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script type="application/json" data-wf-variants>{{ selected_product.variants | json }}<\/script><script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"><\/script>{% else %}<p class="wf-product__setup" role="status">Associe un produit Shopify \xE0 cette section avant publication.</p>{% endif %}</section>`;
+}
+
 // src/sections/product-main.ts
 var base2 = createSectionDefinition("productMain", "Fiche produit", "commerce", "product", { cta_label: "Ajouter au panier", product_handle: "", variant: "calm-buy-box" }, [textControl("product_handle", "Produit Shopify", "text")]);
 var productMainSection = {
@@ -581,10 +540,7 @@ var productMainSection = {
     const options = variants.length ? variants.map((block3) => `<option value="${escapeHtml(blockValue(block3, "variant_id", block3.id))}">${escapeHtml(blockValue(block3, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
     return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section2, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box">${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><div class="wf-product__bundle"></div><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust"></p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
   },
-  renderLiquid: (section2) => {
-    const variant = section2 ? value(section2, "variant", "calm-buy-box") : "calm-buy-box";
-    return `<section class="weflo-product-main wf-product--${escapeHtml(variant)}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}<div class="wf-product__gallery">{{ selected_product.featured_image | image_url: width: 1600 | image_tag }}{% for image in selected_product.images limit: 4 %}{{ image | image_url: width: 500 | image_tag }}{% endfor %}</div><div class="wf-product__buy-box"><h1>{{ selected_product.title | default: section.settings.title | escape }}</h1><div>{{ selected_product.description | default: section.settings.text }}</div><div class="wf-product__prices"><strong>{{ selected_product.price | money }}</strong>{% if selected_product.compare_at_price > selected_product.price %}<s>{{ selected_product.compare_at_price | money }}</s>{% endif %}</div>{% form 'product', selected_product %}<label>Option<select name="id">{% for variant in selected_product.variants %}<option value="{{ variant.id }}">{{ variant.title }} \u2014 {{ variant.price | money }}</option>{% endfor %}</select></label><label>Quantit\xE9<input name="quantity" type="number" min="1" value="1"></label><button type="submit">{{ section.settings.cta_label | escape }}</button>{% endform %}</div><div class="wf-product__sticky"><span>{{ selected_product.title }}</span><strong>{{ selected_product.price | money }}</strong><button type="submit" form="product-form-{{ section.id }}">{{ section.settings.cta_label | escape }}</button></div></section>`;
-  }
+  renderLiquid: () => renderProductFormLiquid({ sectionClass: "weflo-product-main" })
 };
 
 // src/sections/product-grid.ts
@@ -608,7 +564,7 @@ var collectionGridSection = {
     const title = value(section2, "title", pageName);
     const subtitle = value(section2, "subtitle");
     const copy = value(section2, "text");
-    const cards = section2.blocks.map((block3) => {
+    const cards2 = section2.blocks.map((block3) => {
       const name = blockValue(block3, "title", "[Nom de la collection]");
       const description = blockValue(block3, "text");
       const media3 = safeMediaUrl(block3.settings.image);
@@ -616,7 +572,7 @@ var collectionGridSection = {
       const link = blockValue(block3, "link");
       return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block3.id)}">${link ? `<a href="${safeLink(link)}">${content}</a>` : content}</article>`;
     }).join("");
-    return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards}</div></section>`;
+    return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards2}</div></section>`;
   },
   renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header>{% if section.settings.collection_handle != blank %}{% assign selected_collection = collections[section.settings.collection_handle] %}<div class="wf-section__grid">{% for product in selected_collection.products %}<article class="wf-section__card"><a href="{{ product.url }}">{% if product.featured_image != blank %}{{ product.featured_image | image_url: width: 900 | image_tag: alt: product.title }}{% endif %}<h3>{{ product.title | escape }}</h3><p>{{ product.price | money }}</p></a></article>{% endfor %}</div>{% else %}<div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div>{% endif %}</section>`
 };
@@ -635,7 +591,18 @@ var bundleSection = {
 };
 
 // src/sections/comparison.ts
-var comparisonSection = createSectionDefinition("comparison", "Comparateur", "conversion", "comparison", { title: "Pourquoi nous choisir" });
+var base5 = createSectionDefinition("comparison", "Comparateur", "conversion", "comparison", { title: "Pourquoi nous choisir" });
+var comparisonSection = {
+  ...base5,
+  families: ["comparison"],
+  tags: ["comparatif", "objections", "diff\xE9rences"],
+  capabilities: [],
+  variants: [
+    { id: "matrix", name: "Matrice", description: "Comparaison en lignes et colonnes.", composition: "Matrice structur\xE9e par crit\xE8res.", previewFixtureId: "", defaults: { variant: "matrix" } },
+    { id: "objection-cards", name: "Objections", description: "Chaque h\xE9sitation devient une carte de r\xE9ponse.", composition: "Cartes de r\xE9ponses aux objections.", previewFixtureId: "", defaults: { variant: "objection-cards" } },
+    { id: "versus", name: "Face-\xE0-face", description: "Deux approches oppos\xE9es avec verdict visuel.", composition: "Comparaison binaire narrative.", previewFixtureId: "", defaults: { variant: "versus" } }
+  ]
+};
 
 // src/sections/ingredients.ts
 var ingredientsSection = createSectionDefinition("ingredients", "Ingr\xE9dients & d\xE9tails", "content", "cards", { title: "Ce qu\u2019il y a dedans" });
@@ -645,11 +612,11 @@ var commerceSections = [productMainSection, productGridSection, collectionGridSe
 for (const definition of commerceSections) registerSection(definition);
 
 // src/sections/benefits.ts
-var base5 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
-var benefitsSection = { ...base5, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
+var base6 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var benefitsSection = { ...base6, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "ritual-cards");
   const variant = (/* @__PURE__ */ new Set(["ritual-cards", "technical-grid"])).has(requested) ? requested : "ritual-cards";
-  return base5.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
+  return base6.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/steps.ts
@@ -659,11 +626,11 @@ var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "car
 var statsSection = createSectionDefinition("stats", "Chiffres cl\xE9s", "conversion", "cards");
 
 // src/sections/testimonials.ts
-var base6 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
-var testimonialsSection = { ...base6, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
+var base7 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var testimonialsSection = { ...base7, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "editorial-stories");
   const variant = (/* @__PURE__ */ new Set(["editorial-stories", "ugc-grid"])).has(requested) ? requested : "editorial-stories";
-  return base6.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
+  return base7.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/reviews.ts
@@ -679,11 +646,11 @@ var guaranteesSection = createSectionDefinition("guarantees", "Garanties", "conv
 var shippingSection = createSectionDefinition("shipping", "Livraison", "conversion", "cards");
 
 // src/sections/faq.ts
-var base7 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
-var faqSection = { ...base7, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
+var base8 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var faqSection = { ...base8, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "editorial-accordion");
   const variant = (/* @__PURE__ */ new Set(["editorial-accordion", "support-columns"])).has(requested) ? requested : "editorial-accordion";
-  return base7.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
+  return base8.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
 } };
 
 // src/sections/newsletter.ts
@@ -751,16 +718,419 @@ var customCodeSection = {
   renderLiquid: () => `<section class="weflo-custom-code" data-wf-custom-id="{{ section.id }}">{{ section.settings.html }}<style>{{ section.settings.css }}</style><script>{{ section.settings.js }}<\/script></section>`
 };
 
+// src/shopify/liquid/purchase-options.ts
+function renderPurchaseOptionsLiquid(input) {
+  return renderProductFormLiquid({
+    ...input,
+    includeQuantityOffers: input.strategy === "multipack"
+  });
+}
+
+// src/sections/packs/pack-factory.ts
+var baseControls = [
+  textControl("title", "Titre"),
+  textControl("subtitle", "Sous-titre"),
+  textControl("text", "Texte", "textarea"),
+  textControl("image", "Image", "image"),
+  textControl("image_alt", "Texte alternatif"),
+  textControl("cta_label", "Libell\xE9 du bouton"),
+  textControl("cta_link", "Lien", "link")
+];
+var standardBlocks = [
+  { type: "media", name: "M\xE9dia", defaults: { title: "M\xE9dia", image: "", image_alt: "" }, settings: [textControl("title", "Titre"), textControl("image", "Image", "image"), textControl("image_alt", "Texte alternatif")] },
+  { type: "benefit", name: "B\xE9n\xE9fice", defaults: { title: "B\xE9n\xE9fice", text: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea")] },
+  { type: "offer", name: "Offre", defaults: { title: "Offre", text: "", price: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("price", "Prix")] },
+  { type: "review", name: "Avis", defaults: { title: "Avis", text: "", author: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("author", "Auteur")] },
+  { type: "row", name: "Ligne", defaults: { title: "Ligne", text: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea")] },
+  { type: "faq", name: "Question", defaults: { title: "Question", text: "" }, settings: [textControl("title", "Question"), textControl("text", "R\xE9ponse", "textarea")] }
+];
+function cards(blocks2) {
+  return blocks2.map((block3) => {
+    const media3 = safeMediaUrl(block3.settings.image);
+    return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block3.id)}">${media3 ? `<img src="${media3}" alt="${escapeHtml(blockValue(block3, "image_alt", blockValue(block3, "title")))}" loading="lazy">` : ""}<h3>${escapeHtml(blockValue(block3, "title", "\xC9l\xE9ment"))}</h3>${blockValue(block3, "text") ? `<p>${escapeHtml(blockValue(block3, "text"))}</p>` : ""}${blockValue(block3, "author") ? `<cite>${escapeHtml(blockValue(block3, "author"))}</cite>` : ""}${blockValue(block3, "price") ? `<strong>${escapeHtml(blockValue(block3, "price"))}</strong>` : ""}</article>`;
+  }).join("");
+}
+function liquidFor(pack) {
+  const capabilities = pack.capabilities ?? [];
+  const product = capabilities.includes("product-form") || capabilities.includes("variant-selection");
+  const body = `{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><div>{{ block.settings.text }}</div>{% if block.settings.price != blank %}<strong>{{ block.settings.price | escape }}</strong>{% endif %}</article>{% endfor %}`;
+  if (!product) return `<section class="wf-section wf-${pack.type}" data-wf-variant="{{ section.settings.variant | escape }}"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header><div class="wf-section__grid">${body}</div>{% if section.settings.cta_label != blank %}<a class="wf-section__button" href="{{ section.settings.cta_link }}">{{ section.settings.cta_label | escape }}</a>{% endif %}</section>`;
+  const sectionClass = `wf-section wf-${pack.type}`;
+  if (pack.type === "fixed-bundle") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "fixed-bundle" });
+  if (pack.type === "quantity-offer") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "multipack" });
+  if (pack.type === "subscription-selector") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "selling-plan" });
+  if (pack.type === "preorder-selector") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "preorder" });
+  return renderProductFormLiquid({ sectionClass });
+}
+function premiumPack(input) {
+  const capabilities = input.capabilities ?? [];
+  const variants = input.variants.map(([id2, name, composition]) => ({ id: id2, name, description: composition, composition, previewFixtureId: "", defaults: { variant: id2 } }));
+  const productControls = capabilities.some((capability) => capability === "product-form" || capability === "variant-selection") ? [textControl("product_handle", "Produit Shopify", "text")] : [];
+  const defaults = { title: input.name, subtitle: "", text: "", image: "", image_alt: "", cta_label: capabilities.includes("product-form") ? "Ajouter au panier" : "D\xE9couvrir", cta_link: "#", variant: variants[0].id, ...input.extraDefaults };
+  return {
+    type: input.type,
+    name: input.name,
+    category: input.category,
+    defaults,
+    settings: [...baseControls, ...productControls, ...input.extraSettings ?? []],
+    blocks: standardBlocks,
+    families: [input.family],
+    tags: input.tags,
+    supportedPages: input.supportedPages ?? ["landing", "product", "collection", "home"],
+    supportedMarkets: ["all"],
+    capabilities,
+    variants,
+    assets: [],
+    packVersion: 1,
+    renderWeb: ({ section: section2, pageName, editor }) => {
+      const variant = variants.some((item2) => item2.id === value(section2, "variant", variants[0].id)) ? value(section2, "variant", variants[0].id) : variants[0].id;
+      const heading = value(section2, "title", pageName);
+      const intro = `<header>${value(section2, "subtitle") ? `<p class="wf-section__eyebrow">${escapeHtml(value(section2, "subtitle"))}</p>` : ""}<h2 data-wf-edit-key="title">${escapeHtml(heading)}</h2>${value(section2, "text") ? `<p class="wf-section__copy" data-wf-edit-key="text">${escapeHtml(value(section2, "text"))}</p>` : ""}</header>`;
+      const action = value(section2, "cta_label") ? `<a class="wf-section__button" href="${safeLink(section2.settings.cta_link)}">${escapeHtml(value(section2, "cta_label"))}</a>` : "";
+      const setup = editor && capabilities.some((capability) => ["fixed-bundle", "custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability)) ? `<aside class="wf-section__setup" role="status">Configuration Shopify requise avant publication.</aside>` : "";
+      if (input.layout === "product") return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}">${intro}<div class="wf-section__media">${image(section2, "image", value(section2, "image_alt", heading))}</div><div class="wf-section__grid">${cards(section2.blocks)}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Option<select name="id"><option value="">Choisir dans Shopify</option></select></label><label>Quantit\xE9<input name="quantity" type="number" min="1" value="1"></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form>${setup}</section>`;
+      if (input.layout === "quiz") return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}">${intro}<form class="wf-quiz__form">${section2.blocks.map((block3, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block3, "title", `Question ${index + 1}`))}</legend><label><input type="radio" name="${escapeHtml(block3.id)}" value="option-a">${escapeHtml(blockValue(block3, "text", "Option"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form>${setup}</section>`;
+      const media3 = input.layout === "editorial" ? `<figure>${image(section2, "image", value(section2, "image_alt", heading))}</figure>` : "";
+      return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}">${media3}${intro}<div class="wf-section__grid">${cards(section2.blocks)}</div>${action}${setup}</section>`;
+    },
+    renderLiquid: () => liquidFor(input),
+    renderSchema: () => ({ name: input.name, settings: [...baseControls, ...productControls, ...input.extraSettings ?? []].map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })), blocks: standardBlocks.map((block3) => ({ type: block3.type, name: block3.name, settings: block3.settings.map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })) })), presets: variants.map((variant) => ({ name: variant.name, settings: { ...variant.defaults } })) }),
+    migrate: (section2) => ({ ...section2, packVersion: 1, variantId: section2.variantId ?? value(section2, "variant", variants[0].id) })
+  };
+}
+
+// src/sections/packs/product-packs.ts
+var productPacks = [
+  premiumPack({ type: "product-hero", name: "Hero produit", category: "commerce", family: "product-hero", tags: ["produit", "d\xE9sir", "premier \xE9cran"], capabilities: ["product-form", "markets"], layout: "product", variants: [
+    ["gallery-led", "Galerie immersive", "M\xE9dia pleine hauteur suivi d\u2019une proposition d\u2019achat."],
+    ["editorial-split", "Split \xE9ditorial", "Texte de marque et visuel dissym\xE9trique c\xF4te \xE0 c\xF4te."],
+    ["clinical-proof", "Preuve clinique", "Hi\xE9rarchie factuelle avec zone de r\xE9assurance."]
+  ] }),
+  premiumPack({ type: "buy-box", name: "Buy box", category: "commerce", family: "buy-box", tags: ["achat", "prix", "panier"], capabilities: ["product-form", "variant-selection", "cart-drawer"], layout: "product", variants: [
+    ["clean", "Minimal net", "Formulaire vertical sans distraction."],
+    ["premium", "Premium d\xE9taill\xE9", "Prix, r\xE9assurance et offre structur\xE9s en colonnes."],
+    ["sticky", "Achat persistant", "R\xE9sum\xE9 compact pens\xE9 pour rester disponible au d\xE9filement."]
+  ] }),
+  premiumPack({ type: "variant-selector", name: "S\xE9lecteur de variantes", category: "commerce", family: "variant-selector", tags: ["variantes", "options", "couleurs"], capabilities: ["variant-selection", "product-form"], layout: "product", variants: [
+    ["pills", "Pastilles", "Choix horizontal par boutons compacts."],
+    ["swatches", "Nuanciers", "Options visuelles avec rep\xE8res couleur."],
+    ["image-cards", "Cartes image", "Choix pr\xE9sent\xE9 sous forme de cartes m\xE9dia."]
+  ] })
+];
+
+// src/sections/packs/offer-packs.ts
+var select = (key, label, options) => ({ key, label, type: "select", scope: "settings", options });
+var offerPacks = [
+  premiumPack({ type: "quantity-offer", name: "Offre quantit\xE9", category: "commerce", family: "quantity-offer", tags: ["quantit\xE9", "volume", "\xE9conomie"], capabilities: ["product-form", "quantity-breaks"], layout: "product", extraDefaults: { quantity_breaks: "1,2,3", quantity_label: "Choisir la quantit\xE9", quantity_suffix: "unit\xE9s" }, variants: [
+    ["single-duo-trio", "Solo, duo, trio", "Trois offres \xE9gales et imm\xE9diatement comparables."],
+    ["tier-table", "Table de paliers", "Lecture par niveau de quantit\xE9 et \xE9conomie."],
+    ["volume-ladder", "\xC9chelle de volume", "Progression verticale guidant vers le meilleur volume."]
+  ] }),
+  premiumPack({ type: "fixed-bundle", name: "Bundle fixe", category: "commerce", family: "fixed-bundle", tags: ["bundle", "multipack", "offre"], capabilities: ["product-form", "fixed-bundle"], layout: "product", extraDefaults: { bundle_note: "Ce produit correspond \xE0 un bundle fixe Shopify." }, variants: [
+    ["routine", "Routine compl\xE8te", "Produits compl\xE9mentaires ordonn\xE9s par usage."],
+    ["multipack", "Multipack", "M\xEAme produit d\xE9clin\xE9 en quantit\xE9 avec \xE9conomie."],
+    ["gift-set", "Coffret", "Composition cadeau avec contenu pr\xE9sent\xE9 comme un ensemble."]
+  ] }),
+  premiumPack({ type: "subscription-selector", name: "Abonnement", category: "commerce", family: "subscriptions-preorders", tags: ["abonnement", "selling plan", "r\xE9currence"], capabilities: ["product-form", "selling-plan"], layout: "product", extraDefaults: { selling_plan_label: "Fr\xE9quence" }, variants: [
+    ["inline", "Choix direct", "Options d\u2019achat ponctuel et r\xE9current dans le formulaire."],
+    ["benefit-led", "Avantages visibles", "Avantages de l\u2019abonnement pr\xE9sent\xE9s pr\xE8s du choix."],
+    ["compact", "Compact", "S\xE9lecteur r\xE9duit pour une buy box dense."]
+  ] }),
+  premiumPack({ type: "preorder-selector", name: "Pr\xE9commande", category: "commerce", family: "subscriptions-preorders", tags: ["pr\xE9commande", "lancement", "attente"], capabilities: ["product-form", "preorder"], layout: "product", extraDefaults: { preorder_provider: "", preorder_note: "Pr\xE9commande \u2014 exp\xE9dition selon les conditions indiqu\xE9es." }, extraSettings: [select("preorder_provider", "Fournisseur de pr\xE9commande", ["", "preorder-provider"])], variants: [
+    ["launch", "Lancement", "Information de disponibilit\xE9 et bouton de r\xE9servation."],
+    ["date-led", "Date de livraison", "Date et conditions mises au premier plan."],
+    ["limited", "S\xE9rie limit\xE9e", "Disponibilit\xE9 limit\xE9e accompagn\xE9e d\u2019une r\xE9assurance."]
+  ] })
+];
+
+// src/sections/packs/proof-packs.ts
+var proofPacks = [
+  premiumPack({ type: "benefits-results", name: "B\xE9n\xE9fices et r\xE9sultats", category: "conversion", family: "benefits-results", tags: ["b\xE9n\xE9fices", "r\xE9sultats", "preuve"], capabilities: [], variants: [
+    ["outcome-grid", "Grille de r\xE9sultats", "Cartes en grille pour une lecture rapide."],
+    ["proof-timeline", "Chronologie de preuve", "R\xE9sultats organis\xE9s en s\xE9quence progressive."],
+    ["feature-led", "Caract\xE9ristiques", "Lecture structur\xE9e par d\xE9tails et b\xE9n\xE9fices."]
+  ] }),
+  premiumPack({ type: "product-media", name: "D\xE9monstration produit", category: "media", family: "product-media", tags: ["d\xE9mo", "vid\xE9o", "galerie"], capabilities: [], layout: "editorial", variants: [
+    ["video-first", "Vid\xE9o d\u2019abord", "M\xE9dia principal immersif avant les d\xE9tails."],
+    ["masonry", "Mosa\xEFque", "Galerie de formats vari\xE9s et visuels rapproch\xE9s."],
+    ["step-demo", "D\xE9monstration par \xE9tapes", "S\xE9quence de m\xE9dias qui explique l\u2019usage."]
+  ] }),
+  premiumPack({ type: "before-after", name: "Avant / apr\xE8s", category: "media", family: "before-after", tags: ["r\xE9sultats", "transformation", "comparaison"], capabilities: [], variants: [
+    ["slider", "Curseur", "Une comparaison focalis\xE9e sur une paire de visuels."],
+    ["side-by-side", "C\xF4te \xE0 c\xF4te", "Deux \xE9tats visibles simultan\xE9ment."],
+    ["results-story", "Histoire de r\xE9sultat", "Comparaison int\xE9gr\xE9e \xE0 un r\xE9cit et des notes."]
+  ] }),
+  premiumPack({ type: "reviews-ugc", name: "Avis et UGC", category: "conversion", family: "reviews-ugc", tags: ["avis", "ugc", "preuve sociale"], capabilities: [], variants: [
+    ["filmstrip", "Filmstrip UGC", "D\xE9filement visuel de contenus clients."],
+    ["spotlight", "T\xE9moignage phare", "Un avis dominant entour\xE9 de signaux secondaires."],
+    ["review-wall", "Mur d\u2019avis", "Accumulation dense de retours structur\xE9s."]
+  ] }),
+  premiumPack({ type: "faq-trust", name: "FAQ et garanties", category: "content", family: "faq-trust", tags: ["faq", "garantie", "confiance"], capabilities: [], variants: [
+    ["accordion", "Accord\xE9on", "Questions compactes r\xE9v\xE9l\xE9es \xE0 la demande."],
+    ["guarantee-cards", "Cartes de garantie", "R\xE9assurance pr\xE9sent\xE9e comme preuves ind\xE9pendantes."],
+    ["support-columns", "Colonnes support", "Intro de confiance et r\xE9ponses d\xE9taill\xE9es s\xE9par\xE9es."]
+  ] })
+];
+
+// src/sections/packs/discovery-packs.ts
+var discoveryPacks = [
+  premiumPack({ type: "recommendations", name: "Recommandations produit", category: "commerce", family: "recommendations", tags: ["collection", "cross-sell", "d\xE9couverte"], capabilities: ["collection-binding", "recommendations"], variants: [
+    ["related-grid", "Produits associ\xE9s", "Grille directe de suggestions compl\xE9mentaires."],
+    ["editorial-picks", "S\xE9lection \xE9ditoriale", "Recommandations contextualis\xE9es par un angle de marque."],
+    ["cross-sell-stack", "Ajouts utiles", "Offres compl\xE9mentaires dans une pile prioris\xE9e."]
+  ] })
+];
+
+// src/sections/packs/advertorial-packs.ts
+var advertorialPacks = [
+  premiumPack({ type: "advertorialMasthead", name: "Masthead advertorial", category: "content", family: "advertorial", tags: ["advertorial", "ouverture", "\xE9ditorial"], layout: "editorial", variants: [["journal", "Journal", "Titre et m\xE9dia de magazine."], ["reportage", "Reportage", "Ouverture factuelle avec contexte."], ["opinion", "Chronique", "Angle sign\xE9 et personnel."]] }),
+  premiumPack({ type: "authorLine", name: "Ligne d\u2019auteur", category: "content", family: "advertorial", tags: ["advertorial", "auteur"], variants: [["byline", "Signature", "Une ligne d\u2019auteur minimaliste."], ["profile", "Profil", "Auteur accompagn\xE9 d\u2019un bloc de contexte."], ["expert", "Expert", "Signature soutenue par une qualification."]] }),
+  premiumPack({ type: "editorialBody", name: "Corps \xE9ditorial", category: "content", family: "advertorial", tags: ["advertorial", "article", "chapitre"], layout: "editorial", variants: [["longform", "Long format", "Colonne de lecture continue."], ["chaptered", "Chapitres", "Lecture s\xE9quenc\xE9e en \xE9pisodes."], ["scannable", "Scannable", "Paragraphes courts et points cl\xE9s."]] }),
+  premiumPack({ type: "evidenceCallout", name: "Encadr\xE9 de preuve", category: "content", family: "advertorial", tags: ["preuve", "source", "advertorial"], variants: [["citation", "Citation", "Une preuve isol\xE9e dans un encadr\xE9."], ["data", "Donn\xE9es", "Preuve organis\xE9e en chiffres et notes."], ["expert-note", "Note d\u2019expert", "Observation contextualis\xE9e par un sp\xE9cialiste."]] }),
+  premiumPack({ type: "inlineProduct", name: "Produit int\xE9gr\xE9", category: "commerce", family: "advertorial", tags: ["produit", "advertorial", "achat"], capabilities: ["product-form", "variant-selection"], layout: "product", variants: [["compact", "Compact", "Produit pr\xE9sent\xE9 au fil de la lecture."], ["feature", "Produit vedette", "Carte produit plus expressive dans l\u2019article."], ["offer", "Offre \xE9ditoriale", "Produit et b\xE9n\xE9fice r\xE9unis dans un encadr\xE9."]] }),
+  premiumPack({ type: "conversionClose", name: "Conclusion conversion", category: "conversion", family: "conversion-capture", tags: ["cta", "conversion", "conclusion"], variants: [["final-cta", "CTA final", "Cl\xF4ture simple avec une action unique."], ["offer-stack", "Pile d\u2019offre", "R\xE9assurance et action regroup\xE9es."], ["decision", "Aide \xE0 la d\xE9cision", "R\xE9sum\xE9 final qui r\xE9pond aux derni\xE8res h\xE9sitations."]] })
+];
+
+// src/sections/packs/listicle-packs.ts
+var listiclePacks = [
+  premiumPack({ type: "listicleIndex", name: "Index listicle", category: "content", family: "listicle", tags: ["listicle", "sommaire", "lecture"], variants: [["numbered", "Num\xE9rot\xE9", "Sommaire lin\xE9aire et num\xE9rot\xE9."], ["cards", "Cartes", "Sommaire visuel sous forme de cartes."], ["rail", "Rail", "Index lat\xE9ral pour une lecture longue."]] }),
+  premiumPack({ type: "numberedReason", name: "Raison num\xE9rot\xE9e", category: "content", family: "listicle", tags: ["listicle", "raison", "argument"], variants: [["editorial", "\xC9ditorial", "Grand num\xE9ro et texte respirant."], ["proof", "Avec preuve", "Argument soutenu par un d\xE9tail de preuve."], ["media", "Avec m\xE9dia", "Argument altern\xE9 avec un visuel."]] }),
+  premiumPack({ type: "comparisonInsert", name: "Insertion comparative", category: "content", family: "listicle", tags: ["listicle", "comparaison"], variants: [["quick-table", "Table rapide", "Tableau concis ins\xE9r\xE9 entre deux raisons."], ["versus", "Face-\xE0-face", "Comparaison binaire plus narrative."], ["scorecard", "Scorecard", "Crit\xE8res not\xE9s dans une carte."]] }),
+  premiumPack({ type: "productRecommendation", name: "Recommandation produit", category: "commerce", family: "listicle", tags: ["produit", "recommandation", "listicle"], capabilities: ["product-form", "recommendations"], layout: "product", variants: [["editor-choice", "Choix de la r\xE9daction", "Produit recommand\xE9 avec justification \xE9ditoriale."], ["best-for", "Le meilleur pour", "Recommandation segment\xE9e selon le besoin."], ["shortlist", "S\xE9lection courte", "Plusieurs choix hi\xE9rarchis\xE9s."]] })
+];
+
+// src/sections/packs/quiz-packs.ts
+var quizPacks = [
+  premiumPack({ type: "quizProgress", name: "Progression quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "progression"], variants: [["steps", "\xC9tapes", "\xC9tapes explicitement num\xE9rot\xE9es."], ["bar", "Barre", "Progression continue en barre."], ["minimal", "Minimal", "Indicateur discret et compact."]] }),
+  premiumPack({ type: "quizQuestion", name: "Question quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "question", "funnel"], layout: "quiz", variants: [["single-choice", "Choix unique", "Une r\xE9ponse pour avancer."], ["multiple-choice", "Choix multiples", "Plusieurs besoins peuvent \xEAtre s\xE9lectionn\xE9s."], ["visual-choice", "Choix visuel", "R\xE9ponses pr\xE9sent\xE9es en cartes m\xE9dia."]] }),
+  premiumPack({ type: "quizResult", name: "R\xE9sultat quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "r\xE9sultat", "recommandation"], variants: [["profile", "Profil", "R\xE9sultat formul\xE9 comme un profil."], ["routine", "Routine", "R\xE9sultat organis\xE9 en \xE9tapes d\u2019usage."], ["next-step", "Prochaine \xE9tape", "R\xE9sultat focalis\xE9 sur l\u2019action suivante."]] }),
+  premiumPack({ type: "leadCapture", name: "Capture de contact", category: "conversion", family: "conversion-capture", tags: ["email", "consentement", "lead"], variants: [["consent", "Consentement", "Capture avec rappel du consentement."], ["reward", "Contrepartie", "Capture associ\xE9e \xE0 une ressource ou avantage."], ["minimal", "Minimal", "Champ unique et action courte."]] })
+];
+
+// src/sections/packs/brand-story-packs.ts
+var brandStoryPacks = [
+  premiumPack({ type: "brandManifesto", name: "Manifeste de marque", category: "brand", family: "brand-story", tags: ["marque", "manifeste", "valeurs"], layout: "editorial", variants: [["statement", "D\xE9claration", "Texte manifeste assum\xE9."], ["principles", "Principes", "Valeurs s\xE9par\xE9es en principes."], ["letter", "Lettre", "Adresse personnelle de la marque."]] }),
+  premiumPack({ type: "founderStory", name: "Histoire du fondateur", category: "brand", family: "brand-story", tags: ["fondateur", "histoire", "marque"], layout: "editorial", variants: [["portrait", "Portrait", "Photo et r\xE9cit \xE0 la premi\xE8re personne."], ["timeline", "Chronologie", "Parcours structur\xE9 en moments cl\xE9s."], ["letter", "Lettre du fondateur", "Message intime et direct."]] }),
+  premiumPack({ type: "editorialChapter", name: "Chapitre \xE9ditorial", category: "brand", family: "brand-story", tags: ["chapitre", "r\xE9cit", "marque"], layout: "editorial", variants: [["split", "Split", "Texte et image en dialogue."], ["full-bleed", "Plein cadre", "M\xE9dia dominant et texte superpos\xE9."], ["quiet", "Lecture calme", "Colonne centr\xE9e avec rythme lent."]] }),
+  premiumPack({ type: "campaignLookbook", name: "Lookbook de campagne", category: "media", family: "brand-story", tags: ["lookbook", "campagne", "m\xE9dias"], variants: [["masonry", "Mosa\xEFque", "Images de formats vari\xE9s."], ["sequence", "S\xE9quence", "R\xE9cit visuel dans l\u2019ordre."], ["catalogue", "Catalogue", "Grille r\xE9guli\xE8re et informative."]] })
+];
+
 // src/sections/index.ts
 registerSection(spacerSection);
 registerSection(dividerSection);
 registerSection(customCodeSection);
+for (const pack of [...productPacks, ...offerPacks, ...proofPacks, ...discoveryPacks, ...advertorialPacks, ...listiclePacks, ...quizPacks, ...brandStoryPacks]) registerSection(pack);
+
+// src/section-preview/manifests.ts
+var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, extra = {}) => {
+  const base9 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
+  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1, ...extra };
+};
+var ALL_ARCHETYPES = ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"];
+var SECTION_PREVIEW_MANIFESTS = [
+  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 100, popular: 95 }),
+  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 96, popular: 86 }),
+  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ALL_ARCHETYPES, "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"], { family: "product-purchase", capabilities: ["product-form", "variant-selection"], requiredData: ["Produit Shopify", "Variantes"], recommended: 98, popular: 100 }),
+  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "product-purchase", capabilities: ["product-form", "fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 94, popular: 91 }),
+  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "benefits", recommended: 83, popular: 82 }),
+  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"], { family: "benefits", recommended: 79, popular: 76 }),
+  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "reviews-ugc", requiredData: ["Avis clients"], recommended: 90, popular: 88 }),
+  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"], { family: "reviews-ugc", requiredData: ["Avis clients", "Photos UGC"], recommended: 89, popular: 93 }),
+  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 97, popular: 89 }),
+  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["quantity-breaks"], requiredData: ["Produit Shopify", "Paliers de quantit\xE9"], recommended: 95, popular: 96 }),
+  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 81, popular: 85 }),
+  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 77, popular: 72 })
+];
+var legacyFamily = { hero: "heroes", product: "product-purchase", benefits: "benefits", proof: "reviews-ugc", offer: "bundles-offers", faq: "faq-trust" };
+var definitionFamily = { navigation: "headers-navigation", announcement: "headers-navigation", footer: "footer-utilities", spacer: "footer-utilities", divider: "footer-utilities", hero: "heroes", productHero: "heroes", videoHero: "heroes", productMain: "product-purchase", productGrid: "collections-recommendations", collectionGrid: "collections-recommendations", bundle: "bundles-offers", comparison: "comparison", ingredients: "ingredients-materials", gallery: "demo-media", beforeAfter: "before-after", imageText: "benefits", benefits: "benefits", testimonials: "reviews-ugc", reviews: "reviews-ugc", faq: "faq-trust", guarantees: "faq-trust", shipping: "faq-trust", quiz: "quiz-forms", form: "quiz-forms", newsletter: "conversion-capture", cta: "conversion-capture", richText: "brand-story", customCode: "custom" };
+function normalize(value2) {
+  return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+function labelCapability(capability) {
+  const labels = { "product-form": "Formulaire produit", "variant-selection": "Variantes Shopify", "quantity-breaks": "Paliers de quantit\xE9", "collection-binding": "Collection Shopify", "recommendations": "Recommandations", "fixed-bundle": "Bundle fixe", "custom-bundle": "Bundle personnalisable", "selling-plan": "Abonnement", "preorder": "Pr\xE9commande", "cart-drawer": "Panier lat\xE9ral", "app-blocks": "Bloc d\u2019application", "markets": "March\xE9s Shopify", "localization": "Localisation" };
+  return labels[capability] ?? capability.replace(/-/g, " ");
+}
+function capabilityState(capability, states) {
+  if (states && typeof states === "object" && !Array.isArray(states)) {
+    const value2 = states[capability];
+    if (value2 === "native" || value2 === "app-required" || value2 === "unavailable") return value2;
+  }
+  return ["custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability) ? "app-required" : "native";
+}
+function familyFrom(value2, fallback) {
+  const raw = Array.isArray(value2) && typeof value2[0] === "string" ? value2[0] : typeof value2 === "string" ? value2 : "";
+  const aliases = { "product-hero": "heroes", "buy-box": "product-purchase", "variant-selector": "variants-options", "quantity-offer": "bundles-offers", "fixed-bundle": "bundles-offers", "benefits-results": "benefits", "product-media": "demo-media", "reviews-ugc-premium": "reviews-ugc", recommendations: "collections-recommendations" };
+  return aliases[raw] ?? (raw ? raw : fallback);
+}
+function dynamicManifests() {
+  const existing = new Set(SECTION_PREVIEW_MANIFESTS.map((manifest) => `${manifest.sectionType}:${manifest.variantId}`));
+  const values = [];
+  for (const definition of listSectionDefinitions()) {
+    const type = typeof definition.type === "string" ? definition.type : "";
+    if (!type) continue;
+    const variants = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : Array.isArray(definition.previewVariants) && definition.previewVariants.length ? definition.previewVariants : ["default"];
+    for (const rawVariant of variants) {
+      const variant = typeof rawVariant === "string" ? { id: rawVariant } : rawVariant && typeof rawVariant === "object" ? rawVariant : null;
+      const variantId = variant && typeof variant.id === "string" ? variant.id : "default";
+      if (existing.has(`${type}:${variantId}`)) continue;
+      const fixtureId = variant && typeof variant.previewFixtureId === "string" && SECTION_PREVIEW_FIXTURES.some((fixture2) => fixture2.id === variant.previewFixtureId) ? variant.previewFixtureId : "aurea-serum";
+      const fallbackPreview = fixtureById(fixtureId).product.images[0];
+      const title = variant && typeof variant.name === "string" ? variant.name : typeof definition.name === "string" ? definition.name : type;
+      const description = variant && typeof variant.description === "string" ? variant.description : `Ajouter ${title.toLocaleLowerCase("fr-FR")}`;
+      const capabilities = Array.isArray(definition.capabilities) ? definition.capabilities.filter((value2) => typeof value2 === "string") : [];
+      values.push({ sectionType: type, variantId, title, conversionGoal: description, category: "product", family: familyFrom(definition.families ?? definition.family, definitionFamily[type] ?? "custom"), capabilities, capabilityStates: definition.capabilityStates, requiredData: Array.isArray(variant?.requiredData) ? variant.requiredData.filter((value2) => typeof value2 === "string") : [], tags: Array.isArray(definition.tags) ? definition.tags.filter((value2) => typeof value2 === "string") : [], recommended: typeof variant?.recommended === "number" ? variant.recommended : 0, newest: typeof variant?.newest === "number" ? variant.newest : 0, popular: typeof variant?.popular === "number" ? variant.popular : 0, supportedPages: Array.isArray(definition.supportedPages) ? definition.supportedPages.filter((value2) => typeof value2 === "string") : void 0, supportedMarkets: Array.isArray(definition.supportedMarkets) ? definition.supportedMarkets.filter((value2) => typeof value2 === "string") : void 0, supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixtureId, compatibleFixtureIds: [fixtureId], preview: { desktop: fallbackPreview, mobile: fallbackPreview }, previewVersion: 1 });
+    }
+  }
+  return values;
+}
+function querySectionCatalog(query = {}) {
+  const family = query.family ?? (query.category ? legacyFamily[query.category] : void 0), needle = normalize(query.search ?? "");
+  const results = [...SECTION_PREVIEW_MANIFESTS, ...dynamicManifests()].filter((manifest) => {
+    if (family && manifest.family !== family) return false;
+    if (query.pageKind && manifest.supportedPages?.length && !manifest.supportedPages.includes(query.pageKind)) return false;
+    if (query.market && manifest.supportedMarkets?.length && !manifest.supportedMarkets.includes("all") && !manifest.supportedMarkets.includes(query.market)) return false;
+    if (query.capability && !(manifest.capabilities ?? []).includes(query.capability)) return false;
+    return !needle || normalize([manifest.title, manifest.conversionGoal, manifest.sectionType, manifest.variantId, manifest.family ?? "", ...manifest.capabilities ?? [], ...manifest.tags ?? []].join(" ")).includes(needle);
+  }).map((manifest) => ({ ...manifest, capabilityBadges: (manifest.capabilities ?? []).map((capability) => ({ capability, label: labelCapability(capability), state: capabilityState(capability, manifest.capabilityStates) })) }));
+  const sort = query.sort ?? "recommended", rank = (value2) => sort === "newest" ? value2.newest ?? 0 : sort === "popular" ? value2.popular ?? 0 : value2.recommended ?? 0;
+  return results.sort((a, b) => rank(b) - rank(a) || a.title.localeCompare(b.title, "fr"));
+}
+function catalogItemForVariant(sectionType, variantId) {
+  return querySectionCatalog().find((item2) => item2.sectionType === sectionType && item2.variantId === variantId);
+}
+var keys = /* @__PURE__ */ new Set();
+for (const manifest of SECTION_PREVIEW_MANIFESTS) {
+  const key = `${manifest.sectionType}:${manifest.variantId}`;
+  if (keys.has(key)) throw new Error(`Duplicate section preview manifest: ${key}`);
+  keys.add(key);
+  fixtureById(manifest.defaultFixtureId);
+  for (const id2 of manifest.compatibleFixtureIds) fixtureById(id2);
+  if (!manifest.compatibleFixtureIds.includes(manifest.defaultFixtureId)) throw new Error(`Default fixture is incompatible: ${key}`);
+}
+function previewManifest(sectionType, variantId) {
+  const found = SECTION_PREVIEW_MANIFESTS.find((item2) => item2.sectionType === sectionType && item2.variantId === variantId);
+  if (found) return found;
+  const catalog = catalogItemForVariant(sectionType, variantId);
+  if (catalog) return catalog;
+  const fixture2 = "aurea-serum", base9 = `/assets/section-previews/${sectionType}/${variantId}-${fixture2}`;
+  return { sectionType, variantId, title: sectionType, conversionGoal: "Aper\xE7u de section", category: "product", family: definitionFamily[sectionType] ?? "custom", supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixture2, compatibleFixtureIds: [fixture2], preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1 };
+}
+
+// src/editor/ui/section-catalog.ts
+function escape(value2) {
+  return value2.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+var FAMILIES = [
+  ["", "Tout"],
+  ["headers-navigation", "En-t\xEAtes"],
+  ["heroes", "H\xE9ros"],
+  ["product-purchase", "Produit et achat"],
+  ["variants-options", "Variantes"],
+  ["bundles-offers", "Bundles et offres"],
+  ["subscriptions-preorders", "Abonnements"],
+  ["benefits", "B\xE9n\xE9fices"],
+  ["demo-media", "M\xE9dias"],
+  ["before-after", "Avant / apr\xE8s"],
+  ["reviews-ugc", "Avis et UGC"],
+  ["comparison", "Comparaison"],
+  ["ingredients-materials", "D\xE9tails"],
+  ["collections-recommendations", "Collections"],
+  ["brand-story", "Histoire"],
+  ["advertorial", "Advertorial"],
+  ["listicle", "Listicle"],
+  ["quiz-forms", "Quiz et formulaires"],
+  ["faq-trust", "FAQ et confiance"],
+  ["conversion-capture", "Conversion"],
+  ["footer-utilities", "Footer"],
+  ["custom", "Sur mesure"]
+];
+function stateLabel(state) {
+  return state === "native" ? "Natif" : state === "app-required" ? "Application requise" : "Indisponible";
+}
+function queryFrom(input) {
+  return { ...input.query, ...input.category ? { category: input.category } : {} };
+}
+function sectionCatalogMarkup(input) {
+  const catalogQuery = queryFrom(input);
+  const results = querySectionCatalog(catalogQuery);
+  if (!results.length) return `<p class="section-catalog-empty">Aucune section ne correspond \xE0 cette recherche.</p>`;
+  return results.map((manifest) => {
+    const key = `${manifest.sectionType}:${manifest.variantId}`;
+    const badges = manifest.capabilityBadges.map((badge) => `<span class="section-catalog-badge is-${badge.state}" title="${escape(stateLabel(badge.state))}">${escape(badge.label)}</span>`).join("");
+    const required = manifest.requiredData?.length ? `<small class="section-catalog-required">Donn\xE9es : ${escape(manifest.requiredData.join(" \xB7 "))}</small>` : "";
+    return `<article class="section-catalog-card" data-section-variant="${escape(key)}">
+      <button type="button" class="section-catalog-media" data-section-preview-open="${escape(key)}" aria-label="Voir ${escape(manifest.title)} en grand">
+        <img src="${escape(manifest.preview[input.viewport])}" data-preview-desktop="${escape(manifest.preview.desktop)}" data-preview-mobile="${escape(manifest.preview.mobile)}" alt="Aper\xE7u ${escape(manifest.title)}" loading="lazy">
+        <span>Voir en grand \u2197</span>
+      </button>
+      <div class="section-catalog-copy"><small>${escape(manifest.conversionGoal)}</small><strong>${escape(manifest.title)}</strong><em>${escape(manifest.family ?? "Sur mesure")}</em>${badges ? `<div class="section-catalog-badges">${badges}</div>` : ""}${required}</div>
+      <button type="button" class="section-catalog-add" data-section-variant-insert="${escape(key)}">+ Ajouter</button>
+    </article>`;
+  }).join("");
+}
+function sectionCatalogShellMarkup() {
+  return `<div class="section-catalog" data-section-catalog data-catalog-family="" data-catalog-viewport="desktop" data-catalog-sort="recommended">
+    <div class="section-catalog-head"><div><strong>Sections premium</strong><small>Pr\xE9visualise, puis ajoute une composition adapt\xE9e \xE0 ta boutique.</small></div><div class="section-catalog-viewports"><button type="button" data-catalog-viewport="desktop" aria-pressed="true">Bureau</button><button type="button" data-catalog-viewport="mobile" aria-pressed="false">Mobile</button></div></div>
+    <label class="section-catalog-search"><span class="sr-only">Rechercher une section</span><input type="search" data-catalog-search placeholder="Rechercher : bundle, avis, quantit\xE9\u2026" autocomplete="off"></label>
+    <div class="section-catalog-sort"><label>Trier <select data-catalog-sort-select><option value="recommended">Recommand\xE9es</option><option value="newest">Nouveaut\xE9s</option><option value="popular">Les plus utilis\xE9es</option></select></label><label>Capacit\xE9 <select data-catalog-capability><option value="">Toutes</option><option value="product-form">Formulaire produit</option><option value="variant-selection">Variantes Shopify</option><option value="fixed-bundle">Bundle fixe</option><option value="quantity-breaks">Paliers de quantit\xE9</option><option value="selling-plan">Abonnement</option><option value="app-blocks">Bloc d\u2019application</option></select></label></div>
+    <div class="section-catalog-filters" role="tablist" aria-label="Familles de sections">${FAMILIES.map(([id2, label]) => `<button type="button" data-catalog-filter="${id2}" aria-pressed="${id2 === ""}">${label}</button>`).join("")}</div>
+    <div class="section-catalog-grid" data-section-catalog-grid>${sectionCatalogMarkup({ viewport: "desktop" })}</div>
+  </div>`;
+}
+
+// src/editor/ui/panels/add-section.ts
+function addSectionPanel() {
+  return `<section data-panel="add"><p class="editor-panel-help">Choisis une vraie composition, teste-la avec un produit fictif puis adapte-la \xE0 ta marque.</p>${sectionCatalogShellMarkup()}</section>`;
+}
+
+// src/editor/ui/panels/commerce.ts
+function commercePanel(state) {
+  const product = state.document.commerce?.sourceProduct;
+  const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
+  const groups = [["Produit", ["productHero", "gallery", "productMain"]], ["Offres group\xE9es", ["bundle", "cta"]], ["Client cible", ["benefits", "reviews", "testimonials"]], ["Angle marketing", ["imageText", "comparison", "guarantees"]]];
+  return `<section data-panel="commerce">${product ? `<div class="editor-product-card">${product.images[0] ? `<img src="${product.images[0]}" alt="">` : ""}<div><strong>${product.title}</strong><small>${product.vendor}</small></div></div>` : ""}<p class="editor-panel-help">Sections e-commerce cr\xE9\xE9es \xE0 partir de ton produit et de ta strat\xE9gie.</p><div class="editor-commerce-groups">${groups.map(([label, types]) => {
+    const section2 = page.sections.find((item2) => types.includes(item2.type));
+    return `<button type="button" data-panel-action="${section2 ? "select" : "insert"}" ${section2 ? `data-section-id="${section2.id}"` : `data-section-type="${types[0]}"`}><span><b>${label}</b><small>${section2 ? section2.name : "Ajouter \xE0 la page"}</small></span><i>\u203A</i></button>`;
+  }).join("")}</div><a class="editor-shopify-link" href="/dashboard#shopify">Connexion et publication Shopify \u2192</a></section>`;
+}
+
+// src/editor/ui/panels/layers.ts
+function layersPanel(state) {
+  const kit = state.document.commerce?.brandKit;
+  const fonts = ["Inter", "DM Sans", "Manrope", "Space Grotesk", "Playfair Display", "Libre Baskerville"];
+  const fontSelect = (key, value2) => `<select data-theme-key="${key}">${fonts.map((font) => `<option value="${font}"${font === value2 ? " selected" : ""}>${font}</option>`).join("")}</select>`;
+  const colorLabels = { background: "Arri\xE8re-plan", surface: "Surface", ink: "Texte", accent: "Accent" };
+  return `<section data-panel="layers"><p class="editor-panel-help">L\u2019identit\xE9 globale de ta marque. Les changements s\u2019appliquent \xE0 toutes les sections.</p><div class="editor-brand-preview"><small>IDENTIT\xC9 DE MARQUE</small><strong>${state.document.name}</strong><span style="font-family:${kit?.headingFont ?? "Inter"}">Aa</span></div><h3 class="editor-panel-heading">Couleurs</h3><div class="editor-theme-colors">${["background", "surface", "ink", "accent"].map((key) => `<label><input type="color" data-theme-key="${key}" value="${state.document.theme[key]}"><small>${colorLabels[key]}</small></label>`).join("")}</div><h3 class="editor-panel-heading">Typographie</h3><label class="editor-theme-field"><small>Titres</small>${fontSelect("headingFont", kit?.headingFont ?? "Inter")}</label><label class="editor-theme-field"><small>Texte</small>${fontSelect("bodyFont", kit?.bodyFont ?? "Inter")}</label></section>`;
+}
+
+// src/editor/ui/panels/media.ts
+function mediaPanel(state) {
+  return `<section data-panel="media"><button type="button" class="editor-panel-primary" data-panel-action="uploadMedia">Importer un m\xE9dia</button><div class="editor-media-grid">${state.document.assets.length ? state.document.assets.map((asset) => `<button type="button" data-panel-action="pickMedia" data-asset-id="${asset.id}"><img src="${asset.url}" alt="${asset.alt ?? ""}"></button>`).join("") : "<p>Aucun m\xE9dia. Importe une image ou une vid\xE9o.</p>"}</div></section>`;
+}
+
+// src/editor/ui/panels/pages.ts
+function pagesPanel(state) {
+  return `<section data-panel="pages"><button type="button" class="editor-panel-primary" data-panel-action="addPage">Ajouter une page</button>${state.document.pages.map((page) => `<button type="button" class="editor-panel-row" data-panel-action="selectPage" data-page-id="${page.id}" aria-pressed="${page.id === state.pageId}"><span>${page.name}</span><small>/${page.slug}</small></button>`).join("")}</section>`;
+}
+
+// src/editor/ui/panels/structure.ts
+function structurePanel(state) {
+  const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
+  const rows = page.sections.map((section2, index) => `<button type="button" class="editor-panel-row" data-panel-action="select" data-section-id="${section2.id}" aria-pressed="${state.selectedId === section2.id}"><i>${String(index + 1).padStart(2, "0")}</i><span>${section2.name}</span><small>${section2.hidden ? "Masqu\xE9e" : "Modifier"}</small></button>`).join("");
+  return `<section data-panel="structure"><p class="editor-panel-help">S\xE9lectionne, modifie et r\xE9organise chaque section r\xE9elle de la boutique.</p><div class="editor-panel-list">${rows}</div></section>`;
+}
 
 // src/section-preview/materialize.ts
 function requiredDefinition(type) {
   const definition = getSectionDefinition(type);
   if (!definition) throw new Error(`Unknown section definition: ${type}`);
   return definition;
+}
+function variantDefaults(type, variantId) {
+  const definition = requiredDefinition(type);
+  const variants = Array.isArray(definition.variants) ? definition.variants : [];
+  const variant = variants.find((candidate) => candidate && typeof candidate === "object" && candidate.id === variantId);
+  return variant && variant.defaults && typeof variant.defaults === "object" && !Array.isArray(variant.defaults) ? structuredClone(variant.defaults) : {};
 }
 function block(id2, type, settings2) {
   return { id: id2, type, settings: settings2 };
@@ -775,6 +1145,7 @@ function fixtureBlocks(type, fixture2, id2) {
 function previewSettings(type, fixture2, variantId) {
   const settings2 = {
     ...requiredDefinition(type).defaults,
+    ...variantDefaults(type, variantId),
     variant: variantId,
     previewFixtureId: fixture2.id,
     previewOnly: true,
@@ -795,7 +1166,7 @@ function previewSettings(type, fixture2, variantId) {
 }
 function makeSection(id2, type, settings2, blocks2) {
   const definition = requiredDefinition(type);
-  return { id: id2, type, name: definition.name, hidden: false, locked: false, settings: settings2, style: {}, responsive: {}, blocks: blocks2 };
+  return { id: id2, type, name: definition.name, hidden: false, locked: false, packVersion: 1, variantId: typeof settings2.variant === "string" ? settings2.variant : "default", settings: settings2, style: {}, responsive: {}, blocks: blocks2 };
 }
 function sectionFromFixture(type, variantId, fixtureId, sectionId) {
   const manifest = previewManifest(type, variantId);
@@ -823,7 +1194,7 @@ function materializeSectionVariant(input) {
   previewManifest(input.sectionType, input.variantId);
   const definition = requiredDefinition(input.sectionType);
   const product = input.document.commerce?.sourceProduct;
-  const settings2 = { ...definition.defaults, variant: input.variantId };
+  const settings2 = { ...definition.defaults, ...variantDefaults(input.sectionType, input.variantId), variant: input.variantId };
   const missingFields = [];
   if (product?.title) {
     settings2.title = product.title;
@@ -843,6 +1214,46 @@ function materializeSectionVariant(input) {
   assertCustomerSafe(section2);
   return { section: section2, missingFields };
 }
+
+// src/design/tokens.ts
+function designTokenStyle(profile) {
+  return [
+    `--wf-profile-background:${profile.colors.background}`,
+    `--wf-profile-surface:${profile.colors.surface}`,
+    `--wf-profile-ink:${profile.colors.ink}`,
+    `--wf-profile-accent:${profile.colors.accent}`,
+    `--wf-profile-section:${profile.spacing.section}px`,
+    `--wf-profile-gap:${profile.spacing.gap}px`,
+    `--wf-profile-card-radius:${profile.radius.card}px`,
+    `--wf-profile-button-radius:${profile.radius.button}px`,
+    `--wf-profile-border-width:${profile.borders.width}px`,
+    `--wf-profile-border-color:${profile.borders.color}`,
+    `--wf-profile-motion:${profile.motion.durationMs}ms`
+  ].join(";") + ";";
+}
+
+// src/editor/render/premium-section-styles.ts
+var premiumSectionStyles = String.raw`
+:root{--wf-canvas-bg:var(--wf-profile-background,var(--wf-background,#fff));--wf-canvas-surface:var(--wf-profile-surface,var(--wf-surface,#fff));--wf-canvas-ink:var(--wf-profile-ink,var(--wf-ink,#151515));--wf-canvas-accent:var(--wf-profile-accent,var(--wf-accent,#e8dfcf));--wf-canvas-gap:var(--wf-profile-gap,20px);--wf-canvas-radius:var(--wf-profile-card-radius,18px);--wf-canvas-button-radius:var(--wf-profile-button-radius,999px);--wf-canvas-border:var(--wf-profile-border-color,color-mix(in srgb,var(--wf-canvas-ink) 17%,transparent));--wf-canvas-motion:var(--wf-profile-motion,220ms)}
+.wf-product-hero,.wf-buy-box,.wf-variant-selector,.wf-quantity-offer,.wf-fixed-bundle,.wf-subscription-selector,.wf-preorder-selector,.wf-benefits-results,.wf-product-media,.wf-before-after,.wf-reviews-ugc,.wf-faq-trust,.wf-recommendations,.wf-advertorialMasthead,.wf-authorLine,.wf-editorialBody,.wf-evidenceCallout,.wf-inlineProduct,.wf-conversionClose,.wf-listicleIndex,.wf-numberedReason,.wf-comparisonInsert,.wf-productRecommendation,.wf-quizProgress,.wf-quizQuestion,.wf-quizResult,.wf-leadCapture,.wf-brandManifesto,.wf-founderStory,.wf-editorialChapter,.wf-campaignLookbook,.wf-comparison{--wf-pack-bg:var(--wf-bg,var(--wf-canvas-bg));--wf-pack-ink:var(--wf-color,var(--wf-canvas-ink));color:var(--wf-pack-ink);padding-block:clamp(48px,var(--wf-profile-section,88px),112px)}
+.wf-section :is(a,button,input,select,summary):focus-visible{outline:2px solid var(--wf-canvas-accent);outline-offset:3px}.wf-section__button{border-radius:var(--wf-canvas-button-radius)!important}.wf-section__grid{gap:var(--wf-canvas-gap)}
+.wf-product-hero .wf-section__card,.wf-buy-box .wf-section__card,.wf-variant-selector .wf-section__card,.wf-quantity-offer .wf-section__card,.wf-fixed-bundle .wf-section__card,.wf-subscription-selector .wf-section__card,.wf-preorder-selector .wf-section__card,.wf-benefits-results .wf-section__card,.wf-product-media .wf-section__card,.wf-before-after .wf-section__card,.wf-reviews-ugc .wf-section__card,.wf-faq-trust .wf-section__card,.wf-recommendations .wf-section__card,.wf-advertorialMasthead .wf-section__card,.wf-editorialBody .wf-section__card,.wf-evidenceCallout .wf-section__card,.wf-inlineProduct .wf-section__card,.wf-conversionClose .wf-section__card,.wf-listicleIndex .wf-section__card,.wf-numberedReason .wf-section__card,.wf-comparisonInsert .wf-section__card,.wf-productRecommendation .wf-section__card,.wf-quizProgress .wf-section__card,.wf-quizQuestion .wf-section__card,.wf-quizResult .wf-section__card,.wf-leadCapture .wf-section__card,.wf-brandManifesto .wf-section__card,.wf-founderStory .wf-section__card,.wf-editorialChapter .wf-section__card,.wf-campaignLookbook .wf-section__card{border:var(--wf-profile-border-width,1px) solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:color-mix(in srgb,var(--wf-canvas-surface) 95%,var(--wf-pack-bg));box-shadow:0 1px 1px color-mix(in srgb,var(--wf-pack-ink) 5%,transparent);transition:transform var(--wf-canvas-motion) ease,box-shadow var(--wf-canvas-motion) ease,border-color var(--wf-canvas-motion) ease}
+.wf-product-hero .wf-section__card:hover,.wf-buy-box .wf-section__card:hover,.wf-variant-selector .wf-section__card:hover,.wf-quantity-offer .wf-section__card:hover,.wf-fixed-bundle .wf-section__card:hover,.wf-subscription-selector .wf-section__card:hover,.wf-preorder-selector .wf-section__card:hover,.wf-benefits-results .wf-section__card:hover,.wf-product-media .wf-section__card:hover,.wf-before-after .wf-section__card:hover,.wf-reviews-ugc .wf-section__card:hover,.wf-faq-trust .wf-section__card:hover,.wf-recommendations .wf-section__card:hover,.wf-advertorialMasthead .wf-section__card:hover,.wf-editorialBody .wf-section__card:hover,.wf-evidenceCallout .wf-section__card:hover,.wf-inlineProduct .wf-section__card:hover,.wf-conversionClose .wf-section__card:hover,.wf-listicleIndex .wf-section__card:hover,.wf-numberedReason .wf-section__card:hover,.wf-comparisonInsert .wf-section__card:hover,.wf-productRecommendation .wf-section__card:hover,.wf-quizProgress .wf-section__card:hover,.wf-quizQuestion .wf-section__card:hover,.wf-quizResult .wf-section__card:hover,.wf-leadCapture .wf-section__card:hover,.wf-brandManifesto .wf-section__card:hover,.wf-founderStory .wf-section__card:hover,.wf-editorialChapter .wf-section__card:hover,.wf-campaignLookbook .wf-section__card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--wf-pack-ink) 34%,var(--wf-canvas-border));box-shadow:0 14px 28px color-mix(in srgb,var(--wf-pack-ink) 11%,transparent)}
+
+/* Product hero, buy box, options, quantity, bundle, subscriptions and recommendations. */
+.wf-product-hero,.wf-buy-box,.wf-variant-selector,.wf-quantity-offer,.wf-fixed-bundle,.wf-subscription-selector,.wf-preorder-selector,.wf-inlineProduct,.wf-productRecommendation{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);grid-template-areas:"media head" "media cards" "media form";align-items:start;column-gap:clamp(26px,5vw,78px);row-gap:18px}.wf-product-hero>header,.wf-buy-box>header,.wf-variant-selector>header,.wf-quantity-offer>header,.wf-fixed-bundle>header,.wf-subscription-selector>header,.wf-preorder-selector>header,.wf-inlineProduct>header,.wf-productRecommendation>header{grid-area:head}.wf-product-hero>.wf-section__media,.wf-buy-box>.wf-section__media,.wf-variant-selector>.wf-section__media,.wf-quantity-offer>.wf-section__media,.wf-fixed-bundle>.wf-section__media,.wf-subscription-selector>.wf-section__media,.wf-preorder-selector>.wf-section__media,.wf-inlineProduct>.wf-section__media,.wf-productRecommendation>.wf-section__media{grid-area:media;position:sticky;top:20px;overflow:hidden;border-radius:calc(var(--wf-canvas-radius) + 2px);background:var(--wf-canvas-surface)}.wf-product-hero>.wf-section__media img,.wf-buy-box>.wf-section__media img,.wf-variant-selector>.wf-section__media img,.wf-quantity-offer>.wf-section__media img,.wf-fixed-bundle>.wf-section__media img,.wf-subscription-selector>.wf-section__media img,.wf-preorder-selector>.wf-section__media img,.wf-inlineProduct>.wf-section__media img,.wf-productRecommendation>.wf-section__media img{width:100%;min-height:520px;aspect-ratio:4/5;object-fit:cover;transition:transform calc(var(--wf-canvas-motion)*2) ease}.wf-product-hero>.wf-section__media:hover img,.wf-buy-box>.wf-section__media:hover img,.wf-variant-selector>.wf-section__media:hover img,.wf-quantity-offer>.wf-section__media:hover img,.wf-fixed-bundle>.wf-section__media:hover img,.wf-subscription-selector>.wf-section__media:hover img,.wf-preorder-selector>.wf-section__media:hover img,.wf-inlineProduct>.wf-section__media:hover img,.wf-productRecommendation>.wf-section__media:hover img{transform:scale(1.025)}.wf-product-hero>.wf-section__grid,.wf-buy-box>.wf-section__grid,.wf-variant-selector>.wf-section__grid,.wf-quantity-offer>.wf-section__grid,.wf-fixed-bundle>.wf-section__grid,.wf-subscription-selector>.wf-section__grid,.wf-preorder-selector>.wf-section__grid,.wf-inlineProduct>.wf-section__grid,.wf-productRecommendation>.wf-section__grid{grid-area:cards;margin-top:0;grid-template-columns:repeat(2,minmax(0,1fr))}.wf-product-hero .wf-product__form,.wf-buy-box .wf-product__form,.wf-variant-selector .wf-product__form,.wf-quantity-offer .wf-product__form,.wf-fixed-bundle .wf-product__form,.wf-subscription-selector .wf-product__form,.wf-preorder-selector .wf-product__form,.wf-inlineProduct .wf-product__form,.wf-productRecommendation .wf-product__form{grid-area:form;display:grid;grid-template-columns:1fr minmax(100px,.45fr);gap:12px;margin-top:6px;padding:16px;border:1px solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface);box-shadow:0 12px 30px color-mix(in srgb,var(--wf-pack-ink) 6%,transparent)}.wf-product-hero .wf-product__form label,.wf-buy-box .wf-product__form label,.wf-variant-selector .wf-product__form label,.wf-quantity-offer .wf-product__form label,.wf-fixed-bundle .wf-product__form label,.wf-subscription-selector .wf-product__form label,.wf-preorder-selector .wf-product__form label,.wf-inlineProduct .wf-product__form label,.wf-productRecommendation .wf-product__form label{display:grid;gap:6px;font-size:11px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}.wf-product-hero .wf-product__form :is(input,select),.wf-buy-box .wf-product__form :is(input,select),.wf-variant-selector .wf-product__form :is(input,select),.wf-quantity-offer .wf-product__form :is(input,select),.wf-fixed-bundle .wf-product__form :is(input,select),.wf-subscription-selector .wf-product__form :is(input,select),.wf-preorder-selector .wf-product__form :is(input,select),.wf-inlineProduct .wf-product__form :is(input,select),.wf-productRecommendation .wf-product__form :is(input,select){width:100%;min-height:46px;border:1px solid var(--wf-canvas-border);border-radius:10px;background:var(--wf-pack-bg);color:inherit;padding:0 11px;font:inherit;letter-spacing:normal;text-transform:none}.wf-product-hero .wf-product__form button,.wf-buy-box .wf-product__form button,.wf-variant-selector .wf-product__form button,.wf-quantity-offer .wf-product__form button,.wf-fixed-bundle .wf-product__form button,.wf-subscription-selector .wf-product__form button,.wf-preorder-selector .wf-product__form button,.wf-inlineProduct .wf-product__form button,.wf-productRecommendation .wf-product__form button{grid-column:1/-1;width:100%;margin:2px 0 0;border-radius:var(--wf-canvas-button-radius);background:var(--wf-pack-ink);color:var(--wf-canvas-surface);transition:transform var(--wf-canvas-motion) ease,filter var(--wf-canvas-motion) ease}.wf-product-hero .wf-product__form button:hover,.wf-buy-box .wf-product__form button:hover,.wf-variant-selector .wf-product__form button:hover,.wf-quantity-offer .wf-product__form button:hover,.wf-fixed-bundle .wf-product__form button:hover,.wf-subscription-selector .wf-product__form button:hover,.wf-preorder-selector .wf-product__form button:hover,.wf-inlineProduct .wf-product__form button:hover,.wf-productRecommendation .wf-product__form button:hover{filter:brightness(1.12);transform:translateY(-1px)}.wf-product-hero[data-wf-variant="clinical-proof"] .wf-section__card:first-child,.wf-quantity-offer .wf-section__card:first-child,.wf-fixed-bundle[data-wf-variant="gift-set"] .wf-section__card:first-child{border:2px solid var(--wf-canvas-ink);background:color-mix(in srgb,var(--wf-canvas-accent) 18%,var(--wf-canvas-surface))}.wf-variant-selector[data-wf-variant="pills"]>.wf-section__grid{display:flex;flex-wrap:wrap}.wf-variant-selector[data-wf-variant="pills"] .wf-section__card{padding:10px 14px;border-radius:999px}.wf-variant-selector[data-wf-variant="image-cards"] .wf-section__card img{aspect-ratio:4/3;object-fit:cover;margin:-24px -24px 14px;width:calc(100% + 48px);border-radius:calc(var(--wf-canvas-radius) - 1px) calc(var(--wf-canvas-radius) - 1px) 0 0}.wf-subscription-selector[data-wf-variant="benefit-led"] .wf-section__grid,.wf-preorder-selector[data-wf-variant="limited"] .wf-section__grid{grid-template-columns:1fr}
+
+/* Benefits, media, before/after, UGC, comparison, FAQ and trust. */
+.wf-benefits-results .wf-section__grid,.wf-product-media .wf-section__grid,.wf-reviews-ugc .wf-section__grid,.wf-recommendations .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-benefits-results .wf-section__card{min-height:190px;padding:24px;display:flex;flex-direction:column;justify-content:end}.wf-benefits-results .wf-section__card:first-child{background:var(--wf-canvas-accent);border-color:transparent}.wf-benefits-results[data-wf-variant="proof-timeline"] .wf-section__grid{counter-reset:proof}.wf-benefits-results[data-wf-variant="proof-timeline"] .wf-section__card{position:relative;padding-top:62px;counter-increment:proof}.wf-benefits-results[data-wf-variant="proof-timeline"] .wf-section__card::before{content:"0" counter(proof);position:absolute;top:18px;left:22px;font-size:12px;font-weight:800;letter-spacing:.1em;opacity:.55}.wf-product-media figure,.wf-advertorialMasthead figure,.wf-brandManifesto figure,.wf-founderStory figure,.wf-editorialChapter figure{margin:0 0 28px;overflow:hidden;border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface)}.wf-product-media figure img,.wf-advertorialMasthead figure img,.wf-brandManifesto figure img,.wf-founderStory figure img,.wf-editorialChapter figure img{display:block;width:100%;aspect-ratio:16/8;object-fit:cover;transition:transform calc(var(--wf-canvas-motion)*2) ease}.wf-product-media figure:hover img,.wf-advertorialMasthead figure:hover img,.wf-brandManifesto figure:hover img,.wf-founderStory figure:hover img,.wf-editorialChapter figure:hover img{transform:scale(1.018)}.wf-product-media[data-wf-variant="masonry"] .wf-section__card:nth-child(2),.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__card:nth-child(2n){transform:translateY(24px)}.wf-before-after .wf-section__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,2vw,24px)}.wf-before-after .wf-section__card{padding:12px}.wf-before-after .wf-section__card img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:calc(var(--wf-canvas-radius) - 8px)}.wf-before-after[data-wf-variant="slider"] .wf-section__grid{gap:0;overflow:hidden;border-radius:var(--wf-canvas-radius)}.wf-before-after[data-wf-variant="slider"] .wf-section__card{border-radius:0;border-width:0}.wf-reviews-ugc{background:linear-gradient(135deg,color-mix(in srgb,var(--wf-canvas-accent) 22%,transparent),transparent)}.wf-reviews-ugc .wf-section__card{padding:20px}.wf-reviews-ugc .wf-section__card cite{display:block;margin-top:16px;font-style:normal;font-size:12px;font-weight:800;opacity:.65}.wf-reviews-ugc .wf-section__card img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:calc(var(--wf-canvas-radius) - 6px)}.wf-reviews-ugc[data-wf-variant="spotlight"] .wf-section__card:first-child{grid-column:span 2;min-height:250px;background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__grid{grid-template-columns:repeat(4,minmax(0,1fr))}.wf-comparison,.wf-comparisonInsert{padding:clamp(38px,6vw,78px);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-comparison [role="table"]{display:grid;gap:1px;margin-top:32px;overflow:hidden;border:1px solid color-mix(in srgb,var(--wf-canvas-surface) 24%,transparent);border-radius:calc(var(--wf-canvas-radius) - 4px)}.wf-comparison [role="table"]>*{display:grid;grid-template-columns:1.2fr 1fr 1fr;padding:17px 20px;background:color-mix(in srgb,var(--wf-canvas-surface) 8%,transparent)}.wf-comparisonInsert .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-comparisonInsert .wf-section__card{background:color-mix(in srgb,var(--wf-canvas-surface) 10%,transparent);color:inherit;border-color:color-mix(in srgb,var(--wf-canvas-surface) 25%,transparent)}.wf-comparisonInsert[data-wf-variant="versus"] .wf-section__card:first-child{background:var(--wf-canvas-accent);color:var(--wf-canvas-ink);border-color:transparent}.wf-faq-trust{display:grid;grid-template-columns:minmax(0,.68fr) minmax(0,1.32fr);gap:clamp(28px,6vw,88px)}.wf-faq-trust>.wf-section__grid{grid-column:2;grid-row:1/span 2;margin-top:0;grid-template-columns:1fr}.wf-faq-trust .wf-section__card{padding:20px 22px}.wf-faq-trust .wf-section__card h3{margin:0;font-size:17px}.wf-faq-trust .wf-section__card p{margin-bottom:0;opacity:.72}.wf-faq-trust[data-wf-variant="guarantee-cards"]{display:block}.wf-faq-trust[data-wf-variant="guarantee-cards"]>.wf-section__grid{margin-top:34px;grid-template-columns:repeat(3,minmax(0,1fr))}.wf-recommendations .wf-section__card{padding:12px}.wf-recommendations .wf-section__card img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:calc(var(--wf-canvas-radius) - 7px)}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__grid{grid-template-columns:1fr}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__card{display:grid;grid-template-columns:100px 1fr;align-items:center;gap:16px}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__card img{grid-row:span 3;aspect-ratio:1}
+
+/* Advertorial, listicle and brand-story reading systems. */
+.wf-advertorialMasthead,.wf-brandManifesto,.wf-founderStory,.wf-editorialChapter{max-width:1060px}.wf-advertorialMasthead header,.wf-brandManifesto header,.wf-founderStory header,.wf-editorialChapter header{max-width:760px}.wf-advertorialMasthead h2,.wf-brandManifesto h2,.wf-founderStory h2,.wf-editorialChapter h2{font-size:clamp(48px,7vw,104px);letter-spacing:-.065em}.wf-authorLine{max-width:760px;padding-block:18px;border-block:1px solid var(--wf-canvas-border)}.wf-authorLine .wf-section__grid{grid-template-columns:1fr;margin-top:0}.wf-authorLine .wf-section__card{padding:0;border:0;background:transparent;box-shadow:none}.wf-editorialBody{max-width:760px}.wf-editorialBody .wf-section__grid{grid-template-columns:1fr;gap:0;margin-top:28px}.wf-editorialBody .wf-section__card{padding:26px 0;border-width:0 0 1px;border-radius:0;background:transparent;box-shadow:none}.wf-editorialBody .wf-section__card h3{font-size:clamp(22px,3vw,32px);letter-spacing:-.03em}.wf-editorialBody .wf-section__card p{max-width:62ch;font-size:18px;line-height:1.65}.wf-evidenceCallout{max-width:820px;padding:clamp(26px,5vw,52px);border-left:4px solid var(--wf-canvas-accent);background:color-mix(in srgb,var(--wf-canvas-accent) 13%,transparent)}.wf-evidenceCallout .wf-section__grid{grid-template-columns:1fr;margin-top:0}.wf-evidenceCallout .wf-section__card{padding:0;border:0;background:transparent;box-shadow:none}.wf-inlineProduct{max-width:920px;padding:24px;border:1px solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface)}.wf-conversionClose{max-width:1120px;padding:clamp(34px,7vw,84px);text-align:center;border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-conversionClose header{max-width:700px;margin-inline:auto}.wf-conversionClose .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-conversionClose .wf-section__card{background:color-mix(in srgb,var(--wf-canvas-surface) 9%,transparent);color:inherit;border-color:color-mix(in srgb,var(--wf-canvas-surface) 18%,transparent)}.wf-conversionClose .wf-section__button{background:var(--wf-canvas-accent);color:var(--wf-canvas-ink)}.wf-listicleIndex{max-width:900px}.wf-listicleIndex .wf-section__grid{grid-template-columns:1fr;margin-top:28px;counter-reset:listicle}.wf-listicleIndex .wf-section__card{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:center;padding:18px 20px;counter-increment:listicle}.wf-listicleIndex .wf-section__card::before{content:counter(listicle,decimal-leading-zero);font-weight:850;font-size:13px;opacity:.55}.wf-listicleIndex .wf-section__card h3,.wf-listicleIndex .wf-section__card p{grid-column:2;margin:0}.wf-listicleIndex[data-wf-variant="cards"] .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-listicleIndex[data-wf-variant="cards"] .wf-section__card{display:block;min-height:160px}.wf-listicleIndex[data-wf-variant="cards"] .wf-section__card::before{display:block;margin-bottom:36px}.wf-numberedReason{max-width:880px;display:grid;grid-template-columns:150px 1fr;gap:clamp(24px,5vw,72px);border-top:1px solid var(--wf-canvas-border)}.wf-numberedReason header::before{content:"01";display:block;margin-bottom:10px;font-size:12px;font-weight:800;letter-spacing:.12em;opacity:.55}.wf-numberedReason>.wf-section__grid{grid-column:2;margin-top:0;grid-template-columns:1fr}.wf-numberedReason .wf-section__card{padding:0;border:0;background:transparent;box-shadow:none}.wf-numberedReason[data-wf-variant="proof"] .wf-section__card{padding:28px;border-left:3px solid var(--wf-canvas-accent);background:color-mix(in srgb,var(--wf-canvas-accent) 9%,transparent)}.wf-brandManifesto{padding:clamp(72px,12vw,150px) 0;text-align:center}.wf-brandManifesto header{margin-inline:auto}.wf-brandManifesto .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr));text-align:left}.wf-founderStory{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(30px,7vw,100px);align-items:center}.wf-founderStory figure{grid-row:1/span 2;margin:0}.wf-founderStory figure img{aspect-ratio:4/5}.wf-founderStory>.wf-section__grid{grid-column:2;margin-top:0;grid-template-columns:1fr}.wf-founderStory .wf-section__card{padding:0;border:0;background:transparent;box-shadow:none}.wf-founderStory[data-wf-variant="timeline"]>.wf-section__grid{border-left:1px solid var(--wf-canvas-border)}.wf-founderStory[data-wf-variant="timeline"] .wf-section__card{padding:8px 0 8px 24px;position:relative}.wf-founderStory[data-wf-variant="timeline"] .wf-section__card::before{content:"";position:absolute;left:-5px;top:17px;width:9px;height:9px;border-radius:50%;background:var(--wf-canvas-accent)}.wf-editorialChapter[data-wf-variant="split"]{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,7vw,100px);align-items:center}.wf-editorialChapter[data-wf-variant="split"] figure{grid-row:1/span 2;margin:0}.wf-editorialChapter[data-wf-variant="split"]>.wf-section__grid{grid-column:2;margin-top:0;grid-template-columns:1fr}.wf-editorialChapter[data-wf-variant="full-bleed"]{position:relative;max-width:none;width:100%;min-height:680px;padding-inline:max(28px,calc((100% - 1124px)/2));display:grid;align-content:end;color:var(--wf-canvas-surface);overflow:hidden}.wf-editorialChapter[data-wf-variant="full-bleed"] figure{position:absolute;inset:0;z-index:-1;margin:0;border-radius:0}.wf-editorialChapter[data-wf-variant="full-bleed"] figure::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.68),rgba(0,0,0,.06) 70%)}.wf-editorialChapter[data-wf-variant="full-bleed"] figure img{height:100%;aspect-ratio:auto}.wf-editorialChapter[data-wf-variant="full-bleed"]>.wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-editorialChapter[data-wf-variant="full-bleed"] .wf-section__card{background:rgba(255,255,255,.12);color:inherit;border-color:rgba(255,255,255,.23);backdrop-filter:blur(8px)}.wf-campaignLookbook .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:dense}.wf-campaignLookbook .wf-section__card{padding:0;overflow:hidden}.wf-campaignLookbook .wf-section__card img{width:100%;height:100%;min-height:260px;object-fit:cover;border-radius:0}.wf-campaignLookbook .wf-section__card h3,.wf-campaignLookbook .wf-section__card p{padding-inline:16px}.wf-campaignLookbook[data-wf-variant="masonry"] .wf-section__card:nth-child(3n+1){grid-row:span 2}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__grid{grid-template-columns:1fr}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card{display:grid;grid-template-columns:1fr 1fr;align-items:center}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card img{grid-row:span 2}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card:nth-child(even) img{order:2}
+
+/* Quiz and lead capture. */
+.wf-quizProgress,.wf-quizQuestion,.wf-quizResult,.wf-leadCapture{max-width:780px}.wf-quizProgress .wf-section__grid{grid-template-columns:repeat(3,1fr);margin-top:26px}.wf-quizProgress .wf-section__card{padding:12px 14px;text-align:center}.wf-quizProgress[data-wf-variant="bar"] .wf-section__grid{grid-template-columns:1fr}.wf-quizProgress[data-wf-variant="bar"] .wf-section__card{height:10px;padding:0;border:0;border-radius:999px;background:color-mix(in srgb,var(--wf-canvas-ink) 12%,transparent)}.wf-quizProgress[data-wf-variant="bar"] .wf-section__card:first-child{background:var(--wf-canvas-accent)}.wf-quizQuestion,.wf-quizResult{padding:clamp(36px,7vw,82px);border-radius:var(--wf-canvas-radius);background:color-mix(in srgb,var(--wf-canvas-accent) 18%,var(--wf-canvas-bg))}.wf-quizQuestion .wf-quiz__form{margin-top:28px}.wf-quizQuestion fieldset{border:0;margin:0;padding:0}.wf-quizQuestion legend{font-size:clamp(24px,4vw,38px);font-weight:760;line-height:1.08;letter-spacing:-.04em}.wf-quizQuestion label{display:flex;align-items:center;gap:12px;margin-top:14px;padding:17px 18px;border:1px solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface);cursor:pointer;transition:border-color var(--wf-canvas-motion) ease,transform var(--wf-canvas-motion) ease}.wf-quizQuestion label:hover{transform:translateX(4px);border-color:var(--wf-canvas-ink)}.wf-quizQuestion label:has(input:checked){border:2px solid var(--wf-canvas-ink)}.wf-quizQuestion .wf-quiz__form>button,.wf-leadCapture .wf-section__button{width:100%;border-radius:var(--wf-canvas-button-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-quizResult .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-quizResult .wf-section__card:first-child{background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-leadCapture{padding:clamp(30px,6vw,70px);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-leadCapture .wf-section__grid{grid-template-columns:1fr}.wf-leadCapture .wf-section__card{background:rgba(255,255,255,.09);color:inherit;border-color:rgba(255,255,255,.18)}.wf-leadCapture .wf-section__button{background:var(--wf-canvas-accent);color:var(--wf-canvas-ink)}
+@media(max-width:700px){.wf-product-hero,.wf-buy-box,.wf-variant-selector,.wf-quantity-offer,.wf-fixed-bundle,.wf-subscription-selector,.wf-preorder-selector,.wf-inlineProduct,.wf-productRecommendation,.wf-faq-trust,.wf-numberedReason,.wf-founderStory,.wf-editorialChapter[data-wf-variant="split"]{display:block}.wf-product-hero>.wf-section__media,.wf-buy-box>.wf-section__media,.wf-variant-selector>.wf-section__media,.wf-quantity-offer>.wf-section__media,.wf-fixed-bundle>.wf-section__media,.wf-subscription-selector>.wf-section__media,.wf-preorder-selector>.wf-section__media,.wf-inlineProduct>.wf-section__media,.wf-productRecommendation>.wf-section__media{position:static;margin:0 0 24px}.wf-product-hero .wf-section__media img,.wf-buy-box .wf-section__media img,.wf-variant-selector .wf-section__media img,.wf-quantity-offer .wf-section__media img,.wf-fixed-bundle .wf-section__media img,.wf-subscription-selector .wf-section__media img,.wf-preorder-selector .wf-section__media img,.wf-inlineProduct .wf-section__media img,.wf-productRecommendation .wf-section__media img{min-height:360px}.wf-product-hero>.wf-section__grid,.wf-buy-box>.wf-section__grid,.wf-variant-selector>.wf-section__grid,.wf-quantity-offer>.wf-section__grid,.wf-fixed-bundle>.wf-section__grid,.wf-subscription-selector>.wf-section__grid,.wf-preorder-selector>.wf-section__grid,.wf-inlineProduct>.wf-section__grid,.wf-productRecommendation>.wf-section__grid,.wf-benefits-results .wf-section__grid,.wf-product-media .wf-section__grid,.wf-reviews-ugc .wf-section__grid,.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__grid,.wf-comparisonInsert .wf-section__grid,.wf-faq-trust[data-wf-variant="guarantee-cards"]>.wf-section__grid,.wf-recommendations .wf-section__grid,.wf-conversionClose .wf-section__grid,.wf-listicleIndex[data-wf-variant="cards"] .wf-section__grid,.wf-brandManifesto .wf-section__grid,.wf-quizResult .wf-section__grid,.wf-campaignLookbook .wf-section__grid{grid-template-columns:1fr}.wf-product-hero .wf-product__form,.wf-buy-box .wf-product__form,.wf-variant-selector .wf-product__form,.wf-quantity-offer .wf-product__form,.wf-fixed-bundle .wf-product__form,.wf-subscription-selector .wf-product__form,.wf-preorder-selector .wf-product__form,.wf-inlineProduct .wf-product__form,.wf-productRecommendation .wf-product__form{grid-template-columns:1fr}.wf-before-after .wf-section__grid{grid-template-columns:1fr}.wf-reviews-ugc[data-wf-variant="spotlight"] .wf-section__card:first-child{grid-column:auto}.wf-product-media[data-wf-variant="masonry"] .wf-section__card:nth-child(2),.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__card:nth-child(2n){transform:none}.wf-comparison,.wf-comparisonInsert,.wf-quizQuestion,.wf-quizResult,.wf-leadCapture{width:calc(100% - 28px);padding:30px 20px}.wf-comparison [role="table"]>*{grid-template-columns:1fr;padding:15px}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__card{grid-template-columns:76px 1fr}.wf-editorialChapter[data-wf-variant="full-bleed"]{min-height:560px;padding-inline:20px}.wf-editorialChapter[data-wf-variant="full-bleed"]>.wf-section__grid{grid-template-columns:1fr}.wf-campaignLookbook[data-wf-variant="masonry"] .wf-section__card:nth-child(3n+1){grid-row:auto}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card{display:block}.wf-quizProgress .wf-section__grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.wf-product-hero *,.wf-buy-box *,.wf-variant-selector *,.wf-quantity-offer *,.wf-fixed-bundle *,.wf-subscription-selector *,.wf-preorder-selector *,.wf-benefits-results *,.wf-product-media *,.wf-before-after *,.wf-reviews-ugc *,.wf-faq-trust *,.wf-recommendations *,.wf-advertorialMasthead *,.wf-authorLine *,.wf-editorialBody *,.wf-evidenceCallout *,.wf-inlineProduct *,.wf-conversionClose *,.wf-listicleIndex *,.wf-numberedReason *,.wf-comparisonInsert *,.wf-productRecommendation *,.wf-quizProgress *,.wf-quizQuestion *,.wf-quizResult *,.wf-leadCapture *,.wf-brandManifesto *,.wf-founderStory *,.wf-editorialChapter *,.wf-campaignLookbook *,.wf-comparison *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+`;
 
 // src/editor/render/render-section.ts
 function escapeEditorHtml(value2) {
@@ -946,11 +1357,12 @@ function renderEditorDocument(document2, options) {
     return `<section data-wf-section-id="${escapeEditorHtml(section2.id)}" data-wf-section-type="${escapeEditorHtml(section2.type)}"${selected}${hidden}>${rendererForSection(section2.type)(section2, page.name)}</section>`;
   }).join("");
   const theme = document2.theme;
+  const profileTokens = document2.designProfile ? designTokenStyle(document2.designProfile) : "";
   const radius = theme.radius === "none" ? "0px" : theme.radius === "round" ? "36px" : "18px";
   const headingFont = safeFont(document2.commerce?.brandKit.headingFont, themeFont(theme.display));
   const bodyFont = safeFont(document2.commerce?.brandKit.bodyFont, "Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif");
   const scopedStyles = `body{font-family:${bodyFont}}.wf-section h1,.wf-section h2,.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${headingFont}}.wf-hero>*{min-width:0}.wf-hero figure{overflow:hidden}.wf-hero__image{display:block;width:100%;height:100%;min-height:560px;max-height:760px;object-fit:cover;border-radius:${radius}}.wf-product-hero--beauty-editorial{grid-template-columns:.88fr 1.12fr;background:color-mix(in srgb,${theme.accent} 12%,${theme.background});padding-inline:clamp(24px,5vw,72px)}.wf-product-hero--beauty-editorial figure{order:2}.wf-product-hero--object-editorial{grid-template-columns:1.2fr .8fr}.wf-product-hero--object-editorial figure{padding:7%;background:${theme.surface}}.wf-product{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(30px,6vw,80px);align-items:start}.wf-product__gallery{position:sticky;top:20px}.wf-product__image{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius}}.wf-product__buy-box{padding:clamp(24px,4vw,54px);background:${theme.surface};border-radius:${radius}}.wf-product--bundle-led .wf-product__buy-box{border:2px solid ${theme.ink}}.wf-benefits--ritual-cards .wf-section__grid{grid-template-columns:1.2fr 1fr 1fr}.wf-benefits--ritual-cards .wf-section__card:first-child{min-height:310px;background:${theme.accent}}.wf-benefits--technical-grid .wf-section__card{background:transparent;border-top:3px solid ${theme.ink}}.wf-testimonials--editorial-stories .wf-section__grid{grid-template-columns:1.35fr .85fr .85fr}.wf-testimonials--editorial-stories .wf-section__card:first-child{font-size:1.16em;background:${theme.ink};color:${theme.surface}}.wf-testimonials--ugc-grid .wf-section__card{padding:12px}.wf-testimonials--ugc-grid .wf-section__card img{aspect-ratio:4/3}.wf-bundle--routine-set{background:${theme.accent};border-radius:${radius};padding-inline:clamp(24px,5vw,64px)}.wf-bundle--quantity-break fieldset{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border:0;padding:0}.wf-bundle--quantity-break label{background:${theme.surface};border:1px solid color-mix(in srgb,${theme.ink} 20%,transparent);border-radius:${radius}}.wf-faq--editorial-accordion{max-width:900px}.wf-faq--support-columns{display:grid;grid-template-columns:.7fr 1.3fr;gap:60px}@media(max-width:700px){.wf-hero__image{min-height:390px}.wf-product,.wf-faq--support-columns{grid-template-columns:1fr}.wf-product__gallery{position:static}.wf-benefits--ritual-cards .wf-section__grid,.wf-testimonials--editorial-stories .wf-section__grid,.wf-bundle--quantity-break fieldset{grid-template-columns:1fr}}${page.sections.map(sectionStyles).join("")}`;
-  const productChromeStyles = `.wf-product__thumbs{display:flex;gap:8px;margin-top:12px}.wf-product__thumbs button{width:46px;min-height:46px;margin:0;padding:0;border-radius:14px;background:${theme.ink}}.wf-product__sticky{display:none}`;
+  const productChromeStyles = `.wf-product__thumbs{display:flex;gap:8px;margin-top:12px}.wf-product__thumbs button{width:46px;min-height:46px;margin:0;padding:0;border-radius:14px;background:${theme.ink}}.wf-product__sticky{display:none}:root{--wf-background:${theme.background};--wf-surface:${theme.surface};--wf-ink:${theme.ink};--wf-accent:${theme.accent};${profileTokens}}${premiumSectionStyles}`;
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeEditorHtml(document2.name)}</title><style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:${theme.background};color:${theme.ink};font:15px/1.5 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}a{color:inherit}.wf-section{width:min(1180px,calc(100% - 56px));margin-inline:auto;padding-block:clamp(54px,8vw,112px)}.wf-section h1,.wf-section h2{max-width:900px;margin:.12em 0 .35em;font-family:${themeFont(theme.display)};font-size:clamp(42px,6.5vw,92px);font-weight:700;line-height:.94;letter-spacing:-.055em}.wf-section__eyebrow{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.15em}.wf-section__copy{max-width:650px;font-size:clamp(17px,2vw,22px);line-height:1.45}.wf-section__button,.wf-section button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:24px;padding:0 22px;border:0;border-radius:${radius};background:${theme.ink};color:${theme.surface};font-weight:800;text-decoration:none;cursor:pointer}.wf-section__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:38px}.wf-section__card{padding:24px;border:1px solid color-mix(in srgb,${theme.ink} 14%,transparent);border-radius:${radius};background:${theme.surface}}.wf-section__card img,.wf-section__image{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius}}.wf-media-empty{min-height:360px;background:linear-gradient(135deg,${theme.surface},color-mix(in srgb,${theme.accent} 70%,${theme.background}));border:1px dashed color-mix(in srgb,${theme.ink} 25%,transparent)}.wf-navigation{min-height:76px;padding-block:0;display:flex;align-items:center;justify-content:space-between;gap:24px}.wf-navigation>div{display:flex;gap:24px}.wf-navigation a{text-decoration:none}.wf-navigation__brand{font-weight:900;font-size:20px}.wf-navigation .wf-section__button{margin-top:0;min-height:40px}.wf-announcement{width:100%;padding:10px 28px;display:flex;justify-content:center;align-items:center;gap:18px;background:${theme.accent};text-align:center}.wf-announcement p{margin:0}.wf-announcement .wf-section__button{min-height:auto;margin:0;padding:0;background:transparent;color:inherit;text-decoration:underline}.wf-hero,.wf-image-text{min-height:680px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(32px,7vw,100px)}.wf-hero figure{margin:0}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{aspect-ratio:4/5;min-height:560px}.wf-video-hero{position:relative;width:100%;min-height:760px;padding:80px;display:grid;align-items:end;color:#fff;overflow:hidden}.wf-video-hero video,.wf-video-hero>.wf-section__image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62)}.wf-video-hero>div{position:relative;z-index:1}.wf-gallery .wf-section__grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-before-after__media{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:36px}.wf-product form{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin-top:28px}.wf-product label{display:grid;gap:6px}.wf-product input,.wf-product select,.wf-form input{min-height:48px;padding:0 12px;border:1px solid color-mix(in srgb,${theme.ink} 25%,transparent);border-radius:10px;background:${theme.background}}.wf-bundle fieldset,.wf-quiz fieldset{display:grid;gap:8px;margin-top:28px;padding:20px;border:1px solid color-mix(in srgb,${theme.ink} 18%,transparent);border-radius:${radius}}.wf-bundle label{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:12px}.wf-bundle__total{display:block;margin-top:18px;font-size:22px;font-weight:800}.wf-faq details{padding:20px 0;border-bottom:1px solid color-mix(in srgb,${theme.ink} 18%,transparent)}.wf-faq summary{font-size:20px;font-weight:700;cursor:pointer}.wf-form form{display:flex;gap:10px;margin-top:30px}.wf-form label{display:grid;gap:5px;flex:1;max-width:440px}.wf-cta{width:min(1180px,calc(100% - 56px));margin-block:56px;padding:clamp(38px,7vw,90px);border-radius:${radius};background:${theme.accent}}.wf-footer{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid color-mix(in srgb,${theme.ink} 18%,transparent)}.wf-v2-wrap{width:min(1180px,calc(100% - 56px));margin-inline:auto}.wf-v2-nav,.wf-v2-footer{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px}.wf-v2-nav>div{display:flex;gap:20px}.wf-v2-nav a{text-decoration:none}.wf-v2-split{min-height:620px;padding-block:52px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(28px,6vw,88px)}.wf-v2-media{margin:0;min-height:500px;background:${theme.surface};border-radius:${radius};overflow:hidden}.wf-v2-media img{display:block;width:100%;height:100%;min-height:500px;object-fit:cover}.wf-v2-media--empty{background:linear-gradient(145deg,${theme.surface},${theme.accent})}.wf-v2-kicker{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.14em}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${themeFont(theme.display)};font-size:clamp(42px,6vw,84px);line-height:.96;letter-spacing:-.045em;margin:.2em 0}.wf-v2-price{display:block;font-size:26px;margin-top:24px}.wf-v2-button{display:inline-flex;margin-top:22px;padding:14px 22px;border-radius:999px;background:${theme.ink};color:${theme.surface};font-weight:800;text-decoration:none}.wf-v2-content{padding-block:90px;border-top:1px solid color-mix(in srgb,${theme.ink} 16%,transparent)}.wf-v2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.wf-v2-grid article,.wf-v2-block{padding:22px;background:${theme.surface};border-radius:${radius}}.wf-v2-band{margin-block:56px;padding:44px;background:${theme.accent};border-radius:${radius};display:grid;grid-template-columns:1fr auto;gap:40px}.wf-v2-footer{border-top:1px solid ${theme.ink}}body[data-wf-mode="edit"] [data-wf-selected="true"]{outline:2px solid #315efb;outline-offset:-2px}body[data-wf-mode="edit"] [data-wf-hidden="true"]{opacity:.42}
 @media(max-width:700px){.wf-section{width:calc(100% - 28px);padding-block:54px}.wf-navigation>div{display:none}.wf-hero,.wf-image-text,.wf-footer{grid-template-columns:1fr;min-height:auto}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{min-height:390px}.wf-section__grid,.wf-gallery .wf-section__grid,.wf-before-after__media{grid-template-columns:1fr}.wf-video-hero{min-height:640px;padding:32px 20px}.wf-form form{display:grid}.wf-v2-wrap{width:calc(100% - 28px)}.wf-v2-nav>div{display:none}.wf-v2-split{grid-template-columns:1fr;min-height:auto;padding-block:24px}.wf-v2-media,.wf-v2-media img{min-height:390px}.wf-v2-grid{grid-template-columns:1fr}.wf-v2-band{grid-template-columns:1fr;padding:28px}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-size:48px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}${scopedStyles}${productChromeStyles}</style></head><body data-wf-mode="${options.mode}" data-wf-breakpoint="${options.breakpoint}">${sections}</body></html>`;
@@ -991,9 +1403,13 @@ function renderSectionPreview(input) {
 }
 
 // src/editor/ui/section-preview-dialog.ts
+function escape2(value2) {
+  return value2.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+}
 function openSectionPreviewDialog(options) {
   document.querySelector("[data-section-preview-dialog]")?.remove();
   const manifest = previewManifest(options.sectionType, options.variantId);
+  const catalog = catalogItemForVariant(options.sectionType, options.variantId);
   let fixtureId = manifest.compatibleFixtureIds.includes(options.fixtureId) ? options.fixtureId : manifest.defaultFixtureId;
   let viewport = "desktop";
   let context = true;
@@ -1001,8 +1417,9 @@ function openSectionPreviewDialog(options) {
   dialog.className = "section-preview-dialog";
   dialog.dataset.sectionPreviewDialog = "";
   dialog.setAttribute("aria-modal", "true");
-  dialog.innerHTML = `<header><div><small>${manifest.conversionGoal}</small><strong>${manifest.title}</strong></div><div class="section-preview-actions"><button type="button" data-preview-viewport="desktop" aria-pressed="true">Bureau</button><button type="button" data-preview-viewport="mobile" aria-pressed="false">Mobile</button><label>Produit d\xE9mo<select data-preview-fixture>${manifest.compatibleFixtureIds.map((id2) => `<option value="${id2}"${id2 === fixtureId ? " selected" : ""}>${fixtureById(id2).brand.name} \xB7 ${fixtureById(id2).product.title}</option>`).join("")}</select></label><label class="section-preview-context"><input type="checkbox" data-preview-context checked> Avec contexte</label><button type="button" data-preview-close aria-label="Fermer">\xD7</button></div></header><div class="section-preview-stage" data-preview-stage><iframe title="Aper\xE7u interactif de ${manifest.title}"></iframe></div><footer><span>La section sera adapt\xE9e \xE0 ton produit et \xE0 ta marque.</span><button type="button" data-preview-insert>Ajouter cette section</button></footer>`;
-  const select = dialog.querySelector("[data-preview-fixture]");
+  const metadata = [...(catalog?.requiredData ?? []).map((value2) => `Donn\xE9es : ${value2}`), ...(catalog?.capabilityBadges ?? []).map((badge) => `${badge.label} \xB7 ${badge.state === "native" ? "Natif" : badge.state === "app-required" ? "Application requise" : "Indisponible"}`)].join(" \xB7 ");
+  dialog.innerHTML = `<header><div><small>${escape2(manifest.conversionGoal)}</small><strong>${escape2(manifest.title)}</strong>${metadata ? `<small>${escape2(metadata)}</small>` : ""}</div><div class="section-preview-actions"><button type="button" data-preview-viewport="desktop" aria-pressed="true">Bureau</button><button type="button" data-preview-viewport="mobile" aria-pressed="false">Mobile</button><label>Produit d\xE9mo<select data-preview-fixture>${manifest.compatibleFixtureIds.map((id2) => `<option value="${escape2(id2)}"${id2 === fixtureId ? " selected" : ""}>${escape2(fixtureById(id2).brand.name)} \xB7 ${escape2(fixtureById(id2).product.title)}</option>`).join("")}</select></label><label class="section-preview-context"><input type="checkbox" data-preview-context checked> Avec contexte</label><button type="button" data-preview-close aria-label="Fermer">\xD7</button></div></header><div class="section-preview-stage" data-preview-stage><iframe title="Aper\xE7u interactif de ${escape2(manifest.title)}"></iframe></div><footer><span>La section sera adapt\xE9e \xE0 ton produit et \xE0 ta marque.</span><button type="button" data-preview-insert>Ajouter cette section</button></footer>`;
+  const select2 = dialog.querySelector("[data-preview-fixture]");
   const frame = dialog.querySelector("iframe");
   const paint = () => {
     frame.srcdoc = renderSectionPreview({ sectionType: options.sectionType, variantId: options.variantId, fixtureId, viewport, context });
@@ -1025,8 +1442,8 @@ function openSectionPreviewDialog(options) {
       dialog.close();
     }
   });
-  select.addEventListener("change", () => {
-    fixtureId = select.value;
+  select2.addEventListener("change", () => {
+    fixtureId = select2.value;
     paint();
   });
   dialog.querySelector("[data-preview-context]").addEventListener("change", (event) => {
@@ -1074,6 +1491,7 @@ function nextSection(state, type) {
     name: definition?.name ?? type,
     hidden: false,
     locked: false,
+    ...definition ? { packVersion: definition.packVersion, variantId: definition.variants?.[0]?.id ?? "default" } : {},
     settings: definition ? structuredClone(definition.defaults) : { title: "Nouvelle section" },
     style: {},
     responsive: {},
@@ -1089,11 +1507,11 @@ function runPanelAction(store, action) {
   if (action.action === "selectPage") store.setState({ pageId: action.pageId, selectedId: null });
   if (action.action === "addPage") {
     const name = action.name.trim() || "Nouvelle page";
-    const base8 = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
+    const base9 = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
     const slugs = new Set(state.document.pages.map((page2) => page2.slug));
-    let slug2 = base8;
+    let slug2 = base9;
     let suffix = 2;
-    while (slugs.has(slug2)) slug2 = `${base8}-${suffix++}`;
+    while (slugs.has(slug2)) slug2 = `${base9}-${suffix++}`;
     const page = { id: `page-${slug2}`, name, slug: slug2, sections: [] };
     store.setState({ document: { ...state.document, pages: [...state.document.pages, page] }, pageId: page.id, selectedId: null, saveStatus: "modified" });
   }
@@ -1123,6 +1541,15 @@ function runPanelAction(store, action) {
   }
 }
 function bindLeftRail(root, store) {
+  const refreshCatalog = (catalog) => {
+    const viewport = catalog.dataset.catalogViewport || "desktop";
+    const family = catalog.dataset.catalogFamily || void 0;
+    const search = catalog.dataset.catalogSearch || void 0;
+    const sort = catalog.dataset.catalogSort;
+    const capability = catalog.dataset.catalogCapability || void 0;
+    const grid = catalog.querySelector("[data-section-catalog-grid]");
+    if (grid) grid.innerHTML = sectionCatalogMarkup({ viewport, query: { family, search, sort, capability } });
+  };
   const click = (event) => {
     const target = event.target.closest("[data-editor-panel-button],[data-panel-action],[data-section-preview-open],[data-section-variant-insert],[data-catalog-filter],[data-catalog-viewport]");
     if (!target) return;
@@ -1152,11 +1579,10 @@ function bindLeftRail(root, store) {
     if (target.dataset.catalogFilter !== void 0) {
       const catalog = target.closest("[data-section-catalog]");
       if (!catalog) return;
-      const category = target.dataset.catalogFilter || void 0;
-      catalog.dataset.catalogCategory = category ?? "";
+      const family = target.dataset.catalogFilter || void 0;
+      catalog.dataset.catalogFamily = family ?? "";
       catalog.querySelectorAll("[data-catalog-filter]").forEach((button2) => button2.setAttribute("aria-pressed", String(button2 === target)));
-      const grid = catalog.querySelector("[data-section-catalog-grid]");
-      if (grid) grid.innerHTML = sectionCatalogMarkup({ category, viewport: catalog.dataset.catalogViewport || "desktop" });
+      refreshCatalog(catalog);
       return;
     }
     const panel = target.dataset.editorPanelButton;
@@ -1169,11 +1595,11 @@ function bindLeftRail(root, store) {
     if (action === "addPage") runPanelAction(store, { action, name: window.prompt("Nom de la page", "Nouvelle page") ?? "Nouvelle page" });
     if (action === "pickMedia" && target.dataset.assetId) runPanelAction(store, { action, assetId: target.dataset.assetId });
     if (action === "uploadMedia") {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*,video/*";
-      input.addEventListener("change", () => {
-        const file = input.files?.[0];
+      const input2 = document.createElement("input");
+      input2.type = "file";
+      input2.accept = "image/*,video/*";
+      input2.addEventListener("change", () => {
+        const file = input2.files?.[0];
         if (!file) return;
         const reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -1182,10 +1608,20 @@ function bindLeftRail(root, store) {
         });
         reader.readAsDataURL(file);
       });
-      input.click();
+      input2.click();
     }
   };
   const change = (event) => {
+    const catalogControl = event.target.closest("[data-catalog-search],[data-catalog-sort-select],[data-catalog-capability]");
+    if (catalogControl) {
+      const catalog = catalogControl.closest("[data-section-catalog]");
+      if (!catalog) return;
+      if (catalogControl.matches("[data-catalog-search]")) catalog.dataset.catalogSearch = catalogControl.value;
+      if (catalogControl.matches("[data-catalog-sort-select]")) catalog.dataset.catalogSort = catalogControl.value;
+      if (catalogControl.matches("[data-catalog-capability]")) catalog.dataset.catalogCapability = catalogControl.value;
+      refreshCatalog(catalog);
+      return;
+    }
     const control = event.target.closest("[data-theme-key]");
     if (!control) return;
     const state = store.getState();
@@ -1200,9 +1636,19 @@ function bindLeftRail(root, store) {
   };
   root.addEventListener("click", click);
   root.addEventListener("change", change);
+  const input = (event) => {
+    const control = event.target.closest("[data-catalog-search]");
+    if (!control) return;
+    const catalog = control.closest("[data-section-catalog]");
+    if (!catalog) return;
+    catalog.dataset.catalogSearch = control.value;
+    refreshCatalog(catalog);
+  };
+  root.addEventListener("input", input);
   return () => {
     root.removeEventListener("click", click);
     root.removeEventListener("change", change);
+    root.removeEventListener("input", input);
   };
 }
 
@@ -1226,7 +1672,7 @@ function inspectorGroupsForSection(type) {
 }
 
 // src/editor/ui/controls.ts
-function escape2(value2) {
+function escape3(value2) {
   return String(value2 ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 function controlValue(section2, control, breakpoint) {
@@ -1237,12 +1683,12 @@ function controlValue(section2, control, breakpoint) {
 function inspectorControlMarkup(section2, control, breakpoint) {
   const value2 = controlValue(section2, control, breakpoint);
   const attrs = `data-inspector-control="${control.type}" data-inspector-scope="${control.scope}" data-inspector-key="${control.key}"`;
-  if (control.type === "textarea" || control.type === "code") return `<label class="editor-control"><span>${control.label}</span><textarea ${attrs} rows="${control.type === "code" ? 8 : 4}">${escape2(value2)}</textarea></label>`;
+  if (control.type === "textarea" || control.type === "code") return `<label class="editor-control"><span>${control.label}</span><textarea ${attrs} rows="${control.type === "code" ? 8 : 4}">${escape3(value2)}</textarea></label>`;
   const optionLabels = { left: "Gauche", center: "Centre", right: "Droite", none: "Aucune", fade: "Fondu", reveal: "R\xE9v\xE9lation" };
   if (control.type === "select") return `<label class="editor-control"><span>${control.label}</span><select ${attrs}>${control.options?.map((option) => `<option value="${option}"${value2 === option ? " selected" : ""}>${optionLabels[option] ?? option}</option>`).join("")}</select></label>`;
   if (control.type === "toggle") return `<label class="editor-control editor-control--toggle"><span>${control.label}</span><input type="checkbox" ${attrs}${value2 ? " checked" : ""}></label>`;
   const inputType = control.type === "number" ? "number" : control.type === "color" ? "color" : "text";
-  return `<label class="editor-control"><span>${control.label}</span><input type="${inputType}" ${attrs} value="${escape2(value2)}">${control.type === "image" && value2 ? `<button type="button" class="editor-image-ai" data-image-ai data-image-key="${control.key}">\u2726 Modifier avec l\u2019IA</button>` : ""}</label>`;
+  return `<label class="editor-control"><span>${control.label}</span><input type="${inputType}" ${attrs} value="${escape3(value2)}">${control.type === "image" && value2 ? `<button type="button" class="editor-image-ai" data-image-ai data-image-key="${control.key}">\u2726 Modifier avec l\u2019IA</button>` : ""}</label>`;
 }
 
 // src/editor/ui/inspector.ts
@@ -1799,9 +2245,36 @@ async function createProCheckout(fetchImpl = fetch) {
   return url.toString();
 }
 
+// src/editor/ui/custom-section-preview.ts
+function customPreviewMarkup(proposal, viewport = "desktop") {
+  const srcdoc = proposal.preview[viewport];
+  const width = viewport === "mobile" ? "390px" : "100%";
+  return `<section data-canardo-custom-preview data-preview-viewport="${viewport}"><div><button type="button" data-canardo-preview-viewport="desktop" aria-pressed="${viewport === "desktop"}">Bureau</button><button type="button" data-canardo-preview-viewport="mobile" aria-pressed="${viewport === "mobile"}">Mobile</button></div><iframe title="Aper\xE7u de ${escapeEditorHtml(proposal.spec.name)}" sandbox="allow-same-origin" referrerpolicy="no-referrer" style="display:block;width:${width};max-width:100%;min-height:280px;margin:10px auto;border:1px solid #dedbd3" srcdoc="${escapeEditorHtml(srcdoc)}"></iframe></section>`;
+}
+function setCustomPreviewViewport(container, proposal, viewport) {
+  const frame = container.querySelector("iframe");
+  if (!frame) return;
+  container.dataset.previewViewport = viewport;
+  frame.style.width = viewport === "mobile" ? "390px" : "100%";
+  frame.srcdoc = proposal.preview[viewport];
+  container.querySelectorAll("[data-canardo-preview-viewport]").forEach((button2) => button2.setAttribute("aria-pressed", String(button2.dataset.canardoPreviewViewport === viewport)));
+}
+
 // src/editor/ui/canardo-review.ts
+function commandPreview(command) {
+  if (command.type !== "insertSection") return `<li>${escapeEditorHtml(command.type)}${"sectionId" in command ? ` \xB7 ${escapeEditorHtml(command.sectionId)}` : ""}</li>`;
+  const variant = typeof command.section.settings.variant === "string" ? command.section.settings.variant : "default";
+  const item2 = catalogItemForVariant(command.section.type, variant);
+  if (!item2) return `<li class="editor-canardo-operation">Ajouter ${escapeEditorHtml(command.section.name)}</li>`;
+  const badges = item2.capabilityBadges.map((badge) => `<small class="is-${badge.state}">${escapeEditorHtml(badge.label)} \xB7 ${badge.state === "native" ? "Natif" : badge.state === "app-required" ? "Application requise" : "Indisponible"}</small>`).join("");
+  return `<li class="editor-canardo-preview"><img src="${escapeEditorHtml(item2.preview.desktop)}" alt=""><span><strong>${escapeEditorHtml(item2.title)}</strong><em>${escapeEditorHtml(item2.conversionGoal)}</em>${badges ? `<i>${badges}</i>` : ""}</span></li>`;
+}
 function canardoReviewMarkup(response) {
-  return `<div class="editor-canardo-review" data-canardo-review><strong>${escapeEditorHtml(response.summary)}</strong><ul>${response.commands.map((command) => `<li>${escapeEditorHtml(command.type)}${"sectionId" in command ? ` \xB7 ${escapeEditorHtml(command.sectionId)}` : ""}</li>`).join("")}</ul><div><button type="button" data-canardo-reject>Annuler</button><button type="button" data-canardo-accept>Appliquer</button></div></div>`;
+  if ("mode" in response && response.mode === "custom-section") {
+    const blockers = response.validation.capabilityBlockers.length ? `<p role="status">Configuration Shopify requise : ${response.validation.capabilityBlockers.map(escapeEditorHtml).join(" ")}</p>` : `<p>Validation : ${response.validation.nodeCount} primitives v\xE9rifi\xE9es.</p>`;
+    return `<div class="editor-canardo-review" data-canardo-review data-canardo-custom-checksum="${escapeEditorHtml(response.checksum)}"><strong>${escapeEditorHtml(response.summary)}</strong><p>Cette section est compil\xE9e depuis une sp\xE9cification s\xFBre. Aucun code du mod\xE8le n\u2019est ex\xE9cut\xE9.</p>${blockers}${customPreviewMarkup(response)}<div><button type="button" data-canardo-reject>Annuler</button><button type="button" data-canardo-accept>Ajouter</button></div></div>`;
+  }
+  return `<div class="editor-canardo-review" data-canardo-review><strong>${escapeEditorHtml(response.summary)}</strong><p>Cette composition restera une proposition jusqu\u2019\xE0 confirmation.</p><ul>${response.commands.map(commandPreview).join("")}</ul><div><button type="button" data-canardo-reject>Annuler</button><button type="button" data-canardo-accept>Confirmer et appliquer</button></div></div>`;
 }
 
 // src/editor/ui/canardo.ts
@@ -1856,7 +2329,7 @@ function mountCanardo(root, store, pageId) {
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(typeof body.message === "string" ? body.message : "Canardo n\u2019a pas pu appliquer cette demande.");
       if (isConsequentialCanardoResponse(body)) {
-        proposal = { message: body.message || "Proposition", summary: body.summary || "Modification", commands: body.commands || [] };
+        proposal = body.mode === "custom-section" && body.spec && body.checksum && body.validation && body.preview ? body : { message: body.message || "Proposition", summary: body.summary || "Modification", commands: body.commands || [] };
         log.insertAdjacentHTML("beforeend", canardoReviewMarkup(proposal));
       } else {
         apply(body);
@@ -1875,6 +2348,11 @@ function mountCanardo(root, store, pageId) {
     const target = event.target.closest("button");
     if (!target) return;
     if (target === send) void request();
+    if (target.matches("[data-canardo-preview-viewport]") && proposal && "mode" in proposal && proposal.mode === "custom-section") {
+      const viewport = target.dataset.canardoPreviewViewport === "mobile" ? "mobile" : "desktop";
+      const container = target.closest("[data-canardo-custom-preview]");
+      if (container) setCustomPreviewViewport(container, proposal, viewport);
+    }
     if (target.matches("[data-canardo-accept]")) {
       target.closest("[data-canardo-review]")?.remove();
       void request(true);
@@ -1910,7 +2388,9 @@ function publishRequest(choice) {
 }
 function publishDialogMarkup(options) {
   const active = options.shopify.themes.find((theme) => theme.role === "main");
-  return `<style>.wf-publish-overlay{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(10px)}.wf-publish-dialog{width:min(620px,100%);max-height:90vh;overflow:auto;padding:28px;border-radius:18px;background:#191918;color:#f5f5f2;font:14px/1.45 Inter,-apple-system,sans-serif;border:1px solid #343431}.wf-publish-dialog header{display:flex;justify-content:space-between;align-items:center}.wf-publish-dialog h2{font-size:30px;line-height:1;margin:6px 0 10px}.wf-publish-dialog fieldset{display:grid;gap:8px;margin:22px 0;padding:0;border:0}.wf-publish-option{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:14px;border:1px solid #393936;border-radius:10px;color:inherit;text-decoration:none}.wf-publish-option small{display:block;color:#999991}.wf-publish-actions{display:flex;justify-content:flex-end;gap:8px}.wf-publish-actions button{min-height:42px;padding:0 16px;border:1px solid #444;border-radius:8px;background:#222;color:#fff}.wf-publish-actions button[type=submit]{border-color:#176dff;background:#176dff}.wf-publish-live{padding:12px;border-radius:8px;background:#3a3014;color:#ffe28a}</style><div class="wf-publish-overlay" data-publish-overlay><form class="wf-publish-dialog" data-publish-form><header><span>PUBLICATION SHOPIFY</span><button type="button" data-publish-close aria-label="Fermer">\xD7</button></header><h2>Publier sur ton th\xE8me Shopify</h2><p>Choisis pr\xE9cis\xE9ment o\xF9 Weflo doit installer cette page. Ton th\xE8me en ligne ne sera jamais modifi\xE9 sans confirmation.</p><fieldset>${options.shopify.connected ? `<label class="wf-publish-option"><input type="radio" name="destination" value="new_weflo" checked><span><strong>Nouveau th\xE8me Weflo</strong><small>Cr\xE9er un th\xE8me Shopify s\xE9par\xE9 et non publi\xE9.</small></span></label><label class="wf-publish-option"><input type="radio" name="destination" value="duplicate_active"><span><strong>Copier le th\xE8me actif</strong><small>Copier ${active?.name ?? "le th\xE8me actif"}, puis ajouter cette page.</small></span></label><label class="wf-publish-option"><input type="radio" name="destination" value="active"><span><strong>Publier sur le th\xE8me actif</strong><small>Ajouter le mod\xE8le directement \xE0 ta boutique en ligne.</small></span></label>` : `<a class="wf-publish-option" href="/dashboard#shopify"><span><strong>Connecter Shopify</strong><small>Shopify est n\xE9cessaire pour publier. Connecte d\u2019abord une boutique.</small></span></a>`}</fieldset><div data-publish-review></div><div class="wf-publish-actions"><button type="button" data-publish-close>Annuler</button><button type="submit"${options.shopify.connected ? "" : " disabled"}>Continuer</button></div></form></div>`;
+  const blockers = options.capabilityReport?.blockers ?? [];
+  const blockerMarkup = blockers.length ? `<aside class="wf-publish-blockers" role="alert"><strong>Configuration Shopify requise</strong><ul>${blockers.map((blocker) => `<li>${blocker}</li>`).join("")}</ul></aside>` : "";
+  return `<style>.wf-publish-overlay{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(10px)}.wf-publish-dialog{width:min(620px,100%);max-height:90vh;overflow:auto;padding:28px;border-radius:18px;background:#191918;color:#f5f5f2;font:14px/1.45 Inter,-apple-system,sans-serif;border:1px solid #343431}.wf-publish-dialog header{display:flex;justify-content:space-between;align-items:center}.wf-publish-dialog h2{font-size:30px;line-height:1;margin:6px 0 10px}.wf-publish-dialog fieldset{display:grid;gap:8px;margin:22px 0;padding:0;border:0}.wf-publish-option{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:14px;border:1px solid #393936;border-radius:10px;color:inherit;text-decoration:none}.wf-publish-option small{display:block;color:#999991}.wf-publish-actions{display:flex;justify-content:flex-end;gap:8px}.wf-publish-actions button{min-height:42px;padding:0 16px;border:1px solid #444;border-radius:8px;background:#222;color:#fff}.wf-publish-actions button[type=submit]{border-color:#176dff;background:#176dff}.wf-publish-live,.wf-publish-blockers{padding:12px;border-radius:8px;background:#3a3014;color:#ffe28a}.wf-publish-blockers{margin:12px 0}.wf-publish-blockers ul{margin:7px 0 0;padding-left:18px}</style><div class="wf-publish-overlay" data-publish-overlay><form class="wf-publish-dialog" data-publish-form><header><span>PUBLICATION SHOPIFY</span><button type="button" data-publish-close aria-label="Fermer">\xD7</button></header><h2>Publier sur ton th\xE8me Shopify</h2><p>Choisis pr\xE9cis\xE9ment o\xF9 Weflo doit installer cette page. Ton th\xE8me en ligne ne sera jamais modifi\xE9 sans confirmation.</p>${blockerMarkup}<fieldset>${options.shopify.connected ? `<label class="wf-publish-option"><input type="radio" name="destination" value="new_weflo" checked><span><strong>Nouveau th\xE8me Weflo</strong><small>Cr\xE9er un th\xE8me Shopify s\xE9par\xE9 et non publi\xE9.</small></span></label><label class="wf-publish-option"><input type="radio" name="destination" value="duplicate_active"><span><strong>Copier le th\xE8me actif</strong><small>Copier ${active?.name ?? "le th\xE8me actif"}, puis ajouter cette page.</small></span></label><label class="wf-publish-option"><input type="radio" name="destination" value="active"><span><strong>Publier sur le th\xE8me actif</strong><small>Ajouter le mod\xE8le directement \xE0 ta boutique en ligne.</small></span></label>` : `<a class="wf-publish-option" href="/dashboard#shopify"><span><strong>Connecter Shopify</strong><small>Shopify est n\xE9cessaire pour publier. Connecte d\u2019abord une boutique.</small></span></a>`}</fieldset><div data-publish-review></div><div class="wf-publish-actions"><button type="button" data-publish-close>Annuler</button><button type="submit"${options.shopify.connected && !blockers.length ? "" : " disabled"}>Continuer</button></div></form></div>`;
 }
 function openPublishDialog(options, publish) {
   const host = document.createElement("div");
@@ -2113,14 +2593,14 @@ function fillSettings(type, name, model) {
 function documentFromModel(modelId, pageName) {
   const model = PAGE_MODELS.find((m) => m.id === modelId) ?? PAGE_MODELS[0];
   const name = pageName.trim() || model.name;
-  const base8 = initialDocument(name, model.type);
+  const base9 = initialDocument(name, model.type);
   return {
-    ...base8,
+    ...base9,
     name,
     modelId: model.id,
     theme: { ...model.themeConfig },
     referencePreviews: { desktop: model.previewDesktop, mobile: model.previewMobile },
-    sections: base8.sections.map((section2) => ({
+    sections: base9.sections.map((section2) => ({
       ...section2,
       settings: fillSettings(section2.type, name, model)
     }))
@@ -2328,6 +2808,35 @@ function buildModelDocument(modelId, pageName) {
   };
 }
 
+// src/design/profile.ts
+var ART_DIRECTION_ARCHETYPE = {
+  "warm-home": "natural",
+  "editorial-beauty": "editorial",
+  "clinical-wellness": "clinical",
+  "technical-performance": "technical",
+  "direct-response": "utility",
+  "playful-gifting": "playful",
+  "premium-accessories": "luxury",
+  "food-craft": "natural"
+};
+function profileFromArtDirection(direction, market = "FR") {
+  const density = direction.spacing === "compact" ? "dense" : direction.spacing === "airy" ? "airy" : "balanced";
+  const card = direction.radius === "none" ? 0 : direction.radius === "round" ? 32 : 16;
+  return {
+    id: `profile-${direction.id}`,
+    market,
+    archetype: ART_DIRECTION_ARCHETYPE[direction.id],
+    typography: { heading: direction.headingFont, body: direction.bodyFont, scale: 1 },
+    colors: { background: direction.palette[0] ?? "#FFFFFF", ink: direction.palette[1] ?? "#111111", accent: direction.palette[2] ?? "#111111", surface: direction.palette[3] ?? "#FFFFFF" },
+    spacing: { section: direction.spacing === "airy" ? 112 : direction.spacing === "compact" ? 56 : 80, gap: direction.spacing === "airy" ? 32 : 20 },
+    radius: { card, button: direction.buttonStyle === "pill" ? 48 : card },
+    borders: { width: 1, color: direction.palette[1] ?? "#111111" },
+    media: { ratio: direction.mediaRatio, treatment: direction.proofMode === "editorial" ? "editorial" : direction.proofMode === "technical" ? "clean" : "immersive" },
+    motion: { reveal: "fade", durationMs: 240 },
+    density
+  };
+}
+
 // src/editor/migrate.ts
 function slug(value2) {
   return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
@@ -2365,7 +2874,9 @@ function migrateSection(section2, index) {
     settings: settings(Object.fromEntries(Object.entries(section2.settings).filter(([key]) => key !== "blocks"))),
     style: {},
     responsive: {},
-    blocks: legacyBlocks(section2)
+    blocks: legacyBlocks(section2),
+    packVersion: 1,
+    variantId: typeof section2.settings.variant === "string" ? section2.settings.variant : "default"
   };
 }
 function editorKind(type) {
@@ -2374,8 +2885,17 @@ function editorKind(type) {
   return type;
 }
 function migrateDocument(document2, kind = "landing") {
-  if (isEditorDocument(document2)) return structuredClone(document2);
+  if (isEditorDocument(document2)) {
+    const migrated = structuredClone(document2);
+    for (const page of migrated.pages) for (const section2 of page.sections) {
+      section2.packVersion ??= 1;
+      section2.variantId ??= typeof section2.settings.variant === "string" ? section2.settings.variant : "default";
+    }
+    if (!migrated.designProfile && migrated.commerce?.artDirection) migrated.designProfile = profileFromArtDirection(migrated.commerce.artDirection);
+    return migrated;
+  }
   const pageSlug = slug(document2.path === "/" ? document2.name : document2.path);
+  const legacyDirection = document2.commerce?.artDirection;
   return {
     version: 2,
     name: document2.name,
@@ -2391,7 +2911,8 @@ function migrateDocument(document2, kind = "landing") {
       slug: pageSlug,
       sections: document2.sections.map(migrateSection)
     }],
-    assets: []
+    assets: [],
+    ...legacyDirection ? { designProfile: profileFromArtDirection(legacyDirection) } : {}
   };
 }
 

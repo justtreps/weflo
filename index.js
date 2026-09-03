@@ -2093,22 +2093,22 @@ var require_transformers = __commonJS({
       PostgresTypes2["tsrange"] = "tsrange";
       PostgresTypes2["tstzrange"] = "tstzrange";
     })(PostgresTypes || (exports.PostgresTypes = PostgresTypes = {}));
-    var convertChangeData = (columns, record3, options = {}) => {
+    var convertChangeData = (columns, record4, options = {}) => {
       var _a4;
       const skipTypes = (_a4 = options.skipTypes) !== null && _a4 !== void 0 ? _a4 : [];
-      if (!record3) {
+      if (!record4) {
         return {};
       }
-      return Object.keys(record3).reduce((acc, rec_key) => {
-        acc[rec_key] = (0, exports.convertColumn)(rec_key, columns, record3, skipTypes);
+      return Object.keys(record4).reduce((acc, rec_key) => {
+        acc[rec_key] = (0, exports.convertColumn)(rec_key, columns, record4, skipTypes);
         return acc;
       }, {});
     };
     exports.convertChangeData = convertChangeData;
-    var convertColumn = (columnName, columns, record3, skipTypes) => {
+    var convertColumn = (columnName, columns, record4, skipTypes) => {
       const column = columns.find((x) => x.name === columnName);
       const colType = column === null || column === void 0 ? void 0 : column.type;
-      const value2 = record3[columnName];
+      const value2 = record4[columnName];
       if (colType && !skipTypes.includes(colType)) {
         return (0, exports.convertCell)(colType, value2);
       }
@@ -2381,11 +2381,11 @@ var require_phoenix_cjs = __commonJS({
        * @param {string} status
        * @param {(response: any) => void} callback
        */
-      receive(status, callback) {
-        if (this.hasReceived(status)) {
+      receive(status2, callback) {
+        if (this.hasReceived(status2)) {
           callback(this.receivedResp.response);
         }
-        this.recHooks.push({ status, callback });
+        this.recHooks.push({ status: status2, callback });
         return this;
       }
       reset() {
@@ -2402,8 +2402,8 @@ var require_phoenix_cjs = __commonJS({
       /**
        * @private
        */
-      matchReceive({ status, response, _ref }) {
-        this.recHooks.filter((h) => h.status === status).forEach((h) => h.callback(response));
+      matchReceive({ status: status2, response, _ref }) {
+        this.recHooks.filter((h) => h.status === status2).forEach((h) => h.callback(response));
       }
       /**
        * @private
@@ -2437,11 +2437,11 @@ var require_phoenix_cjs = __commonJS({
       /**
        * @private
        */
-      hasReceived(status) {
-        return this.receivedResp && this.receivedResp.status === status;
+      hasReceived(status2) {
+        return this.receivedResp && this.receivedResp.status === status2;
       }
-      trigger(status, response) {
-        this.channel.trigger(this.refEvent, { status, response });
+      trigger(status2, response) {
+        this.channel.trigger(this.refEvent, { status: status2, response });
       }
     };
     var Timer = class {
@@ -2951,17 +2951,17 @@ var require_phoenix_cjs = __commonJS({
         }
         this.ajax("GET", headers, null, () => this.ontimeout(), (resp) => {
           if (resp) {
-            var { status, token, messages: messages2 } = resp;
-            if (status === 410 && this.token !== null) {
+            var { status: status2, token, messages: messages2 } = resp;
+            if (status2 === 410 && this.token !== null) {
               this.onerror(410);
               this.closeAndRetry(3410, "session_gone", false);
               return;
             }
             this.token = token;
           } else {
-            status = 0;
+            status2 = 0;
           }
-          switch (status) {
+          switch (status2) {
             case 200:
               messages2.forEach((msg) => {
                 setTimeout(() => this.onmessage({ data: msg }), 0);
@@ -2986,7 +2986,7 @@ var require_phoenix_cjs = __commonJS({
               this.closeAndRetry(1011, "internal server error", 500);
               break;
             default:
-              throw new Error(`unhandled poll status ${status}`);
+              throw new Error(`unhandled poll status ${status2}`);
           }
         });
       }
@@ -4677,9 +4677,9 @@ var require_RealtimeChannel = __commonJS({
         const newPostgresBindings = [];
         for (let i = 0; i < bindingsLen; i++) {
           const clientPostgresBinding = clientPostgresBindings[i];
-          const { filter: { event, schema, table: table2, filter } } = clientPostgresBinding;
+          const { filter: { event, schema: schema2, table: table2, filter } } = clientPostgresBinding;
           const serverPostgresFilter = postgres_changes && postgres_changes[i];
-          if (serverPostgresFilter && serverPostgresFilter.event === event && _RealtimeChannel.isFilterValueEqual(serverPostgresFilter.schema, schema) && _RealtimeChannel.isFilterValueEqual(serverPostgresFilter.table, table2) && _RealtimeChannel.isFilterValueEqual(serverPostgresFilter.filter, filter)) {
+          if (serverPostgresFilter && serverPostgresFilter.event === event && _RealtimeChannel.isFilterValueEqual(serverPostgresFilter.schema, schema2) && _RealtimeChannel.isFilterValueEqual(serverPostgresFilter.table, table2) && _RealtimeChannel.isFilterValueEqual(serverPostgresFilter.filter, filter)) {
             newPostgresBindings.push(Object.assign(Object.assign({}, clientPostgresBinding), { id: serverPostgresFilter.id }));
           } else {
             this.unsubscribe();
@@ -5119,16 +5119,16 @@ var require_RealtimeChannel = __commonJS({
           }
         }
         const ref = this.channelAdapter.on(type, callback);
-        const binding = {
+        const binding2 = {
           type: typeLower,
           filter,
           callback,
           ref
         };
         if (this.bindings[typeLower]) {
-          this.bindings[typeLower].push(binding);
+          this.bindings[typeLower].push(binding2);
         } else {
-          this.bindings[typeLower] = [binding];
+          this.bindings[typeLower] = [binding2];
         }
         this._updateFilterMessage();
         return this;
@@ -5151,13 +5151,13 @@ var require_RealtimeChannel = __commonJS({
       }
       /** @internal */
       _updateFilterMessage() {
-        this.channelAdapter.updateFilterBindings((binding, payload, ref) => {
+        this.channelAdapter.updateFilterBindings((binding2, payload, ref) => {
           var _a4, _b, _c, _d, _e, _f, _g;
-          const typeLower = binding.event.toLocaleLowerCase();
+          const typeLower = binding2.event.toLocaleLowerCase();
           if (this._notThisChannelEvent(typeLower, ref)) {
             return false;
           }
-          const bind = (_a4 = this.bindings[typeLower]) === null || _a4 === void 0 ? void 0 : _a4.find((bind2) => bind2.ref === binding.ref);
+          const bind = (_a4 = this.bindings[typeLower]) === null || _a4 === void 0 ? void 0 : _a4.find((bind2) => bind2.ref === binding2.ref);
           if (!bind) {
             return true;
           }
@@ -5186,9 +5186,9 @@ var require_RealtimeChannel = __commonJS({
         this.channelAdapter.updatePayloadTransform((event, payload, ref) => {
           if (typeof payload === "object" && "ids" in payload) {
             const postgresChanges = payload.data;
-            const { schema, table: table2, commit_timestamp, type, errors } = postgresChanges;
+            const { schema: schema2, table: table2, commit_timestamp, type, errors } = postgresChanges;
             const enrichedPayload = {
-              schema,
+              schema: schema2,
               table: table2,
               commit_timestamp,
               eventType: type,
@@ -5206,8 +5206,8 @@ var require_RealtimeChannel = __commonJS({
           throw new Error("cannot copy bindings into joined channel");
         }
         for (const kind in other.bindings) {
-          for (const binding of other.bindings[kind]) {
-            this._on(binding.type, binding.filter, binding.callback);
+          for (const binding2 of other.bindings[kind]) {
+            this._on(binding2.type, binding2.filter, binding2.callback);
           }
         }
       }
@@ -5617,11 +5617,11 @@ var require_RealtimeClient = __commonJS({
        * @category Realtime
        */
       async removeChannel(channel) {
-        const status = await channel.unsubscribe();
-        if (status === "ok") {
+        const status2 = await channel.unsubscribe();
+        if (status2 === "ok") {
           channel.teardown();
         }
-        return status;
+        return status2;
       }
       /**
        * Unsubscribes, removes and tears down all channels
@@ -5925,13 +5925,13 @@ var require_RealtimeClient = __commonJS({
       }
       /** @internal */
       _wrapHeartbeatCallback(heartbeatCallback) {
-        return (status, latency) => {
-          if (status === "disconnected")
+        return (status2, latency) => {
+          if (status2 === "disconnected")
             return;
-          if (status == "sent")
+          if (status2 == "sent")
             this._setAuthSafely();
           if (heartbeatCallback)
-            heartbeatCallback(status, latency);
+            heartbeatCallback(status2, latency);
         };
       }
       /** @internal */
@@ -6146,11 +6146,11 @@ var require_errors = __commonJS({
     exports.isAuthRefreshDiscardedError = isAuthRefreshDiscardedError;
     exports.isAuthWeakPasswordError = isAuthWeakPasswordError;
     var AuthError = class extends Error {
-      constructor(message2, status, code) {
+      constructor(message2, status2, code) {
         super(message2);
         this.__isAuthError = true;
         this.name = "AuthError";
-        this.status = status;
+        this.status = status2;
         this.code = code;
       }
       toJSON() {
@@ -6167,10 +6167,10 @@ var require_errors = __commonJS({
       return typeof error === "object" && error !== null && "__isAuthError" in error;
     }
     var AuthApiError = class extends AuthError {
-      constructor(message2, status, code) {
-        super(message2, status, code);
+      constructor(message2, status2, code) {
+        super(message2, status2, code);
         this.name = "AuthApiError";
-        this.status = status;
+        this.status = status2;
         this.code = code;
       }
     };
@@ -6187,10 +6187,10 @@ var require_errors = __commonJS({
     };
     exports.AuthUnknownError = AuthUnknownError;
     var CustomAuthError = class extends AuthError {
-      constructor(message2, name, status, code) {
-        super(message2, status, code);
+      constructor(message2, name, status2, code) {
+        super(message2, status2, code);
         this.name = name;
-        this.status = status;
+        this.status = status2;
       }
     };
     exports.CustomAuthError = CustomAuthError;
@@ -6250,8 +6250,8 @@ var require_errors = __commonJS({
       return isAuthError(error) && error.name === "AuthPKCECodeVerifierMissingError";
     }
     var AuthRetryableFetchError = class extends CustomAuthError {
-      constructor(message2, status) {
-        super(message2, "AuthRetryableFetchError", status, void 0);
+      constructor(message2, status2) {
+        super(message2, "AuthRetryableFetchError", status2, void 0);
       }
     };
     exports.AuthRetryableFetchError = AuthRetryableFetchError;
@@ -6268,8 +6268,8 @@ var require_errors = __commonJS({
       return isAuthError(error) && error.name === "AuthRefreshDiscardedError";
     }
     var AuthWeakPasswordError = class extends CustomAuthError {
-      constructor(message2, status, reasons) {
-        super(message2, "AuthWeakPasswordError", status, "weak_password");
+      constructor(message2, status2, reasons) {
+        super(message2, "AuthWeakPasswordError", status2, "weak_password");
         this.reasons = reasons;
       }
       toJSON() {
@@ -6770,16 +6770,16 @@ var require_helpers = __commonJS({
     }
     function appendFlowIdToRedirectTo(redirectTo, flowId) {
       const hashIndex = redirectTo.indexOf("#");
-      let base8 = hashIndex === -1 ? redirectTo : redirectTo.slice(0, hashIndex);
+      let base9 = hashIndex === -1 ? redirectTo : redirectTo.slice(0, hashIndex);
       const fragment2 = hashIndex === -1 ? "" : redirectTo.slice(hashIndex);
-      const queryIndex = base8.indexOf("?");
+      const queryIndex = base9.indexOf("?");
       if (queryIndex !== -1) {
-        const path3 = base8.slice(0, queryIndex);
-        const remaining = base8.slice(queryIndex + 1).split("&").filter((pair) => pair !== "" && pair !== constants_1.PKCE_FLOW_ID_PARAM && !pair.startsWith(`${constants_1.PKCE_FLOW_ID_PARAM}=`));
-        base8 = remaining.length > 0 ? `${path3}?${remaining.join("&")}` : path3;
+        const path3 = base9.slice(0, queryIndex);
+        const remaining = base9.slice(queryIndex + 1).split("&").filter((pair) => pair !== "" && pair !== constants_1.PKCE_FLOW_ID_PARAM && !pair.startsWith(`${constants_1.PKCE_FLOW_ID_PARAM}=`));
+        base9 = remaining.length > 0 ? `${path3}?${remaining.join("&")}` : path3;
       }
-      const separator = base8.includes("?") ? "&" : "?";
-      return `${base8}${separator}${constants_1.PKCE_FLOW_ID_PARAM}=${encodeURIComponent(flowId)}${fragment2}`;
+      const separator = base9.includes("?") ? "&" : "?";
+      return `${base9}${separator}${constants_1.PKCE_FLOW_ID_PARAM}=${encodeURIComponent(flowId)}${fragment2}`;
     }
     async function getCodeChallengeAndMethod(storage, storageKey, isPasswordRecovery = false, onEvictFlow) {
       const codeVerifier = generatePKCEVerifier();
@@ -14507,7 +14507,7 @@ var require_main3 = __commonJS({
 // src/server/app.ts
 import { Hono as Hono12 } from "hono";
 import { readFile } from "node:fs/promises";
-import { join as join3, normalize, sep as sep2 } from "node:path";
+import { join as join3, normalize as normalize2, sep as sep2 } from "node:path";
 
 // src/server/auth.ts
 import { Hono } from "hono";
@@ -14639,55 +14639,55 @@ var castToError = (err) => {
 var WhopError = class extends Error {
 };
 var APIError = class _APIError extends WhopError {
-  constructor(status, error, message2, headers) {
-    super(`${_APIError.makeMessage(status, error, message2)}`);
-    this.status = status;
+  constructor(status2, error, message2, headers) {
+    super(`${_APIError.makeMessage(status2, error, message2)}`);
+    this.status = status2;
     this.headers = headers;
     this.error = error;
   }
-  static makeMessage(status, error, message2) {
+  static makeMessage(status2, error, message2) {
     const msg = error?.message ? typeof error.message === "string" ? error.message : JSON.stringify(error.message) : error ? JSON.stringify(error) : message2;
-    if (status && msg) {
-      return `${status} ${msg}`;
+    if (status2 && msg) {
+      return `${status2} ${msg}`;
     }
-    if (status) {
-      return `${status} status code (no body)`;
+    if (status2) {
+      return `${status2} status code (no body)`;
     }
     if (msg) {
       return msg;
     }
     return "(no status code or body)";
   }
-  static generate(status, errorResponse, message2, headers) {
-    if (!status || !headers) {
+  static generate(status2, errorResponse, message2, headers) {
+    if (!status2 || !headers) {
       return new APIConnectionError({ message: message2, cause: castToError(errorResponse) });
     }
     const error = errorResponse;
-    if (status === 400) {
-      return new BadRequestError(status, error, message2, headers);
+    if (status2 === 400) {
+      return new BadRequestError(status2, error, message2, headers);
     }
-    if (status === 401) {
-      return new AuthenticationError(status, error, message2, headers);
+    if (status2 === 401) {
+      return new AuthenticationError(status2, error, message2, headers);
     }
-    if (status === 403) {
-      return new PermissionDeniedError(status, error, message2, headers);
+    if (status2 === 403) {
+      return new PermissionDeniedError(status2, error, message2, headers);
     }
-    if (status === 404) {
-      return new NotFoundError(status, error, message2, headers);
+    if (status2 === 404) {
+      return new NotFoundError(status2, error, message2, headers);
     }
-    if (status === 409) {
-      return new ConflictError(status, error, message2, headers);
+    if (status2 === 409) {
+      return new ConflictError(status2, error, message2, headers);
     }
-    if (status === 422) {
-      return new UnprocessableEntityError(status, error, message2, headers);
+    if (status2 === 422) {
+      return new UnprocessableEntityError(status2, error, message2, headers);
     }
-    if (status === 429) {
-      return new RateLimitError(status, error, message2, headers);
+    if (status2 === 429) {
+      return new RateLimitError(status2, error, message2, headers);
     }
-    if (status >= 500) {
-      return new InternalServerError(status, error, message2, headers);
+    if (status2 >= 500) {
+      return new InternalServerError(status2, error, message2, headers);
     }
-    return new _APIError(status, error, message2, headers);
+    return new _APIError(status2, error, message2, headers);
   }
 };
 var APIUserAbortError = class extends APIError {
@@ -19156,8 +19156,8 @@ var Whop = class {
   defaultIdempotencyKey() {
     return `stainless-node-retry-${uuid4()}`;
   }
-  makeStatusError(status, error, message2, headers) {
-    return APIError.generate(status, error, message2, headers);
+  makeStatusError(status2, error, message2, headers) {
+    return APIError.generate(status2, error, message2, headers);
   }
   buildURL(path3, query, defaultBaseURL) {
     const baseURL = !__classPrivateFieldGet(this, _Whop_instances, "m", _Whop_baseURLOverridden).call(this) && defaultBaseURL || this.baseURL;
@@ -19825,7 +19825,7 @@ function validateSection(value2, errors, sectionIds2, blockIds2) {
   if (!styleSettings(value2.style)) errors.push(`Invalid style settings in section: ${id2}`);
   if (!responsiveSettings(value2.responsive)) errors.push(`Invalid responsive settings in section: ${id2}`);
   if (!Array.isArray(value2.blocks)) errors.push(`Invalid blocks in section: ${id2}`);
-  else value2.blocks.forEach((block) => validateBlock(block, errors, blockIds2));
+  else value2.blocks.forEach((block2) => validateBlock(block2, errors, blockIds2));
   if (unsafeCustomCode(value2)) errors.push(`Unsafe custom code in section: ${id2}`);
   return true;
 }
@@ -19935,24 +19935,82 @@ function fixtureById(id2) {
 }
 
 // src/section-preview/manifests.ts
-var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds) => {
-  const base8 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
-  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base8}-desktop.webp`, mobile: `${base8}-mobile.webp` }, previewVersion: 1 };
+var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, extra = {}) => {
+  const base9 = `/assets/section-previews/${sectionType}/${variantId}-${defaultFixtureId}`;
+  return { sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1, ...extra };
 };
+var ALL_ARCHETYPES = ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"];
 var SECTION_PREVIEW_MANIFESTS = [
-  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"]),
-  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"]),
-  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ["beauty", "home", "gadget", "fashion", "sport", "wellness", "food", "design"], "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"]),
-  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
-  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
-  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"]),
-  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"]),
-  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"]),
-  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"]),
-  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"]),
-  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"]),
-  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"])
+  item("productHero", "beauty-editorial", "\xC9ditorial beaut\xE9", "Cr\xE9er le d\xE9sir d\xE8s le premier \xE9cran", "hero", ["beauty", "wellness"], "aurea-serum", ["aurea-serum", "pulse-recovery"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 100, popular: 95 }),
+  item("productHero", "object-editorial", "Objet signature", "Pr\xE9senter le produit comme une pi\xE8ce d\xE9sirable", "hero", ["home", "design", "fashion"], "halo-lamp", ["halo-lamp", "noma-bag", "forma-table"], { family: "heroes", capabilities: ["product-form"], requiredData: ["Produit Shopify"], recommended: 96, popular: 86 }),
+  item("productMain", "conversion-split", "Buy box conversion", "R\xE9duire les h\xE9sitations au moment d\u2019acheter", "product", ALL_ARCHETYPES, "halo-lamp", ["aurea-serum", "halo-lamp", "noma-bag", "pulse-recovery", "brume-coffee", "forma-table"], { family: "product-purchase", capabilities: ["product-form", "variant-selection"], requiredData: ["Produit Shopify", "Variantes"], recommended: 98, popular: 100 }),
+  item("productMain", "bundle-led", "Produit + offre group\xE9e", "Faire choisir une offre avant l\u2019ajout au panier", "product", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "product-purchase", capabilities: ["product-form", "fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 94, popular: 91 }),
+  item("benefits", "ritual-cards", "Cartes rituel", "Projeter le produit dans une routine", "benefits", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "benefits", recommended: 83, popular: 82 }),
+  item("benefits", "technical-grid", "Grille technique", "Expliquer clairement les b\xE9n\xE9fices fonctionnels", "benefits", ["home", "gadget", "sport", "design"], "halo-lamp", ["halo-lamp", "pulse-recovery", "forma-table"], { family: "benefits", recommended: 79, popular: 76 }),
+  item("testimonials", "editorial-stories", "Histoires \xE9ditoriales", "Donner une preuve humaine et premium", "proof", ["beauty", "fashion", "food", "design"], "noma-bag", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "reviews-ugc", requiredData: ["Avis clients"], recommended: 90, popular: 88 }),
+  item("testimonials", "ugc-grid", "Galerie clients", "Accumuler des preuves visuelles cr\xE9dibles", "proof", ["beauty", "home", "gadget", "sport"], "halo-lamp", ["aurea-serum", "halo-lamp", "pulse-recovery"], { family: "reviews-ugc", requiredData: ["Avis clients", "Photos UGC"], recommended: 89, popular: 93 }),
+  item("bundle", "routine-set", "Routine compl\xE8te", "Augmenter le panier par compl\xE9mentarit\xE9", "offer", ["beauty", "wellness", "food"], "aurea-serum", ["aurea-serum", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["fixed-bundle"], capabilityStates: { "fixed-bundle": "app-required" }, requiredData: ["Produit Shopify", "Bundle fixe"], recommended: 97, popular: 89 }),
+  item("bundle", "quantity-break", "Prix par quantit\xE9", "Augmenter le volume avec une \xE9conomie claire", "offer", ["beauty", "home", "gadget", "sport", "wellness", "food"], "pulse-recovery", ["aurea-serum", "halo-lamp", "pulse-recovery", "brume-coffee"], { family: "bundles-offers", capabilities: ["quantity-breaks"], requiredData: ["Produit Shopify", "Paliers de quantit\xE9"], recommended: 95, popular: 96 }),
+  item("faq", "editorial-accordion", "FAQ \xE9ditoriale", "Lever les objections sans alourdir la page", "faq", ["beauty", "fashion", "food", "design"], "brume-coffee", ["aurea-serum", "noma-bag", "brume-coffee", "forma-table"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 81, popular: 85 }),
+  item("faq", "support-columns", "Centre d\u2019aide", "Rendre les r\xE9ponses imm\xE9diatement scannables", "faq", ["home", "gadget", "sport", "wellness"], "halo-lamp", ["halo-lamp", "pulse-recovery"], { family: "faq-trust", requiredData: ["Questions fr\xE9quentes"], recommended: 77, popular: 72 })
 ];
+var legacyFamily = { hero: "heroes", product: "product-purchase", benefits: "benefits", proof: "reviews-ugc", offer: "bundles-offers", faq: "faq-trust" };
+var definitionFamily = { navigation: "headers-navigation", announcement: "headers-navigation", footer: "footer-utilities", spacer: "footer-utilities", divider: "footer-utilities", hero: "heroes", productHero: "heroes", videoHero: "heroes", productMain: "product-purchase", productGrid: "collections-recommendations", collectionGrid: "collections-recommendations", bundle: "bundles-offers", comparison: "comparison", ingredients: "ingredients-materials", gallery: "demo-media", beforeAfter: "before-after", imageText: "benefits", benefits: "benefits", testimonials: "reviews-ugc", reviews: "reviews-ugc", faq: "faq-trust", guarantees: "faq-trust", shipping: "faq-trust", quiz: "quiz-forms", form: "quiz-forms", newsletter: "conversion-capture", cta: "conversion-capture", richText: "brand-story", customCode: "custom" };
+function normalize(value2) {
+  return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+function labelCapability(capability) {
+  const labels3 = { "product-form": "Formulaire produit", "variant-selection": "Variantes Shopify", "quantity-breaks": "Paliers de quantit\xE9", "collection-binding": "Collection Shopify", "recommendations": "Recommandations", "fixed-bundle": "Bundle fixe", "custom-bundle": "Bundle personnalisable", "selling-plan": "Abonnement", "preorder": "Pr\xE9commande", "cart-drawer": "Panier lat\xE9ral", "app-blocks": "Bloc d\u2019application", "markets": "March\xE9s Shopify", "localization": "Localisation" };
+  return labels3[capability] ?? capability.replace(/-/g, " ");
+}
+function capabilityState(capability, states) {
+  if (states && typeof states === "object" && !Array.isArray(states)) {
+    const value2 = states[capability];
+    if (value2 === "native" || value2 === "app-required" || value2 === "unavailable") return value2;
+  }
+  return ["custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability) ? "app-required" : "native";
+}
+function familyFrom(value2, fallback) {
+  const raw = Array.isArray(value2) && typeof value2[0] === "string" ? value2[0] : typeof value2 === "string" ? value2 : "";
+  const aliases = { "product-hero": "heroes", "buy-box": "product-purchase", "variant-selector": "variants-options", "quantity-offer": "bundles-offers", "fixed-bundle": "bundles-offers", "benefits-results": "benefits", "product-media": "demo-media", "reviews-ugc-premium": "reviews-ugc", recommendations: "collections-recommendations" };
+  return aliases[raw] ?? (raw ? raw : fallback);
+}
+function dynamicManifests() {
+  const existing = new Set(SECTION_PREVIEW_MANIFESTS.map((manifest) => `${manifest.sectionType}:${manifest.variantId}`));
+  const values2 = [];
+  for (const definition of listSectionDefinitions()) {
+    const type = typeof definition.type === "string" ? definition.type : "";
+    if (!type) continue;
+    const variants = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : Array.isArray(definition.previewVariants) && definition.previewVariants.length ? definition.previewVariants : ["default"];
+    for (const rawVariant of variants) {
+      const variant2 = typeof rawVariant === "string" ? { id: rawVariant } : rawVariant && typeof rawVariant === "object" ? rawVariant : null;
+      const variantId = variant2 && typeof variant2.id === "string" ? variant2.id : "default";
+      if (existing.has(`${type}:${variantId}`)) continue;
+      const fixtureId = variant2 && typeof variant2.previewFixtureId === "string" && SECTION_PREVIEW_FIXTURES.some((fixture2) => fixture2.id === variant2.previewFixtureId) ? variant2.previewFixtureId : "aurea-serum";
+      const fallbackPreview = fixtureById(fixtureId).product.images[0];
+      const title = variant2 && typeof variant2.name === "string" ? variant2.name : typeof definition.name === "string" ? definition.name : type;
+      const description = variant2 && typeof variant2.description === "string" ? variant2.description : `Ajouter ${title.toLocaleLowerCase("fr-FR")}`;
+      const capabilities = Array.isArray(definition.capabilities) ? definition.capabilities.filter((value2) => typeof value2 === "string") : [];
+      values2.push({ sectionType: type, variantId, title, conversionGoal: description, category: "product", family: familyFrom(definition.families ?? definition.family, definitionFamily[type] ?? "custom"), capabilities, capabilityStates: definition.capabilityStates, requiredData: Array.isArray(variant2?.requiredData) ? variant2.requiredData.filter((value2) => typeof value2 === "string") : [], tags: Array.isArray(definition.tags) ? definition.tags.filter((value2) => typeof value2 === "string") : [], recommended: typeof variant2?.recommended === "number" ? variant2.recommended : 0, newest: typeof variant2?.newest === "number" ? variant2.newest : 0, popular: typeof variant2?.popular === "number" ? variant2.popular : 0, supportedPages: Array.isArray(definition.supportedPages) ? definition.supportedPages.filter((value2) => typeof value2 === "string") : void 0, supportedMarkets: Array.isArray(definition.supportedMarkets) ? definition.supportedMarkets.filter((value2) => typeof value2 === "string") : void 0, supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixtureId, compatibleFixtureIds: [fixtureId], preview: { desktop: fallbackPreview, mobile: fallbackPreview }, previewVersion: 1 });
+    }
+  }
+  return values2;
+}
+function querySectionCatalog(query = {}) {
+  const family = query.family ?? (query.category ? legacyFamily[query.category] : void 0), needle = normalize(query.search ?? "");
+  const results = [...SECTION_PREVIEW_MANIFESTS, ...dynamicManifests()].filter((manifest) => {
+    if (family && manifest.family !== family) return false;
+    if (query.pageKind && manifest.supportedPages?.length && !manifest.supportedPages.includes(query.pageKind)) return false;
+    if (query.market && manifest.supportedMarkets?.length && !manifest.supportedMarkets.includes("all") && !manifest.supportedMarkets.includes(query.market)) return false;
+    if (query.capability && !(manifest.capabilities ?? []).includes(query.capability)) return false;
+    return !needle || normalize([manifest.title, manifest.conversionGoal, manifest.sectionType, manifest.variantId, manifest.family ?? "", ...manifest.capabilities ?? [], ...manifest.tags ?? []].join(" ")).includes(needle);
+  }).map((manifest) => ({ ...manifest, capabilityBadges: (manifest.capabilities ?? []).map((capability) => ({ capability, label: labelCapability(capability), state: capabilityState(capability, manifest.capabilityStates) })) }));
+  const sort = query.sort ?? "recommended", rank = (value2) => sort === "newest" ? value2.newest ?? 0 : sort === "popular" ? value2.popular ?? 0 : value2.recommended ?? 0;
+  return results.sort((a, b2) => rank(b2) - rank(a) || a.title.localeCompare(b2.title, "fr"));
+}
+function catalogItemForVariant(sectionType, variantId) {
+  return querySectionCatalog().find((item3) => item3.sectionType === sectionType && item3.variantId === variantId);
+}
 var keys = /* @__PURE__ */ new Set();
 for (const manifest of SECTION_PREVIEW_MANIFESTS) {
   const key = `${manifest.sectionType}:${manifest.variantId}`;
@@ -19964,25 +20022,78 @@ for (const manifest of SECTION_PREVIEW_MANIFESTS) {
 }
 function previewManifest(sectionType, variantId) {
   const found = SECTION_PREVIEW_MANIFESTS.find((item3) => item3.sectionType === sectionType && item3.variantId === variantId);
-  if (!found) throw new Error(`Unknown section preview manifest: ${sectionType}:${variantId}`);
-  return found;
+  if (found) return found;
+  const catalog = catalogItemForVariant(sectionType, variantId);
+  if (catalog) return catalog;
+  const fixture2 = "aurea-serum", base9 = `/assets/section-previews/${sectionType}/${variantId}-${fixture2}`;
+  return { sectionType, variantId, title: sectionType, conversionGoal: "Aper\xE7u de section", category: "product", family: definitionFamily[sectionType] ?? "custom", supportedArchetypes: ALL_ARCHETYPES, defaultFixtureId: fixture2, compatibleFixtureIds: [fixture2], preview: { desktop: `${base9}-desktop.webp`, mobile: `${base9}-mobile.webp` }, previewVersion: 1 };
 }
 
 // src/sections/registry.ts
 var definitions = /* @__PURE__ */ new Map();
+var LEGACY_FAMILY = {
+  brand: "brand-story",
+  media: "demo-media",
+  commerce: "product-purchase",
+  conversion: "conversion-capture",
+  content: "faq-trust",
+  layout: "custom"
+};
+var ALL_PAGES = ["landing", "product", "collection", "home"];
 function assertComplete(definition) {
   if (!definition.type?.trim()) throw new Error("Section type is required");
   if (!definition.name?.trim()) throw new Error(`Section ${definition.type} name is required`);
   if (!definition.category) throw new Error(`Section ${definition.type} category is required`);
   if (!definition.defaults || !Array.isArray(definition.settings) || !Array.isArray(definition.blocks)) throw new Error(`Section ${definition.type} schema is incomplete`);
   if (typeof definition.renderWeb !== "function" || typeof definition.renderLiquid !== "function") throw new Error(`Section ${definition.type} renderers are required`);
-  for (const variant of definition.previewVariants ?? []) previewManifest(definition.type, variant);
+  for (const variant2 of definition.previewVariants ?? []) previewManifest(definition.type, variant2);
+}
+function legacyVariant(definition, id2 = "default") {
+  return { id: id2, name: id2 === "default" ? "Par d\xE9faut" : id2, description: "Variante compatible avec les documents Weflo existants.", composition: id2 === "default" ? "composition-par-defaut" : `composition-${id2}`, previewFixtureId: "", defaults: { ...definition.defaults, ...id2 === "default" ? {} : { variant: id2 } } };
+}
+function defaultSchema(pack) {
+  const control = (item3) => ({ id: item3.key, label: item3.label, type: item3.type === "textarea" ? "textarea" : "text" });
+  return {
+    name: pack.name,
+    settings: pack.settings.map(control),
+    blocks: pack.blocks.map((block2) => ({ type: block2.type, name: block2.name, settings: block2.settings.map(control) })),
+    presets: pack.variants.map((variant2) => ({ name: variant2.name, settings: { ...variant2.defaults, variant: variant2.id } }))
+  };
+}
+function defaultMigrate(section2, _fromPackVersion) {
+  return { ...section2, settings: { ...section2.settings } };
+}
+function normalizeSectionPack(definition) {
+  assertComplete(definition);
+  const candidate2 = definition;
+  const declaredVariants = candidate2.variants;
+  const variants = declaredVariants && declaredVariants.length ? declaredVariants.map((variant2) => ({ ...variant2, defaults: { ...variant2.defaults } })) : (definition.previewVariants?.length ? definition.previewVariants : ["default"]).map((id2) => legacyVariant(definition, id2));
+  const ids = /* @__PURE__ */ new Set();
+  for (const variant2 of variants) {
+    if (!variant2.id?.trim()) throw new Error(`Section ${definition.type} has a variant without an id`);
+    if (ids.has(variant2.id)) throw new Error(`Duplicate section variant: ${definition.type}:${variant2.id}`);
+    ids.add(variant2.id);
+  }
+  const families = candidate2.families?.length ? candidate2.families : [LEGACY_FAMILY[definition.category]];
+  const pack = {
+    ...definition,
+    packVersion: 1,
+    families: [...families],
+    tags: candidate2.tags ? [...candidate2.tags] : [],
+    supportedPages: candidate2.supportedPages?.length ? [...candidate2.supportedPages] : [...ALL_PAGES],
+    supportedMarkets: candidate2.supportedMarkets?.length ? [...candidate2.supportedMarkets] : ["all"],
+    capabilities: candidate2.capabilities ? [...candidate2.capabilities] : [],
+    variants,
+    assets: candidate2.assets ? [...candidate2.assets] : [],
+    migrate: candidate2.migrate ?? defaultMigrate
+  };
+  return { ...pack, renderSchema: candidate2.renderSchema ?? (() => defaultSchema(pack)) };
 }
 function registerSection(definition) {
-  assertComplete(definition);
-  if (definitions.has(definition.type)) throw new Error(`Section ${definition.type} is already registered`);
-  definitions.set(definition.type, definition);
-  return definition;
+  const pack = normalizeSectionPack(definition);
+  if (definitions.has(pack.type)) throw new Error(`Section ${pack.type} is already registered`);
+  definitions.set(pack.type, pack);
+  return pack;
 }
 function getSectionDefinition(type) {
   return definitions.get(type);
@@ -20016,8 +20127,8 @@ function image(section2, key = "image", alt = "", className = "wf-section__image
   const url = safeMediaUrl(section2.settings[key]);
   return url ? `<img class="${escapeHtml(className)}" src="${url}" alt="${escapeHtml(alt)}" loading="lazy" data-wf-media-key="${escapeHtml(key)}">` : `<div class="${escapeHtml(className)} wf-media-empty" data-wf-media-key="${escapeHtml(key)}" role="img" aria-label="Ajouter une image"></div>`;
 }
-function blockValue(block, key, fallback = "") {
-  const current = block.settings[key];
+function blockValue(block2, key, fallback = "") {
+  const current = block2.settings[key];
   return typeof current === "string" || typeof current === "number" ? String(current) : fallback;
 }
 var textControl = (key, label, type = "text") => ({ key, label, type, scope: "settings" });
@@ -20032,9 +20143,9 @@ var cta = [textControl("cta_label", "Libell\xE9 du bouton"), textControl("cta_li
 var media = [textControl("image", "Image", "image"), textControl("image_alt", "Texte alternatif")];
 var itemBlock = { type: "item", name: "\xC9l\xE9ment", defaults: { title: "Nouvel \xE9l\xE9ment", text: "D\xE9cris cet \xE9l\xE9ment." }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("image", "Image", "image"), textControl("link", "Lien", "link")] };
 function renderBlocks(blocks2, tag2 = "article") {
-  return blocks2.map((block) => {
-    const rating = Number(block.settings.rating);
-    return `<${tag2} class="wf-section__card" data-wf-block-id="${escapeHtml(block.id)}">${block.settings.image ? `<img src="${safeMediaUrl(block.settings.image)}" alt="${escapeHtml(blockValue(block, "image_alt", blockValue(block, "title")))}">` : ""}${Number.isFinite(rating) && rating > 0 ? `<span role="img" aria-label="${rating} \xE9toiles sur 5">${"\u2605".repeat(Math.min(5, rating))}</span>` : ""}<h3>${escapeHtml(blockValue(block, "title", blockValue(block, "label", "\xC9l\xE9ment")))}</h3><p>${escapeHtml(blockValue(block, "text"))}</p>${block.settings.link ? `<a href="${safeLink(block.settings.link)}">${escapeHtml(blockValue(block, "label", "D\xE9couvrir"))}</a>` : ""}</${tag2}>`;
+  return blocks2.map((block2) => {
+    const rating = Number(block2.settings.rating);
+    return `<${tag2} class="wf-section__card" data-wf-block-id="${escapeHtml(block2.id)}">${block2.settings.image ? `<img src="${safeMediaUrl(block2.settings.image)}" alt="${escapeHtml(blockValue(block2, "image_alt", blockValue(block2, "title")))}">` : ""}${Number.isFinite(rating) && rating > 0 ? `<span role="img" aria-label="${rating} \xE9toiles sur 5">${"\u2605".repeat(Math.min(5, rating))}</span>` : ""}<h3>${escapeHtml(blockValue(block2, "title", blockValue(block2, "label", "\xC9l\xE9ment")))}</h3><p>${escapeHtml(blockValue(block2, "text"))}</p>${block2.settings.link ? `<a href="${safeLink(block2.settings.link)}">${escapeHtml(blockValue(block2, "label", "D\xE9couvrir"))}</a>` : ""}</${tag2}>`;
   }).join("");
 }
 function button(section2) {
@@ -20045,10 +20156,10 @@ function web(layout, section2, pageName) {
   const title = value(section2, "title", pageName);
   const subtitle = value(section2, "subtitle");
   const copy = value(section2, "text");
-  const variant = value(section2, "variant", "default");
+  const variant2 = value(section2, "variant", "default");
   const heading = edit(layout === "hero" || layout === "productHero" || layout === "videoHero" ? "h1" : "h2", "title", title);
   const intro = `${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}`;
-  if (layout === "navigation") return `<nav class="wf-section wf-navigation" aria-label="Navigation principale"><a class="wf-navigation__brand" href="/">${escapeHtml(title)}</a><div>${section2.blocks.map((block) => `<a href="${safeLink(block.settings.link)}">${escapeHtml(blockValue(block, "label", "Lien"))}</a>`).join("")}</div>${button(section2)}</nav>`;
+  if (layout === "navigation") return `<nav class="wf-section wf-navigation" aria-label="Navigation principale"><a class="wf-navigation__brand" href="/">${escapeHtml(title)}</a><div>${section2.blocks.map((block2) => `<a href="${safeLink(block2.settings.link)}">${escapeHtml(blockValue(block2, "label", "Lien"))}</a>`).join("")}</div>${button(section2)}</nav>`;
   if (layout === "announcement") return `<aside class="wf-section wf-announcement">${edit("p", "text", copy || title)}${button(section2)}</aside>`;
   if (layout === "hero" || layout === "productHero") return `<div class="wf-section wf-hero wf-hero--${layout}"><div class="wf-hero__content">${intro}${layout === "productHero" ? `<strong class="wf-section__price">${escapeHtml(value(section2, "price", "49,00 \u20AC"))}</strong>` : ""}${button(section2)}</div><figure>${image(section2, "image", value(section2, "image_alt", title))}</figure></div>`;
   if (layout === "videoHero") {
@@ -20059,22 +20170,22 @@ function web(layout, section2, pageName) {
   if (layout === "imageText") return `<div class="wf-section wf-image-text">${image(section2, "image", value(section2, "image_alt", title))}<div>${intro}${button(section2)}</div></div>`;
   if (layout === "beforeAfter") return `<div class="wf-section wf-before-after">${intro}<div class="wf-before-after__media">${image(section2, "before_image", value(section2, "before_alt", "Avant"))}${image(section2, "after_image", value(section2, "after_alt", "Apr\xE8s"))}</div></div>`;
   if (layout === "product") {
-    const variants = section2.blocks.filter((block) => block.type === "variant");
-    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks.filter((block) => block.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants.length ? variants.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form></div>`;
+    const variants = section2.blocks.filter((block2) => block2.type === "variant");
+    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks.filter((block2) => block2.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants.length ? variants.map((block2) => `<option value="${escapeHtml(blockValue(block2, "variant_id", block2.id))}">${escapeHtml(blockValue(block2, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form></div>`;
   }
-  if (layout === "bundle") return `<div class="wf-section wf-bundle">${intro}<fieldset><legend>Compose ton bundle</legend>${section2.blocks.map((block) => `<label><input type="checkbox" name="bundle" value="${escapeHtml(block.id)}"><span>${escapeHtml(blockValue(block, "title"))}</span><strong>${escapeHtml(blockValue(block, "price"))}</strong></label>`).join("")}</fieldset><output class="wf-bundle__total" aria-live="polite">${escapeHtml(value(section2, "price", "Total calcul\xE9 dans le panier"))}</output>${button(section2)}</div>`;
+  if (layout === "bundle") return `<div class="wf-section wf-bundle">${intro}<fieldset><legend>Compose ton bundle</legend>${section2.blocks.map((block2) => `<label><input type="checkbox" name="bundle" value="${escapeHtml(block2.id)}"><span>${escapeHtml(blockValue(block2, "title"))}</span><strong>${escapeHtml(blockValue(block2, "price"))}</strong></label>`).join("")}</fieldset><output class="wf-bundle__total" aria-live="polite">${escapeHtml(value(section2, "price", "Total calcul\xE9 dans le panier"))}</output>${button(section2)}</div>`;
   if (layout === "comparison") return `<div class="wf-section wf-comparison">${intro}<div role="table">${renderBlocks(section2.blocks, "div")}</div></div>`;
-  if (layout === "faq") return `<div class="wf-section wf-faq">${intro}${section2.blocks.map((block) => `<details><summary>${escapeHtml(blockValue(block, "title", "Question"))}</summary><p>${escapeHtml(blockValue(block, "text"))}</p></details>`).join("")}</div>`;
+  if (layout === "faq") return `<div class="wf-section wf-faq">${intro}${section2.blocks.map((block2) => `<details><summary>${escapeHtml(blockValue(block2, "title", "Question"))}</summary><p>${escapeHtml(blockValue(block2, "text"))}</p></details>`).join("")}</div>`;
   if (layout === "form") return `<div class="wf-section wf-form">${intro}<form><label>Email<input type="email" name="email" autocomplete="email" required></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Envoyer"))}</button></form></div>`;
-  if (layout === "quiz") return `<div class="wf-section wf-quiz">${intro}<form>${section2.blocks.map((block, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block, "title", `\xC9tape ${index + 1}`))}</legend><label><input type="radio" name="step-${index}" value="yes"> ${escapeHtml(blockValue(block, "text", "Oui"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form></div>`;
+  if (layout === "quiz") return `<div class="wf-section wf-quiz">${intro}<form>${section2.blocks.map((block2, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block2, "title", `\xC9tape ${index + 1}`))}</legend><label><input type="radio" name="step-${index}" value="yes"> ${escapeHtml(blockValue(block2, "text", "Oui"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form></div>`;
   if (layout === "cta") return `<div class="wf-section wf-cta">${intro}${button(section2)}</div>`;
   if (layout === "richText") return `<article class="wf-section wf-rich-text">${intro}${renderBlocks(section2.blocks)}</article>`;
   if (layout === "footer") return `<footer class="wf-section wf-footer"><div>${heading}${copy ? `<p>${escapeHtml(copy)}</p>` : ""}</div><nav aria-label="Pied de page">${renderBlocks(section2.blocks, "div")}</nav></footer>`;
   if (layout === "spacer") return `<div class="wf-spacer" aria-hidden="true" style="height:${Number(section2.settings.height) || 48}px"></div>`;
   if (layout === "divider") return `<hr class="wf-divider">`;
-  if (variant === "home-stories" || variant === "beauty-journal" || variant === "press-quotes") return `<section class="wf-section wf-cards wf-proof__stories" data-wf-variant="${escapeHtml(variant)}"><header>${intro}</header><div class="wf-proof__editorial-flow">${renderBlocks(section2.blocks)}</div>${button(section2)}</section>`;
-  if (variant === "results-wall" || variant === "measured-proof" || variant === "field-tests") return `<section class="wf-section wf-cards wf-proof__results" data-wf-variant="${escapeHtml(variant)}"><div class="wf-proof__score">${escapeHtml(value(section2, "subtitle", "5/5"))}</div><header>${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${renderBlocks(section2.blocks)}</div>${button(section2)}</section>`;
-  return `<div class="wf-section wf-cards" data-wf-variant="${escapeHtml(variant)}">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks)}</div>${button(section2)}</div>`;
+  if (variant2 === "home-stories" || variant2 === "beauty-journal" || variant2 === "press-quotes") return `<section class="wf-section wf-cards wf-proof__stories" data-wf-variant="${escapeHtml(variant2)}"><header>${intro}</header><div class="wf-proof__editorial-flow">${renderBlocks(section2.blocks)}</div>${button(section2)}</section>`;
+  if (variant2 === "results-wall" || variant2 === "measured-proof" || variant2 === "field-tests") return `<section class="wf-section wf-cards wf-proof__results" data-wf-variant="${escapeHtml(variant2)}"><div class="wf-proof__score">${escapeHtml(value(section2, "subtitle", "5/5"))}</div><header>${heading}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${renderBlocks(section2.blocks)}</div>${button(section2)}</section>`;
+  return `<div class="wf-section wf-cards" data-wf-variant="${escapeHtml(variant2)}">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks)}</div>${button(section2)}</div>`;
 }
 function createSectionDefinition(type, name, category, layout, extraDefaults = {}, extraSettings = [], blocks2 = [itemBlock]) {
   const defaults3 = { title: name, subtitle: "", text: "", cta_label: "D\xE9couvrir", cta_link: "#", ...extraDefaults };
@@ -20087,8 +20198,8 @@ function createSectionDefinition(type, name, category, layout, extraDefaults = {
     blocks: blocks2,
     renderWeb: ({ section: section2, pageName }) => web(layout, section2, pageName),
     renderLiquid: (section2) => {
-      const variant = section2 ? value(section2, "variant", "default") : "default";
-      return `<section class="wf-section wf-${escapeHtml(type)} wf-${escapeHtml(type)}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div>{% for block in section.blocks %}<article {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p></article>{% endfor %}</section>`;
+      const variant2 = section2 ? value(section2, "variant", "default") : "default";
+      return `<section class="wf-section wf-${escapeHtml(type)} wf-${escapeHtml(type)}--${escapeHtml(variant2)}" data-wf-variant="${escapeHtml(variant2)}"><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div>{% for block in section.blocks %}<article {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p></article>{% endfor %}</section>`;
     }
   };
 }
@@ -20116,15 +20227,15 @@ var productHeroSection = {
     const media3 = image(section2, "image", value(section2, "image_alt", title), "wf-hero__image");
     const action = `<a class="wf-section__button" href="${safeLink(section2.settings.cta_link)}">${escapeHtml(cta2)}</a>`;
     const requested = value(section2, "variant", "ambient-editorial");
-    const variant = (/* @__PURE__ */ new Set(["ambient-editorial", "problem-solution", "clinical-evidence", "beauty-editorial", "object-editorial"])).has(requested) ? requested : "ambient-editorial";
-    if (variant === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy">${subtitle ? `<span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>` : ""}${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media3}</figure></section>`;
-    if (variant === "clinical-evidence") return `<section class="wf-section wf-hero wf-hero__clinical" data-wf-variant="clinical-evidence"><div><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}<dl><div><dt>Usage</dt><dd>Clair</dd></div><div><dt>Choix</dt><dd>Guid\xE9</dd></div></dl>${action}</div><figure>${media3}</figure></section>`;
-    return `<section class="wf-section wf-hero wf-hero__atmosphere wf-product-hero--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}"><figure>${media3}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
+    const variant2 = (/* @__PURE__ */ new Set(["ambient-editorial", "problem-solution", "clinical-evidence", "beauty-editorial", "object-editorial"])).has(requested) ? requested : "ambient-editorial";
+    if (variant2 === "problem-solution") return `<section class="wf-section wf-hero wf-hero__problem" data-wf-variant="problem-solution"><div class="wf-hero__problem-copy">${subtitle ? `<span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>` : ""}${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div><figure>${media3}</figure></section>`;
+    if (variant2 === "clinical-evidence") return `<section class="wf-section wf-hero wf-hero__clinical" data-wf-variant="clinical-evidence"><div><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}<dl><div><dt>Usage</dt><dd>Clair</dd></div><div><dt>Choix</dt><dd>Guid\xE9</dd></div></dl>${action}</div><figure>${media3}</figure></section>`;
+    return `<section class="wf-section wf-hero wf-hero__atmosphere wf-product-hero--${escapeHtml(variant2)}" data-wf-variant="${escapeHtml(variant2)}"><figure>${media3}</figure><div class="wf-hero__editorial-copy"><span class="wf-section__eyebrow">${escapeHtml(subtitle)}</span>${edit("h1", "title", title)}${edit("p", "text", body)}${price ? edit("strong", "price", price, "wf-section__price") : ""}${action}</div></section>`;
   },
   renderLiquid: (section2) => {
-    const variant = section2 ? value(section2, "variant", "ambient-editorial") : "ambient-editorial";
-    const modifier = variant === "problem-solution" ? "wf-hero__problem" : variant === "clinical-evidence" ? "wf-hero__clinical" : "wf-hero__atmosphere";
-    return `<section class="wf-section wf-hero ${modifier}" data-wf-variant="${escapeHtml(variant)}"><div class="wf-hero__media">{{ section.settings.image | image_url: width: 1800 | image_tag }}</div><div class="wf-hero__content"><p>{{ section.settings.subtitle | escape }}</p><h1>{{ section.settings.title | escape }}</h1><div>{{ section.settings.text }}</div><strong>{{ section.settings.price | escape }}</strong><a href="{{ section.settings.cta_link }}">{{ section.settings.cta_label | escape }}</a></div></section>`;
+    const variant2 = section2 ? value(section2, "variant", "ambient-editorial") : "ambient-editorial";
+    const modifier = variant2 === "problem-solution" ? "wf-hero__problem" : variant2 === "clinical-evidence" ? "wf-hero__clinical" : "wf-hero__atmosphere";
+    return `<section class="wf-section wf-hero ${modifier}" data-wf-variant="${escapeHtml(variant2)}"><div class="wf-hero__media">{{ section.settings.image | image_url: width: 1800 | image_tag }}</div><div class="wf-hero__content"><p>{{ section.settings.subtitle | escape }}</p><h1>{{ section.settings.title | escape }}</h1><div>{{ section.settings.text }}</div><strong>{{ section.settings.price | escape }}</strong><a href="{{ section.settings.cta_link }}">{{ section.settings.cta_label | escape }}</a></div></section>`;
   }
 };
 
@@ -20144,6 +20255,17 @@ var beforeAfterSection = createSectionDefinition("beforeAfter", "Avant / apr\xE8
 var brandMediaSections = [navigationSection, announcementSection, heroSection, productHeroSection, videoHeroSection, gallerySection, imageTextSection, beforeAfterSection];
 for (const definition of brandMediaSections) registerSection(definition);
 
+// src/shopify/liquid/product-form.ts
+function renderProductFormLiquid(options = {}) {
+  const sectionClass = options.sectionClass ?? "wf-product";
+  const strategy = options.strategy ?? "one-time";
+  const offers = options.includeQuantityOffers ? `<fieldset class="wf-product__quantity-offers"><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% assign wf_breaks = section.settings.quantity_breaks | default: '1,2,3' | split: ',' %}{% for break in wf_breaks %}{% assign wf_quantity = break | plus: 0 %}<button type="button" data-wf-quantity="{{ wf_quantity }}">{{ wf_quantity }}{% if section.settings.quantity_suffix != blank %} {{ section.settings.quantity_suffix | escape }}{% endif %}</button>{% endfor %}</fieldset>` : "";
+  const sellingPlans = strategy === "selling-plan" ? `<div class="wf-product__selling-plans">{% if selected_product.selling_plan_groups.size > 0 %}<label for="weflo-selling-plan-{{ section.id }}">{{ section.settings.selling_plan_label | default: 'Fr\xE9quence' | escape }}</label><select id="weflo-selling-plan-{{ section.id }}" name="selling_plan">{% for group in selected_product.selling_plan_groups %}{% for plan in group.selling_plans %}<option value="{{ plan.id }}">{{ plan.name | escape }}</option>{% endfor %}{% endfor %}</select>{% else %}<p class="wf-product__setup" role="status">Configure un abonnement Shopify compatible avant de publier cette offre.</p>{% endif %}</div>` : "";
+  const preorder = strategy === "preorder" ? `{% if section.settings.preorder_provider != blank %}<input type="hidden" name="properties[_weflo_preorder_provider]" value="{{ section.settings.preorder_provider | escape }}"><p class="wf-product__preorder-note">{{ section.settings.preorder_note | default: 'Pr\xE9commande \u2014 exp\xE9dition selon les conditions indiqu\xE9es.' | escape }}</p>{% else %}<p class="wf-product__setup" role="status">Configure un fournisseur de pr\xE9commandes compatible avant de publier.</p>{% endif %}` : "";
+  const bundle = strategy === "fixed-bundle" ? `<p class="wf-product__bundle-note">{{ section.settings.bundle_note | default: 'Ce produit correspond \xE0 un bundle fixe Shopify.' | escape }}</p>` : strategy === "multipack" ? `<input type="hidden" name="properties[_weflo_multipack]" value="true">` : "";
+  return `<section class="${sectionClass}" data-wf-product data-wf-purchase-strategy="${strategy}" data-wf-section-id="{{ section.id }}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}{% assign form_id = 'weflo-product-form-' | append: section.id %}{% if selected_product != blank %}{% form 'product', selected_product, id: form_id, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input>{% for option in selected_product.options_with_values %}<label class="wf-product__option" for="weflo-option-{{ section.id }}-{{ forloop.index0 }}"><span>{{ option.name | escape }}</span><select id="weflo-option-{{ section.id }}-{{ forloop.index0 }}" data-wf-option-index="{{ forloop.index0 }}">{% for value in option.values %}<option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value | escape }}</option>{% endfor %}</select></label>{% endfor %}<div class="wf-product__prices" aria-live="polite"><strong data-wf-price>{{ selected_product.selected_or_first_available_variant.price | money }}</strong><s data-wf-compare-price{% unless selected_product.selected_or_first_available_variant.compare_at_price > selected_product.selected_or_first_available_variant.price %} hidden{% endunless %}>{{ selected_product.selected_or_first_available_variant.compare_at_price | money }}</s></div><p data-wf-availability>{% if selected_product.selected_or_first_available_variant.available %}En stock{% else %}Indisponible{% endif %}</p>${bundle}${offers}<label class="wf-product__quantity" for="weflo-quantity-{{ section.id }}">Quantit\xE9<input id="weflo-quantity-{{ section.id }}" name="quantity" type="number" min="1" value="1" inputmode="numeric" data-wf-quantity-input></label>${sellingPlans}${preorder}<button type="submit" data-wf-add-to-cart{% unless selected_product.selected_or_first_available_variant.available %} disabled{% endunless %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script type="application/json" data-wf-variants>{{ selected_product.variants | json }}</script><script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"></script>{% else %}<p class="wf-product__setup" role="status">Associe un produit Shopify \xE0 cette section avant publication.</p>{% endif %}</section>`;
+}
+
 // src/sections/product-main.ts
 var base2 = createSectionDefinition("productMain", "Fiche produit", "commerce", "product", { cta_label: "Ajouter au panier", product_handle: "", variant: "calm-buy-box" }, [textControl("product_handle", "Produit Shopify", "text")]);
 var productMainSection = {
@@ -20156,15 +20278,12 @@ var productMainSection = {
     const compare = value(section2, "compare_at_price");
     const cta2 = value(section2, "cta_label", "Ajouter au panier");
     const requested = value(section2, "variant", "calm-buy-box");
-    const variant = (/* @__PURE__ */ new Set(["calm-buy-box", "beauty-buy-box", "technical-buy-box", "luxury-buy-box", "tasting-buy-box", "conversion-split", "bundle-led"])).has(requested) ? requested : "calm-buy-box";
-    const variants = section2.blocks.filter((block) => block.type === "variant");
-    const options = variants.length ? variants.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
-    return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section2, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box">${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><div class="wf-product__bundle"></div><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust"></p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
+    const variant2 = (/* @__PURE__ */ new Set(["calm-buy-box", "beauty-buy-box", "technical-buy-box", "luxury-buy-box", "tasting-buy-box", "conversion-split", "bundle-led"])).has(requested) ? requested : "calm-buy-box";
+    const variants = section2.blocks.filter((block2) => block2.type === "variant");
+    const options = variants.length ? variants.map((block2) => `<option value="${escapeHtml(blockValue(block2, "variant_id", block2.id))}">${escapeHtml(blockValue(block2, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
+    return `<section class="wf-section wf-product wf-product--${escapeHtml(variant2)}" id="product" data-wf-variant="${escapeHtml(variant2)}"><div class="wf-product__gallery">${image(section2, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box">${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><div class="wf-product__bundle"></div><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust"></p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
   },
-  renderLiquid: (section2) => {
-    const variant = section2 ? value(section2, "variant", "calm-buy-box") : "calm-buy-box";
-    return `<section class="weflo-product-main wf-product--${escapeHtml(variant)}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}<div class="wf-product__gallery">{{ selected_product.featured_image | image_url: width: 1600 | image_tag }}{% for image in selected_product.images limit: 4 %}{{ image | image_url: width: 500 | image_tag }}{% endfor %}</div><div class="wf-product__buy-box"><h1>{{ selected_product.title | default: section.settings.title | escape }}</h1><div>{{ selected_product.description | default: section.settings.text }}</div><div class="wf-product__prices"><strong>{{ selected_product.price | money }}</strong>{% if selected_product.compare_at_price > selected_product.price %}<s>{{ selected_product.compare_at_price | money }}</s>{% endif %}</div>{% form 'product', selected_product %}<label>Option<select name="id">{% for variant in selected_product.variants %}<option value="{{ variant.id }}">{{ variant.title }} \u2014 {{ variant.price | money }}</option>{% endfor %}</select></label><label>Quantit\xE9<input name="quantity" type="number" min="1" value="1"></label><button type="submit">{{ section.settings.cta_label | escape }}</button>{% endform %}</div><div class="wf-product__sticky"><span>{{ selected_product.title }}</span><strong>{{ selected_product.price | money }}</strong><button type="submit" form="product-form-{{ section.id }}">{{ section.settings.cta_label | escape }}</button></div></section>`;
-  }
+  renderLiquid: () => renderProductFormLiquid({ sectionClass: "weflo-product-main" })
 };
 
 // src/sections/product-grid.ts
@@ -20188,15 +20307,15 @@ var collectionGridSection = {
     const title = value(section2, "title", pageName);
     const subtitle = value(section2, "subtitle");
     const copy = value(section2, "text");
-    const cards = section2.blocks.map((block) => {
-      const name = blockValue(block, "title", "[Nom de la collection]");
-      const description = blockValue(block, "text");
-      const media3 = safeMediaUrl(block.settings.image);
-      const content = `${media3 ? `<img src="${media3}" alt="${escapeHtml(blockValue(block, "image_alt", name))}" loading="lazy">` : ""}<h3>${escapeHtml(name)}</h3>${description ? `<p>${escapeHtml(description)}</p>` : ""}`;
-      const link = blockValue(block, "link");
-      return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block.id)}">${link ? `<a href="${safeLink(link)}">${content}</a>` : content}</article>`;
+    const cards2 = section2.blocks.map((block2) => {
+      const name = blockValue(block2, "title", "[Nom de la collection]");
+      const description = blockValue(block2, "text");
+      const media3 = safeMediaUrl(block2.settings.image);
+      const content = `${media3 ? `<img src="${media3}" alt="${escapeHtml(blockValue(block2, "image_alt", name))}" loading="lazy">` : ""}<h3>${escapeHtml(name)}</h3>${description ? `<p>${escapeHtml(description)}</p>` : ""}`;
+      const link = blockValue(block2, "link");
+      return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block2.id)}">${link ? `<a href="${safeLink(link)}">${content}</a>` : content}</article>`;
     }).join("");
-    return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards}</div></section>`;
+    return `<section class="wf-section wf-collection-grid"><header>${subtitle ? edit("p", "subtitle", subtitle, "wf-section__eyebrow") : ""}${edit("h2", "title", title)}${copy ? edit("p", "text", copy, "wf-section__copy") : ""}</header><div class="wf-section__grid">${cards2}</div></section>`;
   },
   renderLiquid: (_section) => `<section class="wf-section weflo-collection-grid"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header>{% if section.settings.collection_handle != blank %}{% assign selected_collection = collections[section.settings.collection_handle] %}<div class="wf-section__grid">{% for product in selected_collection.products %}<article class="wf-section__card"><a href="{{ product.url }}">{% if product.featured_image != blank %}{{ product.featured_image | image_url: width: 900 | image_tag: alt: product.title }}{% endif %}<h3>{{ product.title | escape }}</h3><p>{{ product.price | money }}</p></a></article>{% endfor %}</div>{% else %}<div class="wf-section__grid">{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}>{% if block.settings.link != blank %}<a href="{{ block.settings.link }}">{% endif %}{% if block.settings.image != blank %}{{ block.settings.image | image_url: width: 900 | image_tag: alt: block.settings.title }}{% endif %}<h3>{{ block.settings.title | escape }}</h3><p>{{ block.settings.text }}</p>{% if block.settings.link != blank %}</a>{% endif %}</article>{% endfor %}</div>{% endif %}</section>`
 };
@@ -20208,14 +20327,25 @@ var bundleSection = {
   previewVariants: ["routine-set", "quantity-break"],
   renderWeb: (context) => {
     const requested = value(context.section, "variant", "routine-set");
-    const variant = (/* @__PURE__ */ new Set(["routine-set", "quantity-break"])).has(requested) ? requested : "routine-set";
-    return base4.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant)}"`);
+    const variant2 = (/* @__PURE__ */ new Set(["routine-set", "quantity-break"])).has(requested) ? requested : "routine-set";
+    return base4.renderWeb(context).replace('class="wf-section wf-bundle"', `class="wf-section wf-bundle wf-bundle--${escapeHtml(variant2)}"`);
   },
   renderLiquid: () => `<section class="weflo-bundle"><h2>{{ section.settings.title | escape }}</h2><fieldset><legend>{{ section.settings.text }}</legend>{% for block in section.blocks %}<label {{ block.shopify_attributes }}><input type="checkbox" name="items[]" value="{{ block.settings.variant.id }}">{{ block.settings.title | escape }}</label>{% endfor %}</fieldset><button type="button">{{ section.settings.cta_label | escape }}</button></section>`
 };
 
 // src/sections/comparison.ts
-var comparisonSection = createSectionDefinition("comparison", "Comparateur", "conversion", "comparison", { title: "Pourquoi nous choisir" });
+var base5 = createSectionDefinition("comparison", "Comparateur", "conversion", "comparison", { title: "Pourquoi nous choisir" });
+var comparisonSection = {
+  ...base5,
+  families: ["comparison"],
+  tags: ["comparatif", "objections", "diff\xE9rences"],
+  capabilities: [],
+  variants: [
+    { id: "matrix", name: "Matrice", description: "Comparaison en lignes et colonnes.", composition: "Matrice structur\xE9e par crit\xE8res.", previewFixtureId: "", defaults: { variant: "matrix" } },
+    { id: "objection-cards", name: "Objections", description: "Chaque h\xE9sitation devient une carte de r\xE9ponse.", composition: "Cartes de r\xE9ponses aux objections.", previewFixtureId: "", defaults: { variant: "objection-cards" } },
+    { id: "versus", name: "Face-\xE0-face", description: "Deux approches oppos\xE9es avec verdict visuel.", composition: "Comparaison binaire narrative.", previewFixtureId: "", defaults: { variant: "versus" } }
+  ]
+};
 
 // src/sections/ingredients.ts
 var ingredientsSection = createSectionDefinition("ingredients", "Ingr\xE9dients & d\xE9tails", "content", "cards", { title: "Ce qu\u2019il y a dedans" });
@@ -20225,11 +20355,11 @@ var commerceSections = [productMainSection, productGridSection, collectionGridSe
 for (const definition of commerceSections) registerSection(definition);
 
 // src/sections/benefits.ts
-var base5 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
-var benefitsSection = { ...base5, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
+var base6 = createSectionDefinition("benefits", "B\xE9n\xE9fices", "conversion", "cards");
+var benefitsSection = { ...base6, previewVariants: ["ritual-cards", "technical-grid"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "ritual-cards");
-  const variant = (/* @__PURE__ */ new Set(["ritual-cards", "technical-grid"])).has(requested) ? requested : "ritual-cards";
-  return base5.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant)}"`);
+  const variant2 = (/* @__PURE__ */ new Set(["ritual-cards", "technical-grid"])).has(requested) ? requested : "ritual-cards";
+  return base6.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-benefits--${escapeHtml(variant2)}"`);
 } };
 
 // src/sections/steps.ts
@@ -20239,11 +20369,11 @@ var stepsSection = createSectionDefinition("steps", "\xC9tapes", "content", "car
 var statsSection = createSectionDefinition("stats", "Chiffres cl\xE9s", "conversion", "cards");
 
 // src/sections/testimonials.ts
-var base6 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
-var testimonialsSection = { ...base6, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
+var base7 = createSectionDefinition("testimonials", "T\xE9moignages", "conversion", "cards");
+var testimonialsSection = { ...base7, previewVariants: ["editorial-stories", "ugc-grid"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "editorial-stories");
-  const variant = (/* @__PURE__ */ new Set(["editorial-stories", "ugc-grid"])).has(requested) ? requested : "editorial-stories";
-  return base6.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant)}"`);
+  const variant2 = (/* @__PURE__ */ new Set(["editorial-stories", "ugc-grid"])).has(requested) ? requested : "editorial-stories";
+  return base7.renderWeb(context).replace('class="wf-section wf-cards"', `class="wf-section wf-cards wf-testimonials--${escapeHtml(variant2)}"`);
 } };
 
 // src/sections/reviews.ts
@@ -20259,11 +20389,11 @@ var guaranteesSection = createSectionDefinition("guarantees", "Garanties", "conv
 var shippingSection = createSectionDefinition("shipping", "Livraison", "conversion", "cards");
 
 // src/sections/faq.ts
-var base7 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
-var faqSection = { ...base7, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
+var base8 = createSectionDefinition("faq", "Questions fr\xE9quentes", "content", "faq");
+var faqSection = { ...base8, previewVariants: ["editorial-accordion", "support-columns"], renderWeb: (context) => {
   const requested = value(context.section, "variant", "editorial-accordion");
-  const variant = (/* @__PURE__ */ new Set(["editorial-accordion", "support-columns"])).has(requested) ? requested : "editorial-accordion";
-  return base7.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant)}"`);
+  const variant2 = (/* @__PURE__ */ new Set(["editorial-accordion", "support-columns"])).has(requested) ? requested : "editorial-accordion";
+  return base8.renderWeb(context).replace('class="wf-section wf-faq"', `class="wf-section wf-faq wf-faq--${escapeHtml(variant2)}"`);
 } };
 
 // src/sections/newsletter.ts
@@ -20331,10 +20461,208 @@ var customCodeSection = {
   renderLiquid: () => `<section class="weflo-custom-code" data-wf-custom-id="{{ section.id }}">{{ section.settings.html }}<style>{{ section.settings.css }}</style><script>{{ section.settings.js }}</script></section>`
 };
 
+// src/shopify/liquid/purchase-options.ts
+function renderPurchaseOptionsLiquid(input) {
+  return renderProductFormLiquid({
+    ...input,
+    includeQuantityOffers: input.strategy === "multipack"
+  });
+}
+
+// src/sections/packs/pack-factory.ts
+var baseControls = [
+  textControl("title", "Titre"),
+  textControl("subtitle", "Sous-titre"),
+  textControl("text", "Texte", "textarea"),
+  textControl("image", "Image", "image"),
+  textControl("image_alt", "Texte alternatif"),
+  textControl("cta_label", "Libell\xE9 du bouton"),
+  textControl("cta_link", "Lien", "link")
+];
+var standardBlocks = [
+  { type: "media", name: "M\xE9dia", defaults: { title: "M\xE9dia", image: "", image_alt: "" }, settings: [textControl("title", "Titre"), textControl("image", "Image", "image"), textControl("image_alt", "Texte alternatif")] },
+  { type: "benefit", name: "B\xE9n\xE9fice", defaults: { title: "B\xE9n\xE9fice", text: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea")] },
+  { type: "offer", name: "Offre", defaults: { title: "Offre", text: "", price: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("price", "Prix")] },
+  { type: "review", name: "Avis", defaults: { title: "Avis", text: "", author: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea"), textControl("author", "Auteur")] },
+  { type: "row", name: "Ligne", defaults: { title: "Ligne", text: "" }, settings: [textControl("title", "Titre"), textControl("text", "Texte", "textarea")] },
+  { type: "faq", name: "Question", defaults: { title: "Question", text: "" }, settings: [textControl("title", "Question"), textControl("text", "R\xE9ponse", "textarea")] }
+];
+function cards(blocks2) {
+  return blocks2.map((block2) => {
+    const media3 = safeMediaUrl(block2.settings.image);
+    return `<article class="wf-section__card" data-wf-block-id="${escapeHtml(block2.id)}">${media3 ? `<img src="${media3}" alt="${escapeHtml(blockValue(block2, "image_alt", blockValue(block2, "title")))}" loading="lazy">` : ""}<h3>${escapeHtml(blockValue(block2, "title", "\xC9l\xE9ment"))}</h3>${blockValue(block2, "text") ? `<p>${escapeHtml(blockValue(block2, "text"))}</p>` : ""}${blockValue(block2, "author") ? `<cite>${escapeHtml(blockValue(block2, "author"))}</cite>` : ""}${blockValue(block2, "price") ? `<strong>${escapeHtml(blockValue(block2, "price"))}</strong>` : ""}</article>`;
+  }).join("");
+}
+function liquidFor(pack) {
+  const capabilities = pack.capabilities ?? [];
+  const product = capabilities.includes("product-form") || capabilities.includes("variant-selection");
+  const body = `{% for block in section.blocks %}<article class="wf-section__card" {{ block.shopify_attributes }}><h3>{{ block.settings.title | escape }}</h3><div>{{ block.settings.text }}</div>{% if block.settings.price != blank %}<strong>{{ block.settings.price | escape }}</strong>{% endif %}</article>{% endfor %}`;
+  if (!product) return `<section class="wf-section wf-${pack.type}" data-wf-variant="{{ section.settings.variant | escape }}"><header><p>{{ section.settings.subtitle | escape }}</p><h2>{{ section.settings.title | escape }}</h2><div>{{ section.settings.text }}</div></header><div class="wf-section__grid">${body}</div>{% if section.settings.cta_label != blank %}<a class="wf-section__button" href="{{ section.settings.cta_link }}">{{ section.settings.cta_label | escape }}</a>{% endif %}</section>`;
+  const sectionClass = `wf-section wf-${pack.type}`;
+  if (pack.type === "fixed-bundle") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "fixed-bundle" });
+  if (pack.type === "quantity-offer") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "multipack" });
+  if (pack.type === "subscription-selector") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "selling-plan" });
+  if (pack.type === "preorder-selector") return renderPurchaseOptionsLiquid({ sectionClass, strategy: "preorder" });
+  return renderProductFormLiquid({ sectionClass });
+}
+function premiumPack(input) {
+  const capabilities = input.capabilities ?? [];
+  const variants = input.variants.map(([id2, name, composition]) => ({ id: id2, name, description: composition, composition, previewFixtureId: "", defaults: { variant: id2 } }));
+  const productControls = capabilities.some((capability) => capability === "product-form" || capability === "variant-selection") ? [textControl("product_handle", "Produit Shopify", "text")] : [];
+  const defaults3 = { title: input.name, subtitle: "", text: "", image: "", image_alt: "", cta_label: capabilities.includes("product-form") ? "Ajouter au panier" : "D\xE9couvrir", cta_link: "#", variant: variants[0].id, ...input.extraDefaults };
+  return {
+    type: input.type,
+    name: input.name,
+    category: input.category,
+    defaults: defaults3,
+    settings: [...baseControls, ...productControls, ...input.extraSettings ?? []],
+    blocks: standardBlocks,
+    families: [input.family],
+    tags: input.tags,
+    supportedPages: input.supportedPages ?? ["landing", "product", "collection", "home"],
+    supportedMarkets: ["all"],
+    capabilities,
+    variants,
+    assets: [],
+    packVersion: 1,
+    renderWeb: ({ section: section2, pageName, editor }) => {
+      const variant2 = variants.some((item3) => item3.id === value(section2, "variant", variants[0].id)) ? value(section2, "variant", variants[0].id) : variants[0].id;
+      const heading = value(section2, "title", pageName);
+      const intro = `<header>${value(section2, "subtitle") ? `<p class="wf-section__eyebrow">${escapeHtml(value(section2, "subtitle"))}</p>` : ""}<h2 data-wf-edit-key="title">${escapeHtml(heading)}</h2>${value(section2, "text") ? `<p class="wf-section__copy" data-wf-edit-key="text">${escapeHtml(value(section2, "text"))}</p>` : ""}</header>`;
+      const action = value(section2, "cta_label") ? `<a class="wf-section__button" href="${safeLink(section2.settings.cta_link)}">${escapeHtml(value(section2, "cta_label"))}</a>` : "";
+      const setup = editor && capabilities.some((capability) => ["fixed-bundle", "custom-bundle", "selling-plan", "preorder", "app-blocks"].includes(capability)) ? `<aside class="wf-section__setup" role="status">Configuration Shopify requise avant publication.</aside>` : "";
+      if (input.layout === "product") return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant2)}" data-wf-variant="${escapeHtml(variant2)}">${intro}<div class="wf-section__media">${image(section2, "image", value(section2, "image_alt", heading))}</div><div class="wf-section__grid">${cards(section2.blocks)}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Option<select name="id"><option value="">Choisir dans Shopify</option></select></label><label>Quantit\xE9<input name="quantity" type="number" min="1" value="1"></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form>${setup}</section>`;
+      if (input.layout === "quiz") return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant2)}" data-wf-variant="${escapeHtml(variant2)}">${intro}<form class="wf-quiz__form">${section2.blocks.map((block2, index) => `<fieldset${index ? " hidden" : ""}><legend>${escapeHtml(blockValue(block2, "title", `Question ${index + 1}`))}</legend><label><input type="radio" name="${escapeHtml(block2.id)}" value="option-a">${escapeHtml(blockValue(block2, "text", "Option"))}</label></fieldset>`).join("")}<button type="button">Continuer</button></form>${setup}</section>`;
+      const media3 = input.layout === "editorial" ? `<figure>${image(section2, "image", value(section2, "image_alt", heading))}</figure>` : "";
+      return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant2)}" data-wf-variant="${escapeHtml(variant2)}">${media3}${intro}<div class="wf-section__grid">${cards(section2.blocks)}</div>${action}${setup}</section>`;
+    },
+    renderLiquid: () => liquidFor(input),
+    renderSchema: () => ({ name: input.name, settings: [...baseControls, ...productControls, ...input.extraSettings ?? []].map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })), blocks: standardBlocks.map((block2) => ({ type: block2.type, name: block2.name, settings: block2.settings.map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })) })), presets: variants.map((variant2) => ({ name: variant2.name, settings: { ...variant2.defaults } })) }),
+    migrate: (section2) => ({ ...section2, packVersion: 1, variantId: section2.variantId ?? value(section2, "variant", variants[0].id) })
+  };
+}
+
+// src/sections/packs/product-packs.ts
+var productPacks = [
+  premiumPack({ type: "product-hero", name: "Hero produit", category: "commerce", family: "product-hero", tags: ["produit", "d\xE9sir", "premier \xE9cran"], capabilities: ["product-form", "markets"], layout: "product", variants: [
+    ["gallery-led", "Galerie immersive", "M\xE9dia pleine hauteur suivi d\u2019une proposition d\u2019achat."],
+    ["editorial-split", "Split \xE9ditorial", "Texte de marque et visuel dissym\xE9trique c\xF4te \xE0 c\xF4te."],
+    ["clinical-proof", "Preuve clinique", "Hi\xE9rarchie factuelle avec zone de r\xE9assurance."]
+  ] }),
+  premiumPack({ type: "buy-box", name: "Buy box", category: "commerce", family: "buy-box", tags: ["achat", "prix", "panier"], capabilities: ["product-form", "variant-selection", "cart-drawer"], layout: "product", variants: [
+    ["clean", "Minimal net", "Formulaire vertical sans distraction."],
+    ["premium", "Premium d\xE9taill\xE9", "Prix, r\xE9assurance et offre structur\xE9s en colonnes."],
+    ["sticky", "Achat persistant", "R\xE9sum\xE9 compact pens\xE9 pour rester disponible au d\xE9filement."]
+  ] }),
+  premiumPack({ type: "variant-selector", name: "S\xE9lecteur de variantes", category: "commerce", family: "variant-selector", tags: ["variantes", "options", "couleurs"], capabilities: ["variant-selection", "product-form"], layout: "product", variants: [
+    ["pills", "Pastilles", "Choix horizontal par boutons compacts."],
+    ["swatches", "Nuanciers", "Options visuelles avec rep\xE8res couleur."],
+    ["image-cards", "Cartes image", "Choix pr\xE9sent\xE9 sous forme de cartes m\xE9dia."]
+  ] })
+];
+
+// src/sections/packs/offer-packs.ts
+var select = (key, label, options) => ({ key, label, type: "select", scope: "settings", options });
+var offerPacks = [
+  premiumPack({ type: "quantity-offer", name: "Offre quantit\xE9", category: "commerce", family: "quantity-offer", tags: ["quantit\xE9", "volume", "\xE9conomie"], capabilities: ["product-form", "quantity-breaks"], layout: "product", extraDefaults: { quantity_breaks: "1,2,3", quantity_label: "Choisir la quantit\xE9", quantity_suffix: "unit\xE9s" }, variants: [
+    ["single-duo-trio", "Solo, duo, trio", "Trois offres \xE9gales et imm\xE9diatement comparables."],
+    ["tier-table", "Table de paliers", "Lecture par niveau de quantit\xE9 et \xE9conomie."],
+    ["volume-ladder", "\xC9chelle de volume", "Progression verticale guidant vers le meilleur volume."]
+  ] }),
+  premiumPack({ type: "fixed-bundle", name: "Bundle fixe", category: "commerce", family: "fixed-bundle", tags: ["bundle", "multipack", "offre"], capabilities: ["product-form", "fixed-bundle"], layout: "product", extraDefaults: { bundle_note: "Ce produit correspond \xE0 un bundle fixe Shopify." }, variants: [
+    ["routine", "Routine compl\xE8te", "Produits compl\xE9mentaires ordonn\xE9s par usage."],
+    ["multipack", "Multipack", "M\xEAme produit d\xE9clin\xE9 en quantit\xE9 avec \xE9conomie."],
+    ["gift-set", "Coffret", "Composition cadeau avec contenu pr\xE9sent\xE9 comme un ensemble."]
+  ] }),
+  premiumPack({ type: "subscription-selector", name: "Abonnement", category: "commerce", family: "subscriptions-preorders", tags: ["abonnement", "selling plan", "r\xE9currence"], capabilities: ["product-form", "selling-plan"], layout: "product", extraDefaults: { selling_plan_label: "Fr\xE9quence" }, variants: [
+    ["inline", "Choix direct", "Options d\u2019achat ponctuel et r\xE9current dans le formulaire."],
+    ["benefit-led", "Avantages visibles", "Avantages de l\u2019abonnement pr\xE9sent\xE9s pr\xE8s du choix."],
+    ["compact", "Compact", "S\xE9lecteur r\xE9duit pour une buy box dense."]
+  ] }),
+  premiumPack({ type: "preorder-selector", name: "Pr\xE9commande", category: "commerce", family: "subscriptions-preorders", tags: ["pr\xE9commande", "lancement", "attente"], capabilities: ["product-form", "preorder"], layout: "product", extraDefaults: { preorder_provider: "", preorder_note: "Pr\xE9commande \u2014 exp\xE9dition selon les conditions indiqu\xE9es." }, extraSettings: [select("preorder_provider", "Fournisseur de pr\xE9commande", ["", "preorder-provider"])], variants: [
+    ["launch", "Lancement", "Information de disponibilit\xE9 et bouton de r\xE9servation."],
+    ["date-led", "Date de livraison", "Date et conditions mises au premier plan."],
+    ["limited", "S\xE9rie limit\xE9e", "Disponibilit\xE9 limit\xE9e accompagn\xE9e d\u2019une r\xE9assurance."]
+  ] })
+];
+
+// src/sections/packs/proof-packs.ts
+var proofPacks = [
+  premiumPack({ type: "benefits-results", name: "B\xE9n\xE9fices et r\xE9sultats", category: "conversion", family: "benefits-results", tags: ["b\xE9n\xE9fices", "r\xE9sultats", "preuve"], capabilities: [], variants: [
+    ["outcome-grid", "Grille de r\xE9sultats", "Cartes en grille pour une lecture rapide."],
+    ["proof-timeline", "Chronologie de preuve", "R\xE9sultats organis\xE9s en s\xE9quence progressive."],
+    ["feature-led", "Caract\xE9ristiques", "Lecture structur\xE9e par d\xE9tails et b\xE9n\xE9fices."]
+  ] }),
+  premiumPack({ type: "product-media", name: "D\xE9monstration produit", category: "media", family: "product-media", tags: ["d\xE9mo", "vid\xE9o", "galerie"], capabilities: [], layout: "editorial", variants: [
+    ["video-first", "Vid\xE9o d\u2019abord", "M\xE9dia principal immersif avant les d\xE9tails."],
+    ["masonry", "Mosa\xEFque", "Galerie de formats vari\xE9s et visuels rapproch\xE9s."],
+    ["step-demo", "D\xE9monstration par \xE9tapes", "S\xE9quence de m\xE9dias qui explique l\u2019usage."]
+  ] }),
+  premiumPack({ type: "before-after", name: "Avant / apr\xE8s", category: "media", family: "before-after", tags: ["r\xE9sultats", "transformation", "comparaison"], capabilities: [], variants: [
+    ["slider", "Curseur", "Une comparaison focalis\xE9e sur une paire de visuels."],
+    ["side-by-side", "C\xF4te \xE0 c\xF4te", "Deux \xE9tats visibles simultan\xE9ment."],
+    ["results-story", "Histoire de r\xE9sultat", "Comparaison int\xE9gr\xE9e \xE0 un r\xE9cit et des notes."]
+  ] }),
+  premiumPack({ type: "reviews-ugc", name: "Avis et UGC", category: "conversion", family: "reviews-ugc", tags: ["avis", "ugc", "preuve sociale"], capabilities: [], variants: [
+    ["filmstrip", "Filmstrip UGC", "D\xE9filement visuel de contenus clients."],
+    ["spotlight", "T\xE9moignage phare", "Un avis dominant entour\xE9 de signaux secondaires."],
+    ["review-wall", "Mur d\u2019avis", "Accumulation dense de retours structur\xE9s."]
+  ] }),
+  premiumPack({ type: "faq-trust", name: "FAQ et garanties", category: "content", family: "faq-trust", tags: ["faq", "garantie", "confiance"], capabilities: [], variants: [
+    ["accordion", "Accord\xE9on", "Questions compactes r\xE9v\xE9l\xE9es \xE0 la demande."],
+    ["guarantee-cards", "Cartes de garantie", "R\xE9assurance pr\xE9sent\xE9e comme preuves ind\xE9pendantes."],
+    ["support-columns", "Colonnes support", "Intro de confiance et r\xE9ponses d\xE9taill\xE9es s\xE9par\xE9es."]
+  ] })
+];
+
+// src/sections/packs/discovery-packs.ts
+var discoveryPacks = [
+  premiumPack({ type: "recommendations", name: "Recommandations produit", category: "commerce", family: "recommendations", tags: ["collection", "cross-sell", "d\xE9couverte"], capabilities: ["collection-binding", "recommendations"], variants: [
+    ["related-grid", "Produits associ\xE9s", "Grille directe de suggestions compl\xE9mentaires."],
+    ["editorial-picks", "S\xE9lection \xE9ditoriale", "Recommandations contextualis\xE9es par un angle de marque."],
+    ["cross-sell-stack", "Ajouts utiles", "Offres compl\xE9mentaires dans une pile prioris\xE9e."]
+  ] })
+];
+
+// src/sections/packs/advertorial-packs.ts
+var advertorialPacks = [
+  premiumPack({ type: "advertorialMasthead", name: "Masthead advertorial", category: "content", family: "advertorial", tags: ["advertorial", "ouverture", "\xE9ditorial"], layout: "editorial", variants: [["journal", "Journal", "Titre et m\xE9dia de magazine."], ["reportage", "Reportage", "Ouverture factuelle avec contexte."], ["opinion", "Chronique", "Angle sign\xE9 et personnel."]] }),
+  premiumPack({ type: "authorLine", name: "Ligne d\u2019auteur", category: "content", family: "advertorial", tags: ["advertorial", "auteur"], variants: [["byline", "Signature", "Une ligne d\u2019auteur minimaliste."], ["profile", "Profil", "Auteur accompagn\xE9 d\u2019un bloc de contexte."], ["expert", "Expert", "Signature soutenue par une qualification."]] }),
+  premiumPack({ type: "editorialBody", name: "Corps \xE9ditorial", category: "content", family: "advertorial", tags: ["advertorial", "article", "chapitre"], layout: "editorial", variants: [["longform", "Long format", "Colonne de lecture continue."], ["chaptered", "Chapitres", "Lecture s\xE9quenc\xE9e en \xE9pisodes."], ["scannable", "Scannable", "Paragraphes courts et points cl\xE9s."]] }),
+  premiumPack({ type: "evidenceCallout", name: "Encadr\xE9 de preuve", category: "content", family: "advertorial", tags: ["preuve", "source", "advertorial"], variants: [["citation", "Citation", "Une preuve isol\xE9e dans un encadr\xE9."], ["data", "Donn\xE9es", "Preuve organis\xE9e en chiffres et notes."], ["expert-note", "Note d\u2019expert", "Observation contextualis\xE9e par un sp\xE9cialiste."]] }),
+  premiumPack({ type: "inlineProduct", name: "Produit int\xE9gr\xE9", category: "commerce", family: "advertorial", tags: ["produit", "advertorial", "achat"], capabilities: ["product-form", "variant-selection"], layout: "product", variants: [["compact", "Compact", "Produit pr\xE9sent\xE9 au fil de la lecture."], ["feature", "Produit vedette", "Carte produit plus expressive dans l\u2019article."], ["offer", "Offre \xE9ditoriale", "Produit et b\xE9n\xE9fice r\xE9unis dans un encadr\xE9."]] }),
+  premiumPack({ type: "conversionClose", name: "Conclusion conversion", category: "conversion", family: "conversion-capture", tags: ["cta", "conversion", "conclusion"], variants: [["final-cta", "CTA final", "Cl\xF4ture simple avec une action unique."], ["offer-stack", "Pile d\u2019offre", "R\xE9assurance et action regroup\xE9es."], ["decision", "Aide \xE0 la d\xE9cision", "R\xE9sum\xE9 final qui r\xE9pond aux derni\xE8res h\xE9sitations."]] })
+];
+
+// src/sections/packs/listicle-packs.ts
+var listiclePacks = [
+  premiumPack({ type: "listicleIndex", name: "Index listicle", category: "content", family: "listicle", tags: ["listicle", "sommaire", "lecture"], variants: [["numbered", "Num\xE9rot\xE9", "Sommaire lin\xE9aire et num\xE9rot\xE9."], ["cards", "Cartes", "Sommaire visuel sous forme de cartes."], ["rail", "Rail", "Index lat\xE9ral pour une lecture longue."]] }),
+  premiumPack({ type: "numberedReason", name: "Raison num\xE9rot\xE9e", category: "content", family: "listicle", tags: ["listicle", "raison", "argument"], variants: [["editorial", "\xC9ditorial", "Grand num\xE9ro et texte respirant."], ["proof", "Avec preuve", "Argument soutenu par un d\xE9tail de preuve."], ["media", "Avec m\xE9dia", "Argument altern\xE9 avec un visuel."]] }),
+  premiumPack({ type: "comparisonInsert", name: "Insertion comparative", category: "content", family: "listicle", tags: ["listicle", "comparaison"], variants: [["quick-table", "Table rapide", "Tableau concis ins\xE9r\xE9 entre deux raisons."], ["versus", "Face-\xE0-face", "Comparaison binaire plus narrative."], ["scorecard", "Scorecard", "Crit\xE8res not\xE9s dans une carte."]] }),
+  premiumPack({ type: "productRecommendation", name: "Recommandation produit", category: "commerce", family: "listicle", tags: ["produit", "recommandation", "listicle"], capabilities: ["product-form", "recommendations"], layout: "product", variants: [["editor-choice", "Choix de la r\xE9daction", "Produit recommand\xE9 avec justification \xE9ditoriale."], ["best-for", "Le meilleur pour", "Recommandation segment\xE9e selon le besoin."], ["shortlist", "S\xE9lection courte", "Plusieurs choix hi\xE9rarchis\xE9s."]] })
+];
+
+// src/sections/packs/quiz-packs.ts
+var quizPacks = [
+  premiumPack({ type: "quizProgress", name: "Progression quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "progression"], variants: [["steps", "\xC9tapes", "\xC9tapes explicitement num\xE9rot\xE9es."], ["bar", "Barre", "Progression continue en barre."], ["minimal", "Minimal", "Indicateur discret et compact."]] }),
+  premiumPack({ type: "quizQuestion", name: "Question quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "question", "funnel"], layout: "quiz", variants: [["single-choice", "Choix unique", "Une r\xE9ponse pour avancer."], ["multiple-choice", "Choix multiples", "Plusieurs besoins peuvent \xEAtre s\xE9lectionn\xE9s."], ["visual-choice", "Choix visuel", "R\xE9ponses pr\xE9sent\xE9es en cartes m\xE9dia."]] }),
+  premiumPack({ type: "quizResult", name: "R\xE9sultat quiz", category: "conversion", family: "quiz-forms", tags: ["quiz", "r\xE9sultat", "recommandation"], variants: [["profile", "Profil", "R\xE9sultat formul\xE9 comme un profil."], ["routine", "Routine", "R\xE9sultat organis\xE9 en \xE9tapes d\u2019usage."], ["next-step", "Prochaine \xE9tape", "R\xE9sultat focalis\xE9 sur l\u2019action suivante."]] }),
+  premiumPack({ type: "leadCapture", name: "Capture de contact", category: "conversion", family: "conversion-capture", tags: ["email", "consentement", "lead"], variants: [["consent", "Consentement", "Capture avec rappel du consentement."], ["reward", "Contrepartie", "Capture associ\xE9e \xE0 une ressource ou avantage."], ["minimal", "Minimal", "Champ unique et action courte."]] })
+];
+
+// src/sections/packs/brand-story-packs.ts
+var brandStoryPacks = [
+  premiumPack({ type: "brandManifesto", name: "Manifeste de marque", category: "brand", family: "brand-story", tags: ["marque", "manifeste", "valeurs"], layout: "editorial", variants: [["statement", "D\xE9claration", "Texte manifeste assum\xE9."], ["principles", "Principes", "Valeurs s\xE9par\xE9es en principes."], ["letter", "Lettre", "Adresse personnelle de la marque."]] }),
+  premiumPack({ type: "founderStory", name: "Histoire du fondateur", category: "brand", family: "brand-story", tags: ["fondateur", "histoire", "marque"], layout: "editorial", variants: [["portrait", "Portrait", "Photo et r\xE9cit \xE0 la premi\xE8re personne."], ["timeline", "Chronologie", "Parcours structur\xE9 en moments cl\xE9s."], ["letter", "Lettre du fondateur", "Message intime et direct."]] }),
+  premiumPack({ type: "editorialChapter", name: "Chapitre \xE9ditorial", category: "brand", family: "brand-story", tags: ["chapitre", "r\xE9cit", "marque"], layout: "editorial", variants: [["split", "Split", "Texte et image en dialogue."], ["full-bleed", "Plein cadre", "M\xE9dia dominant et texte superpos\xE9."], ["quiet", "Lecture calme", "Colonne centr\xE9e avec rythme lent."]] }),
+  premiumPack({ type: "campaignLookbook", name: "Lookbook de campagne", category: "media", family: "brand-story", tags: ["lookbook", "campagne", "m\xE9dias"], variants: [["masonry", "Mosa\xEFque", "Images de formats vari\xE9s."], ["sequence", "S\xE9quence", "R\xE9cit visuel dans l\u2019ordre."], ["catalogue", "Catalogue", "Grille r\xE9guli\xE8re et informative."]] })
+];
+
 // src/sections/index.ts
 registerSection(spacerSection);
 registerSection(dividerSection);
 registerSection(customCodeSection);
+for (const pack of [...productPacks, ...offerPacks, ...proofPacks, ...discoveryPacks, ...advertorialPacks, ...listiclePacks, ...quizPacks, ...brandStoryPacks]) registerSection(pack);
 
 // src/models/manifests/batch-1.ts
 var MODEL_SPECIALTY_BATCH_1 = {
@@ -20370,6 +20698,35 @@ var MODEL_SPECIALTY_BATCH_3 = {
 var SPECIALTIES = { ...MODEL_SPECIALTY_BATCH_1, ...MODEL_SPECIALTY_BATCH_2, ...MODEL_SPECIALTY_BATCH_3 };
 var modelManifestIds = Object.keys(SPECIALTIES);
 
+// src/design/profile.ts
+var ART_DIRECTION_ARCHETYPE = {
+  "warm-home": "natural",
+  "editorial-beauty": "editorial",
+  "clinical-wellness": "clinical",
+  "technical-performance": "technical",
+  "direct-response": "utility",
+  "playful-gifting": "playful",
+  "premium-accessories": "luxury",
+  "food-craft": "natural"
+};
+function profileFromArtDirection(direction, market = "FR") {
+  const density = direction.spacing === "compact" ? "dense" : direction.spacing === "airy" ? "airy" : "balanced";
+  const card = direction.radius === "none" ? 0 : direction.radius === "round" ? 32 : 16;
+  return {
+    id: `profile-${direction.id}`,
+    market,
+    archetype: ART_DIRECTION_ARCHETYPE[direction.id],
+    typography: { heading: direction.headingFont, body: direction.bodyFont, scale: 1 },
+    colors: { background: direction.palette[0] ?? "#FFFFFF", ink: direction.palette[1] ?? "#111111", accent: direction.palette[2] ?? "#111111", surface: direction.palette[3] ?? "#FFFFFF" },
+    spacing: { section: direction.spacing === "airy" ? 112 : direction.spacing === "compact" ? 56 : 80, gap: direction.spacing === "airy" ? 32 : 20 },
+    radius: { card, button: direction.buttonStyle === "pill" ? 48 : card },
+    borders: { width: 1, color: direction.palette[1] ?? "#111111" },
+    media: { ratio: direction.mediaRatio, treatment: direction.proofMode === "editorial" ? "editorial" : direction.proofMode === "technical" ? "clean" : "immersive" },
+    motion: { reveal: "fade", durationMs: 240 },
+    density
+  };
+}
+
 // src/editor/migrate.ts
 function slug(value2) {
   return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
@@ -20387,9 +20744,9 @@ function settings(values2) {
 function legacyBlocks(section2) {
   const value2 = section2.settings.blocks;
   if (!Array.isArray(value2)) return [];
-  return value2.flatMap((block, index) => {
-    if (!block || typeof block !== "object" || Array.isArray(block)) return [];
-    const raw = block;
+  return value2.flatMap((block2, index) => {
+    if (!block2 || typeof block2 !== "object" || Array.isArray(block2)) return [];
+    const raw = block2;
     return [{
       id: typeof raw.id === "string" && raw.id ? raw.id : `${section2.id}-block-${index + 1}`,
       type: typeof raw.type === "string" && raw.type ? raw.type : "item",
@@ -20407,7 +20764,9 @@ function migrateSection(section2, index) {
     settings: settings(Object.fromEntries(Object.entries(section2.settings).filter(([key]) => key !== "blocks"))),
     style: {},
     responsive: {},
-    blocks: legacyBlocks(section2)
+    blocks: legacyBlocks(section2),
+    packVersion: 1,
+    variantId: typeof section2.settings.variant === "string" ? section2.settings.variant : "default"
   };
 }
 function editorKind(type) {
@@ -20416,8 +20775,17 @@ function editorKind(type) {
   return type;
 }
 function migrateDocument(document2, kind = "landing") {
-  if (isEditorDocument(document2)) return structuredClone(document2);
+  if (isEditorDocument(document2)) {
+    const migrated = structuredClone(document2);
+    for (const page of migrated.pages) for (const section2 of page.sections) {
+      section2.packVersion ??= 1;
+      section2.variantId ??= typeof section2.settings.variant === "string" ? section2.settings.variant : "default";
+    }
+    if (!migrated.designProfile && migrated.commerce?.artDirection) migrated.designProfile = profileFromArtDirection(migrated.commerce.artDirection);
+    return migrated;
+  }
   const pageSlug = slug(document2.path === "/" ? document2.name : document2.path);
+  const legacyDirection = document2.commerce?.artDirection;
   return {
     version: 2,
     name: document2.name,
@@ -20433,7 +20801,8 @@ function migrateDocument(document2, kind = "landing") {
       slug: pageSlug,
       sections: document2.sections.map(migrateSection)
     }],
-    assets: []
+    assets: [],
+    ...legacyDirection ? { designProfile: profileFromArtDirection(legacyDirection) } : {}
   };
 }
 
@@ -20502,9 +20871,9 @@ var castToError2 = (err) => {
 var OpenAIError = class extends Error {
 };
 var APIError2 = class _APIError extends OpenAIError {
-  constructor(status, error, message2, headers) {
-    super(`${_APIError.makeMessage(status, error, message2)}`);
-    this.status = status;
+  constructor(status2, error, message2, headers) {
+    super(`${_APIError.makeMessage(status2, error, message2)}`);
+    this.status = status2;
     this.headers = headers;
     this.requestID = headers?.get("x-request-id");
     this.error = error;
@@ -20513,49 +20882,49 @@ var APIError2 = class _APIError extends OpenAIError {
     this.param = data?.["param"];
     this.type = data?.["type"];
   }
-  static makeMessage(status, error, message2) {
+  static makeMessage(status2, error, message2) {
     const msg = error?.message ? typeof error.message === "string" ? error.message : JSON.stringify(error.message) : error ? JSON.stringify(error) : message2;
-    if (status && msg) {
-      return `${status} ${msg}`;
+    if (status2 && msg) {
+      return `${status2} ${msg}`;
     }
-    if (status) {
-      return `${status} status code (no body)`;
+    if (status2) {
+      return `${status2} status code (no body)`;
     }
     if (msg) {
       return msg;
     }
     return "(no status code or body)";
   }
-  static generate(status, errorResponse, message2, headers) {
-    if (!status || !headers) {
+  static generate(status2, errorResponse, message2, headers) {
+    if (!status2 || !headers) {
       return new APIConnectionError2({ message: message2, cause: castToError2(errorResponse) });
     }
     const error = errorResponse?.["error"];
-    if (status === 400) {
-      return new BadRequestError2(status, error, message2, headers);
+    if (status2 === 400) {
+      return new BadRequestError2(status2, error, message2, headers);
     }
-    if (status === 401) {
-      return new AuthenticationError2(status, error, message2, headers);
+    if (status2 === 401) {
+      return new AuthenticationError2(status2, error, message2, headers);
     }
-    if (status === 403) {
-      return new PermissionDeniedError2(status, error, message2, headers);
+    if (status2 === 403) {
+      return new PermissionDeniedError2(status2, error, message2, headers);
     }
-    if (status === 404) {
-      return new NotFoundError2(status, error, message2, headers);
+    if (status2 === 404) {
+      return new NotFoundError2(status2, error, message2, headers);
     }
-    if (status === 409) {
-      return new ConflictError2(status, error, message2, headers);
+    if (status2 === 409) {
+      return new ConflictError2(status2, error, message2, headers);
     }
-    if (status === 422) {
-      return new UnprocessableEntityError2(status, error, message2, headers);
+    if (status2 === 422) {
+      return new UnprocessableEntityError2(status2, error, message2, headers);
     }
-    if (status === 429) {
-      return new RateLimitError2(status, error, message2, headers);
+    if (status2 === 429) {
+      return new RateLimitError2(status2, error, message2, headers);
     }
-    if (status >= 500) {
-      return new InternalServerError2(status, error, message2, headers);
+    if (status2 >= 500) {
+      return new InternalServerError2(status2, error, message2, headers);
     }
-    return new _APIError(status, error, message2, headers);
+    return new _APIError(status2, error, message2, headers);
   }
 };
 var APIUserAbortError2 = class extends APIError2 {
@@ -26600,8 +26969,8 @@ var OpenAI = class {
   defaultIdempotencyKey() {
     return `stainless-node-retry-${uuid42()}`;
   }
-  makeStatusError(status, error, message2, headers) {
-    return APIError2.generate(status, error, message2, headers);
+  makeStatusError(status2, error, message2, headers) {
+    return APIError2.generate(status2, error, message2, headers);
   }
   async _callApiKey() {
     const apiKey = this._options.apiKey;
@@ -26960,10 +27329,10 @@ OpenAI.Containers = Containers;
 
 // src/canardo/prompt.ts
 var CANARDO_SYSTEM_PROMPT = `Tu es Canardo, le directeur cr\xE9atif et d\xE9veloppeur e-commerce de Weflo.
-Tu r\xE9ponds uniquement avec un objet JSON strict contenant message, summary et commands. commands contient au maximum 30 commandes de l\u2019\xE9diteur.
+Tu r\xE9ponds uniquement avec un objet JSON strict. Pour le catalogue, retourne message, summary et commands. commands contient au maximum 30 commandes de l\u2019\xE9diteur.
 Pour une modification de texte ou de style, utilise updateSetting, updateStyle ou updateResponsiveStyle sur la s\xE9lection.
 Pour cr\xE9er une section standard, utilise insertSection avec un type pr\xE9sent dans availableSections, des identifiants uniques et tous les champs EditorSection.
-Une demande \xAB vibecode \xBB, \xAB code sur mesure \xBB ou une interaction qui n\u2019existe pas dans le catalogue cr\xE9e une section customCode isol\xE9e. Le HTML ne contient ni script ni attribut on*. Le CSS commence chaque s\xE9lecteur par [data-wf-custom-id="IDENTIFIANT"]. Le JavaScript reste local \xE0 la section et n\u2019utilise ni r\xE9seau, ni stockage, ni cookies, ni fen\xEAtre parente.
+Quand le catalogue ne r\xE9pond pas \xE0 une demande sur mesure, retourne mode: "custom-section" et uniquement spec: la DSL d\xE9clarative version 1 demand\xE9e. spec ne peut contenir que stack, grid, heading, text, button, image, icon, repeater, product-form, variant-selector et quantity-selector. Ne retourne jamais HTML, CSS, JavaScript, Liquid, URL distante ou script: le serveur compile ces primitives.
 Ne supprime jamais une section et ne change jamais une liaison produit sans que la demande le dise explicitement.
 N\u2019invente jamais de produit Shopify. Les tokens Shopify, cookies et secrets ne sont jamais pr\xE9sents dans le contexte et ne doivent jamais \xEAtre demand\xE9s ou g\xE9n\xE9r\xE9s.
 Les modifications doivent \xEAtre adapt\xE9es \xE0 la marque, responsives, accessibles, pr\xE9cises et r\xE9ellement \xE9ditables.`;
@@ -27206,17 +27575,149 @@ function sectionFileName(type) {
 
 // src/shopify/compile-section.ts
 function settingSchema(control) {
-  const type = control.type === "textarea" || control.type === "code" ? "textarea" : control.type === "toggle" ? "checkbox" : control.type === "number" ? "number" : control.type === "select" ? "select" : control.type === "link" ? "url" : "text";
+  const type = control.type === "textarea" || control.type === "code" ? "textarea" : control.type === "toggle" ? "checkbox" : control.type === "number" ? "number" : control.type === "select" ? "select" : control.type === "link" ? "url" : control.type === "image" ? "image_picker" : control.type === "product" ? "product" : control.type === "collection" ? "collection" : "text";
   return { type, id: control.key, label: control.label, ...type === "select" ? { options: (control.options ?? []).map((value2) => ({ value: value2, label: value2 })) } : {} };
 }
-function compileShopifySection(section2) {
+function customPublication(section2, publications = []) {
+  const id2 = section2.settings.custom_section_id;
+  const version3 = section2.settings.custom_section_version;
+  const checksum3 = section2.settings.custom_checksum;
+  const hasCustomSpec = typeof section2.settings.custom_spec === "string";
+  if (typeof id2 !== "string" || typeof version3 !== "number" || !Number.isInteger(version3) || version3 < 1) {
+    if (hasCustomSpec) throw new Error("La section Canardo doit r\xE9f\xE9rencer une version enregistr\xE9e avant publication.");
+    return null;
+  }
+  const publication = publications.find((entry) => entry.section.id === id2 && entry.section.version === version3);
+  if (!publication || typeof checksum3 === "string" && publication.section.checksum !== checksum3) {
+    throw new Error("La version enregistr\xE9e de la section Canardo est introuvable ou ne correspond plus.");
+  }
+  return publication;
+}
+function shopifySectionType2(section2, publications = []) {
+  const publication = customPublication(section2, publications);
+  return publication ? publication.path.replace(/^sections\//, "").replace(/\.liquid$/, "") : `weflo-${section2.type}`;
+}
+function compileShopifySection(section2, publications = []) {
+  const publication = customPublication(section2, publications);
+  if (publication) return { key: publication.path, value: publication.content };
   const definition = getSectionDefinition(section2.type);
   if (!definition) throw new Error(`Unknown Shopify section type: ${section2.type}`);
+  const schema2 = structuredClone(definition.renderSchema(section2));
   const settings2 = [...new Map(definition.settings.map((control) => [control.key, control])).values()].map(settingSchema);
-  const blocks2 = definition.blocks.map((block) => ({ type: block.type, name: block.name, settings: block.settings.map(settingSchema) }));
-  const schema = JSON.stringify({ name: definition.name.slice(0, 25), settings: settings2, blocks: blocks2, presets: [{ name: definition.name.slice(0, 25) }] });
+  if (!settings2.some((entry) => entry.id === "variant") && definition.variants.length > 1) {
+    settings2.push({ type: "select", id: "variant", label: "Composition", options: definition.variants.map((variant2) => ({ value: variant2.id, label: variant2.name })) });
+  }
+  const blocks2 = definition.blocks.map((block2) => ({ type: block2.type, name: block2.name, settings: block2.settings.map(settingSchema) }));
+  const completeSchema = { ...schema2, name: typeof schema2.name === "string" ? schema2.name.slice(0, 25) : definition.name.slice(0, 25), settings: settings2, blocks: blocks2, presets: Array.isArray(schema2.presets) && schema2.presets.length ? schema2.presets : [{ name: definition.name.slice(0, 25) }] };
   return { key: sectionFileName(section2.type), value: `${definition.renderLiquid(section2)}
-{% schema %}${schema}{% endschema %}` };
+{% schema %}${JSON.stringify(completeSchema)}{% endschema %}` };
+}
+
+// src/sections/capabilities.ts
+var SECTION_CAPABILITIES = [
+  "product-form",
+  "variant-selection",
+  "quantity-breaks",
+  "collection-binding",
+  "recommendations",
+  "fixed-bundle",
+  "custom-bundle",
+  "selling-plan",
+  "preorder",
+  "cart-drawer",
+  "app-blocks",
+  "markets",
+  "localization"
+];
+function hasSectionCapability(value2) {
+  return typeof value2 === "string" && SECTION_CAPABILITIES.includes(value2);
+}
+
+// src/shopify/capability-report.ts
+var nativeCapabilities = /* @__PURE__ */ new Set([
+  "product-form",
+  "variant-selection",
+  "quantity-breaks",
+  "collection-binding",
+  "recommendations",
+  "fixed-bundle"
+]);
+var labels = {
+  "product-form": "le formulaire produit Shopify",
+  "variant-selection": "les variantes Shopify",
+  "quantity-breaks": "les offres de quantit\xE9",
+  "collection-binding": "la collection Shopify",
+  recommendations: "les recommandations Shopify",
+  "fixed-bundle": "le bundle fixe Shopify",
+  "custom-bundle": "le bundle personnalisable",
+  "selling-plan": "l\u2019abonnement Shopify",
+  preorder: "la pr\xE9commande",
+  "cart-drawer": "le tiroir panier",
+  "app-blocks": "les blocs d\u2019application Shopify",
+  markets: "Shopify Markets",
+  localization: "la localisation Shopify"
+};
+function requiredCapabilities(input) {
+  const declared = input.capabilities ?? input.sections?.flatMap((section2) => getSectionDefinition(section2.type)?.capabilities ?? []) ?? [];
+  return [...new Set(declared)];
+}
+function status(capability, metadata) {
+  const override = metadata.supported?.[capability];
+  if (override === false) return { state: "unsupported", reason: `Cette boutique ne prend pas en charge ${labels[capability]}.` };
+  if (override === true) return { state: "available", reason: `${labels[capability]} est disponible.` };
+  if (capability === "custom-bundle") {
+    return metadata.wefloExtensionInstalled ? { state: "available", reason: "L\u2019extension Weflo Bundle et la Cart Transform sont install\xE9es." } : { state: "setup-required", reason: "Configure le bundle personnalisable avec l\u2019extension Weflo Bundle et la Cart Transform.", action: { label: "Configurer le bundle personnalisable", href: "/dashboard#shopify" } };
+  }
+  if (capability === "app-blocks") {
+    return metadata.wefloExtensionInstalled || metadata.appBlocks ? { state: "available", reason: "Les blocs d\u2019application Weflo sont disponibles." } : { state: "setup-required", reason: "Installe l\u2019extension de th\xE8me Weflo pour utiliser ce bloc d\u2019application.", action: { label: "Installer l\u2019extension Weflo", href: "/dashboard#shopify" } };
+  }
+  if (capability === "selling-plan") {
+    return metadata.sellingPlans ? { state: "available", reason: "Un fournisseur d\u2019abonnement Shopify est configur\xE9." } : { state: "setup-required", reason: "Configure un fournisseur d\u2019abonnement compatible avec les selling plans Shopify.", action: { label: "Configurer les abonnements", href: "/dashboard#shopify" } };
+  }
+  if (capability === "preorder") {
+    return metadata.preorderProvider ? { state: "available", reason: "Un fournisseur de pr\xE9commandes compatible est configur\xE9." } : { state: "setup-required", reason: "Configure un fournisseur de pr\xE9commandes compatible avant publication.", action: { label: "Configurer les pr\xE9commandes", href: "/dashboard#shopify" } };
+  }
+  if (capability === "cart-drawer") {
+    return metadata.cartDrawer ? { state: "available", reason: "Le th\xE8me expose un tiroir panier compatible." } : { state: "setup-required", reason: "Le tiroir panier du th\xE8me n\u2019a pas \xE9t\xE9 d\xE9tect\xE9 ; l\u2019ajout utilisera le panier Shopify standard.", action: { label: "V\xE9rifier le th\xE8me" } };
+  }
+  if (capability === "markets" || capability === "localization") {
+    const enabled = capability === "markets" ? metadata.markets : metadata.localization;
+    return enabled ? { state: "available", reason: `${labels[capability]} est disponible.` } : { state: "setup-required", reason: `Active ${labels[capability]} dans l\u2019administration Shopify.`, action: { label: "Ouvrir Shopify" } };
+  }
+  if (nativeCapabilities.has(capability)) {
+    return metadata.connected === false || metadata.hasProductData === false ? { state: "setup-required", reason: `Connecte une boutique et associe les donn\xE9es produit pour utiliser ${labels[capability]}.`, action: { label: "Connecter Shopify", href: "/dashboard#shopify" } } : { state: "available", reason: `${labels[capability]} est rendu avec les objets Shopify au runtime.` };
+  }
+  return { state: "unsupported", reason: `Capacit\xE9 Shopify inconnue : ${capability}.` };
+}
+function buildCapabilityReport(input = {}) {
+  const required = requiredCapabilities(input);
+  const metadata = { connected: true, hasProductData: true, ...input.shopify ?? {} };
+  const capabilities = Object.fromEntries(SECTION_CAPABILITIES.map((capability) => [capability, status(capability, metadata)]));
+  const blockers = required.filter((capability) => capabilities[capability].state !== "available").map((capability) => capabilities[capability].reason);
+  return { capabilities, required, blockers };
+}
+function assertPublishCapabilities(report) {
+  if (report.blockers.length) throw new Error(report.blockers.join(" "));
+}
+
+// src/shopify/runtime/product-form.ts
+var wefloProductRuntimeSource = `(()=>{const M=(c)=>{try{return new Intl.NumberFormat(document.documentElement.lang||'fr-FR',{style:'currency',currency:(window.Shopify&&window.Shopify.currency&&window.Shopify.currency.active)||'EUR'}).format(c/100)}catch{return(c/100).toFixed(2)+' \u20AC'}};const V=r=>{const s=r.querySelector('[data-wf-variants]');try{return s?JSON.parse(s.textContent||'[]'):[]}catch{return[]}};const U=r=>{if(r.dataset.wfMounted==='true')return;const f=r.querySelector('form[data-wf-product-form],form.wf-product__form');if(!f)return;r.dataset.wfMounted='true';const a=new AbortController(),q=a.signal,v=V(r),u=()=>{const c=[...r.querySelectorAll('[data-wf-option-index]')].map(x=>x.value),n=v.find(x=>c.every((y,i)=>(x.options||[])[i]===y))||v[0];if(!n)return;const id=f.querySelector('[data-wf-variant-input]');if(id)id.value=String(n.id);const p=r.querySelector('[data-wf-price]');if(p&&typeof n.price==='number')p.textContent=M(n.price);const z=r.querySelector('[data-wf-compare-price]');if(z){const b=typeof n.compare_at_price==='number'&&n.compare_at_price>(n.price||0);z.hidden=!b;if(b)z.textContent=M(n.compare_at_price)}const av=r.querySelector('[data-wf-availability]');if(av)av.textContent=n.available?'En stock':'Indisponible';const b=f.querySelector('[data-wf-add-to-cart]');if(b)b.disabled=n.available===false;r.dispatchEvent(new CustomEvent('weflo:variant:change',{bubbles:true,detail:{variant:n}}))};r.querySelectorAll('[data-wf-option-index]').forEach(x=>x.addEventListener('change',u,{signal:q}));r.querySelectorAll('[data-wf-quantity]').forEach(b=>b.addEventListener('click',()=>{const n=Number(b.dataset.wfQuantity),i=f.querySelector('[data-wf-quantity-input]');if(i&&Number.isInteger(n)&&n>0){i.value=String(n);i.dispatchEvent(new Event('change',{bubbles:true}))}},{signal:q}));f.addEventListener('submit',async e=>{if(!window.fetch||r.dataset.wfAjax==='false')return;e.preventDefault();const b=f.querySelector('[data-wf-add-to-cart]');if(b)b.disabled=true;try{const x=await fetch('/cart/add.js',{method:'POST',headers:{Accept:'application/json','X-Requested-With':'XMLHttpRequest'},body:new FormData(f)});if(!x.ok)throw Error('cart');const i=await x.json();document.dispatchEvent(new CustomEvent('weflo:cart:add',{bubbles:true,detail:{item:i,sectionId:r.dataset.wfSectionId}}));document.dispatchEvent(new CustomEvent('cart:refresh',{bubbles:true}))}catch{f.submit()}finally{if(b)b.disabled=false}},{signal:q});r.__wfProductAbort=a;u()};const I=s=>(s||document).querySelectorAll('[data-wf-product]').forEach(U);document.addEventListener('shopify:section:load',e=>I(e.target));document.addEventListener('shopify:section:unload',e=>{const r=e.target&&e.target.querySelector&&e.target.querySelector('[data-wf-product]');if(r&&r.__wfProductAbort)r.__wfProductAbort.abort()});document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>I()):I()})();`;
+
+// src/design/tokens.ts
+function designTokenStyle(profile) {
+  return [
+    `--wf-profile-background:${profile.colors.background}`,
+    `--wf-profile-surface:${profile.colors.surface}`,
+    `--wf-profile-ink:${profile.colors.ink}`,
+    `--wf-profile-accent:${profile.colors.accent}`,
+    `--wf-profile-section:${profile.spacing.section}px`,
+    `--wf-profile-gap:${profile.spacing.gap}px`,
+    `--wf-profile-card-radius:${profile.radius.card}px`,
+    `--wf-profile-button-radius:${profile.radius.button}px`,
+    `--wf-profile-border-width:${profile.borders.width}px`,
+    `--wf-profile-border-color:${profile.borders.color}`,
+    `--wf-profile-motion:${profile.motion.durationMs}ms`
+  ].join(";") + ";";
 }
 
 // src/shopify/compiler.ts
@@ -27226,6 +27727,9 @@ function checksum(value2) {
 function file(key, value2) {
   return { key, value: value2, checksum: checksum(value2), operation: "upsert" };
 }
+function compileThemeFile(key, value2) {
+  return file(key, value2);
+}
 function setting2(value2) {
   return value2;
 }
@@ -27233,30 +27737,38 @@ function sectionKey2(section2, index) {
   return `${shopifyHandle(section2.type)}-${shopifyHandle(section2.id)}-${index + 1}`.slice(0, 50);
 }
 function compileShopifyPage(document2, target) {
+  const report = target.capabilityReport ?? buildCapabilityReport({ sections: document2.pages.flatMap((page2) => page2.sections) });
+  if (target.enforceCapabilities || target.capabilityReport) assertPublishCapabilities(report);
   const page = document2.pages[0];
-  const slug2 = shopifyHandle(page.slug || document2.modelId || page.name);
-  const used = [...new Map(page.sections.map((section2) => [section2.type, section2])).values()];
-  const liquidFiles = used.map(compileShopifySection).sort((a, b2) => a.key.localeCompare(b2.key));
+  const slug3 = shopifyHandle(page.slug || document2.modelId || page.name);
+  const liquidFiles = [...new Map(page.sections.map((section2) => {
+    const compiled = compileShopifySection(section2, target.customSections);
+    return [compiled.key, compiled];
+  })).values()].sort((a, b2) => a.key.localeCompare(b2.key));
   const sections = {};
   const order = [];
   page.sections.forEach((section2, index) => {
     const key = sectionKey2(section2, index);
-    const blocks2 = Object.fromEntries(section2.blocks.map((block) => [shopifyHandle(block.id), { type: block.type, settings: Object.fromEntries(Object.entries(block.settings).map(([name, current]) => [name, setting2(current)])) }]));
-    sections[key] = { type: `weflo-${shopifyHandle(section2.type)}`, ...section2.hidden ? { disabled: true } : {}, settings: Object.fromEntries(Object.entries(section2.settings).map(([name, current]) => [name, setting2(current)])), ...section2.blocks.length ? { blocks: blocks2, block_order: Object.keys(blocks2) } : {} };
+    const blocks2 = Object.fromEntries(section2.blocks.map((block2) => [shopifyHandle(block2.id), { type: block2.type, settings: Object.fromEntries(Object.entries(block2.settings).map(([name, current]) => [name, setting2(current)])) }]));
+    sections[key] = { type: shopifySectionType2(section2, target.customSections), ...section2.hidden ? { disabled: true } : {}, settings: Object.fromEntries(Object.entries(section2.settings).map(([name, current]) => [name, setting2(current)])), ...section2.blocks.length ? { blocks: blocks2, block_order: Object.keys(blocks2) } : {} };
     order.push(key);
   });
   const templateValue = JSON.stringify({ sections, order }, null, 2);
   const prefix = target.resource === "home" && target.replaceGlobalTemplate ? "index" : target.resource === "home" ? "page" : target.resource;
-  const templateKey = target.replaceGlobalTemplate && (target.resource === "product" || target.resource === "home") ? `templates/${prefix}.json` : `templates/${prefix}.weflo-${slug2}.json`;
+  const templateKey = target.replaceGlobalTemplate && (target.resource === "product" || target.resource === "home") ? `templates/${prefix}.json` : `templates/${prefix}.weflo-${slug3}.json`;
   const scope = `.shopify-section:has(.wf-section),.shopify-section:has(.weflo-product-main)`;
-  const css = `:root{--wf-background:${document2.theme.background};--wf-surface:${document2.theme.surface};--wf-ink:${document2.theme.ink};--wf-accent:${document2.theme.accent}}${scope}{background:var(--wf-background);color:var(--wf-ink)}.wf-section,.weflo-product-main{box-sizing:border-box;max-width:1240px;margin-inline:auto;padding:clamp(48px,7vw,104px) 28px}.wf-section img,.weflo-product-main img{display:block;width:100%;height:auto}.wf-section__button,.wf-product button,.weflo-product-main button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 22px;border:1px solid var(--wf-ink);border-radius:8px;background:var(--wf-ink);color:var(--wf-surface);font:700 15px/1.2 inherit;text-decoration:none}.wf-hero__atmosphere,.wf-hero__clinical,.wf-hero__problem,.wf-product,.weflo-product-main{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:clamp(34px,6vw,90px);align-items:center}.wf-hero figure{margin:0;overflow:hidden}.wf-hero__image,.wf-hero__media img{aspect-ratio:4/5;object-fit:cover}.wf-hero h1,.wf-product h1,.weflo-product-main h1{font-size:clamp(42px,6vw,78px);line-height:.96;letter-spacing:-.05em;margin:14px 0 22px}.wf-hero__problem{background:var(--wf-ink);color:var(--wf-surface);max-width:none}.wf-hero__clinical dl{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wf-product,.weflo-product-main{position:relative;align-items:start}.wf-product__gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px}.wf-product__gallery>:first-child{grid-column:1/-1}.wf-product__image{aspect-ratio:1/1;object-fit:cover}.wf-product__buy-box{position:sticky;top:24px}.wf-product__prices{display:flex;align-items:center;gap:12px;font-size:23px;margin:18px 0}.wf-product__buy-box form{display:grid;gap:12px}.wf-product__buy-box label{display:grid;gap:6px}.wf-product__buy-box select,.wf-product__buy-box input{min-height:46px;border:1px solid currentColor;border-radius:7px;background:transparent;padding:9px}.wf-product__bundle{display:grid;gap:8px;margin:5px 0;padding:14px;border:1px solid currentColor;border-radius:10px}.wf-product__trust{text-align:center;font-size:12px;opacity:.7}.wf-product__sticky{display:none}.wf-proof__editorial-flow{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px}.wf-proof__results .wf-section__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.wf-section__card{padding:22px;border:1px solid color-mix(in srgb,currentColor 20%,transparent);border-radius:10px;background:var(--wf-surface)}@media(max-width:749px){.wf-section,.weflo-product-main{padding:44px 18px}.wf-hero__atmosphere,.wf-hero__clinical,.wf-hero__problem,.wf-product,.weflo-product-main{grid-template-columns:1fr;gap:24px}.wf-hero h1,.wf-product h1,.weflo-product-main h1{font-size:42px}.wf-product__buy-box{position:static}.wf-product__sticky{position:fixed;z-index:30;display:grid;grid-template-columns:1fr auto;align-items:center;left:10px;right:10px;bottom:10px;padding:10px 12px;border-radius:12px;background:var(--wf-ink);color:var(--wf-surface);box-shadow:0 10px 35px #0003}.wf-product__sticky span{font-size:12px}.wf-product__sticky strong{font-size:13px}.wf-product__sticky button{grid-column:2;grid-row:1/3}.wf-proof__editorial-flow,.wf-proof__results .wf-section__grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){.wf-section *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}`;
-  return [...liquidFiles.map((entry) => file(entry.key, entry.value)), file(`assets/weflo-${slug2}.css`, css), file(templateKey, templateValue)];
+  const profileTokens = document2.designProfile ? designTokenStyle(document2.designProfile) : "";
+  const css = `:root{--wf-background:${document2.theme.background};--wf-surface:${document2.theme.surface};--wf-ink:${document2.theme.ink};--wf-accent:${document2.theme.accent};${profileTokens}}${scope}{background:var(--wf-profile-background,var(--wf-background));color:var(--wf-profile-ink,var(--wf-ink))}.wf-section,.weflo-product-main{box-sizing:border-box;max-width:1240px;margin-inline:auto;padding:clamp(48px,7vw,104px) 28px}.wf-section img,.weflo-product-main img{display:block;width:100%;height:auto}.wf-section__button,.wf-product button,.weflo-product-main button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 22px;border:1px solid var(--wf-ink);border-radius:var(--wf-profile-button-radius,8px);background:var(--wf-ink);color:var(--wf-surface);font:700 15px/1.2 inherit;text-decoration:none}.wf-hero__atmosphere,.wf-hero__clinical,.wf-hero__problem,.wf-product,.weflo-product-main{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:clamp(34px,6vw,90px);align-items:center}.wf-product__prices{display:flex;align-items:center;gap:12px;font-size:23px;margin:18px 0}.wf-product__form{display:grid;gap:12px}.wf-product__form label{display:grid;gap:6px}.wf-product__form select,.wf-product__form input{min-height:46px;border:1px solid currentColor;border-radius:7px;background:transparent;padding:9px}.wf-product__quantity-offers{display:flex;gap:8px;border:0;padding:0;margin:0}.wf-product__quantity-offers button{background:transparent;color:inherit;min-height:38px}.wf-product__setup{padding:12px;border:1px solid currentColor;border-radius:8px}.wf-proof__editorial-flow{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px}.wf-proof__results .wf-section__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.wf-section__card{padding:22px;border:1px solid color-mix(in srgb,currentColor 20%,transparent);border-radius:var(--wf-profile-card-radius,10px);background:var(--wf-surface)}@media(max-width:749px){.wf-section,.weflo-product-main{padding:44px 18px}.wf-hero__atmosphere,.wf-hero__clinical,.wf-hero__problem,.wf-product,.weflo-product-main{grid-template-columns:1fr;gap:24px}.wf-product__quantity-offers{flex-wrap:wrap}.wf-proof__editorial-flow,.wf-proof__results .wf-section__grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){.wf-section *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}`;
+  const commerceCapabilities = /* @__PURE__ */ new Set(["product-form", "variant-selection", "quantity-breaks", "fixed-bundle", "selling-plan", "preorder"]);
+  const needsProductRuntime = page.sections.some((section2) => (getSectionDefinition(section2.type)?.capabilities ?? []).some((capability) => commerceCapabilities.has(capability))) || (target.customSections ?? []).some((custom) => custom.section.spec.requiredCapabilities.some((capability) => commerceCapabilities.has(capability)));
+  return [...liquidFiles.map((entry) => file(entry.key, entry.value)), file(`assets/weflo-${slug3}.css`, css), ...needsProductRuntime ? [file("assets/weflo-product-form.js", wefloProductRuntimeSource)] : [], file(templateKey, templateValue)];
 }
 
 // src/shopify/validate-theme-output.ts
 var SECTION_KEY = /^sections\/weflo-[a-z0-9-]+\.liquid$/;
 var ASSET_KEY = /^assets\/weflo(?:-[a-z0-9-]+)?\.(?:css|js)$/;
 var TEMPLATE_KEY = /^templates\/[a-z0-9-]+\.weflo-[a-z0-9-]+\.json$/;
+var NATIVE_TEMPLATE_KEY = /^templates\/(?:index|product|collection|page)\.json$/;
 function parseSchema(value2) {
   const match = value2.match(/{%\s*schema\s*%}([\s\S]*?){%\s*endschema\s*%}/i);
   if (!match) throw new Error("schema absent");
@@ -27267,6 +27779,7 @@ function validateThemeOutput(files) {
   const keys2 = /* @__PURE__ */ new Set();
   const templates = [];
   if (files.length === 0) errors.push("L\u2019export Shopify ne contient aucun fichier.");
+  const fullTheme = files.some((file2) => file2.key === "layout/theme.liquid");
   for (const file2 of files) {
     if (keys2.has(file2.key)) errors.push(`Le fichier ${file2.key} appara\xEEt en doublon.`);
     keys2.add(file2.key);
@@ -27276,13 +27789,13 @@ function validateThemeOutput(files) {
     if (file2.key.startsWith("assets/") && !ASSET_KEY.test(file2.key)) {
       errors.push(`La ressource ${file2.key} n\u2019est pas dans l\u2019espace de noms Weflo.`);
     }
-    if (file2.key.startsWith("templates/") && !TEMPLATE_KEY.test(file2.key)) {
+    if (file2.key.startsWith("templates/") && !TEMPLATE_KEY.test(file2.key) && !(fullTheme && NATIVE_TEMPLATE_KEY.test(file2.key))) {
       errors.push(`Le mod\xE8le ${file2.key} n\u2019est pas un mod\xE8le Weflo isol\xE9.`);
     }
-    if (file2.key.endsWith(".liquid")) {
+    if (file2.key.startsWith("sections/") && file2.key.endsWith(".liquid")) {
       try {
-        const schema = parseSchema(file2.value);
-        if (!Array.isArray(schema?.presets) || schema.presets.length === 0) {
+        const schema2 = parseSchema(file2.value);
+        if (!Array.isArray(schema2?.presets) || schema2.presets.length === 0) {
           errors.push(`La section ${file2.key} doit d\xE9clarer au moins un preset Shopify.`);
         }
       } catch (error) {
@@ -27290,7 +27803,7 @@ function validateThemeOutput(files) {
         errors.push(`Le schema JSON de ${file2.key} est invalide (${detail}).`);
       }
     }
-    if (file2.key.endsWith(".json")) {
+    if (file2.key.startsWith("templates/") && file2.key.endsWith(".json")) {
       try {
         const value2 = JSON.parse(file2.value);
         templates.push({ key: file2.key, value: value2 });
@@ -27303,18 +27816,74 @@ function validateThemeOutput(files) {
       }
     }
   }
-  for (const template2 of templates) {
-    for (const section2 of Object.values(template2.value.sections ?? {})) {
+  if (fullTheme) {
+    for (const required of ["layout/theme.liquid", "config/settings_schema.json", "config/settings_data.json", "locales/fr.default.json", "templates/index.json", "templates/product.json", "templates/collection.json", "templates/page.json"]) {
+      if (!keys2.has(required)) errors.push(`Le th\xE8me Weflo complet doit contenir ${required}.`);
+    }
+  }
+  for (const template3 of templates) {
+    for (const section2 of Object.values(template3.value.sections ?? {})) {
       if (typeof section2?.type !== "string" || !section2.type.startsWith("weflo-")) continue;
       const expectedKey = `sections/${section2.type}.liquid`;
-      if (!keys2.has(expectedKey)) errors.push(`La section ${expectedKey}, r\xE9f\xE9renc\xE9e par ${template2.key}, est introuvable.`);
+      if (!keys2.has(expectedKey)) errors.push(`La section ${expectedKey}, r\xE9f\xE9renc\xE9e par ${template3.key}, est introuvable.`);
     }
   }
   return { ok: errors.length === 0, errors };
 }
 
+// src/shopify/publication-plan.ts
+function createPublicationPlan(input) {
+  if (input.capabilityReport) assertPublishCapabilities(input.capabilityReport);
+  if (input.strategy !== "new_weflo" && !input.allowGlobalReplacement && input.compiledFiles.some((file2) => /^templates\/(?:index|product)\.json$/.test(file2.key))) throw new Error("Global template replacement requires explicit confirmation");
+  const active = input.themes.find((theme) => theme.role === "main");
+  if ((input.strategy === "active" || input.strategy === "duplicate_active") && !active) throw new Error("Active Shopify theme not found");
+  if (input.themeId && !input.themes.some((theme) => theme.id === input.themeId)) throw new Error("Selected Shopify theme not found");
+  const targetThemeId = input.strategy === "active" ? input.themeId ?? active.id : void 0;
+  const remote = new Map(input.remoteFiles.map((file2) => [file2.key, file2]));
+  const files = input.compiledFiles.map((compiled) => {
+    const current = remote.get(compiled.key);
+    if (!current) return { ...compiled, action: "create" };
+    if (current.checksum === compiled.checksum || current.value === compiled.value) return { ...compiled, action: "unchanged" };
+    return { ...compiled, action: "update", backup: current.value };
+  });
+  return {
+    strategy: input.strategy,
+    themeAction: input.strategy === "active" ? "use" : input.strategy === "duplicate_active" ? "duplicate" : "create",
+    ...targetThemeId ? { targetThemeId } : {},
+    ...input.strategy === "duplicate_active" ? { sourceThemeId: active.id } : {},
+    files
+  };
+}
+
 // src/shopify/publisher.ts
+import { createHash as createHash2 } from "node:crypto";
+var checksum2 = (value2) => value2 === null ? void 0 : createHash2("sha256").update(value2).digest("hex");
+async function planShopifyPublication(input) {
+  if (input.capabilityReport) assertPublishCapabilities(input.capabilityReport);
+  const validation = validateThemeOutput(input.files);
+  if (!validation.ok) throw new Error(`Export Shopify invalide : ${validation.errors.join(" ")}`);
+  const themes = await input.transport.listThemes();
+  const active = themes.find((theme) => theme.role === "main");
+  const sourceId = input.strategy === "new_weflo" ? void 0 : input.themeId ?? active?.id;
+  const inspected = sourceId ? await Promise.all(input.files.map(async (file2) => {
+    const value2 = await input.transport.readFile(sourceId, file2.key);
+    return value2 === null ? null : { key: file2.key, value: value2, checksum: checksum2(value2) ?? "" };
+  })) : [];
+  const remoteFiles = inspected.filter((file2) => file2 !== null);
+  const plan = createPublicationPlan({ strategy: input.strategy, themeId: input.themeId, themes, compiledFiles: input.files, remoteFiles, capabilityReport: input.capabilityReport });
+  return { plan, blockers: input.capabilityReport?.blockers ?? [] };
+}
+async function rollbackPublication(record4, transport) {
+  for (const backup of [...record4.backups].reverse()) {
+    if (backup.value === null) await transport.deleteFile(record4.themeId, backup.key);
+    else await transport.writeFile(record4.themeId, backup.key, backup.value);
+    record4.results.push({ key: backup.key, status: "restored" });
+  }
+  record4.status = "rolled_back";
+  return record4;
+}
 async function publishToShopify(input) {
+  if (input.capabilityReport) assertPublishCapabilities(input.capabilityReport);
   const validation = validateThemeOutput(input.files);
   if (!validation.ok) throw new Error(`Export Shopify invalide : ${validation.errors.join(" ")}`);
   const themes = await input.transport.listThemes();
@@ -27327,34 +27896,30 @@ async function publishToShopify(input) {
     throw new Error("Selected Shopify theme not found");
   })();
   const now = /* @__PURE__ */ new Date();
-  const record3 = { id: `pub-${now.getTime()}`, strategy: input.strategy, themeId: theme.id, ...input.strategy === "duplicate_active" ? { sourceThemeId: active.id } : {}, status: "running", backups: [], results: [], createdAt: now.toISOString(), expiresAt: new Date(now.getTime() + 30 * 864e5).toISOString() };
+  const record4 = { id: `pub-${now.getTime()}`, strategy: input.strategy, themeId: theme.id, ...input.strategy === "duplicate_active" ? { sourceThemeId: active.id } : {}, status: "running", backups: [], results: [], createdAt: now.toISOString(), expiresAt: new Date(now.getTime() + 30 * 864e5).toISOString() };
   const written = [];
   try {
     for (const file2 of input.files) {
       const previous = await input.transport.readFile(theme.id, file2.key);
-      record3.backups.push({ key: file2.key, value: previous });
+      record4.backups.push({ key: file2.key, value: previous, checksum: checksum2(previous) });
       if (previous === file2.value) {
-        record3.results.push({ key: file2.key, status: "unchanged" });
+        record4.results.push({ key: file2.key, status: "unchanged" });
         continue;
       }
       await input.transport.writeFile(theme.id, file2.key, file2.value);
       written.push({ key: file2.key, value: previous });
-      record3.results.push({ key: file2.key, status: "written" });
+      record4.results.push({ key: file2.key, status: "written" });
     }
     await input.transport.bindResource(theme.id, input.templateSuffix);
     const host = input.shopDomain?.replace(/^https?:\/\//, "").replace(/\/$/, "") || "shop.myshopify.com";
     const previewUrl = `https://${host}/?preview_theme_id=${encodeURIComponent(theme.id)}`;
-    record3.status = "completed";
-    record3.previewUrl = previewUrl;
-    return { themeId: theme.id, previewUrl, record: record3 };
+    record4.status = "completed";
+    record4.previewUrl = previewUrl;
+    return { themeId: theme.id, previewUrl, record: record4 };
   } catch (error) {
-    for (const backup of written.reverse()) {
-      if (backup.value === null) await input.transport.deleteFile(theme.id, backup.key).catch(() => {
-      });
-      else await input.transport.writeFile(theme.id, backup.key, backup.value).catch(() => {
-      });
-    }
-    record3.status = "rolled_back";
+    await rollbackPublication({ ...record4, backups: written.map((backup) => ({ ...backup, checksum: checksum2(backup.value) })) }, input.transport).catch(() => {
+    });
+    record4.status = "rolled_back";
     throw error;
   }
 }
@@ -27364,6 +27929,62 @@ function bindingForDocument(document2, templateSuffix) {
   if (document2.kind === "product" && document2.shopify?.productId) return { resource: "product", resourceId: document2.shopify.productId, create: false, templateSuffix };
   if (document2.kind === "collection" && document2.shopify?.collectionId) return { resource: "collection", resourceId: document2.shopify.collectionId, create: false, templateSuffix };
   return { resource: "page", create: true, templateSuffix };
+}
+
+// src/shopify/theme-shell.ts
+var wefloThemeShell = [
+  { key: "layout/theme.liquid", value: `<!doctype html><html lang="{{ request.locale.iso_code }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://cdn.shopify.com" crossorigin><link rel="stylesheet" href="{{ 'weflo-base.css' | asset_url }}"><link rel="stylesheet" href="{{ 'weflo-profile.css' | asset_url }}">{{ content_for_header }}</head><body class="weflo-theme">{% sections 'header-group' %}<main id="MainContent" role="main">{{ content_for_layout }}</main>{% sections 'footer-group' %}<script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"></script></body></html>` },
+  { key: "config/settings_schema.json", value: JSON.stringify([{ name: "Weflo", settings: [{ type: "color", id: "weflo_background", label: "Arri\xE8re-plan", default: "#ffffff" }, { type: "color", id: "weflo_ink", label: "Texte", default: "#111111" }] }], null, 2) },
+  { key: "config/settings_data.json", value: JSON.stringify({ current: "Default", presets: { Default: { weflo_background: "#ffffff", weflo_ink: "#111111" } } }, null, 2) },
+  { key: "locales/fr.default.json", value: JSON.stringify({ general: { add_to_cart: "Ajouter au panier", sold_out: "Indisponible", quantity: "Quantit\xE9" } }, null, 2) },
+  { key: "locales/en.default.json", value: JSON.stringify({ general: { add_to_cart: "Add to cart", sold_out: "Sold out", quantity: "Quantity" } }, null, 2) },
+  { key: "assets/weflo-base.css", value: `:root{--wf-background:{{ settings.weflo_background | default: '#ffffff' }};--wf-surface:#fff;--wf-ink:{{ settings.weflo_ink | default: '#111111' }}}*{box-sizing:border-box}body{margin:0;background:var(--wf-background);color:var(--wf-ink);font-family:system-ui,sans-serif}.weflo-theme a{color:inherit}.weflo-theme button,.weflo-theme input,.weflo-theme select{font:inherit}.wf-section,.weflo-product-main{max-width:1240px;margin:auto;padding:clamp(42px,7vw,96px) 24px}.wf-product__form{display:grid;gap:12px;max-width:520px}.wf-product__form label{display:grid;gap:6px}.wf-product__form input,.wf-product__form select{min-height:44px;padding:8px;border:1px solid currentColor;background:transparent}.wf-product__form button{min-height:48px;padding:12px 20px;border:0;border-radius:var(--wf-profile-button-radius,8px);background:var(--wf-profile-ink,var(--wf-ink));color:var(--wf-profile-surface,var(--wf-surface));font-weight:700}.wf-product__prices{display:flex;gap:10px;font-size:1.25rem}.wf-product__quantity-offers{display:flex;gap:8px;border:0;padding:0}.wf-product__setup{padding:12px;border:1px solid currentColor;border-radius:8px}` },
+  { key: "sections/weflo-header.liquid", value: `<header class="weflo-header"><a href="{{ routes.root_url }}">{{ shop.name | escape }}</a></header>{% schema %}{"name":"Weflo header","settings":[],"presets":[{"name":"Weflo header"}]}{% endschema %}` },
+  { key: "sections/weflo-footer.liquid", value: `<footer class="weflo-footer"><small>{{ shop.name | escape }}</small></footer>{% schema %}{"name":"Weflo footer","settings":[],"presets":[{"name":"Weflo footer"}]}{% endschema %}` },
+  { key: "sections/weflo-page-shell.liquid", value: `<section class="wf-section"><h1>{{ page.title | default: shop.name | escape }}</h1></section>{% schema %}{"name":"Weflo page shell","settings":[],"presets":[{"name":"Weflo page shell"}]}{% endschema %}` },
+  { key: "sections/header-group.json", value: JSON.stringify({ sections: { header: { type: "weflo-header", settings: {} } }, order: ["header"] }, null, 2) },
+  { key: "sections/footer-group.json", value: JSON.stringify({ sections: { footer: { type: "weflo-footer", settings: {} } }, order: ["footer"] }, null, 2) }
+];
+
+// src/shopify/adapters/weflo-native.ts
+function template(sectionType) {
+  return JSON.stringify({ sections: { main: { type: sectionType, settings: {} } }, order: ["main"] }, null, 2);
+}
+var wefloNativeAdapter = {
+  id: "weflo-native",
+  detect() {
+    return { score: 1, confidence: "fallback", reason: "Sortie Weflo autonome disponible pour tout th\xE8me." };
+  },
+  capabilities() {
+    return { adapterId: "weflo-native", capabilities: { "product-form": true, "variant-selection": true, "quantity-breaks": true, "fixed-bundle": true, "selling-plan": true, preorder: true, "custom-bundle": true, "app-blocks": true }, blockers: [] };
+  },
+  mapTokens(profile) {
+    return [{ key: "assets/weflo-profile.css", value: `:root{${designTokenStyle(profile)}}` }];
+  },
+  compileSection(section2) {
+    return [compileShopifySection(section2)];
+  },
+  compileTemplate(page) {
+    const first2 = page.sections[0];
+    return { key: `templates/page.weflo-${shopifyHandle(page.slug)}.json`, value: template(first2 ? `weflo-${shopifyHandle(first2.type)}` : "weflo-page-shell") };
+  },
+  requiredAssets() {
+    return [{ key: "assets/weflo-product-form.js", value: wefloProductRuntimeSource }];
+  },
+  validate(output) {
+    return validateThemeOutput(output.map((entry) => ({ ...entry, checksum: "", operation: "upsert" })));
+  }
+};
+function compileWefloTheme(document2, customSections = []) {
+  const sections = [...new Map(document2.pages.flatMap((page) => page.sections).map((section2) => {
+    const compiled = compileShopifySection(section2, customSections);
+    return [compiled.key, section2];
+  })).values()];
+  const sectionFiles = sections.map((section2) => compileShopifySection(section2, customSections));
+  const primary = sections[0] ? shopifySectionType2(sections[0], customSections) : "weflo-page-shell";
+  const templates = ["index", "product", "collection", "page"].map((name) => ({ key: `templates/${name}.json`, value: template(primary) }));
+  const profile = document2.designProfile ? wefloNativeAdapter.mapTokens(document2.designProfile) : [{ key: "assets/weflo-profile.css", value: "" }];
+  return [...wefloThemeShell, ...sectionFiles, ...wefloNativeAdapter.requiredAssets(document2), ...profile, ...templates].sort((a, b2) => a.key.localeCompare(b2.key));
 }
 
 // src/lib/shopify.ts
@@ -27416,16 +28037,16 @@ function catalogProducts(payload, shop, currency) {
     const rawImages = Array.isArray(item3.images) ? item3.images : [];
     const images2 = rawImages.flatMap((image2) => typeof image2.src === "string" && image2.src ? [image2.src] : []);
     const imageById = new Map(rawImages.flatMap((image2) => image2.id == null || typeof image2.src !== "string" ? [] : [[String(image2.id), image2.src]]));
-    const variants = Array.isArray(item3.variants) ? item3.variants.flatMap((variant) => {
-      if (variant.id == null || typeof variant.title !== "string") return [];
-      const image2 = variant.image_id == null ? void 0 : imageById.get(String(variant.image_id));
-      return [{ id: String(variant.id), title: variant.title, price: optionalPrice(variant.price), ...image2 ? { image: image2 } : {} }];
+    const variants = Array.isArray(item3.variants) ? item3.variants.flatMap((variant2) => {
+      if (variant2.id == null || typeof variant2.title !== "string") return [];
+      const image2 = variant2.image_id == null ? void 0 : imageById.get(String(variant2.image_id));
+      return [{ id: String(variant2.id), title: variant2.title, price: optionalPrice(variant2.price), ...image2 ? { image: image2 } : {} }];
     }) : [];
     const firstVariant = Array.isArray(item3.variants) ? item3.variants[0] : void 0;
-    const handle = typeof item3.handle === "string" ? item3.handle.trim() : "";
+    const handle2 = typeof item3.handle === "string" ? item3.handle.trim() : "";
     return [{
       id: String(item3.id),
-      sourceUrl: handle ? `https://${shopHost(shop)}/products/${encodeURIComponent(handle)}` : `https://${shopHost(shop)}`,
+      sourceUrl: handle2 ? `https://${shopHost(shop)}/products/${encodeURIComponent(handle2)}` : `https://${shopHost(shop)}`,
       title: item3.title,
       description: productText(item3.body_html),
       vendor: typeof item3.vendor === "string" ? item3.vendor : "",
@@ -27524,8 +28145,15 @@ function createShopifyPort() {
     async publishEditor(input) {
       const document2 = input.document;
       const resource = document2.kind === "product" ? "product" : document2.kind === "collection" ? "collection" : document2.kind === "home" ? "home" : "page";
-      const files = compileShopifyPage(document2, { resource, replaceGlobalTemplate: input.replaceGlobalTemplate });
-      const suffix = files.find((file2) => file2.key.startsWith(`templates/${resource}.`))?.key.match(/\.([^/.]+)\.json$/)?.[1] ?? `weflo-${document2.modelId ?? "page"}`;
+      const capabilityReport = buildCapabilityReport({
+        capabilities: [
+          ...document2.pages.flatMap((page) => page.sections.flatMap((section2) => getSectionDefinition(section2.type)?.capabilities ?? [])),
+          ...(input.customSections ?? []).flatMap((section2) => section2.section.spec.requiredCapabilities)
+        ],
+        shopify: { connected: true, hasProductData: true, cartDrawer: true, markets: true, localization: true }
+      });
+      const files = input.strategy === "new_weflo" ? compileWefloTheme(document2, input.customSections).map((entry) => compileThemeFile(entry.key, entry.value)) : compileShopifyPage(document2, { resource, replaceGlobalTemplate: input.replaceGlobalTemplate, capabilityReport, enforceCapabilities: true, customSections: input.customSections });
+      const suffix = input.strategy === "new_weflo" ? "" : files.find((file2) => file2.key.startsWith(`templates/${resource}.`))?.key.match(/\.([^/.]+)\.json$/)?.[1] ?? `weflo-${document2.modelId ?? "page"}`;
       const transport = {
         listThemes: () => port.listThemes({ shop: input.shop, token: input.token }),
         createTheme: async (name) => {
@@ -27556,17 +28184,19 @@ function createShopifyPort() {
           await admin(input.shop, input.token, `/themes/${themeId}/assets.json?asset[key]=${encodeURIComponent(key)}`, { method: "DELETE" });
         },
         bindResource: async (_themeId, templateSuffix) => {
-          const binding = bindingForDocument(document2, templateSuffix);
-          if (!binding.create && binding.resourceId) {
-            await admin(input.shop, input.token, `/${binding.resource}s/${binding.resourceId}.json`, { method: "PUT", body: JSON.stringify({ [binding.resource]: { id: binding.resourceId, template_suffix: templateSuffix } }) });
-            return { resourceId: binding.resourceId };
+          const binding2 = bindingForDocument(document2, templateSuffix);
+          if (!binding2.create && binding2.resourceId) {
+            if (!templateSuffix) return { resourceId: binding2.resourceId };
+            await admin(input.shop, input.token, `/${binding2.resource}s/${binding2.resourceId}.json`, { method: "PUT", body: JSON.stringify({ [binding2.resource]: { id: binding2.resourceId, template_suffix: templateSuffix } }) });
+            return { resourceId: binding2.resourceId };
           }
           const payload = await admin(input.shop, input.token, "/pages.json", { method: "POST", body: JSON.stringify({ page: { title: input.pageName, body_html: `<div data-wf-page="${document2.modelId ?? "page"}"></div>`, published: true, template_suffix: templateSuffix } }) });
           const page = payload?.page;
           return { resourceId: page?.id == null ? void 0 : String(page.id) };
         }
       };
-      const result = await publishToShopify({ strategy: input.strategy, themeId: input.themeId, files, templateSuffix: suffix, transport, shopDomain: input.shop });
+      await planShopifyPublication({ strategy: input.strategy, themeId: input.themeId, files, transport, shopDomain: input.shop, capabilityReport });
+      const result = await publishToShopify({ strategy: input.strategy, themeId: input.themeId, files, templateSuffix: suffix, transport, shopDomain: input.shop, capabilityReport });
       return { themeId: result.themeId, previewUrl: result.previewUrl };
     },
     async publish(input) {
@@ -27716,8 +28346,8 @@ var TEMPLATE_RECIPES = [
   {
     id: "landing-direct-response",
     format: "landing",
-    sections: ["announcement", "navigation", "hero", "benefits", "comparison", "faq", "form", "cta", "footer"],
-    variants: { hero: "direct-response", benefits: "icon-grid", comparison: "feature-led", form: "lead-capture", cta: "repeated" }
+    sections: ["announcement", "navigation", "hero", "benefits", "comparison", "faq", "form", "conversionClose", "cta", "footer"],
+    variants: { hero: "direct-response", benefits: "icon-grid", comparison: "feature-led", form: "lead-capture", conversionClose: "offer-stack", cta: "repeated" }
   },
   {
     id: "landing-editorial-premium",
@@ -27734,8 +28364,8 @@ var TEMPLATE_RECIPES = [
   {
     id: "advertorial-journal",
     format: "advertorial",
-    sections: ["navigation", "hero", "press", "richText", "imageText", "comparison", "faq", "cta", "footer"],
-    variants: { hero: "editorial", press: "inline", richText: "journal", imageText: "story" }
+    sections: ["navigation", "advertorialMasthead", "authorLine", "hero", "press", "editorialBody", "richText", "evidenceCallout", "inlineProduct", "imageText", "comparison", "faq", "conversionClose", "cta", "footer"],
+    variants: { advertorialMasthead: "journal", authorLine: "byline", hero: "editorial", press: "inline", editorialBody: "longform", richText: "journal", evidenceCallout: "citation", inlineProduct: "compact", imageText: "story", conversionClose: "final-cta" }
   },
   {
     id: "advertorial-founder-story",
@@ -27752,8 +28382,8 @@ var TEMPLATE_RECIPES = [
   {
     id: "quiz-diagnostic",
     format: "quiz",
-    sections: ["navigation", "hero", "benefits", "quiz", "form", "faq", "cta", "footer"],
-    variants: { hero: "diagnostic", quiz: "diagnostic", form: "stepper", benefits: "icon-grid" }
+    sections: ["navigation", "hero", "quizProgress", "quizQuestion", "benefits", "quiz", "quizResult", "productRecommendation", "leadCapture", "form", "faq", "cta", "footer"],
+    variants: { hero: "diagnostic", quizProgress: "steps", quizQuestion: "single-choice", quiz: "diagnostic", quizResult: "profile", productRecommendation: "best-for", leadCapture: "consent", form: "stepper", benefits: "icon-grid" }
   },
   {
     id: "quiz-routine",
@@ -27788,8 +28418,8 @@ var TEMPLATE_RECIPES = [
   {
     id: "blog-magazine",
     format: "blog",
-    sections: ["navigation", "hero", "richText", "imageText", "press", "newsletter", "footer"],
-    variants: { hero: "magazine", richText: "longform", imageText: "editorial", press: "inline" }
+    sections: ["navigation", "hero", "listicleIndex", "numberedReason", "richText", "comparisonInsert", "imageText", "productRecommendation", "press", "newsletter", "footer"],
+    variants: { hero: "magazine", listicleIndex: "numbered", numberedReason: "editorial", richText: "longform", comparisonInsert: "quick-table", imageText: "editorial", productRecommendation: "editor-choice", press: "inline" }
   },
   {
     id: "blog-guide",
@@ -27811,7 +28441,7 @@ function recipeForTemplate(id2) {
   return recipe;
 }
 function defaultRecipeForFormat(format) {
-  const recipe = TEMPLATE_RECIPES.find((candidate) => candidate.format === format);
+  const recipe = TEMPLATE_RECIPES.find((candidate2) => candidate2.format === format);
   if (!recipe) throw new Error(`No template recipe registered for ${format}`);
   return recipe;
 }
@@ -27830,7 +28460,7 @@ function sentences(value2) {
   return value2.split(/(?<=[.!?])\s+/).map((item3) => item3.trim()).filter(Boolean).slice(0, 12);
 }
 function buildProductTruthSheet(product) {
-  const searchText = [product.title, product.description, product.vendor, ...product.variants.map((variant) => variant.title)].join(" ").toLowerCase();
+  const searchText = [product.title, product.description, product.vendor, ...product.variants.map((variant2) => variant2.title)].join(" ").toLowerCase();
   const inferences = [];
   if (/(lamp|light|lumi|éclair|maison|home|decor)/i.test(searchText)) inferences.push("Le contexte sugg\xE8re un achat li\xE9 \xE0 l\u2019ambiance ou \xE0 la d\xE9coration.");
   if (/(serum|sérum|skin|peau|beaut|soin|cosm)/i.test(searchText)) inferences.push("Le contexte sugg\xE8re un parcours de r\xE9assurance beaut\xE9 ou soin.");
@@ -27846,7 +28476,7 @@ function buildProductTruthSheet(product) {
       price: product.price,
       compareAtPrice: product.compareAtPrice,
       images: [...product.images],
-      variants: product.variants.map((variant) => ({ ...variant })),
+      variants: product.variants.map((variant2) => ({ ...variant2 })),
       rating: product.rating,
       reviewCount: product.reviewCount,
       reviews: product.reviews.map((review) => ({ ...review }))
@@ -27858,7 +28488,7 @@ function buildProductTruthSheet(product) {
 }
 
 // src/onboarding/store-recipe.ts
-var section = (type, variant, purpose) => ({ type, variant, purpose });
+var section = (type, variant2, purpose) => ({ type, variant: variant2, purpose });
 function buildStoreRecipe(input) {
   const proof = input.product.reviews.length ? "reviews" : "testimonials";
   const schemes = {
@@ -27872,6 +28502,59 @@ function buildStoreRecipe(input) {
     "food-craft": [section("announcement", "origin-note", "Capter"), section("navigation", "craft", "Installer la marque"), section("productHero", "maker-led", "Cr\xE9er l\u2019app\xE9tit"), section("productMain", "tasting-buy-box", "Convertir"), section("imageText", "origin-story", "Raconter la provenance"), section("benefits", "tasting-notes", "Expliquer"), section("gallery", "table-mosaic", "Montrer les usages"), section(proof, "community-table", "Prouver"), section("bundle", "discovery-box", "Augmenter le panier"), section("faq", "craft", "Lever les objections"), section("cta", "tasting-close", "Conclure"), section("footer", "craft", "Signer")]
   };
   return { id: `recipe-${input.artDirection.id}`, profileId: input.artDirection.id, sections: schemes[input.artDirection.id] };
+}
+
+// src/onboarding/blueprint.ts
+var CAPABILITIES = /* @__PURE__ */ new Set([
+  "product-form",
+  "variant-selection",
+  "quantity-breaks",
+  "collection-binding",
+  "recommendations",
+  "fixed-bundle",
+  "custom-bundle",
+  "selling-plan",
+  "preorder",
+  "cart-drawer",
+  "app-blocks",
+  "markets",
+  "localization"
+]);
+function settingValue2(value2) {
+  return value2 === null || typeof value2 === "string" || typeof value2 === "number" || typeof value2 === "boolean" || Array.isArray(value2) && value2.every((item3) => item3 === null || typeof item3 === "string" || typeof item3 === "number" || typeof item3 === "boolean");
+}
+function validSection(section2, pageIds) {
+  const errors = [];
+  const sectionType = section2.sectionType || section2.type;
+  const type = typeof sectionType === "string" ? sectionType : "";
+  const definition = getSectionDefinition(type);
+  if (!definition) errors.push(`Section inconnue: ${type}`);
+  if (!pageIds.has(section2.pageId)) errors.push(`Page inconnue: ${section2.pageId}`);
+  const variants = definition?.variants.map((variant2) => variant2.id) ?? [];
+  if (definition && section2.variantId !== "default" && variants.length && !variants.includes(section2.variantId)) errors.push(`Variante inconnue: ${type}/${section2.variantId}`);
+  if (definition && !variants.length && section2.variantId !== "default") errors.push(`Variante inconnue: ${type}/${section2.variantId}`);
+  if (!section2.purpose?.trim()) errors.push(`Objectif manquant: ${type}`);
+  for (const [key, value2] of Object.entries(section2.content ?? {})) {
+    if (!settingValue2(value2)) errors.push(`R\xE9glage invalide: ${type}.${key}`);
+    if (/fixture|lorem|demo/i.test(String(value2))) errors.push(`Donn\xE9e de pr\xE9visualisation interdite: ${type}.${key}`);
+  }
+  for (const capability of section2.requiredCapabilities ?? []) if (!CAPABILITIES.has(capability)) errors.push(`Capacit\xE9 inconnue: ${capability}`);
+  return errors;
+}
+function validateStoreBlueprint(value2) {
+  const blueprint = value2 && typeof value2 === "object" && !Array.isArray(value2) ? value2 : null;
+  if (!blueprint) return { ok: false, errors: ["Blueprint invalide"] };
+  const errors = [];
+  if (blueprint.version !== 1) errors.push("Version de Blueprint invalide");
+  if (!blueprint.name?.trim()) errors.push("Nom de Blueprint manquant");
+  if (!blueprint.market?.trim() || !blueprint.language?.trim() || !blueprint.currency?.trim()) errors.push("March\xE9, langue ou devise manquant");
+  if (!blueprint.designProfile?.id) errors.push("Profil de design manquant");
+  if (!Array.isArray(blueprint.pages) || !blueprint.pages.length) errors.push("Aucune page dans le Blueprint");
+  if (!Array.isArray(blueprint.sections) || !blueprint.sections.length) errors.push("Aucune section dans le Blueprint");
+  const pageIds = new Set((blueprint.pages ?? []).map((page) => page.id));
+  if (pageIds.size !== (blueprint.pages ?? []).length) errors.push("Identifiants de page dupliqu\xE9s");
+  for (const section2 of blueprint.sections ?? []) errors.push(...validSection(section2, pageIds));
+  return { ok: errors.length === 0, errors };
 }
 
 // src/onboarding/compile-store.ts
@@ -28000,7 +28683,7 @@ function contentForSection(type, index, input, product) {
       break;
     case "productMain":
       Object.assign(settings2, { title: productTitle, text: first(selectedAngles[0]?.description, productText2), price, compare_at_price: compareAtPrice, image: product?.images[0] ?? "", cta_label: cta2, product_handle: slugify(productTitle) });
-      blocks2 = product?.variants.length ? product.variants.map((variant, blockIndex) => ({ id: `variant-${index + 1}-${blockIndex + 1}`, type: "variant", settings: { title: variant.title, variant_id: variant.id, price: money(variant.price, product.currency), image: variant.image ?? "" } })) : submittedVariants.map((title, blockIndex) => ({ id: `variant-${index + 1}-${blockIndex + 1}`, type: "variant", settings: { title, variant_id: "", price: "", image: "" } }));
+      blocks2 = product?.variants.length ? product.variants.map((variant2, blockIndex) => ({ id: `variant-${index + 1}-${blockIndex + 1}`, type: "variant", settings: { title: variant2.title, variant_id: variant2.id, price: money(variant2.price, product.currency), image: variant2.image ?? "" } })) : submittedVariants.map((title, blockIndex) => ({ id: `variant-${index + 1}-${blockIndex + 1}`, type: "variant", settings: { title, variant_id: "", price: "", image: "" } }));
       break;
     case "bundle":
       Object.assign(settings2, { title: answer(answers, "offer") || "[D\xE9crivez votre offre group\xE9e]", text: answer(answers, "offer"), price: "", cta_label: cta2 });
@@ -28124,6 +28807,29 @@ function buildStoreDocument(rawInput) {
     assets: (product?.images ?? []).map((url, index) => ({ id: `source-image-${index + 1}`, type: "image", url, alt: `${product?.title ?? ""} ${index + 1}`.trim() })),
     ...product && truth && artDirection ? { commerce: { sourceProduct: product, personas: input.personas, angles: input.angles, brandKit: input.brandKit, storefrontLanguage: input.language, productTruth: truth, artDirection, recipeId: selected.id ?? `recipe-${artDirection.id}` } } : {}
   };
+}
+function compileBlueprint(blueprint, input) {
+  const validation = validateStoreBlueprint(blueprint);
+  if (!validation.ok) throw new Error(validation.errors.join(" "));
+  const firstPage = blueprint.pages[0];
+  if (!firstPage) throw new Error("Le Blueprint ne contient aucune page.");
+  const base9 = buildStoreDocument({
+    ...input,
+    creationFormat: "store",
+    templateId: input.templateId ?? null,
+    answers: input.answers ?? {}
+  });
+  const pages = blueprint.pages.map((page) => ({
+    id: page.id,
+    name: page.name,
+    slug: page.slug,
+    sections: blueprint.sections.filter((section2) => section2.pageId === page.id).map((section2, index) => makeSection(
+      section2.sectionType,
+      index,
+      { ...section2.content, variant: section2.variantId, purpose: section2.purpose, ...Object.fromEntries(Object.entries(section2.bindings).map(([key, value2]) => [`binding_${key}`, value2])) }
+    ))
+  }));
+  return { ...base9, name: blueprint.name, path: `/${firstPage.slug}`, kind: firstPage.kind, pages, designProfile: blueprint.designProfile };
 }
 
 // public/template-previews/manifest.json
@@ -28501,7 +29207,7 @@ var templateDetails = {
   "blog-study": { name: "\xC9tude", description: "Une analyse approfondie avec preuves et sources.", artProfile: "editorial", sectionVariants: { hero: "study", press: "sources" } }
 };
 var generatedTemplatePreviews = manifest_default;
-function template(id2, format) {
+function template2(id2, format) {
   const details = templateDetails[id2];
   if (!details) throw new Error(`Missing creation template details for ${id2}`);
   const generated = generatedTemplatePreviews[id2];
@@ -28519,17 +29225,17 @@ function fields(...intake) {
 var field = (id2, label, placeholder, kind = "text", required = true) => ({ id: id2, label, placeholder, kind, required });
 var productSources = ["link", "image", "shopify"];
 var FORMAT_FLOWS = [
-  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: productSources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id2) => template(id2, "store")) },
-  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: productSources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id2) => template(id2, "product")) },
-  { id: "landing", title: "Landing page", description: "Une campagne, une promesse, une action", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("campaign", "Campagne", "Le nom ou contexte de la campagne"), field("audience", "Audience", "\xC0 qui la page doit-elle parler ?", "textarea"), field("promise", "Promesse", "Le r\xE9sultat principal propos\xE9", "textarea"), field("traffic", "Source du trafic", "Ex. Meta Ads, email, recherche"), field("cta", "Action attendue", "Ex. D\xE9couvrir l\u2019offre")), templates: TEMPLATE_IDS.landing.map((id2) => template(id2, "landing")) },
-  { id: "advertorial", title: "Advertorial", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne vers l\u2019offre", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("angle", "Angle narratif", "L\u2019id\xE9e centrale de l\u2019article", "textarea"), field("author", "Auteur", "Qui porte ce r\xE9cit ?"), field("proof", "Niveau de preuve", "\xC9tudes, exp\xE9rience ou d\xE9monstration", "textarea"), field("product", "Produit final", "Le produit ou l\u2019offre vers lequel conduire")), templates: TEMPLATE_IDS.advertorial.map((id2) => template(id2, "advertorial")) },
-  { id: "quiz", title: "Quiz et funnel", description: "Questions, recommandation et capture", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("objective", "Objectif", "Le r\xE9sultat que doit produire le quiz", "textarea"), field("segments", "Segments", "Les profils ou besoins \xE0 distinguer", "list"), field("result", "Recommandation", "Ce que chaque profil doit recevoir", "textarea"), field("steps", "Nombre d\u2019\xE9tapes", "Ex. 5", "text", false), field("destination", "Destination des r\xE9ponses", "Ex. une recommandation produit", "textarea", false)), templates: TEMPLATE_IDS.quiz.map((id2) => template(id2, "quiz")) },
-  { id: "home", title: "Page d\u2019accueil", description: "La vitrine compl\xE8te d\u2019une marque", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("brand", "Nom de la marque", "Le nom affich\xE9 sur votre page"), field("activity", "Activit\xE9", "Ex. objets durables pour la maison"), field("promise", "Promesse", "La promesse principale de la marque", "textarea"), field("collections", "Collections principales", "Ex. Nouveaut\xE9s, best-sellers, cadeaux", "list"), field("story", "Histoire de la marque", "Ce que vous voulez raconter", "textarea")), templates: TEMPLATE_IDS.home.map((id2) => template(id2, "home")) },
-  { id: "blog", title: "Article de blog", description: "Contenu de marque structur\xE9 et lisible", pageType: "write", allowedSources: ["description", "shopify"], intake: fields(field("topic", "Sujet", "Le th\xE8me de l\u2019article"), field("intent", "Intention de recherche", "La question \xE0 laquelle r\xE9pondre", "textarea"), field("angle", "Angle", "Votre point de vue ou approche", "textarea"), field("relatedProducts", "Produits li\xE9s", "Les produits \xE0 citer si n\xE9cessaire", "list", false)), templates: TEMPLATE_IDS.blog.map((id2) => template(id2, "blog")) },
+  { id: "store", title: "Boutique compl\xE8te", description: "Accueil, produit, offre et confiance", pageType: "sell", allowedSources: productSources, intake: fields(field("activity", "Activit\xE9", "Ex. soins naturels pour peaux sensibles"), field("positioning", "Positionnement", "Ce qui rend votre marque diff\xE9rente", "textarea"), field("collections", "Collections", "Ex. Visage, corps, coffrets", "list"), field("products", "Nombre de produits", "Ex. 12"), field("identity", "Identit\xE9 de marque", "Ton, univers et r\xE9f\xE9rences", "textarea"), field("objective", "Objectif", "Ex. pr\xE9senter la marque et vendre", "textarea")), templates: TEMPLATE_IDS.store.map((id2) => template2(id2, "store")) },
+  { id: "product", title: "Page produit", description: "Une fiche de vente Shopify compl\xE8te", pageType: "sell", allowedSources: productSources, intake: fields(field("benefits", "B\xE9n\xE9fices", "Les b\xE9n\xE9fices essentiels", "list"), field("objections", "Objections", "Les freins \xE0 lever", "list"), field("offer", "Offre", "Prix, bundle ou garantie", "textarea"), field("variants", "Variantes", "Tailles, couleurs ou d\xE9clinaisons", "list"), field("proof", "Preuves disponibles", "\xC9tudes, certifications ou t\xE9moignages", "textarea", false)), templates: TEMPLATE_IDS.product.map((id2) => template2(id2, "product")) },
+  { id: "landing", title: "Landing page", description: "Une campagne, une promesse, une action", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("campaign", "Campagne", "Le nom ou contexte de la campagne"), field("audience", "Audience", "\xC0 qui la page doit-elle parler ?", "textarea"), field("promise", "Promesse", "Le r\xE9sultat principal propos\xE9", "textarea"), field("traffic", "Source du trafic", "Ex. Meta Ads, email, recherche"), field("cta", "Action attendue", "Ex. D\xE9couvrir l\u2019offre")), templates: TEMPLATE_IDS.landing.map((id2) => template2(id2, "landing")) },
+  { id: "advertorial", title: "Advertorial", description: "Un r\xE9cit \xE9ditorial qui m\xE8ne vers l\u2019offre", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("angle", "Angle narratif", "L\u2019id\xE9e centrale de l\u2019article", "textarea"), field("author", "Auteur", "Qui porte ce r\xE9cit ?"), field("proof", "Niveau de preuve", "\xC9tudes, exp\xE9rience ou d\xE9monstration", "textarea"), field("product", "Produit final", "Le produit ou l\u2019offre vers lequel conduire")), templates: TEMPLATE_IDS.advertorial.map((id2) => template2(id2, "advertorial")) },
+  { id: "quiz", title: "Quiz et funnel", description: "Questions, recommandation et capture", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("objective", "Objectif", "Le r\xE9sultat que doit produire le quiz", "textarea"), field("segments", "Segments", "Les profils ou besoins \xE0 distinguer", "list"), field("result", "Recommandation", "Ce que chaque profil doit recevoir", "textarea"), field("steps", "Nombre d\u2019\xE9tapes", "Ex. 5", "text", false), field("destination", "Destination des r\xE9ponses", "Ex. une recommandation produit", "textarea", false)), templates: TEMPLATE_IDS.quiz.map((id2) => template2(id2, "quiz")) },
+  { id: "home", title: "Page d\u2019accueil", description: "La vitrine compl\xE8te d\u2019une marque", pageType: "sell", allowedSources: ["description", "shopify"], intake: fields(field("brand", "Nom de la marque", "Le nom affich\xE9 sur votre page"), field("activity", "Activit\xE9", "Ex. objets durables pour la maison"), field("promise", "Promesse", "La promesse principale de la marque", "textarea"), field("collections", "Collections principales", "Ex. Nouveaut\xE9s, best-sellers, cadeaux", "list"), field("story", "Histoire de la marque", "Ce que vous voulez raconter", "textarea")), templates: TEMPLATE_IDS.home.map((id2) => template2(id2, "home")) },
+  { id: "blog", title: "Article de blog", description: "Contenu de marque structur\xE9 et lisible", pageType: "write", allowedSources: ["description", "shopify"], intake: fields(field("topic", "Sujet", "Le th\xE8me de l\u2019article"), field("intent", "Intention de recherche", "La question \xE0 laquelle r\xE9pondre", "textarea"), field("angle", "Angle", "Votre point de vue ou approche", "textarea"), field("relatedProducts", "Produits li\xE9s", "Les produits \xE0 citer si n\xE9cessaire", "list", false)), templates: TEMPLATE_IDS.blog.map((id2) => template2(id2, "blog")) },
   { id: "blank", title: "Page vierge", description: "Construire librement dans l\u2019\xE9diteur", pageType: "blank", allowedSources: [], intake: [], templates: [] }
 ];
 function flowForFormat(id2) {
-  const flow = FORMAT_FLOWS.find((candidate) => candidate.id === id2);
+  const flow = FORMAT_FLOWS.find((candidate2) => candidate2.id === id2);
   if (!flow) throw new Error(`Unknown creation format: ${id2}`);
   return flow;
 }
@@ -28538,13 +29244,81 @@ function flowForFormat(id2) {
 function buildCanardoContext(document2, selectedId, shopify) {
   const page = document2.pages.find((item3) => item3.sections.some((section2) => section2.id === selectedId)) ?? document2.pages[0];
   const selected = page.sections.find((section2) => section2.id === selectedId) ?? null;
-  return {
+  const context = {
     page: { id: page.id, name: page.name, kind: document2.kind, sectionOrder: page.sections.map((section2) => ({ id: section2.id, type: section2.type, name: section2.name, locked: section2.locked })) },
     selection: selected ? { id: selected.id, type: selected.type, settings: selected.settings, style: selected.style, responsive: selected.responsive, blocks: selected.blocks.slice(0, 20) } : null,
     theme: document2.theme,
-    availableSections: listSectionDefinitions().map((definition) => ({ type: definition.type, name: definition.name, category: definition.category, defaults: definition.defaults, settings: definition.settings.map(({ key, type, scope }) => ({ key, type, scope })), blockTypes: definition.blocks.map((block) => block.type) })),
+    designProfile: document2.designProfile,
+    /** Imported facts only; previews and arbitrary customer content never enter the model context. */
+    productTruth: document2.commerce?.productTruth,
+    availableSections: listSectionDefinitions().map((definition) => ({ type: definition.type, name: definition.name, category: definition.category, defaults: definition.defaults, settings: definition.settings.map(({ key, type, scope }) => ({ key, type, scope })), blockTypes: definition.blocks.map((block2) => block2.type) })),
+    /** Compact, customer-safe composition palette: never include preview fixtures. */
+    catalog: querySectionCatalog().map((item3) => ({ type: item3.sectionType, variantId: item3.variantId, title: item3.title, family: item3.family, purpose: item3.conversionGoal, capabilities: item3.capabilityBadges.map((badge) => ({ id: badge.capability, state: badge.state })) })),
     shopify: shopify ? { connected: Boolean(shopify.connected), productCount: shopify.productCount, collectionCount: shopify.collectionCount } : void 0
   };
+  Object.defineProperty(context, "document", { value: document2, enumerable: false });
+  Object.defineProperty(context, "selectedId", { value: selectedId, enumerable: false });
+  return context;
+}
+
+// src/section-preview/materialize.ts
+function requiredDefinition(type) {
+  const definition = getSectionDefinition(type);
+  if (!definition) throw new Error(`Unknown section definition: ${type}`);
+  return definition;
+}
+function variantDefaults(type, variantId) {
+  const definition = requiredDefinition(type);
+  const variants = Array.isArray(definition.variants) ? definition.variants : [];
+  const variant2 = variants.find((candidate2) => candidate2 && typeof candidate2 === "object" && candidate2.id === variantId);
+  return variant2 && variant2.defaults && typeof variant2.defaults === "object" && !Array.isArray(variant2.defaults) ? structuredClone(variant2.defaults) : {};
+}
+function block(id2, type, settings2) {
+  return { id: id2, type, settings: settings2 };
+}
+function makeSection2(id2, type, settings2, blocks2) {
+  const definition = requiredDefinition(type);
+  return { id: id2, type, name: definition.name, hidden: false, locked: false, packVersion: 1, variantId: typeof settings2.variant === "string" ? settings2.variant : "default", settings: settings2, style: {}, responsive: {}, blocks: blocks2 };
+}
+function customerBlocks(type, document2, id2, missing) {
+  const product = document2.commerce?.sourceProduct;
+  if (type === "testimonials") {
+    if (!product?.reviews.length) {
+      missing.push("reviews");
+      return [];
+    }
+    return product.reviews.map((review, index) => block(`${id2}-review-${index + 1}`, "testimonial", { author: review.author, title: review.title, text: review.text, rating: review.rating ?? 5, ...review.image ? { image: review.image } : {} }));
+  }
+  return [];
+}
+function assertCustomerSafe(value2) {
+  const serialized = JSON.stringify(value2);
+  const names = SECTION_PREVIEW_FIXTURES.flatMap((fixture2) => [fixture2.id, fixture2.brand.name]);
+  if (/previewFixtureId|previewOnly/.test(serialized) || names.some((name) => serialized.includes(name))) throw new Error("Preview-only data cannot be inserted into a customer document");
+}
+function materializeSectionVariant(input) {
+  previewManifest(input.sectionType, input.variantId);
+  const definition = requiredDefinition(input.sectionType);
+  const product = input.document.commerce?.sourceProduct;
+  const settings2 = { ...definition.defaults, ...variantDefaults(input.sectionType, input.variantId), variant: input.variantId };
+  const missingFields = [];
+  if (product?.title) {
+    settings2.title = product.title;
+    settings2.heading = product.title;
+  } else missingFields.push("product.title");
+  if (product?.description) {
+    settings2.text = product.description;
+    settings2.body = product.description;
+  } else missingFields.push("product.description");
+  if (product?.images[0]) {
+    settings2.image = product.images[0];
+    settings2.image_alt = product.title;
+  } else missingFields.push("product.image");
+  if (product?.price !== null && product?.price !== void 0) settings2.price = product.price;
+  else missingFields.push("product.price");
+  const section2 = makeSection2(input.sectionId, input.sectionType, settings2, customerBlocks(input.sectionType, input.document, input.sectionId, missingFields));
+  assertCustomerSafe(section2);
+  return { section: section2, missingFields };
 }
 
 // src/canardo/local-planner.ts
@@ -28554,20 +29328,54 @@ function uniqueId(document2, type) {
   while (ids.has(`${type}-${index}`)) index += 1;
   return `${type}-${index}`;
 }
-function customSection(document2, kind) {
-  const id2 = uniqueId(document2, "customCode");
-  const html = kind === "accordion" ? '<div class="accordion"><button type="button" aria-expanded="false">Afficher les d\xE9tails</button><div hidden>Ajoute ici ton contenu.</div></div>' : '<div class="calculator"><label>Quantit\xE9 <input type="number" min="1" value="1"></label><output>29 \u20AC</output></div>';
-  const css = `[data-wf-custom-id="${id2}"] .${kind === "accordion" ? "accordion" : "calculator"}{padding:24px;border:1px solid #ddd;border-radius:16px}`;
-  const js = kind === "accordion" ? 'const button=document.querySelector("button");const panel=document.querySelector("[hidden]");button.addEventListener("click",()=>{const open=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!open));panel.hidden=open})' : 'const input=document.querySelector("input");const output=document.querySelector("output");input.addEventListener("input",()=>{output.textContent=(Math.max(1,Number(input.value))*29)+" \u20AC"})';
-  return { id: id2, type: "customCode", name: kind === "accordion" ? "Accord\xE9on sur mesure" : "Calculateur sur mesure", hidden: false, locked: false, settings: { html, css, js }, style: {}, responsive: {}, blocks: [] };
+function catalogIntent(prompt) {
+  const lower = prompt.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const intents = [];
+  if (/bundle|pack|lot|multipack/.test(lower)) intents.push({ family: "bundles-offers", search: "bundle" });
+  if (/quantite|palier|duo|trio/.test(lower)) intents.push({ family: "bundles-offers", search: "quantit\xE9" });
+  if (/avis|temoignage|ugc|review/.test(lower)) intents.push({ family: "reviews-ugc", search: "avis" });
+  if (/faq|question|objection/.test(lower)) intents.push({ family: "faq-trust", search: "faq" });
+  if (/compar/.test(lower)) intents.push({ family: "comparison", search: "comparaison" });
+  if (/avant.*apres|resultat/.test(lower)) intents.push({ family: "before-after" });
+  if (/galerie|video|demonstration|photo/.test(lower)) intents.push({ family: "demo-media" });
+  if (/benefice|avantage|caracteristique/.test(lower)) intents.push({ family: "benefits" });
+  if (/produit|buy.?box|achat/.test(lower)) intents.push({ family: "product-purchase" });
+  return intents;
+}
+function chooseCatalogVariant(intent) {
+  const byFamily = querySectionCatalog({ family: intent.family, search: intent.search });
+  return byFamily[0] ?? querySectionCatalog({ family: intent.family })[0];
+}
+function proposeCatalogComposition(prompt, context, selectedId = null) {
+  const document2 = "pages" in context ? context : context.document;
+  const selection = "pages" in context ? selectedId : context.selectedId ?? selectedId;
+  const page = document2.pages.find((item3) => item3.sections.some((section2) => section2.id === selection)) ?? document2.pages[0];
+  const intents = catalogIntent(prompt);
+  const seen = /* @__PURE__ */ new Set();
+  const reserved = new Set(document2.pages.flatMap((candidate2) => candidate2.sections.map((section2) => section2.id)));
+  const commands = [];
+  let index = Math.max(0, page.sections.findIndex((section2) => section2.id === selection) + 1);
+  if (index === 0 && selection) index = page.sections.length;
+  for (const intent of intents) {
+    const variant2 = chooseCatalogVariant(intent);
+    if (!variant2 || seen.has(`${variant2.sectionType}:${variant2.variantId}`)) continue;
+    seen.add(`${variant2.sectionType}:${variant2.variantId}`);
+    let ordinal = 1, sectionId = `${variant2.sectionType}-${ordinal}`;
+    while (reserved.has(sectionId)) sectionId = `${variant2.sectionType}-${++ordinal}`;
+    reserved.add(sectionId);
+    const section2 = materializeSectionVariant({ document: document2, sectionType: variant2.sectionType, variantId: variant2.variantId, sectionId }).section;
+    commands.push({ type: "insertSection", pageId: page.id, index: index++, section: section2 });
+  }
+  if (!commands.length) return { message: "Je n\u2019ai pas trouv\xE9 de composition enregistr\xE9e pour cette demande.", summary: "Aucune section ajout\xE9e", commands: [], operations: [], requiresConfirmation: true };
+  const names = commands.map((command) => command.type === "insertSection" ? command.section.name : "section");
+  return { message: "J\u2019ai pr\xE9par\xE9 une composition \xE0 partir du catalogue premium. V\xE9rifie les pr\xE9requis Shopify avant de confirmer.", summary: `Ajouter : ${names.join(" \xB7 ")}`, commands, operations: commands, requiresConfirmation: true };
 }
 function planCanardoLocally(prompt, document2, selectedId) {
   const page = document2.pages.find((item3) => item3.sections.some((section2) => section2.id === selectedId)) ?? document2.pages[0];
   const lower = prompt.toLowerCase();
-  if (/accord[ée]on/.test(lower) || /calculat(?:eur|rice)/.test(lower)) {
-    const kind = /accord[ée]on/.test(lower) ? "accordion" : "calculator";
-    const section2 = customSection(document2, kind);
-    return { message: "J\u2019ai pr\xE9par\xE9 une section interactive isol\xE9e.", summary: `Ajouter : ${section2.name}`, commands: [{ type: "insertSection", pageId: page.id, index: page.sections.length, section: section2 }] };
+  if (/ajout|cr[ée][ée]|nouvelle section|ins[èe]re/.test(lower)) {
+    const composition = proposeCatalogComposition(prompt, document2, selectedId);
+    if (composition.commands.length) return composition;
   }
   const typeAliases = [[/t[ée]moignage|avis/, "testimonials"], [/faq|question/, "faq"], [/bundle|pack/, "bundle"], [/compar/, "comparison"], [/galerie|photos?/, "gallery"], [/quiz/, "quiz"], [/newsletter|email/, "newsletter"], [/b[ée]n[ée]fice|avantage/, "benefits"], [/produit/, "productMain"], [/appel .? l.action|cta/, "cta"]];
   if (/ajout|cr[ée][ée]|nouvelle section|ins[èe]re/.test(lower)) {
@@ -28605,7 +29413,7 @@ function sectionIds(document2) {
   return new Set(document2.pages.flatMap((page) => page.sections.map((section2) => section2.id)));
 }
 function blockIds(document2) {
-  return new Set(document2.pages.flatMap((page) => page.sections.flatMap((section2) => section2.blocks.map((block) => block.id))));
+  return new Set(document2.pages.flatMap((page) => page.sections.flatMap((section2) => section2.blocks.map((block2) => block2.id))));
 }
 function checkedIndex(index, length) {
   if (!Number.isInteger(index) || index < 0 || index > length) throw new EditorCommandError(`Invalid insertion index: ${index}`);
@@ -28660,7 +29468,7 @@ function applyCommand(document2, command) {
       const copy = clone(from.section);
       copy.id = command.newSectionId;
       copy.name = `${copy.name} copy`;
-      copy.blocks = copy.blocks.map((block, index) => ({ ...block, id: `${command.newSectionId}-block-${index + 1}` }));
+      copy.blocks = copy.blocks.map((block2, index) => ({ ...block2, id: `${command.newSectionId}-block-${index + 1}` }));
       const insertion = command.index ?? from.sectionIndex + 1;
       next.pages[from.pageIndex].sections.splice(checkedIndex(insertion, next.pages[from.pageIndex].sections.length), 0, copy);
       break;
@@ -28689,7 +29497,7 @@ function applyCommand(document2, command) {
     }
     case "moveBlock": {
       const { section: section2 } = editableSection(next, command.sectionId);
-      const from = section2.blocks.findIndex((block) => block.id === command.blockId);
+      const from = section2.blocks.findIndex((block2) => block2.id === command.blockId);
       if (from < 0) throw new EditorCommandError(`Block not found: ${command.blockId}`);
       const [moving] = section2.blocks.splice(from, 1);
       let target = command.toIndex;
@@ -28699,7 +29507,7 @@ function applyCommand(document2, command) {
     }
     case "removeBlock": {
       const { section: section2 } = editableSection(next, command.sectionId);
-      const index = section2.blocks.findIndex((block) => block.id === command.blockId);
+      const index = section2.blocks.findIndex((block2) => block2.id === command.blockId);
       if (index < 0) throw new EditorCommandError(`Block not found: ${command.blockId}`);
       section2.blocks.splice(index, 1);
       break;
@@ -28708,8 +29516,306 @@ function applyCommand(document2, command) {
   return next;
 }
 
+// src/canardo/custom-style.ts
+function cssValue(value2) {
+  return value2.replace(/[^#(),.%\- a-zA-Z0-9]/g, "");
+}
+function compileCustomStyle(spec, profile) {
+  const id2 = spec.id.replace(/[^a-z0-9-]/g, "");
+  const root = `[data-wf-custom="${id2}"]`;
+  const colors = profile?.colors ?? { background: "#ffffff", surface: "#f7f7f5", ink: "#171715", accent: "#171715" };
+  const spacing = profile?.spacing ?? { section: 72, gap: 20 };
+  const radius = profile?.radius ?? { card: 16, button: 999 };
+  return `${root}{--wf-custom-bg:${cssValue(colors.background)};--wf-custom-surface:${cssValue(colors.surface)};--wf-custom-ink:${cssValue(colors.ink)};--wf-custom-accent:${cssValue(colors.accent)};--wf-custom-gap:${Math.max(0, Math.min(160, spacing.gap))}px;--wf-custom-radius:${Math.max(0, Math.min(48, radius.card))}px;box-sizing:border-box;color:var(--wf-custom-ink);background:var(--wf-custom-bg);padding:${Math.max(0, Math.min(160, spacing.section))}px clamp(16px,4vw,64px)}${root} *,${root} *:before,${root} *:after{box-sizing:border-box}${root} .wf-custom-stack{display:grid;gap:var(--wf-custom-gap)}${root} .wf-custom-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--wf-custom-gap)}${root} .wf-custom-card{padding:24px;border:1px solid color-mix(in srgb,var(--wf-custom-ink) 14%,transparent);border-radius:var(--wf-custom-radius);background:var(--wf-custom-surface)}${root} .wf-custom-heading{margin:0;font-family:inherit;font-size:clamp(28px,4vw,52px);line-height:1.05}${root} .wf-custom-text{margin:0;line-height:1.55}${root} .wf-custom-button{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:12px 20px;border:0;border-radius:${Math.max(0, Math.min(48, radius.button))}px;background:var(--wf-custom-accent);color:var(--wf-custom-bg);text-decoration:none;font:inherit;font-weight:700}${root} .wf-custom-image{display:block;width:100%;height:auto;border-radius:var(--wf-custom-radius)}${root} .wf-custom-icon{display:inline-flex;width:1.25em;height:1.25em;align-items:center;justify-content:center;border-radius:50%;background:var(--wf-custom-accent);color:var(--wf-custom-bg)}${root} .wf-custom-commerce{padding:20px;border:1px solid color-mix(in srgb,var(--wf-custom-ink) 14%,transparent);border-radius:var(--wf-custom-radius)}@media (max-width: 700px){${root}{padding:48px 20px}${root} .wf-custom-grid{grid-template-columns:1fr}${root} .wf-custom-heading{font-size:32px}}`;
+}
+
+// src/canardo/custom-spec.ts
+var CUSTOM_PRIMITIVES = ["stack", "grid", "heading", "text", "button", "image", "icon", "repeater", "product-form", "variant-selector", "quantity-selector"];
+var CUSTOM_TOKENS = [
+  "surface",
+  "ink",
+  "accent",
+  "muted",
+  "border",
+  "display",
+  "body",
+  "space-xs",
+  "space-sm",
+  "space-md",
+  "space-lg",
+  "space-xl",
+  "radius-sm",
+  "radius-md",
+  "radius-lg",
+  "one",
+  "two",
+  "three"
+];
+
+// src/canardo/custom-validate.ts
+var SPEC_KEYS = /* @__PURE__ */ new Set(["version", "id", "name", "purpose", "nodes", "settings", "blocks", "requiredCapabilities"]);
+var CONTROL_KEYS = /* @__PURE__ */ new Set(["key", "label", "type", "scope", "options"]);
+var BLOCK_KEYS = /* @__PURE__ */ new Set(["type", "name", "defaults", "settings"]);
+var CONTROL_TYPES = /* @__PURE__ */ new Set(["text", "textarea", "number", "select", "toggle", "color", "image", "link", "product", "collection"]);
+var CONTROL_SCOPES = /* @__PURE__ */ new Set(["settings", "style", "responsive"]);
+var TOKENS = new Set(CUSTOM_TOKENS);
+var ID = /^[a-z][a-z0-9-]{1,63}$/;
+var KEY = /^[a-z][a-z0-9_]{0,63}$/;
+var PRODUCT_BINDING = /* @__PURE__ */ new Set(["product.title", "product.price", "product.compareAtPrice", "product.featuredImage", "product.url"]);
+function record(value2) {
+  return Boolean(value2) && typeof value2 === "object" && !Array.isArray(value2);
+}
+function noExtra(value2, keys2, errors, label) {
+  if (Object.keys(value2).some((key) => !keys2.has(key))) errors.push(`Propri\xE9t\xE9 inattendue dans ${label}.`);
+}
+function nonEmpty(value2, max = 240) {
+  return typeof value2 === "string" && value2.trim().length > 0 && value2.length <= max;
+}
+function validDefault(value2) {
+  return value2 === null || ["string", "number", "boolean"].includes(typeof value2) || Array.isArray(value2) && value2.every(validDefault);
+}
+function validateControl(value2, errors, keys2) {
+  if (!record(value2)) {
+    errors.push("R\xE9glage invalide.");
+    return false;
+  }
+  noExtra(value2, CONTROL_KEYS, errors, "un r\xE9glage");
+  if (!nonEmpty(value2.key, 64) || !KEY.test(value2.key)) errors.push("Cl\xE9 de r\xE9glage invalide.");
+  else if (keys2.has(value2.key)) errors.push(`Cl\xE9 de r\xE9glage dupliqu\xE9e: ${value2.key}.`);
+  else keys2.add(value2.key);
+  if (!nonEmpty(value2.label, 100)) errors.push("Libell\xE9 de r\xE9glage invalide.");
+  if (!CONTROL_TYPES.has(value2.type)) errors.push("Type de r\xE9glage interdit.");
+  if (!CONTROL_SCOPES.has(value2.scope)) errors.push("Port\xE9e de r\xE9glage invalide.");
+  if (value2.options !== void 0 && (!Array.isArray(value2.options) || value2.options.length > 30 || value2.options.some((option) => !nonEmpty(option, 100)))) errors.push("Options de r\xE9glage invalides.");
+  if (value2.type === "select" && (!Array.isArray(value2.options) || value2.options.length === 0)) errors.push("Un r\xE9glage de liste doit d\xE9finir des options.");
+  return true;
+}
+function validateBlock2(value2, errors, types2) {
+  if (!record(value2)) {
+    errors.push("Bloc invalide.");
+    return false;
+  }
+  noExtra(value2, BLOCK_KEYS, errors, "un bloc");
+  if (!nonEmpty(value2.type, 64) || !KEY.test(value2.type)) errors.push("Type de bloc invalide.");
+  else if (types2.has(value2.type)) errors.push(`Type de bloc dupliqu\xE9: ${value2.type}.`);
+  else types2.add(value2.type);
+  if (!nonEmpty(value2.name, 100)) errors.push("Nom de bloc invalide.");
+  if (!record(value2.defaults) || Object.keys(value2.defaults).length > 30 || Object.values(value2.defaults).some((setting3) => !validDefault(setting3))) errors.push("Valeurs par d\xE9faut du bloc invalides.");
+  const keys2 = /* @__PURE__ */ new Set();
+  if (!Array.isArray(value2.settings) || value2.settings.length > 30) errors.push("R\xE9glages de bloc invalides.");
+  else value2.settings.forEach((setting3) => validateControl(setting3, errors, keys2));
+  if (record(value2.defaults) && Object.keys(value2.defaults).some((key) => !keys2.has(key))) errors.push("Valeur par d\xE9faut de bloc non configur\xE9e.");
+  return true;
+}
+function bindingIsKnown(binding2, settings2, blockTypes) {
+  if (PRODUCT_BINDING.has(binding2)) return true;
+  if (binding2.startsWith("settings.")) return settings2.has(binding2.slice("settings.".length));
+  const match = /^blocks\.([a-z][a-z0-9_]*)\.([a-z][a-z0-9_]*)$/.exec(binding2);
+  return Boolean(match && blockTypes.has(match[1]));
+}
+function validateNode(value2, errors, settings2, blockTypes, depth, state) {
+  state.count += 1;
+  if (state.count > 120) {
+    errors.push("La section d\xE9passe 120 n\u0153uds.");
+    return false;
+  }
+  if (depth > 6) {
+    errors.push("La section d\xE9passe 6 niveaux.");
+    return false;
+  }
+  if (!record(value2) || typeof value2.kind !== "string") {
+    errors.push("N\u0153ud invalide.");
+    return false;
+  }
+  if (!CUSTOM_PRIMITIVES.includes(value2.kind)) {
+    errors.push(`Primitive interdite: ${value2.kind}`);
+    return false;
+  }
+  const kind = value2.kind;
+  const keys2 = kind === "stack" || kind === "grid" ? /* @__PURE__ */ new Set(["kind", "token", "children"]) : ["heading", "text", "button", "image", "icon"].includes(kind) ? /* @__PURE__ */ new Set(["kind", "binding", "token"]) : kind === "repeater" ? /* @__PURE__ */ new Set(["kind", "blockType", "min", "max", "template"]) : /* @__PURE__ */ new Set(["kind", "capability"]);
+  noExtra(value2, keys2, errors, "un n\u0153ud");
+  if (kind === "stack" || kind === "grid") {
+    if (!TOKENS.has(value2.token)) errors.push("Token de disposition invalide.");
+    if (!Array.isArray(value2.children) || value2.children.length === 0 || value2.children.length > 24) errors.push("Enfants de disposition invalides.");
+    else value2.children.forEach((child) => validateNode(child, errors, settings2, blockTypes, depth + 1, state));
+  } else if (["heading", "text", "button", "image", "icon"].includes(kind)) {
+    if (!TOKENS.has(value2.token)) errors.push("Token de contenu invalide.");
+    if (typeof value2.binding !== "string" || !bindingIsKnown(value2.binding, settings2, blockTypes)) errors.push("Liaison non configur\xE9e.");
+  } else if (kind === "repeater") {
+    if (typeof value2.blockType !== "string" || !blockTypes.has(value2.blockType)) errors.push("Type de bloc de r\xE9p\xE9tition inconnu.");
+    if (!Number.isInteger(value2.min) || !Number.isInteger(value2.max) || value2.min < 0 || value2.max < value2.min || value2.max > 12) errors.push("Bornes de r\xE9p\xE9tition invalides.");
+    if (!Array.isArray(value2.template) || value2.template.length === 0 || value2.template.length > 12) errors.push("Mod\xE8le de r\xE9p\xE9tition invalide.");
+    else value2.template.forEach((child) => validateNode(child, errors, settings2, blockTypes, depth + 1, state));
+  } else if (!hasSectionCapability(value2.capability)) errors.push("Capacit\xE9 Shopify inconnue.");
+  return true;
+}
+function declaredNodeCapabilities(nodes) {
+  return nodes.flatMap((node) => "children" in node ? declaredNodeCapabilities(node.children) : "template" in node ? declaredNodeCapabilities(node.template) : "capability" in node ? [node.capability] : []);
+}
+function validateCustomSectionSpec(value2) {
+  const errors = [];
+  if (!record(value2)) return { ok: false, errors: ["La sp\xE9cification doit \xEAtre un objet."] };
+  noExtra(value2, SPEC_KEYS, errors, "la sp\xE9cification");
+  if (value2.version !== 1) errors.push("Version de sp\xE9cification non prise en charge.");
+  if (!nonEmpty(value2.id, 64) || !ID.test(value2.id)) errors.push("Identifiant de section invalide.");
+  if (!nonEmpty(value2.name, 100) || !nonEmpty(value2.purpose, 500)) errors.push("Nom ou objectif invalide.");
+  const settingKeys = /* @__PURE__ */ new Set();
+  if (!Array.isArray(value2.settings) || value2.settings.length > 30) errors.push("La section d\xE9passe 30 r\xE9glages.");
+  else value2.settings.forEach((setting3) => validateControl(setting3, errors, settingKeys));
+  const blockTypes = /* @__PURE__ */ new Set();
+  if (!Array.isArray(value2.blocks) || value2.blocks.length > 12) errors.push("La section d\xE9passe 12 blocs.");
+  else value2.blocks.forEach((block2) => validateBlock2(block2, errors, blockTypes));
+  if (!Array.isArray(value2.requiredCapabilities) || value2.requiredCapabilities.length > 12 || value2.requiredCapabilities.some((capability) => !hasSectionCapability(capability))) errors.push("Capacit\xE9s requises invalides.");
+  else if (new Set(value2.requiredCapabilities).size !== value2.requiredCapabilities.length) errors.push("Capacit\xE9s requises dupliqu\xE9es.");
+  const state = { count: 0 };
+  if (!Array.isArray(value2.nodes) || value2.nodes.length === 0 || value2.nodes.length > 24) errors.push("N\u0153uds de section invalides.");
+  else value2.nodes.forEach((node) => validateNode(node, errors, settingKeys, blockTypes, 1, state));
+  if (Array.isArray(value2.nodes) && Array.isArray(value2.requiredCapabilities)) {
+    const declared = new Set(value2.requiredCapabilities.filter(hasSectionCapability));
+    for (const capability of declaredNodeCapabilities(value2.nodes)) if (!declared.has(capability)) errors.push(`Capacit\xE9 non d\xE9clar\xE9e: ${capability}.`);
+  }
+  return errors.length ? { ok: false, errors } : { ok: true, value: value2, errors: [] };
+}
+
+// src/canardo/custom-compile-web.ts
+var escapeHtml2 = (value2) => String(value2 ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] ?? char);
+var binding = (name) => `{{${name}}}`;
+function nodeWeb(node) {
+  switch (node.kind) {
+    case "stack":
+      return `<div class="wf-custom-stack">${node.children.map(nodeWeb).join("")}</div>`;
+    case "grid":
+      return `<div class="wf-custom-grid">${node.children.map(nodeWeb).join("")}</div>`;
+    case "heading":
+      return `<h2 class="wf-custom-heading">${binding(node.binding)}</h2>`;
+    case "text":
+      return `<p class="wf-custom-text">${binding(node.binding)}</p>`;
+    case "button":
+      return `<button class="wf-custom-button" type="button">${binding(node.binding)}</button>`;
+    case "image":
+      return `<img class="wf-custom-image" src="${binding(node.binding)}" alt="">`;
+    case "icon":
+      return `<span class="wf-custom-icon" aria-hidden="true">${binding(node.binding)}</span>`;
+    case "repeater":
+      return `<div class="wf-custom-grid">${node.template.map(nodeWeb).join("")}</div>`;
+    case "product-form":
+      return `<div class="wf-custom-commerce" data-wf-product-form>Formulaire produit Shopify</div>`;
+    case "variant-selector":
+      return `<div class="wf-custom-commerce" data-wf-variant-selector>Variantes Shopify</div>`;
+    case "quantity-selector":
+      return `<div class="wf-custom-commerce" data-wf-quantity-selector>Quantit\xE9</div>`;
+  }
+}
+function compileCustomWeb(input) {
+  const validation = validateCustomSectionSpec(input.spec);
+  if (!validation.ok) throw new Error(validation.errors.join(" "));
+  const spec = validation.value;
+  return `<style>${compileCustomStyle(spec, input.designProfile)}</style><section data-wf-custom="${escapeHtml2(spec.id)}" class="wf-custom-section" aria-label="${escapeHtml2(spec.name)}">${spec.nodes.map(nodeWeb).join("")}</section>`;
+}
+function customPreviewDocument(input) {
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:"></head><body>${compileCustomWeb(input)}</body></html>`;
+}
+
+// src/canardo/custom-compile-liquid.ts
+var liquidBinding = (binding2) => {
+  if (binding2.startsWith("settings.")) return `{{ section.settings.${binding2.slice(9)} | escape }}`;
+  if (binding2.startsWith("blocks.")) return `{{ block.settings.${binding2.split(".")[2]} | escape }}`;
+  const field2 = binding2.slice("product.".length);
+  return field2 === "featuredImage" ? `{{ product.featured_image | image_url: width: 1200 }}` : `{{ product.${field2} | escape }}`;
+};
+function nodeLiquid(node) {
+  switch (node.kind) {
+    case "stack":
+      return `<div class="wf-custom-stack">${node.children.map(nodeLiquid).join("")}</div>`;
+    case "grid":
+      return `<div class="wf-custom-grid">${node.children.map(nodeLiquid).join("")}</div>`;
+    case "heading":
+      return `<h2 class="wf-custom-heading">${liquidBinding(node.binding)}</h2>`;
+    case "text":
+      return `<p class="wf-custom-text">${liquidBinding(node.binding)}</p>`;
+    case "button":
+      return `<button class="wf-custom-button" type="button">${liquidBinding(node.binding)}</button>`;
+    case "image":
+      return `<img class="wf-custom-image" src="${liquidBinding(node.binding)}" alt="">`;
+    case "icon":
+      return `<span class="wf-custom-icon" aria-hidden="true">${liquidBinding(node.binding)}</span>`;
+    case "repeater":
+      return `{% for block in section.blocks limit: ${node.max} %}<div class="wf-custom-card" {{ block.shopify_attributes }}>${node.template.map(nodeLiquid).join("")}</div>{% endfor %}`;
+    case "product-form":
+      return renderProductFormLiquid({ sectionClass: "wf-custom-commerce" });
+    case "variant-selector":
+      return `<div class="wf-custom-commerce" data-wf-variant-selector>Choisissez une variante</div>`;
+    case "quantity-selector":
+      return `<label class="wf-custom-commerce">Quantit\xE9 <input type="number" name="quantity" min="1" value="1"></label>`;
+  }
+}
+function shopifySetting(setting3) {
+  const type = setting3.type === "textarea" ? "textarea" : setting3.type === "number" ? "number" : setting3.type === "select" ? "select" : setting3.type === "image" ? "image_picker" : setting3.type === "link" ? "url" : setting3.type === "toggle" ? "checkbox" : setting3.type === "color" ? "color" : setting3.type;
+  return { type, id: setting3.key, label: setting3.label, ...setting3.options ? { options: setting3.options.map((value2) => ({ value: value2, label: value2 })) } : {} };
+}
+function schema(spec) {
+  const settings2 = spec.settings.filter((setting3) => setting3.scope === "settings").map(shopifySetting);
+  const blocks2 = spec.blocks.map((block2) => ({ type: block2.type, name: block2.name, settings: block2.settings.filter((setting3) => setting3.scope === "settings").map(shopifySetting) }));
+  return JSON.stringify({ name: spec.name, class: "weflo-custom-section", settings: settings2, blocks: blocks2, presets: [{ name: spec.name }] });
+}
+function compileCustomLiquid(input) {
+  const validation = validateCustomSectionSpec(input.spec);
+  if (!validation.ok) throw new Error(validation.errors.join(" "));
+  const spec = validation.value;
+  const id2 = spec.id.replace(/[^a-z0-9-]/g, "");
+  return `<section data-wf-custom="${id2}" class="wf-custom-section"><style>${compileCustomStyle(spec, input.designProfile)}</style>${spec.nodes.map(nodeLiquid).join("")}</section>{% schema %}${schema(spec)}{% endschema %}`;
+}
+
+// src/canardo/custom-planner.ts
+import { createHash as createHash3 } from "node:crypto";
+var CUSTOM_SECTION_JSON_SCHEMA = { type: "object", additionalProperties: false, required: ["version", "id", "name", "purpose", "nodes", "settings", "blocks", "requiredCapabilities"], properties: { version: { const: 1 }, id: { type: "string" }, name: { type: "string" }, purpose: { type: "string" }, nodes: { type: "array" }, settings: { type: "array" }, blocks: { type: "array" }, requiredCapabilities: { type: "array" } } };
+function customSectionChecksum(spec) {
+  return createHash3("sha256").update(JSON.stringify(spec)).digest("hex");
+}
+function idFromPrompt(prompt) {
+  const normalized = prompt.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return `canardo-${(normalized || "section").slice(0, 45)}`.replace(/-+$/g, "");
+}
+function fallbackCustomSectionSpec(prompt) {
+  const wantsImage = /image|photo|visuel|galerie/i.test(prompt);
+  const wantsProduct = /produit|panier|acheter|achat|variante|quantit[eé]/i.test(prompt);
+  return { version: 1, id: idFromPrompt(prompt), name: "Section sur mesure", purpose: prompt.slice(0, 500), settings: [{ key: "title", label: "Titre", type: "text", scope: "settings" }, { key: "text", label: "Texte", type: "textarea", scope: "settings" }, { key: "cta_label", label: "Bouton", type: "text", scope: "settings" }], blocks: [], requiredCapabilities: wantsProduct ? ["product-form"] : [], nodes: [{ kind: "stack", token: "space-lg", children: [...wantsImage ? [{ kind: "image", binding: "settings.title", token: "surface" }] : [], { kind: "heading", binding: "settings.title", token: "display" }, { kind: "text", binding: "settings.text", token: "body" }, ...wantsProduct ? [{ kind: "product-form", capability: "product-form" }] : [{ kind: "button", binding: "settings.cta_label", token: "accent" }]] }] };
+}
+function nodeCount(nodes) {
+  return nodes.reduce((count, node) => count + 1 + ("children" in node ? nodeCount(node.children) : 0) + ("template" in node ? nodeCount(node.template) : 0), 0);
+}
+async function planCustomSection(prompt, context, generate) {
+  let raw = fallbackCustomSectionSpec(prompt);
+  if (generate) try {
+    raw = await generate({ prompt, context, schema: CUSTOM_SECTION_JSON_SCHEMA });
+  } catch {
+    throw new Error("Canardo n\u2019a pas pu pr\xE9parer cette section. R\xE9essaie dans un instant.");
+  }
+  const result = validateCustomSectionSpec(raw);
+  if (!result.ok) throw new Error(`proposition non s\xE9curis\xE9e: ${result.errors.join(" ")}`);
+  const spec = result.value;
+  let desktop;
+  try {
+    desktop = customPreviewDocument({ spec, designProfile: context.document.designProfile });
+    compileCustomWeb({ spec, designProfile: context.document.designProfile });
+    compileCustomLiquid({ spec, designProfile: context.document.designProfile });
+  } catch {
+    throw new Error("proposition non s\xE9curis\xE9e");
+  }
+  const capabilities = buildCapabilityReport({ capabilities: spec.requiredCapabilities, shopify: context.shopify });
+  return { mode: "custom-section", message: "J\u2019ai pr\xE9par\xE9 une section sur mesure, compil\xE9e \xE0 partir de primitives s\xFBres.", summary: `Ajouter : ${spec.name}`, spec, checksum: customSectionChecksum(spec), validation: { ok: capabilities.blockers.length === 0, errors: [], nodeCount: nodeCount(spec.nodes), capabilityBlockers: capabilities.blockers }, preview: { desktop, mobile: desktop }, requiresConfirmation: true };
+}
+function customSectionNeeded(prompt, catalog = []) {
+  const words = prompt.toLowerCase().match(/[\p{L}\p{N}]{4,}/gu) ?? [];
+  const explicit = /sur mesure|custom|spécifique|specifique|unique/i.test(prompt);
+  if (explicit) return true;
+  if (!/ajout|cr[ée]e|g[ée]n[èe]re|ins[èe]re|construi|nouvelle? section/i.test(prompt)) return false;
+  if (!catalog.length) return false;
+  return catalog.reduce((best, item3) => Math.max(best, words.filter((word) => `${item3.purpose} ${item3.title ?? ""}`.toLowerCase().includes(word)).length), 0) < 1;
+}
+
 // src/canardo/validate.ts
-var RESPONSE_KEYS = /* @__PURE__ */ new Set(["message", "summary", "commands"]);
+var RESPONSE_KEYS = /* @__PURE__ */ new Set(["message", "summary", "commands", "requiresConfirmation", "operations"]);
 var COMMAND_KEYS = {
   insertSection: /* @__PURE__ */ new Set(["type", "pageId", "index", "section"]),
   moveSection: /* @__PURE__ */ new Set(["type", "sectionId", "toPageId", "toIndex"]),
@@ -28733,8 +29839,24 @@ function validateInsertedSection(section2, errors) {
   }
   if (section2.type === "customCode") {
     const settings2 = object2(section2.settings) ? section2.settings : {};
-    const result = validateCustomCode({ html: String(settings2.html ?? ""), css: String(settings2.css ?? ""), js: String(settings2.js ?? ""), allowedDomains: [], namespace: String(section2.id ?? "custom") });
-    errors.push(...result.errors);
+    const rawSpec = typeof settings2.custom_spec === "string" ? settings2.custom_spec : null;
+    const checksum3 = typeof settings2.custom_checksum === "string" ? settings2.custom_checksum : null;
+    if (rawSpec) {
+      try {
+        const spec = validateCustomSectionSpec(JSON.parse(rawSpec));
+        if (!spec.ok || checksum3 !== customSectionChecksum(spec.value)) {
+          errors.push("Section sur mesure non v\xE9rifi\xE9e.");
+          return;
+        }
+        const html = compileCustomWeb({ spec: spec.value, designProfile: document.designProfile });
+        const liquid = compileCustomLiquid({ spec: spec.value, designProfile: document.designProfile });
+        if (settings2.html !== html || settings2.css !== "" || settings2.js !== "" || !liquid.includes("{% schema %}")) errors.push("Compilation de section sur mesure incoh\xE9rente.");
+      } catch {
+        errors.push("Sp\xE9cification de section sur mesure invalide.");
+      }
+      return;
+    }
+    errors.push("Les sections Canardo sur mesure doivent utiliser la sp\xE9cification d\xE9clarative v\xE9rifi\xE9e.");
   }
 }
 function validateCanardoResponse(value2, document2) {
@@ -28743,6 +29865,8 @@ function validateCanardoResponse(value2, document2) {
   if (Object.keys(value2).some((key) => !RESPONSE_KEYS.has(key))) errors.push("Propri\xE9t\xE9 inattendue dans la r\xE9ponse.");
   if (typeof value2.message !== "string" || typeof value2.summary !== "string") errors.push("Message et r\xE9sum\xE9 obligatoires.");
   if (!Array.isArray(value2.commands)) errors.push("La liste de commandes est obligatoire.");
+  if (value2.requiresConfirmation !== void 0 && typeof value2.requiresConfirmation !== "boolean") errors.push("Confirmation invalide.");
+  if (value2.operations !== void 0 && (!Array.isArray(value2.operations) || JSON.stringify(value2.operations) !== JSON.stringify(value2.commands))) errors.push("Les op\xE9rations de composition sont incoh\xE9rentes.");
   else if (value2.commands.length > 30) errors.push("Canardo est limit\xE9 \xE0 30 op\xE9rations.");
   let next = structuredClone(document2);
   if (Array.isArray(value2.commands) && value2.commands.length <= 30) for (const raw of value2.commands) {
@@ -28768,8 +29892,8 @@ function validateCanardoResponse(value2, document2) {
       errors.push(error instanceof Error ? error.message : "Commande invalide.");
     }
   }
-  const schema = validateEditorDocument(next);
-  if (!schema.ok) errors.push(...schema.errors);
+  const schema2 = validateEditorDocument(next);
+  if (!schema2.ok) errors.push(...schema2.errors);
   return errors.length ? { ok: false, errors } : { ok: true, value: value2 };
 }
 
@@ -28781,6 +29905,77 @@ function applyCanardoOperations(document2, response) {
   for (const command of response.commands) next = applyCommand(next, command);
   return { document: next, inverseCommands: [{ type: "restoreDocument", document: structuredClone(document2) }], summary: response.summary };
 }
+function confirmCustomProposal(proposal, document2, selectedId = null, stored) {
+  if (!proposal || proposal.mode !== "custom-section" || proposal.requiresConfirmation !== true) throw new Error("confirmation requise");
+  const validation = validateCustomSectionSpec(proposal.spec);
+  if (!validation.ok || customSectionChecksum(proposal.spec) !== proposal.checksum) throw new Error("checksum de confirmation invalide");
+  const page = document2.pages.find((item3) => item3.sections.some((section3) => section3.id === selectedId)) ?? document2.pages[0];
+  if (!page) throw new Error("page introuvable");
+  const base9 = proposal.spec.id;
+  const taken = new Set(document2.pages.flatMap((item3) => item3.sections.map((section3) => section3.id)));
+  let suffix = 1;
+  let id2 = base9;
+  while (taken.has(id2)) id2 = `${base9}-${suffix++}`;
+  const html = compileCustomWeb({ spec: proposal.spec, designProfile: document2.designProfile });
+  const section2 = { id: id2, type: "customCode", name: proposal.spec.name, hidden: false, locked: false, settings: { html, css: "", js: "", custom_spec: JSON.stringify(proposal.spec), custom_checksum: proposal.checksum, ...stored ? { custom_section_id: stored.id, custom_section_version: stored.version, custom_checksum: stored.checksum } : {} }, style: {}, responsive: {}, blocks: [] };
+  const index = selectedId ? Math.max(0, page.sections.findIndex((item3) => item3.id === selectedId) + 1) : page.sections.length;
+  const command = { type: "insertSection", pageId: page.id, index, section: section2 };
+  return { message: proposal.message, summary: proposal.summary, commands: [command], operations: [command] };
+}
+
+// src/custom-sections/repository.ts
+var StoreCustomSectionRepository = class {
+  constructor(store) {
+    this.store = store;
+  }
+  save(row) {
+    return this.store.saveCustomSection(row);
+  }
+  list(workspaceId, id2) {
+    return this.store.listCustomSections(workspaceId, id2);
+  }
+  get(workspaceId, id2, version3) {
+    return this.store.getCustomSection(workspaceId, id2, version3);
+  }
+};
+
+// src/custom-sections/service.ts
+var defaultValidation = (spec) => ({ ok: true, errors: [], nodeCount: spec.nodes.length, capabilityBlockers: [] });
+var handle = (id2) => id2.replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-+|-+$/g, "") || "section";
+var CustomSectionService = class {
+  constructor(repository, now = () => (/* @__PURE__ */ new Date()).toISOString()) {
+    this.repository = repository;
+    this.now = now;
+  }
+  async save(input) {
+    const result = validateCustomSectionSpec(input.spec);
+    if (!result.ok) throw new Error(result.errors.join(" "));
+    const checksum3 = customSectionChecksum(result.value);
+    if (input.checksum && input.checksum !== checksum3) throw new Error("checksum de section invalide");
+    const current = await this.repository.list(input.workspaceId, result.value.id);
+    return this.repository.save({ workspaceId: input.workspaceId, id: result.value.id, version: (current[0]?.version ?? 0) + 1, spec: structuredClone(result.value), checksum: checksum3, validation: input.validation ?? defaultValidation(result.value), authorUserId: input.authorUserId ?? null, createdAt: this.now() });
+  }
+  async list(workspaceId) {
+    return this.repository.list(workspaceId);
+  }
+  async get(workspaceId, id2, version3) {
+    return this.repository.get(workspaceId, id2, version3);
+  }
+  /** A rollback is an append-only new version; no audit record is erased. */
+  async restore(input) {
+    const historical = await this.repository.get(input.workspaceId, input.id, input.version);
+    if (!historical) throw new Error("version de section introuvable");
+    return this.save({ workspaceId: input.workspaceId, spec: historical.spec, checksum: historical.checksum, validation: historical.validation, authorUserId: input.authorUserId });
+  }
+  async compileForPublication(input) {
+    const section2 = await this.repository.get(input.workspaceId, input.id, input.version);
+    if (!section2) throw new Error("version de section introuvable");
+    const result = validateCustomSectionSpec(section2.spec);
+    if (!result.ok || customSectionChecksum(section2.spec) !== section2.checksum) throw new Error("section enregistr\xE9e invalide");
+    if (!section2.validation.ok && section2.validation.errors.length) throw new Error(section2.validation.errors.join(" "));
+    return { path: `sections/weflo-custom-${handle(section2.id)}-v${section2.version}.liquid`, content: compileCustomLiquid({ spec: section2.spec }), section: section2 };
+  }
+};
 
 // src/server/pages.ts
 var PAGE_TYPES = ["sell", "write", "blank"];
@@ -28789,6 +29984,26 @@ var INVALID_STORED_DOCUMENT = {
   error: "invalid_stored_document",
   message: "Le contenu de cette page est invalide et ne peut pas \xEAtre ouvert."
 };
+function customSectionService(store) {
+  return new CustomSectionService(new StoreCustomSectionRepository(store));
+}
+async function customPublicationsForDocument(store, workspaceId, document2) {
+  const service = customSectionService(store);
+  const publications = /* @__PURE__ */ new Map();
+  for (const section2 of document2.pages.flatMap((page) => page.sections)) {
+    if (section2.type !== "customCode" || typeof section2.settings.custom_spec !== "string") continue;
+    const id2 = section2.settings.custom_section_id;
+    const version3 = section2.settings.custom_section_version;
+    const checksum3 = section2.settings.custom_checksum;
+    if (typeof id2 !== "string" || typeof version3 !== "number" || !Number.isInteger(version3) || version3 < 1 || typeof checksum3 !== "string") {
+      throw new Error("La section Canardo doit \xEAtre enregistr\xE9e avant publication.");
+    }
+    const publication = await service.compileForPublication({ workspaceId, id: id2, version: version3 });
+    if (publication.section.checksum !== checksum3) throw new Error("La version enregistr\xE9e de la section Canardo ne correspond plus.");
+    publications.set(`${id2}:${version3}`, publication);
+  }
+  return [...publications.values()];
+}
 async function requireUser(deps, req) {
   return deps.session(req);
 }
@@ -28818,15 +30033,15 @@ async function ensureWorkspace(store, ownerUserId, opts) {
   return ws;
 }
 function slugify2(value2) {
-  const slug2 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  return slug2 || "page";
+  const slug3 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return slug3 || "page";
 }
-async function uniqueSlug(store, workspaceId, base8) {
+async function uniqueSlug(store, workspaceId, base9) {
   const taken = new Set((await store.listPages(workspaceId)).map((p) => p.slug));
-  if (!taken.has(base8)) return base8;
+  if (!taken.has(base9)) return base9;
   let n = 2;
-  while (taken.has(`${base8}-${n}`)) n += 1;
-  return `${base8}-${n}`;
+  while (taken.has(`${base9}-${n}`)) n += 1;
+  return `${base9}-${n}`;
 }
 function isPageType(value2) {
   return typeof value2 === "string" && PAGE_TYPES.includes(value2);
@@ -28840,12 +30055,12 @@ function safeAnswers(format, value2) {
   const allowed = new Set(flowForFormat(format).intake.map((field2) => field2.id));
   return Object.fromEntries(Object.entries(raw).flatMap(([key, answer2]) => allowed.has(key) && typeof answer2 === "string" ? [[key, answer2.trim().slice(0, 4e3)]] : []));
 }
-function record(value2) {
+function record2(value2) {
   return typeof value2 === "object" && value2 !== null && !Array.isArray(value2);
 }
 function isLegacyPageDocument(value2) {
-  if (!record(value2) || "version" in value2 || typeof value2.name !== "string" || typeof value2.path !== "string" || !Array.isArray(value2.sections)) return false;
-  return value2.sections.every((section2) => record(section2) && typeof section2.id === "string" && typeof section2.type === "string" && SECTION_TYPES.includes(section2.type) && record(section2.settings));
+  if (!record2(value2) || "version" in value2 || typeof value2.name !== "string" || typeof value2.path !== "string" || !Array.isArray(value2.sections)) return false;
+  return value2.sections.every((section2) => record2(section2) && typeof section2.id === "string" && typeof section2.type === "string" && SECTION_TYPES.includes(section2.type) && record2(section2.settings));
 }
 function editorDocumentFromStored(value2, type) {
   const editor = validateEditorDocument(value2);
@@ -28865,7 +30080,7 @@ function validatedDocumentPatch(value2, type) {
   return editorDocumentFromStored(value2, type) && isLegacyPageDocument(value2) ? value2 : null;
 }
 function emptyEditorDocument(name, type) {
-  const slug2 = slugify2(name);
+  const slug3 = slugify2(name);
   return {
     version: 2,
     name,
@@ -28874,7 +30089,7 @@ function emptyEditorDocument(name, type) {
     templateId: null,
     templateVersion: 1,
     theme: { ...DEFAULT_PAGE_THEME },
-    pages: [{ id: `page-${slug2}`, name, slug: slug2, sections: [] }],
+    pages: [{ id: `page-${slug3}`, name, slug: slug3, sections: [] }],
     assets: []
   };
 }
@@ -28916,7 +30131,7 @@ function pagesRoutes(deps) {
     if (!isPageType(body.type)) return c.json({ error: "invalid type" }, 400);
     const name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Page";
     const workspace = await ensureWorkspace(deps.store, user.id);
-    const slug2 = await uniqueSlug(deps.store, workspace.id, slugify2(name));
+    const slug3 = await uniqueSlug(deps.store, workspace.id, slugify2(name));
     let document2;
     if (body.creationFormat === void 0) {
       document2 = emptyEditorDocument(name, body.type);
@@ -28934,8 +30149,8 @@ function pagesRoutes(deps) {
       if (typeof body.templateId === "string") templateId = body.templateId.trim();
       if (templateId) {
         try {
-          const template2 = recipeForTemplate(templateId);
-          if (template2.format !== format) return c.json({ error: "invalid template" }, 400);
+          const template3 = recipeForTemplate(templateId);
+          if (template3.format !== format) return c.json({ error: "invalid template" }, 400);
         } catch {
           return c.json({ error: "invalid template" }, 400);
         }
@@ -28962,7 +30177,7 @@ function pagesRoutes(deps) {
     const page = await deps.store.createPage({
       workspaceId: workspace.id,
       name,
-      slug: slug2,
+      slug: slug3,
       type: body.type,
       status: "draft",
       document: document2
@@ -29002,11 +30217,11 @@ function pagesRoutes(deps) {
     const document2 = editorDocumentFromStored(loaded.page.document, loaded.page.type);
     if (!document2) return c.json(INVALID_STORED_DOCUMENT, 422);
     const name = `${loaded.page.name} copy`;
-    const slug2 = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify2(name));
+    const slug3 = await uniqueSlug(deps.store, loaded.page.workspaceId, slugify2(name));
     const copy = await deps.store.createPage({
       workspaceId: loaded.page.workspaceId,
       name,
-      slug: slug2,
+      slug: slug3,
       type: loaded.page.type,
       status: "draft",
       document: document2
@@ -29037,7 +30252,12 @@ function pagesRoutes(deps) {
         themes = [];
       }
     }
-    return c.json({ pro: access.allowed, documentVersion: loaded.page.documentVersion, shopify: { connected: connection2?.status === "connected", shopDomain: connection2?.shopDomain ?? null, themes } });
+    const document2 = editorDocumentFromStored(loaded.page.document, loaded.page.type);
+    const capabilityReport = document2 ? buildCapabilityReport({
+      sections: document2.pages.flatMap((page) => page.sections),
+      shopify: { connected: connection2?.status === "connected", hasProductData: connection2?.status === "connected", markets: connection2?.status === "connected", localization: connection2?.status === "connected" }
+    }) : void 0;
+    return c.json({ pro: access.allowed, documentVersion: loaded.page.documentVersion, capabilityReport, shopify: { connected: connection2?.status === "connected", shopDomain: connection2?.shopDomain ?? null, themes } });
   });
   app2.post("/pages/:id/publish", async (c) => {
     const user = await requireUser(deps, c.req.raw);
@@ -29068,6 +30288,25 @@ function pagesRoutes(deps) {
     if (destination !== "shopify" || !shopify || shopify.status !== "connected") return c.json({ error: "shopify_required", message: "Connecte Shopify avant de publier." }, 409);
     const updated = loaded.page;
     const previewUrl = `/s/${workspace.slug}/${updated.slug}`;
+    const editorDocument = isEditorDocument(updated.document) ? updated.document : null;
+    let customSections = [];
+    if (editorDocument) {
+      try {
+        customSections = await customPublicationsForDocument(deps.store, workspace.id, editorDocument);
+      } catch (error) {
+        return c.json({ error: "custom_section_unavailable", message: error instanceof Error ? error.message : "La section Canardo ne peut pas \xEAtre publi\xE9e." }, 409);
+      }
+    }
+    const capabilityReport = editorDocument ? buildCapabilityReport({
+      sections: editorDocument.pages.flatMap((page) => page.sections),
+      shopify: { connected: true, hasProductData: true, markets: true, localization: true }
+    }) : void 0;
+    const customCapabilityReport = customSections.length ? buildCapabilityReport({
+      capabilities: customSections.flatMap((section2) => section2.section.spec.requiredCapabilities),
+      shopify: { connected: true, hasProductData: true, markets: true, localization: true }
+    }) : void 0;
+    const capabilityBlockers = [...capabilityReport?.blockers ?? [], ...customCapabilityReport?.blockers ?? []];
+    if (capabilityBlockers.length) return c.json({ error: "shopify_capability_setup_required", message: capabilityBlockers.join(" "), capabilityReport: { ...capabilityReport, blockers: capabilityBlockers } }, 409);
     if (!deps.shopify) {
       return c.json({
         status: "draft",
@@ -29077,10 +30316,10 @@ function pagesRoutes(deps) {
       });
     }
     const token = resolveShopifyToken(shopify.tokenEncrypted, deps.encryptionKey);
-    if (isEditorDocument(updated.document)) {
+    if (editorDocument) {
       if (!deps.shopify.publishEditor) return c.json({ error: "editor_publish_unavailable", status: "draft", previewUrl }, 503);
       try {
-        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: updated.document, pageName: updated.name, strategy, ...typeof body.themeId === "string" ? { themeId: body.themeId } : {}, replaceGlobalTemplate: body.replaceGlobalTemplate === true });
+        const result = await deps.shopify.publishEditor({ shop: shopify.shopDomain, token, document: editorDocument, pageName: updated.name, strategy, ...typeof body.themeId === "string" ? { themeId: body.themeId } : {}, replaceGlobalTemplate: body.replaceGlobalTemplate === true, customSections });
         const published2 = await deps.store.updatePage(loaded.page.id, { status: "published_shopify" });
         return c.json({ status: published2.status, shopify: "published", previewUrl, shopifyPreviewUrl: result.previewUrl, themeId: result.themeId, message: "Page publi\xE9e dans le th\xE8me Shopify choisi." });
       } catch {
@@ -29131,10 +30370,47 @@ function pagesRoutes(deps) {
       let proposal = body.confirm === true && body.response ? body.response : null;
       if (!proposal) {
         try {
-          proposal = deps.llm?.completeEditor ? await deps.llm.completeEditor({ prompt, context: buildCanardoContext(editorDocument, selectedId, { connected: false }) }) : planCanardoLocally(prompt, editorDocument, selectedId);
-        } catch {
+          const generated = deps.llm?.completeEditor ? await deps.llm.completeEditor({ prompt, context: { ...buildCanardoContext(editorDocument, selectedId, { connected: false }), customSectionSchema: CUSTOM_SECTION_JSON_SCHEMA } }) : planCanardoLocally(prompt, editorDocument, selectedId);
+          const context = buildCanardoContext(editorDocument, selectedId, { connected: false });
+          const catalog = (context.catalog ?? []).map((item3) => ({ type: item3.type, purpose: item3.purpose, title: item3.title }));
+          if (customSectionNeeded(prompt, catalog)) {
+            const plannerContext = { document: editorDocument, selectedId, catalog, shopify: { connected: false, hasProductData: false } };
+            proposal = record2(generated) && generated.mode === "custom-section" ? await planCustomSection(prompt, plannerContext, async () => generated.spec) : await planCustomSection(prompt, plannerContext);
+          } else proposal = generated;
+        } catch (error) {
+          if (error instanceof Error && error.message.startsWith("proposition non s\xE9curis\xE9e")) return c.json({ error: "invalid_operations", message: "La proposition Canardo n\u2019est pas s\xFBre." }, 400);
           return c.json({ error: "generation", message: "Canardo n\u2019a pas pu terminer la g\xE9n\xE9ration. Ta page est conserv\xE9e." }, 502);
         }
+      }
+      if (record2(proposal) && proposal.mode === "custom-section") {
+        const custom = proposal;
+        if (body.confirm !== true) return c.json(custom);
+        let confirmed;
+        try {
+          const stored = await customSectionService(deps.store).save({
+            workspaceId: loaded.page.workspaceId,
+            spec: custom.spec,
+            checksum: custom.checksum,
+            validation: custom.validation,
+            authorUserId: user.id
+          });
+          confirmed = confirmCustomProposal(custom, editorDocument, selectedId, stored);
+        } catch (error) {
+          return c.json({ error: "invalid_operations", message: error instanceof Error ? error.message : "La proposition Canardo n\u2019est pas s\xFBre." }, 400);
+        }
+        const customValidation = validateCanardoResponse(confirmed, editorDocument);
+        if (!customValidation.ok) return c.json({ error: "invalid_operations", message: "La proposition Canardo n\u2019est pas s\xFBre.", details: customValidation.errors }, 400);
+        const applied3 = applyCanardoOperations(editorDocument, confirmed);
+        const cost3 = /\b(image|photo|visuel)\b/i.test(prompt) ? 3 : 1;
+        let nextLedger3;
+        try {
+          nextLedger3 = spendCredits(ledger, cost3);
+        } catch {
+          return c.json({ error: "credits", cta: "Ajouter des cr\xE9dits" }, 402);
+        }
+        const page3 = await deps.store.updatePage(loaded.page.id, { document: applied3.document });
+        await deps.store.saveCredits(nextLedger3);
+        return c.json({ ...confirmed, document: page3.document, credits: nextLedger3, requiresConfirmation: false });
       }
       const validation = validateCanardoResponse(proposal, editorDocument);
       if (!validation.ok) return c.json({ error: "invalid_operations", message: "La proposition Canardo n\u2019est pas s\xFBre.", details: validation.errors }, 400);
@@ -29578,6 +30854,25 @@ function shopifyRoutes(deps) {
       shopDomain: conn?.shopDomain ?? null
     });
   });
+  app2.post("/shopify/capabilities", async (c) => {
+    const user = await requireUser(deps, c.req.raw);
+    if (!user) return c.json({ error: "unauthorized" }, 401);
+    const workspace = await ensureWorkspace(deps.store, user.id);
+    const connection2 = await deps.store.getShopify(workspace.id);
+    const body = await c.req.json().catch(() => ({}));
+    const sections = Array.isArray(body.sections) ? body.sections.flatMap((item3) => {
+      if (!item3 || typeof item3 !== "object" || typeof item3.type !== "string") return [];
+      const type = item3.type;
+      return getSectionDefinition(type) ? [{ type, settings: {} }] : [];
+    }) : [];
+    const report = buildCapabilityReport({ sections, shopify: {
+      connected: connection2?.status === "connected",
+      hasProductData: connection2?.status === "connected",
+      markets: connection2?.status === "connected",
+      localization: connection2?.status === "connected"
+    } });
+    return c.json(report);
+  });
   app2.get("/shopify/products", async (c) => {
     const cursor = c.req.query("cursor")?.trim() || null;
     if (cursor && cursor.length > 1e3) return c.json({ error: "invalid_cursor", message: "Cette page de catalogue n\u2019est plus valide. Recharge le catalogue." }, 400);
@@ -29652,6 +30947,29 @@ import { Hono as Hono8 } from "hono";
 import { readFileSync as readFileSync2 } from "node:fs";
 import { join as join2 } from "node:path";
 
+// src/editor/render/premium-section-styles.ts
+var premiumSectionStyles = String.raw`
+:root{--wf-canvas-bg:var(--wf-profile-background,var(--wf-background,#fff));--wf-canvas-surface:var(--wf-profile-surface,var(--wf-surface,#fff));--wf-canvas-ink:var(--wf-profile-ink,var(--wf-ink,#151515));--wf-canvas-accent:var(--wf-profile-accent,var(--wf-accent,#e8dfcf));--wf-canvas-gap:var(--wf-profile-gap,20px);--wf-canvas-radius:var(--wf-profile-card-radius,18px);--wf-canvas-button-radius:var(--wf-profile-button-radius,999px);--wf-canvas-border:var(--wf-profile-border-color,color-mix(in srgb,var(--wf-canvas-ink) 17%,transparent));--wf-canvas-motion:var(--wf-profile-motion,220ms)}
+.wf-product-hero,.wf-buy-box,.wf-variant-selector,.wf-quantity-offer,.wf-fixed-bundle,.wf-subscription-selector,.wf-preorder-selector,.wf-benefits-results,.wf-product-media,.wf-before-after,.wf-reviews-ugc,.wf-faq-trust,.wf-recommendations,.wf-advertorialMasthead,.wf-authorLine,.wf-editorialBody,.wf-evidenceCallout,.wf-inlineProduct,.wf-conversionClose,.wf-listicleIndex,.wf-numberedReason,.wf-comparisonInsert,.wf-productRecommendation,.wf-quizProgress,.wf-quizQuestion,.wf-quizResult,.wf-leadCapture,.wf-brandManifesto,.wf-founderStory,.wf-editorialChapter,.wf-campaignLookbook,.wf-comparison{--wf-pack-bg:var(--wf-bg,var(--wf-canvas-bg));--wf-pack-ink:var(--wf-color,var(--wf-canvas-ink));color:var(--wf-pack-ink);padding-block:clamp(48px,var(--wf-profile-section,88px),112px)}
+.wf-section :is(a,button,input,select,summary):focus-visible{outline:2px solid var(--wf-canvas-accent);outline-offset:3px}.wf-section__button{border-radius:var(--wf-canvas-button-radius)!important}.wf-section__grid{gap:var(--wf-canvas-gap)}
+.wf-product-hero .wf-section__card,.wf-buy-box .wf-section__card,.wf-variant-selector .wf-section__card,.wf-quantity-offer .wf-section__card,.wf-fixed-bundle .wf-section__card,.wf-subscription-selector .wf-section__card,.wf-preorder-selector .wf-section__card,.wf-benefits-results .wf-section__card,.wf-product-media .wf-section__card,.wf-before-after .wf-section__card,.wf-reviews-ugc .wf-section__card,.wf-faq-trust .wf-section__card,.wf-recommendations .wf-section__card,.wf-advertorialMasthead .wf-section__card,.wf-editorialBody .wf-section__card,.wf-evidenceCallout .wf-section__card,.wf-inlineProduct .wf-section__card,.wf-conversionClose .wf-section__card,.wf-listicleIndex .wf-section__card,.wf-numberedReason .wf-section__card,.wf-comparisonInsert .wf-section__card,.wf-productRecommendation .wf-section__card,.wf-quizProgress .wf-section__card,.wf-quizQuestion .wf-section__card,.wf-quizResult .wf-section__card,.wf-leadCapture .wf-section__card,.wf-brandManifesto .wf-section__card,.wf-founderStory .wf-section__card,.wf-editorialChapter .wf-section__card,.wf-campaignLookbook .wf-section__card{border:var(--wf-profile-border-width,1px) solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:color-mix(in srgb,var(--wf-canvas-surface) 95%,var(--wf-pack-bg));box-shadow:0 1px 1px color-mix(in srgb,var(--wf-pack-ink) 5%,transparent);transition:transform var(--wf-canvas-motion) ease,box-shadow var(--wf-canvas-motion) ease,border-color var(--wf-canvas-motion) ease}
+.wf-product-hero .wf-section__card:hover,.wf-buy-box .wf-section__card:hover,.wf-variant-selector .wf-section__card:hover,.wf-quantity-offer .wf-section__card:hover,.wf-fixed-bundle .wf-section__card:hover,.wf-subscription-selector .wf-section__card:hover,.wf-preorder-selector .wf-section__card:hover,.wf-benefits-results .wf-section__card:hover,.wf-product-media .wf-section__card:hover,.wf-before-after .wf-section__card:hover,.wf-reviews-ugc .wf-section__card:hover,.wf-faq-trust .wf-section__card:hover,.wf-recommendations .wf-section__card:hover,.wf-advertorialMasthead .wf-section__card:hover,.wf-editorialBody .wf-section__card:hover,.wf-evidenceCallout .wf-section__card:hover,.wf-inlineProduct .wf-section__card:hover,.wf-conversionClose .wf-section__card:hover,.wf-listicleIndex .wf-section__card:hover,.wf-numberedReason .wf-section__card:hover,.wf-comparisonInsert .wf-section__card:hover,.wf-productRecommendation .wf-section__card:hover,.wf-quizProgress .wf-section__card:hover,.wf-quizQuestion .wf-section__card:hover,.wf-quizResult .wf-section__card:hover,.wf-leadCapture .wf-section__card:hover,.wf-brandManifesto .wf-section__card:hover,.wf-founderStory .wf-section__card:hover,.wf-editorialChapter .wf-section__card:hover,.wf-campaignLookbook .wf-section__card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--wf-pack-ink) 34%,var(--wf-canvas-border));box-shadow:0 14px 28px color-mix(in srgb,var(--wf-pack-ink) 11%,transparent)}
+
+/* Product hero, buy box, options, quantity, bundle, subscriptions and recommendations. */
+.wf-product-hero,.wf-buy-box,.wf-variant-selector,.wf-quantity-offer,.wf-fixed-bundle,.wf-subscription-selector,.wf-preorder-selector,.wf-inlineProduct,.wf-productRecommendation{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);grid-template-areas:"media head" "media cards" "media form";align-items:start;column-gap:clamp(26px,5vw,78px);row-gap:18px}.wf-product-hero>header,.wf-buy-box>header,.wf-variant-selector>header,.wf-quantity-offer>header,.wf-fixed-bundle>header,.wf-subscription-selector>header,.wf-preorder-selector>header,.wf-inlineProduct>header,.wf-productRecommendation>header{grid-area:head}.wf-product-hero>.wf-section__media,.wf-buy-box>.wf-section__media,.wf-variant-selector>.wf-section__media,.wf-quantity-offer>.wf-section__media,.wf-fixed-bundle>.wf-section__media,.wf-subscription-selector>.wf-section__media,.wf-preorder-selector>.wf-section__media,.wf-inlineProduct>.wf-section__media,.wf-productRecommendation>.wf-section__media{grid-area:media;position:sticky;top:20px;overflow:hidden;border-radius:calc(var(--wf-canvas-radius) + 2px);background:var(--wf-canvas-surface)}.wf-product-hero>.wf-section__media img,.wf-buy-box>.wf-section__media img,.wf-variant-selector>.wf-section__media img,.wf-quantity-offer>.wf-section__media img,.wf-fixed-bundle>.wf-section__media img,.wf-subscription-selector>.wf-section__media img,.wf-preorder-selector>.wf-section__media img,.wf-inlineProduct>.wf-section__media img,.wf-productRecommendation>.wf-section__media img{width:100%;min-height:520px;aspect-ratio:4/5;object-fit:cover;transition:transform calc(var(--wf-canvas-motion)*2) ease}.wf-product-hero>.wf-section__media:hover img,.wf-buy-box>.wf-section__media:hover img,.wf-variant-selector>.wf-section__media:hover img,.wf-quantity-offer>.wf-section__media:hover img,.wf-fixed-bundle>.wf-section__media:hover img,.wf-subscription-selector>.wf-section__media:hover img,.wf-preorder-selector>.wf-section__media:hover img,.wf-inlineProduct>.wf-section__media:hover img,.wf-productRecommendation>.wf-section__media:hover img{transform:scale(1.025)}.wf-product-hero>.wf-section__grid,.wf-buy-box>.wf-section__grid,.wf-variant-selector>.wf-section__grid,.wf-quantity-offer>.wf-section__grid,.wf-fixed-bundle>.wf-section__grid,.wf-subscription-selector>.wf-section__grid,.wf-preorder-selector>.wf-section__grid,.wf-inlineProduct>.wf-section__grid,.wf-productRecommendation>.wf-section__grid{grid-area:cards;margin-top:0;grid-template-columns:repeat(2,minmax(0,1fr))}.wf-product-hero .wf-product__form,.wf-buy-box .wf-product__form,.wf-variant-selector .wf-product__form,.wf-quantity-offer .wf-product__form,.wf-fixed-bundle .wf-product__form,.wf-subscription-selector .wf-product__form,.wf-preorder-selector .wf-product__form,.wf-inlineProduct .wf-product__form,.wf-productRecommendation .wf-product__form{grid-area:form;display:grid;grid-template-columns:1fr minmax(100px,.45fr);gap:12px;margin-top:6px;padding:16px;border:1px solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface);box-shadow:0 12px 30px color-mix(in srgb,var(--wf-pack-ink) 6%,transparent)}.wf-product-hero .wf-product__form label,.wf-buy-box .wf-product__form label,.wf-variant-selector .wf-product__form label,.wf-quantity-offer .wf-product__form label,.wf-fixed-bundle .wf-product__form label,.wf-subscription-selector .wf-product__form label,.wf-preorder-selector .wf-product__form label,.wf-inlineProduct .wf-product__form label,.wf-productRecommendation .wf-product__form label{display:grid;gap:6px;font-size:11px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}.wf-product-hero .wf-product__form :is(input,select),.wf-buy-box .wf-product__form :is(input,select),.wf-variant-selector .wf-product__form :is(input,select),.wf-quantity-offer .wf-product__form :is(input,select),.wf-fixed-bundle .wf-product__form :is(input,select),.wf-subscription-selector .wf-product__form :is(input,select),.wf-preorder-selector .wf-product__form :is(input,select),.wf-inlineProduct .wf-product__form :is(input,select),.wf-productRecommendation .wf-product__form :is(input,select){width:100%;min-height:46px;border:1px solid var(--wf-canvas-border);border-radius:10px;background:var(--wf-pack-bg);color:inherit;padding:0 11px;font:inherit;letter-spacing:normal;text-transform:none}.wf-product-hero .wf-product__form button,.wf-buy-box .wf-product__form button,.wf-variant-selector .wf-product__form button,.wf-quantity-offer .wf-product__form button,.wf-fixed-bundle .wf-product__form button,.wf-subscription-selector .wf-product__form button,.wf-preorder-selector .wf-product__form button,.wf-inlineProduct .wf-product__form button,.wf-productRecommendation .wf-product__form button{grid-column:1/-1;width:100%;margin:2px 0 0;border-radius:var(--wf-canvas-button-radius);background:var(--wf-pack-ink);color:var(--wf-canvas-surface);transition:transform var(--wf-canvas-motion) ease,filter var(--wf-canvas-motion) ease}.wf-product-hero .wf-product__form button:hover,.wf-buy-box .wf-product__form button:hover,.wf-variant-selector .wf-product__form button:hover,.wf-quantity-offer .wf-product__form button:hover,.wf-fixed-bundle .wf-product__form button:hover,.wf-subscription-selector .wf-product__form button:hover,.wf-preorder-selector .wf-product__form button:hover,.wf-inlineProduct .wf-product__form button:hover,.wf-productRecommendation .wf-product__form button:hover{filter:brightness(1.12);transform:translateY(-1px)}.wf-product-hero[data-wf-variant="clinical-proof"] .wf-section__card:first-child,.wf-quantity-offer .wf-section__card:first-child,.wf-fixed-bundle[data-wf-variant="gift-set"] .wf-section__card:first-child{border:2px solid var(--wf-canvas-ink);background:color-mix(in srgb,var(--wf-canvas-accent) 18%,var(--wf-canvas-surface))}.wf-variant-selector[data-wf-variant="pills"]>.wf-section__grid{display:flex;flex-wrap:wrap}.wf-variant-selector[data-wf-variant="pills"] .wf-section__card{padding:10px 14px;border-radius:999px}.wf-variant-selector[data-wf-variant="image-cards"] .wf-section__card img{aspect-ratio:4/3;object-fit:cover;margin:-24px -24px 14px;width:calc(100% + 48px);border-radius:calc(var(--wf-canvas-radius) - 1px) calc(var(--wf-canvas-radius) - 1px) 0 0}.wf-subscription-selector[data-wf-variant="benefit-led"] .wf-section__grid,.wf-preorder-selector[data-wf-variant="limited"] .wf-section__grid{grid-template-columns:1fr}
+
+/* Benefits, media, before/after, UGC, comparison, FAQ and trust. */
+.wf-benefits-results .wf-section__grid,.wf-product-media .wf-section__grid,.wf-reviews-ugc .wf-section__grid,.wf-recommendations .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-benefits-results .wf-section__card{min-height:190px;padding:24px;display:flex;flex-direction:column;justify-content:end}.wf-benefits-results .wf-section__card:first-child{background:var(--wf-canvas-accent);border-color:transparent}.wf-benefits-results[data-wf-variant="proof-timeline"] .wf-section__grid{counter-reset:proof}.wf-benefits-results[data-wf-variant="proof-timeline"] .wf-section__card{position:relative;padding-top:62px;counter-increment:proof}.wf-benefits-results[data-wf-variant="proof-timeline"] .wf-section__card::before{content:"0" counter(proof);position:absolute;top:18px;left:22px;font-size:12px;font-weight:800;letter-spacing:.1em;opacity:.55}.wf-product-media figure,.wf-advertorialMasthead figure,.wf-brandManifesto figure,.wf-founderStory figure,.wf-editorialChapter figure{margin:0 0 28px;overflow:hidden;border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface)}.wf-product-media figure img,.wf-advertorialMasthead figure img,.wf-brandManifesto figure img,.wf-founderStory figure img,.wf-editorialChapter figure img{display:block;width:100%;aspect-ratio:16/8;object-fit:cover;transition:transform calc(var(--wf-canvas-motion)*2) ease}.wf-product-media figure:hover img,.wf-advertorialMasthead figure:hover img,.wf-brandManifesto figure:hover img,.wf-founderStory figure:hover img,.wf-editorialChapter figure:hover img{transform:scale(1.018)}.wf-product-media[data-wf-variant="masonry"] .wf-section__card:nth-child(2),.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__card:nth-child(2n){transform:translateY(24px)}.wf-before-after .wf-section__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(12px,2vw,24px)}.wf-before-after .wf-section__card{padding:12px}.wf-before-after .wf-section__card img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:calc(var(--wf-canvas-radius) - 8px)}.wf-before-after[data-wf-variant="slider"] .wf-section__grid{gap:0;overflow:hidden;border-radius:var(--wf-canvas-radius)}.wf-before-after[data-wf-variant="slider"] .wf-section__card{border-radius:0;border-width:0}.wf-reviews-ugc{background:linear-gradient(135deg,color-mix(in srgb,var(--wf-canvas-accent) 22%,transparent),transparent)}.wf-reviews-ugc .wf-section__card{padding:20px}.wf-reviews-ugc .wf-section__card cite{display:block;margin-top:16px;font-style:normal;font-size:12px;font-weight:800;opacity:.65}.wf-reviews-ugc .wf-section__card img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:calc(var(--wf-canvas-radius) - 6px)}.wf-reviews-ugc[data-wf-variant="spotlight"] .wf-section__card:first-child{grid-column:span 2;min-height:250px;background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__grid{grid-template-columns:repeat(4,minmax(0,1fr))}.wf-comparison,.wf-comparisonInsert{padding:clamp(38px,6vw,78px);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-comparison [role="table"]{display:grid;gap:1px;margin-top:32px;overflow:hidden;border:1px solid color-mix(in srgb,var(--wf-canvas-surface) 24%,transparent);border-radius:calc(var(--wf-canvas-radius) - 4px)}.wf-comparison [role="table"]>*{display:grid;grid-template-columns:1.2fr 1fr 1fr;padding:17px 20px;background:color-mix(in srgb,var(--wf-canvas-surface) 8%,transparent)}.wf-comparisonInsert .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-comparisonInsert .wf-section__card{background:color-mix(in srgb,var(--wf-canvas-surface) 10%,transparent);color:inherit;border-color:color-mix(in srgb,var(--wf-canvas-surface) 25%,transparent)}.wf-comparisonInsert[data-wf-variant="versus"] .wf-section__card:first-child{background:var(--wf-canvas-accent);color:var(--wf-canvas-ink);border-color:transparent}.wf-faq-trust{display:grid;grid-template-columns:minmax(0,.68fr) minmax(0,1.32fr);gap:clamp(28px,6vw,88px)}.wf-faq-trust>.wf-section__grid{grid-column:2;grid-row:1/span 2;margin-top:0;grid-template-columns:1fr}.wf-faq-trust .wf-section__card{padding:20px 22px}.wf-faq-trust .wf-section__card h3{margin:0;font-size:17px}.wf-faq-trust .wf-section__card p{margin-bottom:0;opacity:.72}.wf-faq-trust[data-wf-variant="guarantee-cards"]{display:block}.wf-faq-trust[data-wf-variant="guarantee-cards"]>.wf-section__grid{margin-top:34px;grid-template-columns:repeat(3,minmax(0,1fr))}.wf-recommendations .wf-section__card{padding:12px}.wf-recommendations .wf-section__card img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:calc(var(--wf-canvas-radius) - 7px)}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__grid{grid-template-columns:1fr}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__card{display:grid;grid-template-columns:100px 1fr;align-items:center;gap:16px}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__card img{grid-row:span 3;aspect-ratio:1}
+
+/* Advertorial, listicle and brand-story reading systems. */
+.wf-advertorialMasthead,.wf-brandManifesto,.wf-founderStory,.wf-editorialChapter{max-width:1060px}.wf-advertorialMasthead header,.wf-brandManifesto header,.wf-founderStory header,.wf-editorialChapter header{max-width:760px}.wf-advertorialMasthead h2,.wf-brandManifesto h2,.wf-founderStory h2,.wf-editorialChapter h2{font-size:clamp(48px,7vw,104px);letter-spacing:-.065em}.wf-authorLine{max-width:760px;padding-block:18px;border-block:1px solid var(--wf-canvas-border)}.wf-authorLine .wf-section__grid{grid-template-columns:1fr;margin-top:0}.wf-authorLine .wf-section__card{padding:0;border:0;background:transparent;box-shadow:none}.wf-editorialBody{max-width:760px}.wf-editorialBody .wf-section__grid{grid-template-columns:1fr;gap:0;margin-top:28px}.wf-editorialBody .wf-section__card{padding:26px 0;border-width:0 0 1px;border-radius:0;background:transparent;box-shadow:none}.wf-editorialBody .wf-section__card h3{font-size:clamp(22px,3vw,32px);letter-spacing:-.03em}.wf-editorialBody .wf-section__card p{max-width:62ch;font-size:18px;line-height:1.65}.wf-evidenceCallout{max-width:820px;padding:clamp(26px,5vw,52px);border-left:4px solid var(--wf-canvas-accent);background:color-mix(in srgb,var(--wf-canvas-accent) 13%,transparent)}.wf-evidenceCallout .wf-section__grid{grid-template-columns:1fr;margin-top:0}.wf-evidenceCallout .wf-section__card{padding:0;border:0;background:transparent;box-shadow:none}.wf-inlineProduct{max-width:920px;padding:24px;border:1px solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface)}.wf-conversionClose{max-width:1120px;padding:clamp(34px,7vw,84px);text-align:center;border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-conversionClose header{max-width:700px;margin-inline:auto}.wf-conversionClose .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-conversionClose .wf-section__card{background:color-mix(in srgb,var(--wf-canvas-surface) 9%,transparent);color:inherit;border-color:color-mix(in srgb,var(--wf-canvas-surface) 18%,transparent)}.wf-conversionClose .wf-section__button{background:var(--wf-canvas-accent);color:var(--wf-canvas-ink)}.wf-listicleIndex{max-width:900px}.wf-listicleIndex .wf-section__grid{grid-template-columns:1fr;margin-top:28px;counter-reset:listicle}.wf-listicleIndex .wf-section__card{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:center;padding:18px 20px;counter-increment:listicle}.wf-listicleIndex .wf-section__card::before{content:counter(listicle,decimal-leading-zero);font-weight:850;font-size:13px;opacity:.55}.wf-listicleIndex .wf-section__card h3,.wf-listicleIndex .wf-section__card p{grid-column:2;margin:0}.wf-listicleIndex[data-wf-variant="cards"] .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-listicleIndex[data-wf-variant="cards"] .wf-section__card{display:block;min-height:160px}.wf-listicleIndex[data-wf-variant="cards"] .wf-section__card::before{display:block;margin-bottom:36px}.wf-numberedReason{max-width:880px;display:grid;grid-template-columns:150px 1fr;gap:clamp(24px,5vw,72px);border-top:1px solid var(--wf-canvas-border)}.wf-numberedReason header::before{content:"01";display:block;margin-bottom:10px;font-size:12px;font-weight:800;letter-spacing:.12em;opacity:.55}.wf-numberedReason>.wf-section__grid{grid-column:2;margin-top:0;grid-template-columns:1fr}.wf-numberedReason .wf-section__card{padding:0;border:0;background:transparent;box-shadow:none}.wf-numberedReason[data-wf-variant="proof"] .wf-section__card{padding:28px;border-left:3px solid var(--wf-canvas-accent);background:color-mix(in srgb,var(--wf-canvas-accent) 9%,transparent)}.wf-brandManifesto{padding:clamp(72px,12vw,150px) 0;text-align:center}.wf-brandManifesto header{margin-inline:auto}.wf-brandManifesto .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr));text-align:left}.wf-founderStory{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(30px,7vw,100px);align-items:center}.wf-founderStory figure{grid-row:1/span 2;margin:0}.wf-founderStory figure img{aspect-ratio:4/5}.wf-founderStory>.wf-section__grid{grid-column:2;margin-top:0;grid-template-columns:1fr}.wf-founderStory .wf-section__card{padding:0;border:0;background:transparent;box-shadow:none}.wf-founderStory[data-wf-variant="timeline"]>.wf-section__grid{border-left:1px solid var(--wf-canvas-border)}.wf-founderStory[data-wf-variant="timeline"] .wf-section__card{padding:8px 0 8px 24px;position:relative}.wf-founderStory[data-wf-variant="timeline"] .wf-section__card::before{content:"";position:absolute;left:-5px;top:17px;width:9px;height:9px;border-radius:50%;background:var(--wf-canvas-accent)}.wf-editorialChapter[data-wf-variant="split"]{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,7vw,100px);align-items:center}.wf-editorialChapter[data-wf-variant="split"] figure{grid-row:1/span 2;margin:0}.wf-editorialChapter[data-wf-variant="split"]>.wf-section__grid{grid-column:2;margin-top:0;grid-template-columns:1fr}.wf-editorialChapter[data-wf-variant="full-bleed"]{position:relative;max-width:none;width:100%;min-height:680px;padding-inline:max(28px,calc((100% - 1124px)/2));display:grid;align-content:end;color:var(--wf-canvas-surface);overflow:hidden}.wf-editorialChapter[data-wf-variant="full-bleed"] figure{position:absolute;inset:0;z-index:-1;margin:0;border-radius:0}.wf-editorialChapter[data-wf-variant="full-bleed"] figure::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.68),rgba(0,0,0,.06) 70%)}.wf-editorialChapter[data-wf-variant="full-bleed"] figure img{height:100%;aspect-ratio:auto}.wf-editorialChapter[data-wf-variant="full-bleed"]>.wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-editorialChapter[data-wf-variant="full-bleed"] .wf-section__card{background:rgba(255,255,255,.12);color:inherit;border-color:rgba(255,255,255,.23);backdrop-filter:blur(8px)}.wf-campaignLookbook .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:dense}.wf-campaignLookbook .wf-section__card{padding:0;overflow:hidden}.wf-campaignLookbook .wf-section__card img{width:100%;height:100%;min-height:260px;object-fit:cover;border-radius:0}.wf-campaignLookbook .wf-section__card h3,.wf-campaignLookbook .wf-section__card p{padding-inline:16px}.wf-campaignLookbook[data-wf-variant="masonry"] .wf-section__card:nth-child(3n+1){grid-row:span 2}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__grid{grid-template-columns:1fr}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card{display:grid;grid-template-columns:1fr 1fr;align-items:center}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card img{grid-row:span 2}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card:nth-child(even) img{order:2}
+
+/* Quiz and lead capture. */
+.wf-quizProgress,.wf-quizQuestion,.wf-quizResult,.wf-leadCapture{max-width:780px}.wf-quizProgress .wf-section__grid{grid-template-columns:repeat(3,1fr);margin-top:26px}.wf-quizProgress .wf-section__card{padding:12px 14px;text-align:center}.wf-quizProgress[data-wf-variant="bar"] .wf-section__grid{grid-template-columns:1fr}.wf-quizProgress[data-wf-variant="bar"] .wf-section__card{height:10px;padding:0;border:0;border-radius:999px;background:color-mix(in srgb,var(--wf-canvas-ink) 12%,transparent)}.wf-quizProgress[data-wf-variant="bar"] .wf-section__card:first-child{background:var(--wf-canvas-accent)}.wf-quizQuestion,.wf-quizResult{padding:clamp(36px,7vw,82px);border-radius:var(--wf-canvas-radius);background:color-mix(in srgb,var(--wf-canvas-accent) 18%,var(--wf-canvas-bg))}.wf-quizQuestion .wf-quiz__form{margin-top:28px}.wf-quizQuestion fieldset{border:0;margin:0;padding:0}.wf-quizQuestion legend{font-size:clamp(24px,4vw,38px);font-weight:760;line-height:1.08;letter-spacing:-.04em}.wf-quizQuestion label{display:flex;align-items:center;gap:12px;margin-top:14px;padding:17px 18px;border:1px solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface);cursor:pointer;transition:border-color var(--wf-canvas-motion) ease,transform var(--wf-canvas-motion) ease}.wf-quizQuestion label:hover{transform:translateX(4px);border-color:var(--wf-canvas-ink)}.wf-quizQuestion label:has(input:checked){border:2px solid var(--wf-canvas-ink)}.wf-quizQuestion .wf-quiz__form>button,.wf-leadCapture .wf-section__button{width:100%;border-radius:var(--wf-canvas-button-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-quizResult .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-quizResult .wf-section__card:first-child{background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-leadCapture{padding:clamp(30px,6vw,70px);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-leadCapture .wf-section__grid{grid-template-columns:1fr}.wf-leadCapture .wf-section__card{background:rgba(255,255,255,.09);color:inherit;border-color:rgba(255,255,255,.18)}.wf-leadCapture .wf-section__button{background:var(--wf-canvas-accent);color:var(--wf-canvas-ink)}
+@media(max-width:700px){.wf-product-hero,.wf-buy-box,.wf-variant-selector,.wf-quantity-offer,.wf-fixed-bundle,.wf-subscription-selector,.wf-preorder-selector,.wf-inlineProduct,.wf-productRecommendation,.wf-faq-trust,.wf-numberedReason,.wf-founderStory,.wf-editorialChapter[data-wf-variant="split"]{display:block}.wf-product-hero>.wf-section__media,.wf-buy-box>.wf-section__media,.wf-variant-selector>.wf-section__media,.wf-quantity-offer>.wf-section__media,.wf-fixed-bundle>.wf-section__media,.wf-subscription-selector>.wf-section__media,.wf-preorder-selector>.wf-section__media,.wf-inlineProduct>.wf-section__media,.wf-productRecommendation>.wf-section__media{position:static;margin:0 0 24px}.wf-product-hero .wf-section__media img,.wf-buy-box .wf-section__media img,.wf-variant-selector .wf-section__media img,.wf-quantity-offer .wf-section__media img,.wf-fixed-bundle .wf-section__media img,.wf-subscription-selector .wf-section__media img,.wf-preorder-selector .wf-section__media img,.wf-inlineProduct .wf-section__media img,.wf-productRecommendation .wf-section__media img{min-height:360px}.wf-product-hero>.wf-section__grid,.wf-buy-box>.wf-section__grid,.wf-variant-selector>.wf-section__grid,.wf-quantity-offer>.wf-section__grid,.wf-fixed-bundle>.wf-section__grid,.wf-subscription-selector>.wf-section__grid,.wf-preorder-selector>.wf-section__grid,.wf-inlineProduct>.wf-section__grid,.wf-productRecommendation>.wf-section__grid,.wf-benefits-results .wf-section__grid,.wf-product-media .wf-section__grid,.wf-reviews-ugc .wf-section__grid,.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__grid,.wf-comparisonInsert .wf-section__grid,.wf-faq-trust[data-wf-variant="guarantee-cards"]>.wf-section__grid,.wf-recommendations .wf-section__grid,.wf-conversionClose .wf-section__grid,.wf-listicleIndex[data-wf-variant="cards"] .wf-section__grid,.wf-brandManifesto .wf-section__grid,.wf-quizResult .wf-section__grid,.wf-campaignLookbook .wf-section__grid{grid-template-columns:1fr}.wf-product-hero .wf-product__form,.wf-buy-box .wf-product__form,.wf-variant-selector .wf-product__form,.wf-quantity-offer .wf-product__form,.wf-fixed-bundle .wf-product__form,.wf-subscription-selector .wf-product__form,.wf-preorder-selector .wf-product__form,.wf-inlineProduct .wf-product__form,.wf-productRecommendation .wf-product__form{grid-template-columns:1fr}.wf-before-after .wf-section__grid{grid-template-columns:1fr}.wf-reviews-ugc[data-wf-variant="spotlight"] .wf-section__card:first-child{grid-column:auto}.wf-product-media[data-wf-variant="masonry"] .wf-section__card:nth-child(2),.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__card:nth-child(2n){transform:none}.wf-comparison,.wf-comparisonInsert,.wf-quizQuestion,.wf-quizResult,.wf-leadCapture{width:calc(100% - 28px);padding:30px 20px}.wf-comparison [role="table"]>*{grid-template-columns:1fr;padding:15px}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__card{grid-template-columns:76px 1fr}.wf-editorialChapter[data-wf-variant="full-bleed"]{min-height:560px;padding-inline:20px}.wf-editorialChapter[data-wf-variant="full-bleed"]>.wf-section__grid{grid-template-columns:1fr}.wf-campaignLookbook[data-wf-variant="masonry"] .wf-section__card:nth-child(3n+1){grid-row:auto}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card{display:block}.wf-quizProgress .wf-section__grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.wf-product-hero *,.wf-buy-box *,.wf-variant-selector *,.wf-quantity-offer *,.wf-fixed-bundle *,.wf-subscription-selector *,.wf-preorder-selector *,.wf-benefits-results *,.wf-product-media *,.wf-before-after *,.wf-reviews-ugc *,.wf-faq-trust *,.wf-recommendations *,.wf-advertorialMasthead *,.wf-authorLine *,.wf-editorialBody *,.wf-evidenceCallout *,.wf-inlineProduct *,.wf-conversionClose *,.wf-listicleIndex *,.wf-numberedReason *,.wf-comparisonInsert *,.wf-productRecommendation *,.wf-quizProgress *,.wf-quizQuestion *,.wf-quizResult *,.wf-leadCapture *,.wf-brandManifesto *,.wf-founderStory *,.wf-editorialChapter *,.wf-campaignLookbook *,.wf-comparison *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+`;
+
 // src/editor/render/render-section.ts
 function escapeEditorHtml(value2) {
   return value2.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
@@ -29669,9 +30987,9 @@ function safeMedia(value2) {
   return "";
 }
 function blocks(section2) {
-  return section2.blocks.map((block) => {
-    const label = typeof block.settings.label === "string" ? block.settings.label : typeof block.settings.text === "string" ? block.settings.text : block.type;
-    return `<div class="wf-v2-block" data-wf-block-id="${escapeEditorHtml(block.id)}">${escapeEditorHtml(label)}</div>`;
+  return section2.blocks.map((block2) => {
+    const label = typeof block2.settings.label === "string" ? block2.settings.label : typeof block2.settings.text === "string" ? block2.settings.text : block2.type;
+    return `<div class="wf-v2-block" data-wf-block-id="${escapeEditorHtml(block2.id)}">${escapeEditorHtml(label)}</div>`;
   }).join("");
 }
 function editable(tag2, key, value2, className = "") {
@@ -29685,7 +31003,7 @@ function renderKnownSection(section2, pageName) {
   const price = text(section2, "price");
   const cta2 = text(section2, "cta", "cta_label", "button") || "D\xE9couvrir";
   const image2 = safeMedia(section2.settings.image);
-  const variant = text(section2, "variant") || "default";
+  const variant2 = text(section2, "variant") || "default";
   const media3 = image2 ? `<figure class="wf-v2-media"><img src="${image2}" alt="${title}"></figure>` : `<div class="wf-v2-media wf-v2-media--empty" aria-label="Image \xE0 ajouter"></div>`;
   const blockMarkup = blocks(section2);
   switch (section2.type) {
@@ -29694,9 +31012,9 @@ function renderKnownSection(section2, pageName) {
     case "footer":
       return `<footer class="wf-v2-wrap wf-v2-footer"><strong>${title}</strong><span>Con\xE7u avec Weflo</span>${blockMarkup}</footer>`;
     case "productHero":
-      return `<div class="wf-v2-wrap wf-v2-split wf-v2-hero--${variant}">${media3}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta2}</a>${blockMarkup}</div></div>`;
+      return `<div class="wf-v2-wrap wf-v2-split wf-v2-hero--${variant2}">${media3}<div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}${price ? editable("strong", "price", price, "wf-v2-price") : ""}<a class="wf-v2-button" href="#buy">${cta2}</a>${blockMarkup}</div></div>`;
     case "productMain":
-      return `<div class="wf-v2-wrap wf-v2-product wf-v2-product--${variant}"><div class="wf-v2-product__gallery">${media3}<div class="wf-v2-product__thumbs"><button>Image 1</button><button>Image 2</button></div></div><div class="wf-v2-product__buy-box">${editable("h1", "title", title)}${editable("p", "text", body)}<div class="wf-v2-product__prices">${editable("strong", "price", price, "wf-v2-price")}<s data-wf-edit-key="compare_at_price">${text(section2, "compare_at_price")}</s></div>${blockMarkup}<label>Quantit\xE9<input type="number" value="1" min="1"></label><div class="wf-v2-product__bundle">Solo \xB7 Duo \xB7 Pack</div><button class="wf-v2-button">${cta2}</button><p>Paiement s\xE9curis\xE9 \xB7 Commande suivie</p></div><div class="wf-v2-product__sticky"><span>${title}</span><strong>${price}</strong><button>${cta2}</button></div></div>`;
+      return `<div class="wf-v2-wrap wf-v2-product wf-v2-product--${variant2}"><div class="wf-v2-product__gallery">${media3}<div class="wf-v2-product__thumbs"><button>Image 1</button><button>Image 2</button></div></div><div class="wf-v2-product__buy-box">${editable("h1", "title", title)}${editable("p", "text", body)}<div class="wf-v2-product__prices">${editable("strong", "price", price, "wf-v2-price")}<s data-wf-edit-key="compare_at_price">${text(section2, "compare_at_price")}</s></div>${blockMarkup}<label>Quantit\xE9<input type="number" value="1" min="1"></label><div class="wf-v2-product__bundle">Solo \xB7 Duo \xB7 Pack</div><button class="wf-v2-button">${cta2}</button><p>Paiement s\xE9curis\xE9 \xB7 Commande suivie</p></div><div class="wf-v2-product__sticky"><span>${title}</span><strong>${price}</strong><button>${cta2}</button></div></div>`;
     case "hero":
       return `<div class="wf-v2-wrap wf-v2-split"><div>${subtitle ? editable("p", "subtitle", subtitle, "wf-v2-kicker") : ""}${editable("h1", "title", title)}${body ? editable("p", "text", body) : ""}<a class="wf-v2-button" href="#start">${cta2}</a>${blockMarkup}</div>${media3}</div>`;
     case "bundle":
@@ -29723,12 +31041,12 @@ function rendererForSection(type) {
 function cssName(value2) {
   return value2.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`).replace(/[^a-z0-9-]/g, "");
 }
-function cssValue(key, value2) {
+function cssValue2(key, value2) {
   if (typeof value2 === "number" && !/^(opacity|zIndex|fontWeight|lineHeight)$/.test(key)) return `${value2}px`;
   return String(value2);
 }
 function styleRule(sectionId, style) {
-  const declarations = Object.entries(style).filter(([, value2]) => value2 !== null).map(([key, value2]) => `${cssName(key)}:${cssValue(key, value2)}`).join(";");
+  const declarations = Object.entries(style).filter(([, value2]) => value2 !== null).map(([key, value2]) => `${cssName(key)}:${cssValue2(key, value2)}`).join(";");
   return declarations ? `[data-wf-section-id="${escapeEditorHtml(sectionId)}"]{${declarations}}` : "";
 }
 function sectionStyles(section2) {
@@ -29754,18 +31072,19 @@ function renderEditorDocument(document2, options) {
     return `<section data-wf-section-id="${escapeEditorHtml(section2.id)}" data-wf-section-type="${escapeEditorHtml(section2.type)}"${selected}${hidden}>${rendererForSection(section2.type)(section2, page.name)}</section>`;
   }).join("");
   const theme = document2.theme;
+  const profileTokens = document2.designProfile ? designTokenStyle(document2.designProfile) : "";
   const radius = theme.radius === "none" ? "0px" : theme.radius === "round" ? "36px" : "18px";
   const headingFont = safeFont(document2.commerce?.brandKit.headingFont, themeFont(theme.display));
   const bodyFont = safeFont(document2.commerce?.brandKit.bodyFont, "Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif");
   const scopedStyles = `body{font-family:${bodyFont}}.wf-section h1,.wf-section h2,.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${headingFont}}.wf-hero>*{min-width:0}.wf-hero figure{overflow:hidden}.wf-hero__image{display:block;width:100%;height:100%;min-height:560px;max-height:760px;object-fit:cover;border-radius:${radius}}.wf-product-hero--beauty-editorial{grid-template-columns:.88fr 1.12fr;background:color-mix(in srgb,${theme.accent} 12%,${theme.background});padding-inline:clamp(24px,5vw,72px)}.wf-product-hero--beauty-editorial figure{order:2}.wf-product-hero--object-editorial{grid-template-columns:1.2fr .8fr}.wf-product-hero--object-editorial figure{padding:7%;background:${theme.surface}}.wf-product{display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(30px,6vw,80px);align-items:start}.wf-product__gallery{position:sticky;top:20px}.wf-product__image{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius}}.wf-product__buy-box{padding:clamp(24px,4vw,54px);background:${theme.surface};border-radius:${radius}}.wf-product--bundle-led .wf-product__buy-box{border:2px solid ${theme.ink}}.wf-benefits--ritual-cards .wf-section__grid{grid-template-columns:1.2fr 1fr 1fr}.wf-benefits--ritual-cards .wf-section__card:first-child{min-height:310px;background:${theme.accent}}.wf-benefits--technical-grid .wf-section__card{background:transparent;border-top:3px solid ${theme.ink}}.wf-testimonials--editorial-stories .wf-section__grid{grid-template-columns:1.35fr .85fr .85fr}.wf-testimonials--editorial-stories .wf-section__card:first-child{font-size:1.16em;background:${theme.ink};color:${theme.surface}}.wf-testimonials--ugc-grid .wf-section__card{padding:12px}.wf-testimonials--ugc-grid .wf-section__card img{aspect-ratio:4/3}.wf-bundle--routine-set{background:${theme.accent};border-radius:${radius};padding-inline:clamp(24px,5vw,64px)}.wf-bundle--quantity-break fieldset{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border:0;padding:0}.wf-bundle--quantity-break label{background:${theme.surface};border:1px solid color-mix(in srgb,${theme.ink} 20%,transparent);border-radius:${radius}}.wf-faq--editorial-accordion{max-width:900px}.wf-faq--support-columns{display:grid;grid-template-columns:.7fr 1.3fr;gap:60px}@media(max-width:700px){.wf-hero__image{min-height:390px}.wf-product,.wf-faq--support-columns{grid-template-columns:1fr}.wf-product__gallery{position:static}.wf-benefits--ritual-cards .wf-section__grid,.wf-testimonials--editorial-stories .wf-section__grid,.wf-bundle--quantity-break fieldset{grid-template-columns:1fr}}${page.sections.map(sectionStyles).join("")}`;
-  const productChromeStyles = `.wf-product__thumbs{display:flex;gap:8px;margin-top:12px}.wf-product__thumbs button{width:46px;min-height:46px;margin:0;padding:0;border-radius:14px;background:${theme.ink}}.wf-product__sticky{display:none}`;
+  const productChromeStyles = `.wf-product__thumbs{display:flex;gap:8px;margin-top:12px}.wf-product__thumbs button{width:46px;min-height:46px;margin:0;padding:0;border-radius:14px;background:${theme.ink}}.wf-product__sticky{display:none}:root{--wf-background:${theme.background};--wf-surface:${theme.surface};--wf-ink:${theme.ink};--wf-accent:${theme.accent};${profileTokens}}${premiumSectionStyles}`;
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeEditorHtml(document2.name)}</title><style>
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:${theme.background};color:${theme.ink};font:15px/1.5 Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif}a{color:inherit}.wf-section{width:min(1180px,calc(100% - 56px));margin-inline:auto;padding-block:clamp(54px,8vw,112px)}.wf-section h1,.wf-section h2{max-width:900px;margin:.12em 0 .35em;font-family:${themeFont(theme.display)};font-size:clamp(42px,6.5vw,92px);font-weight:700;line-height:.94;letter-spacing:-.055em}.wf-section__eyebrow{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.15em}.wf-section__copy{max-width:650px;font-size:clamp(17px,2vw,22px);line-height:1.45}.wf-section__button,.wf-section button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:24px;padding:0 22px;border:0;border-radius:${radius};background:${theme.ink};color:${theme.surface};font-weight:800;text-decoration:none;cursor:pointer}.wf-section__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:38px}.wf-section__card{padding:24px;border:1px solid color-mix(in srgb,${theme.ink} 14%,transparent);border-radius:${radius};background:${theme.surface}}.wf-section__card img,.wf-section__image{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:${radius}}.wf-media-empty{min-height:360px;background:linear-gradient(135deg,${theme.surface},color-mix(in srgb,${theme.accent} 70%,${theme.background}));border:1px dashed color-mix(in srgb,${theme.ink} 25%,transparent)}.wf-navigation{min-height:76px;padding-block:0;display:flex;align-items:center;justify-content:space-between;gap:24px}.wf-navigation>div{display:flex;gap:24px}.wf-navigation a{text-decoration:none}.wf-navigation__brand{font-weight:900;font-size:20px}.wf-navigation .wf-section__button{margin-top:0;min-height:40px}.wf-announcement{width:100%;padding:10px 28px;display:flex;justify-content:center;align-items:center;gap:18px;background:${theme.accent};text-align:center}.wf-announcement p{margin:0}.wf-announcement .wf-section__button{min-height:auto;margin:0;padding:0;background:transparent;color:inherit;text-decoration:underline}.wf-hero,.wf-image-text{min-height:680px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(32px,7vw,100px)}.wf-hero figure{margin:0}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{aspect-ratio:4/5;min-height:560px}.wf-video-hero{position:relative;width:100%;min-height:760px;padding:80px;display:grid;align-items:end;color:#fff;overflow:hidden}.wf-video-hero video,.wf-video-hero>.wf-section__image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.62)}.wf-video-hero>div{position:relative;z-index:1}.wf-gallery .wf-section__grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-before-after__media{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:36px}.wf-product form{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin-top:28px}.wf-product label{display:grid;gap:6px}.wf-product input,.wf-product select,.wf-form input{min-height:48px;padding:0 12px;border:1px solid color-mix(in srgb,${theme.ink} 25%,transparent);border-radius:10px;background:${theme.background}}.wf-bundle fieldset,.wf-quiz fieldset{display:grid;gap:8px;margin-top:28px;padding:20px;border:1px solid color-mix(in srgb,${theme.ink} 18%,transparent);border-radius:${radius}}.wf-bundle label{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:12px}.wf-bundle__total{display:block;margin-top:18px;font-size:22px;font-weight:800}.wf-faq details{padding:20px 0;border-bottom:1px solid color-mix(in srgb,${theme.ink} 18%,transparent)}.wf-faq summary{font-size:20px;font-weight:700;cursor:pointer}.wf-form form{display:flex;gap:10px;margin-top:30px}.wf-form label{display:grid;gap:5px;flex:1;max-width:440px}.wf-cta{width:min(1180px,calc(100% - 56px));margin-block:56px;padding:clamp(38px,7vw,90px);border-radius:${radius};background:${theme.accent}}.wf-footer{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid color-mix(in srgb,${theme.ink} 18%,transparent)}.wf-v2-wrap{width:min(1180px,calc(100% - 56px));margin-inline:auto}.wf-v2-nav,.wf-v2-footer{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px}.wf-v2-nav>div{display:flex;gap:20px}.wf-v2-nav a{text-decoration:none}.wf-v2-split{min-height:620px;padding-block:52px;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(28px,6vw,88px)}.wf-v2-media{margin:0;min-height:500px;background:${theme.surface};border-radius:${radius};overflow:hidden}.wf-v2-media img{display:block;width:100%;height:100%;min-height:500px;object-fit:cover}.wf-v2-media--empty{background:linear-gradient(145deg,${theme.surface},${theme.accent})}.wf-v2-kicker{text-transform:uppercase;font-size:11px;font-weight:800;letter-spacing:.14em}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-family:${themeFont(theme.display)};font-size:clamp(42px,6vw,84px);line-height:.96;letter-spacing:-.045em;margin:.2em 0}.wf-v2-price{display:block;font-size:26px;margin-top:24px}.wf-v2-button{display:inline-flex;margin-top:22px;padding:14px 22px;border-radius:999px;background:${theme.ink};color:${theme.surface};font-weight:800;text-decoration:none}.wf-v2-content{padding-block:90px;border-top:1px solid color-mix(in srgb,${theme.ink} 16%,transparent)}.wf-v2-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.wf-v2-grid article,.wf-v2-block{padding:22px;background:${theme.surface};border-radius:${radius}}.wf-v2-band{margin-block:56px;padding:44px;background:${theme.accent};border-radius:${radius};display:grid;grid-template-columns:1fr auto;gap:40px}.wf-v2-footer{border-top:1px solid ${theme.ink}}body[data-wf-mode="edit"] [data-wf-selected="true"]{outline:2px solid #315efb;outline-offset:-2px}body[data-wf-mode="edit"] [data-wf-hidden="true"]{opacity:.42}
 @media(max-width:700px){.wf-section{width:calc(100% - 28px);padding-block:54px}.wf-navigation>div{display:none}.wf-hero,.wf-image-text,.wf-footer{grid-template-columns:1fr;min-height:auto}.wf-hero .wf-section__image,.wf-image-text>.wf-section__image{min-height:390px}.wf-section__grid,.wf-gallery .wf-section__grid,.wf-before-after__media{grid-template-columns:1fr}.wf-video-hero{min-height:640px;padding:32px 20px}.wf-form form{display:grid}.wf-v2-wrap{width:calc(100% - 28px)}.wf-v2-nav>div{display:none}.wf-v2-split{grid-template-columns:1fr;min-height:auto;padding-block:24px}.wf-v2-media,.wf-v2-media img{min-height:390px}.wf-v2-grid{grid-template-columns:1fr}.wf-v2-band{grid-template-columns:1fr;padding:28px}.wf-v2-split h1,.wf-v2-split h2,.wf-v2-content h2,.wf-v2-band h2{font-size:48px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}${scopedStyles}${productChromeStyles}</style></head><body data-wf-mode="${options.mode}" data-wf-breakpoint="${options.breakpoint}">${sections}</body></html>`;
 }
 
 // src/lib/render-document.ts
-function escapeHtml2(value2) {
+function escapeHtml3(value2) {
   return value2.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 function safeColor(value2, fallback) {
@@ -29775,7 +31094,7 @@ function safeImage(value2) {
   if (typeof value2 !== "string") return "";
   try {
     const url = new URL(value2);
-    return url.protocol === "https:" || url.protocol === "http:" ? escapeHtml2(url.toString()) : "";
+    return url.protocol === "https:" || url.protocol === "http:" ? escapeHtml3(url.toString()) : "";
   } catch {
     return "";
   }
@@ -29783,7 +31102,7 @@ function safeImage(value2) {
 function text2(settings2, ...keys2) {
   for (const key of keys2) {
     const value2 = settings2[key];
-    if (typeof value2 === "string" && value2.trim()) return escapeHtml2(value2.trim());
+    if (typeof value2 === "string" && value2.trim()) return escapeHtml3(value2.trim());
   }
   return "";
 }
@@ -29811,7 +31130,7 @@ function media2(section2, title) {
   return `<div class="wf-media"><img src="${image2}" alt="${title}" loading="lazy"></div>`;
 }
 function sectionHtml(section2, pageName) {
-  const title = text2(section2.settings, "title", "heading") || escapeHtml2(pageName);
+  const title = text2(section2.settings, "title", "heading") || escapeHtml3(pageName);
   const subtitle = text2(section2.settings, "subtitle", "subheading");
   const body = text2(section2.settings, "text", "body");
   const price = text2(section2.settings, "price");
@@ -29850,7 +31169,7 @@ function renderDocument(doc, options = {}) {
     return renderEditorDocument(doc, { mode: "preview", breakpoint: "desktop" });
   }
   const theme = themeValues(doc.theme);
-  const title = escapeHtml2(doc.name);
+  const title = escapeHtml3(doc.name);
   const content = doc.sections.map((section2) => sectionHtml(section2, doc.name)).join("");
   const compact = options.compact ? " wf-compact" : "";
   if (doc.referencePreviews && !options.compact) {
@@ -29869,7 +31188,7 @@ function renderDocument(doc, options = {}) {
 
 // src/lib/render-page.ts
 var INK = "#141310";
-function escapeHtml3(value2) {
+function escapeHtml4(value2) {
   return value2.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 function themeCss() {
@@ -29885,7 +31204,7 @@ function wrapDocument(title, body) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml3(title)}</title>
+  <title>${escapeHtml4(title)}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
@@ -29938,7 +31257,7 @@ function storefrontRoutes(deps) {
 import { Hono as Hono9 } from "hono";
 
 // src/import/html-product-parser.ts
-function record2(value2) {
+function record3(value2) {
   return Boolean(value2) && typeof value2 === "object" && !Array.isArray(value2);
 }
 function list(value2) {
@@ -29951,11 +31270,11 @@ function number(value2) {
   const parsed = Number(value2);
   return Number.isFinite(parsed) ? parsed : null;
 }
-function resolveUrl(value2, base8) {
+function resolveUrl(value2, base9) {
   const raw = text3(value2);
   if (!raw) return null;
   try {
-    const url = new URL(raw, base8);
+    const url = new URL(raw, base9);
     return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
   } catch {
     return null;
@@ -29966,7 +31285,7 @@ function productNode(value2) {
     const found = productNode(item3);
     if (found) return found;
   }
-  if (!record2(value2)) return null;
+  if (!record3(value2)) return null;
   const types2 = list(value2["@type"]).map(String);
   if (types2.some((type) => type.toLowerCase() === "product")) return value2;
   return productNode(value2["@graph"]);
@@ -29991,20 +31310,20 @@ function jsonLdProduct(html) {
 }
 function extractProductFromHtml(html, sourceUrl) {
   const node = jsonLdProduct(html);
-  const offers = record2(node?.offers) ? node.offers : Array.isArray(node?.offers) && record2(node.offers[0]) ? node.offers[0] : {};
-  const brand = record2(node?.brand) ? node.brand.name : node?.brand;
-  const aggregate = record2(node?.aggregateRating) ? node.aggregateRating : {};
+  const offers = record3(node?.offers) ? node.offers : Array.isArray(node?.offers) && record3(node.offers[0]) ? node.offers[0] : {};
+  const brand = record3(node?.brand) ? node.brand.name : node?.brand;
+  const aggregate = record3(node?.aggregateRating) ? node.aggregateRating : {};
   const imageValues = node ? list(node.image) : [];
-  const variants = node ? list(node.hasVariant).filter(record2).map((variant, index) => {
-    const variantOffer = record2(variant.offers) ? variant.offers : {};
-    const image2 = resolveUrl(variant.image, sourceUrl) ?? void 0;
-    return { id: text3(variant.sku) || `variant-${index + 1}`, title: text3(variant.name) || `Variant ${index + 1}`, price: number(variantOffer.price), ...image2 ? { image: image2 } : {} };
+  const variants = node ? list(node.hasVariant).filter(record3).map((variant2, index) => {
+    const variantOffer = record3(variant2.offers) ? variant2.offers : {};
+    const image2 = resolveUrl(variant2.image, sourceUrl) ?? void 0;
+    return { id: text3(variant2.sku) || `variant-${index + 1}`, title: text3(variant2.name) || `Variant ${index + 1}`, price: number(variantOffer.price), ...image2 ? { image: image2 } : {} };
   }) : [];
-  const imageCandidates = [...imageValues, ...variants.map((variant) => variant.image), meta(html, "og:image")];
+  const imageCandidates = [...imageValues, ...variants.map((variant2) => variant2.image), meta(html, "og:image")];
   const images2 = [...new Set(imageCandidates.map((value2) => resolveUrl(value2, sourceUrl)).filter((value2) => Boolean(value2)))];
-  const reviews = node ? list(node.review).filter(record2).map((review) => {
-    const author = record2(review.author) ? review.author.name : review.author;
-    const rating = record2(review.reviewRating) ? review.reviewRating.ratingValue : null;
+  const reviews = node ? list(node.review).filter(record3).map((review) => {
+    const author = record3(review.author) ? review.author.name : review.author;
+    const rating = record3(review.reviewRating) ? review.reviewRating.ratingValue : null;
     return { author: text3(author) || "Customer", rating: number(rating), title: text3(review.name), text: text3(review.reviewBody) };
   }).filter((review) => review.text) : [];
   const title = text3(node?.name) || meta(html, "og:title") || meta(html, "twitter:title");
@@ -30107,10 +31426,10 @@ function stem(product) {
   return words[0] || product.vendor || "Nova";
 }
 function fallbackOnboardingAnalysis(product, language) {
-  const base8 = stem(product);
+  const base9 = stem(product);
   const french = language.toLowerCase().startsWith("fr");
   const light = /lamp|light|lumi|éclair/i.test(`${product.title} ${product.description}`);
-  const names = light ? ["LumiWall", "AuraMount", "HaloBeam", "GlowMount", "Everlight", "Radiant Wall", "Beam & Base", "Zenith Glow"] : [`${base8} Studio`, `${base8} House`, `Maison ${base8}`, `${base8} & Co`, `${base8} Lab`, `The ${base8}`, `${base8} Daily`, `${base8} Works`];
+  const names = light ? ["LumiWall", "AuraMount", "HaloBeam", "GlowMount", "Everlight", "Radiant Wall", "Beam & Base", "Zenith Glow"] : [`${base9} Studio`, `${base9} House`, `Maison ${base9}`, `${base9} & Co`, `${base9} Lab`, `The ${base9}`, `${base9} Daily`, `${base9} Works`];
   const personas2 = [
     { title: french ? "Locataire qui veut am\xE9liorer son int\xE9rieur" : "Renter upgrading their space", insight: french ? `Veut profiter de ${product.title} sans installation compliqu\xE9e.` : `Wants ${product.title} without a complicated installation.`, icon: "\u{1F511}", tags: ["Problem-aware", "Researches first"] },
     { title: french ? "Passionn\xE9 de d\xE9coration" : "Design-conscious decorator", insight: french ? "Cherche une finition coh\xE9rente avec un int\xE9rieur soign\xE9." : "Looks for a finish that belongs in a considered interior.", icon: "\u2728", tags: ["Style-led", "Impulse buyer"] },
@@ -30174,6 +31493,16 @@ var BUILD_STAGE_LABELS = [
 function initialBuildStages() {
   return BUILD_STAGE_LABELS.map((label, index) => ({ id: `stage-${index + 1}`, label, state: "waiting" }));
 }
+function initialWizardState() {
+  return { currentStep: "source", answers: [], suggestions: {} };
+}
+function migrateOnboardingDraft(draft) {
+  return {
+    ...draft,
+    wizard: draft.wizard && typeof draft.wizard === "object" ? { currentStep: draft.wizard.currentStep ?? "source", answers: Array.isArray(draft.wizard.answers) ? draft.wizard.answers : [], suggestions: draft.wizard.suggestions && typeof draft.wizard.suggestions === "object" ? draft.wizard.suggestions : {} } : initialWizardState(),
+    blueprint: draft.blueprint && typeof draft.blueprint === "object" ? draft.blueprint : null
+  };
+}
 function createOnboardingDraftInput(input) {
   return {
     version: 1,
@@ -30192,6 +31521,8 @@ function createOnboardingDraftInput(input) {
     angles: [],
     brandKit: null,
     stages: initialBuildStages(),
+    wizard: initialWizardState(),
+    blueprint: null,
     document: null,
     error: null,
     claimedUserId: null,
@@ -30200,18 +31531,183 @@ function createOnboardingDraftInput(input) {
 }
 
 // src/onboarding/token.ts
-import { createHash as createHash2, randomBytes as randomBytes2, timingSafeEqual as timingSafeEqual2 } from "node:crypto";
+import { createHash as createHash4, randomBytes as randomBytes2, timingSafeEqual as timingSafeEqual2 } from "node:crypto";
 function createClaimToken() {
   const token = randomBytes2(32).toString("base64url");
   return { token, hash: hashClaimToken(token) };
 }
 function hashClaimToken(token) {
-  return createHash2("sha256").update(token).digest("hex");
+  return createHash4("sha256").update(token).digest("hex");
 }
 function claimTokenMatches(token, expectedHash) {
   const actual = Buffer.from(hashClaimToken(token));
   const expected = Buffer.from(expectedHash);
   return actual.length === expected.length && timingSafeEqual2(actual, expected);
+}
+
+// src/onboarding/suggestions.ts
+var labels2 = {
+  source: ["Mettre le produit au premier plan", "Clarifier son usage quotidien", "Pr\xE9senter son univers de marque", "D\xE9marrer par le besoin client"],
+  audience: ["Personnes qui recherchent une solution simple", "Acheteurs attentifs au design", "Clients qui comparent avant d\u2019acheter", "Utilisateurs \xE0 la recherche d\u2019un usage quotidien"],
+  "problem-outcome": ["Rendre le quotidien plus simple", "Obtenir un r\xE9sultat concret", "Choisir avec plus de confiance", "Am\xE9liorer l\u2019exp\xE9rience d\u2019utilisation"],
+  "reasons-to-buy": ["B\xE9n\xE9fice principal clair", "Usage simple \xE0 comprendre", "Preuves r\xE9ellement disponibles", "Offre facile \xE0 choisir"],
+  offer: ["Produit seul, choix simple", "Offre d\xE9couverte", "Comparer les variantes disponibles", "Demander une configuration avant achat"],
+  "brand-personality": ["\xC9ditoriale et chaleureuse", "Claire et rassurante", "Premium et minimaliste", "Directe et pratique"],
+  market: ["France \xB7 fran\xE7ais \xB7 EUR", "Belgique \xB7 fran\xE7ais \xB7 EUR", "Canada \xB7 fran\xE7ais \xB7 CAD", "March\xE9 \xE0 pr\xE9ciser"],
+  "page-scope": ["Une page produit pour convertir", "Une landing page pour une campagne", "Une page de marque avec d\xE9couverte", "Un parcours \xE0 compl\xE9ter dans l\u2019\xE9diteur"],
+  review: ["Construire la premi\xE8re version", "Revoir mes choix avant de construire", "Cr\xE9er une base \xE9ditable", "Conserver les choix et finir plus tard"]
+};
+function safeText(value2, max) {
+  return typeof value2 === "string" ? value2.replace(/\s+/g, " ").trim().slice(0, max) : "";
+}
+function fallbackWizardSuggestions(stepId, truth) {
+  const product = safeText(truth.observedFacts.title, 80) || "ce produit";
+  return labels2[stepId].map((title, index) => ({
+    id: `fallback-${stepId}-${index + 1}`,
+    title,
+    explanation: `${title} pour ${product}. \xC0 adapter avec vos informations confirm\xE9es.`,
+    tags: ["Suggestion", stepId]
+  }));
+}
+function validateSuggestions(value2, stepId, truth) {
+  const raw = value2 && typeof value2 === "object" && !Array.isArray(value2) ? value2.suggestions : value2;
+  if (!Array.isArray(raw) || raw.length !== 4) return null;
+  const observed = `${truth.observedFacts.title} ${truth.observedFacts.description} ${truth.observedFacts.vendor}`.toLowerCase();
+  const suggestions = raw.map((item3, index) => {
+    if (!item3 || typeof item3 !== "object" || Array.isArray(item3)) return null;
+    const source = item3;
+    if (Object.keys(source).some((key) => !["title", "explanation", "tags"].includes(key))) return null;
+    const title = safeText(source.title, 90);
+    const explanation = safeText(source.explanation, 180);
+    const tags2 = Array.isArray(source.tags) ? source.tags.map((tag2) => safeText(tag2, 24)).filter(Boolean).slice(0, 4) : [];
+    if (!title || !explanation || !tags2.length) return null;
+    if (/\b(certifi|garanti|livraison gratuite|rembours|clinique|brevet)\w*/i.test(`${title} ${explanation}`) && !observed.includes("garanti")) return null;
+    return { id: `ai-${stepId}-${index + 1}`, title, explanation, tags: tags2 };
+  });
+  return suggestions.every(Boolean) ? suggestions : null;
+}
+function withDeadline(promise, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const timer2 = setTimeout(() => reject(new Error("Suggestion IA expir\xE9e")), timeoutMs);
+    promise.then((value2) => {
+      clearTimeout(timer2);
+      resolve(value2);
+    }, (error) => {
+      clearTimeout(timer2);
+      reject(error);
+    });
+  });
+}
+async function suggestWizardStep(input) {
+  if (!input.ai?.suggestWizard) return fallbackWizardSuggestions(input.stepId, input.truth);
+  try {
+    const value2 = await withDeadline(input.ai.suggestWizard({ stepId: input.stepId, truth: input.truth, answers: input.answers, language: input.language }), input.timeoutMs ?? 8e3);
+    return validateSuggestions(value2, input.stepId, input.truth) ?? fallbackWizardSuggestions(input.stepId, input.truth);
+  } catch {
+    return fallbackWizardSuggestions(input.stepId, input.truth);
+  }
+}
+
+// src/onboarding/wizard.ts
+var WIZARD_STEPS = [
+  "source",
+  "audience",
+  "problem-outcome",
+  "reasons-to-buy",
+  "offer",
+  "brand-personality",
+  "market",
+  "page-scope",
+  "review"
+];
+function isWizardStepId(value2) {
+  return typeof value2 === "string" && WIZARD_STEPS.includes(value2);
+}
+function nextWizardStep(stepId, answers) {
+  const index = WIZARD_STEPS.indexOf(stepId);
+  if (index < 0 || !answers.some((answer2) => answer2.stepId === stepId && (answer2.selectedSuggestionIds.length || answer2.customText.trim()))) return stepId;
+  return WIZARD_STEPS[index + 1] ?? null;
+}
+function normalizeWizardAnswer(value2, suggestions, stepId) {
+  const input = value2 && typeof value2 === "object" && !Array.isArray(value2) ? value2 : null;
+  if (!input) return null;
+  const available = new Set(suggestions.map((suggestion) => suggestion.id));
+  const selectedSuggestionIds = Array.isArray(input.selectedSuggestionIds) ? [...new Set(input.selectedSuggestionIds.filter((id2) => typeof id2 === "string" && available.has(id2)))].slice(0, 4) : [];
+  const customText = typeof input.customText === "string" ? input.customText.replace(/\s+/g, " ").trim().slice(0, 1e3) : "";
+  if (!selectedSuggestionIds.length && !customText) return null;
+  return { stepId, selectedSuggestionIds, customText, acceptedAt: (/* @__PURE__ */ new Date()).toISOString() };
+}
+
+// src/onboarding/blueprint-score.ts
+function scoreBlueprint(blueprint) {
+  const hardFailures = [];
+  const notes = [];
+  const counts = /* @__PURE__ */ new Map();
+  for (const section2 of blueprint.sections) counts.set(section2.sectionType, (counts.get(section2.sectionType) ?? 0) + 1);
+  if (!blueprint.sections.some((section2) => /hero|productMain|productHero/i.test(section2.sectionType))) hardFailures.push("La page ne pr\xE9sente pas clairement le produit.");
+  if (!blueprint.sections.some((section2) => /cta|productMain|bundle/i.test(section2.sectionType))) hardFailures.push("La page ne contient pas de chemin de conversion.");
+  const repeats = [...counts.values()].filter((count) => count > 1).reduce((sum, count) => sum + count - 1, 0);
+  if (repeats) notes.push(`${repeats} rythme(s) de section r\xE9p\xE9t\xE9(s).`);
+  if (!blueprint.sections.some((section2) => /review|faq|guarantee|press|comparison/i.test(section2.sectionType))) notes.push("Ajoutez une preuve ou une r\xE9ponse aux objections dans l\u2019\xE9diteur.");
+  const capabilityPenalty = blueprint.sections.filter((section2) => section2.requiredCapabilities.length > 0).length * 3;
+  return { score: Math.max(0, 100 - repeats * 12 - capabilityPenalty - hardFailures.length * 60), hardFailures, notes };
+}
+
+// src/onboarding/blueprint-generator.ts
+function slug2(value2) {
+  return value2.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "boutique";
+}
+function useType(options) {
+  return options.find((type) => getSectionDefinition(type)) ?? "";
+}
+function variant(type) {
+  return getSectionDefinition(type)?.variants[0]?.id ?? "default";
+}
+function answerText(answers, stepId) {
+  return answers.find((answer2) => answer2.stepId === stepId)?.customText ?? "";
+}
+function candidate(input, types2) {
+  const truth = buildProductTruthSheet(input.product);
+  const direction = selectArtDirection(truth);
+  const name = input.name?.trim() || input.product.vendor || input.product.title || "Nouvelle boutique";
+  const pageId = `page-${slug2(name)}`;
+  const title = input.product.title;
+  const customOutcome = answerText(input.answers, "problem-outcome");
+  const customOffer = answerText(input.answers, "offer");
+  return {
+    version: 1,
+    name,
+    market: input.market ?? "FR",
+    language: input.language || "fr",
+    currency: input.product.currency || "EUR",
+    designProfile: profileFromArtDirection(direction, input.market ?? "FR"),
+    pages: [{ id: pageId, kind: "product", name, slug: slug2(name) }],
+    sections: types2.filter(Boolean).map((sectionType, index) => ({
+      pageId,
+      sectionType,
+      variantId: variant(sectionType),
+      purpose: index === 0 ? "Pr\xE9senter l\u2019offre" : sectionType === "cta" ? "Encourager l\u2019achat" : "R\xE9pondre aux questions avant achat",
+      content: {
+        title: /hero|productMain|productHero/i.test(sectionType) ? title : sectionType === "benefits" ? customOutcome || "Les b\xE9n\xE9fices \xE0 confirmer" : sectionType === "bundle" ? customOffer || "Une offre \xE0 pr\xE9ciser" : "",
+        text: /hero|productMain|productHero/i.test(sectionType) ? input.product.description : "",
+        image: /hero|productMain|productHero/i.test(sectionType) ? input.product.images[0] ?? "" : "",
+        image_alt: title,
+        cta_label: /cta|productMain|productHero|bundle/i.test(sectionType) ? "Ajouter au panier" : ""
+      },
+      bindings: {},
+      requiredCapabilities: []
+    }))
+  };
+}
+async function generateBlueprint(input) {
+  const candidates = [
+    candidate(input, [useType(["productHero", "hero"]), useType(["productMain", "bundle"]), useType(["benefits", "imageText"]), useType(["reviews", "faq", "comparison"]), useType(["cta", "footer"])]),
+    candidate(input, [useType(["hero", "productHero"]), useType(["benefits", "comparison"]), useType(["productMain", "bundle"]), useType(["faq", "reviews"]), useType(["cta", "footer"])]),
+    candidate(input, [useType(["productHero", "hero"]), useType(["gallery", "imageText"]), useType(["productMain", "bundle"]), useType(["reviews", "faq"]), useType(["cta", "footer"])])
+  ];
+  const valid = candidates.filter((blueprint) => validateStoreBlueprint(blueprint).ok && scoreBlueprint(blueprint).hardFailures.length === 0);
+  if (!valid.length) throw new Error("Aucun Blueprint compatible avec les sections enregistr\xE9es.");
+  return valid.map((blueprint, index) => ({ blueprint, score: scoreBlueprint(blueprint).score, index })).sort((left, right) => right.score - left.score || left.index - right.index)[0].blueprint;
 }
 
 // src/server/onboarding.ts
@@ -30222,7 +31718,7 @@ function publicDraft(draft) {
 function tokenFrom(req) {
   return req.headers.get("x-weflo-claim-token")?.trim() ?? "";
 }
-async function withDeadline(promise, timeoutMs, message2) {
+async function withDeadline2(promise, timeoutMs, message2) {
   let timeout;
   try {
     return await Promise.race([
@@ -30283,12 +31779,12 @@ function neutralBrandKit() {
   };
 }
 async function uniqueSlug2(deps, workspaceId, name) {
-  const base8 = slugify3(name);
+  const base9 = slugify3(name);
   const used = new Set((await deps.store.listPages(workspaceId)).map((page) => page.slug));
-  if (!used.has(base8)) return base8;
+  if (!used.has(base9)) return base9;
   let index = 2;
-  while (used.has(`${base8}-${index}`)) index += 1;
-  return `${base8}-${index}`;
+  while (used.has(`${base9}-${index}`)) index += 1;
+  return `${base9}-${index}`;
 }
 function onboardingRoutes(deps) {
   const app2 = new Hono9();
@@ -30345,7 +31841,7 @@ function onboardingRoutes(deps) {
     const claim = createClaimToken();
     let draft = await deps.store.createOnboardingDraft(createOnboardingDraftInput({ claimTokenHash: claim.hash, sourceUrl }));
     try {
-      const product = await withDeadline(
+      const product = await withDeadline2(
         importProduct(sourceUrl, deps.productFetch),
         deps.onboardingImportTimeoutMs ?? 17e3,
         "L\u2019importation a d\xE9pass\xE9 le temps autoris\xE9. R\xE9essaie ou importe une image."
@@ -30353,7 +31849,7 @@ function onboardingRoutes(deps) {
       draft = await deps.store.updateOnboardingDraft(draft.id, { product, status: "analysing", language });
       let analysis;
       try {
-        analysis = deps.onboardingAi ? await withDeadline(deps.onboardingAi.analyse({ product, language }), deps.onboardingAiTimeoutMs ?? 15e3, "L\u2019analyse IA a d\xE9pass\xE9 le temps autoris\xE9.") : fallbackOnboardingAnalysis(product, language);
+        analysis = deps.onboardingAi ? await withDeadline2(deps.onboardingAi.analyse({ product, language }), deps.onboardingAiTimeoutMs ?? 15e3, "L\u2019analyse IA a d\xE9pass\xE9 le temps autoris\xE9.") : fallbackOnboardingAnalysis(product, language);
       } catch {
         analysis = fallbackOnboardingAnalysis(product, language);
       }
@@ -30402,7 +31898,7 @@ function onboardingRoutes(deps) {
     try {
       if (deps.onboardingAi?.analyseImage) {
         try {
-          const result = await withDeadline(
+          const result = await withDeadline2(
             deps.onboardingAi.analyseImage({ imageDataUrl: body.imageDataUrl, fileName, language }),
             deps.onboardingAiTimeoutMs ?? 15e3,
             "L\u2019analyse de l\u2019image a d\xE9pass\xE9 le temps autoris\xE9."
@@ -30431,6 +31927,53 @@ function onboardingRoutes(deps) {
   app2.get("/onboarding/:id", async (c) => {
     const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
     return draft ? c.json({ draft: publicDraft(draft) }) : c.json({ error: "unauthorized" }, 401);
+  });
+  app2.post("/onboarding/:id/suggestions", async (c) => {
+    const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
+    if (!draft) return c.json({ error: "unauthorized" }, 401);
+    const body = await c.req.json().catch(() => ({}));
+    if (!isWizardStepId(body.stepId)) return c.json({ error: "invalid_step", message: "Cette \xE9tape d\u2019onboarding est inconnue." }, 400);
+    const suggestions = await suggestWizardStep({
+      stepId: body.stepId,
+      truth: draft.product ? buildProductTruthSheet(draft.product) : buildProductTruthSheet({
+        sourceUrl: draft.sourceUrl,
+        title: draft.brandName || draft.answers.topic || "votre projet",
+        description: draft.answers.prompt || draft.answers.objective || "",
+        vendor: draft.brandName,
+        currency: "EUR",
+        price: null,
+        compareAtPrice: null,
+        images: [],
+        variants: [],
+        rating: null,
+        reviewCount: null,
+        reviews: []
+      }),
+      answers: draft.wizard.answers,
+      language: draft.language,
+      ai: deps.onboardingAi,
+      timeoutMs: deps.onboardingAiTimeoutMs ?? 8e3
+    });
+    const wizard = { ...draft.wizard, suggestions: { ...draft.wizard.suggestions, [body.stepId]: suggestions } };
+    const updated = await deps.store.updateOnboardingDraft(draft.id, { wizard });
+    return c.json({ suggestions, draft: publicDraft(updated) });
+  });
+  app2.patch("/onboarding/:id/wizard", async (c) => {
+    const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
+    if (!draft) return c.json({ error: "unauthorized" }, 401);
+    const body = await c.req.json().catch(() => ({}));
+    const stepId = isWizardStepId(body.stepId) ? body.stepId : draft.wizard.currentStep;
+    const suggestions = draft.wizard.suggestions[stepId] ?? [];
+    const wizard = { ...draft.wizard, suggestions: { ...draft.wizard.suggestions } };
+    if (body.answer !== void 0) {
+      const answer2 = normalizeWizardAnswer(body.answer, suggestions, stepId);
+      if (!answer2) return c.json({ error: "invalid_answer", message: "Choisis une suggestion ou ajoute ta r\xE9ponse avant de continuer." }, 400);
+      wizard.answers = [...wizard.answers.filter((item3) => item3.stepId !== stepId), answer2];
+    }
+    if (body.currentStep !== void 0 && !isWizardStepId(body.currentStep)) return c.json({ error: "invalid_step" }, 400);
+    wizard.currentStep = isWizardStepId(body.currentStep) ? body.currentStep : nextWizardStep(stepId, wizard.answers) ?? stepId;
+    const updated = await deps.store.updateOnboardingDraft(draft.id, { wizard });
+    return c.json({ draft: publicDraft(updated) });
   });
   app2.patch("/onboarding/:id", async (c) => {
     const draft = await authorizedDraft(deps, c.req.param("id"), c.req.raw);
@@ -30494,8 +32037,12 @@ function onboardingRoutes(deps) {
       templateId: draft.templateId ?? null,
       answers: draft.answers ?? {}
     };
-    const document2 = isProductLedCreationFormat(draft.creationFormat) ? buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat, product: draft.product }) : buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat });
-    const updated = await deps.store.updateOnboardingDraft(draft.id, { status: "ready", stages, brandKit, document: document2, brandName, modelId, error: null });
+    let blueprint = draft.blueprint;
+    if (draft.product && (!blueprint || !validateStoreBlueprint(blueprint).ok)) {
+      blueprint = await generateBlueprint({ product: draft.product, language: draft.language, answers: draft.wizard.answers, name: brandName });
+    }
+    const document2 = blueprint && draft.product ? compileBlueprint(blueprint, { ...buildInput, product: draft.product }) : isProductLedCreationFormat(draft.creationFormat) ? buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat, product: draft.product }) : buildStoreDocument({ ...buildInput, creationFormat: draft.creationFormat });
+    const updated = await deps.store.updateOnboardingDraft(draft.id, { status: "ready", stages, brandKit, document: document2, blueprint, brandName, modelId, error: null });
     return c.json({ draft: publicDraft(updated) });
   });
   app2.post("/onboarding/:id/claim", async (c) => {
@@ -30655,7 +32202,7 @@ function createApp(deps) {
   app2.get("/hydrate/*", async (c) => {
     const name = c.req.path.replace("/hydrate/", "");
     const root = join3(process.cwd(), "public", "hydrate");
-    const target = normalize(join3(root, name));
+    const target = normalize2(join3(root, name));
     const rootWithSep = root.endsWith(sep2) ? root : root + sep2;
     if (name.includes("..") || !target.startsWith(rootWithSep) && target !== root) {
       return c.body("Not found", 404);
@@ -30671,7 +32218,7 @@ function createApp(deps) {
   app2.get("/assets/*", async (c) => {
     const name = c.req.path.replace("/assets/", "");
     const root = join3(process.cwd(), "public", "assets");
-    const target = normalize(join3(root, name));
+    const target = normalize2(join3(root, name));
     const rootWithSep = root.endsWith(sep2) ? root : root + sep2;
     if (name.includes("..") || !target.startsWith(rootWithSep) && target !== root) {
       return c.body("Not found", 404);
@@ -30686,7 +32233,7 @@ function createApp(deps) {
   app2.get("/template-previews/*", async (c) => {
     const name = c.req.path.replace("/template-previews/", "");
     const root = join3(process.cwd(), "public", "template-previews");
-    const target = normalize(join3(root, name));
+    const target = normalize2(join3(root, name));
     const rootWithSep = root.endsWith(sep2) ? root : root + sep2;
     if (name.includes("..") || !target.startsWith(rootWithSep) && target !== root) {
       return c.body("Not found", 404);
@@ -30844,10 +32391,10 @@ function sleep3(ms, signal) {
     signal === null || signal === void 0 || signal.addEventListener("abort", onAbort);
   });
 }
-function shouldRetry(method, status, attemptCount, retryEnabled) {
+function shouldRetry(method, status2, attemptCount, retryEnabled) {
   if (!retryEnabled || attemptCount >= DEFAULT_MAX_RETRIES) return false;
   if (!RETRYABLE_METHODS.includes(method)) return false;
-  if (!RETRYABLE_STATUS_CODES.includes(status)) return false;
+  if (!RETRYABLE_STATUS_CODES.includes(status2)) return false;
   return true;
 }
 var PostgrestBuilder = class {
@@ -31113,7 +32660,7 @@ ${cause.stack}`;
     let error = null;
     let data = null;
     let count = null;
-    let status = res.status;
+    let status2 = res.status;
     let statusText = res.statusText;
     if (res.ok) {
       var _this$headers$get2, _res$headers$get2;
@@ -31148,7 +32695,7 @@ ${cause.stack}`;
         };
         data = null;
         count = null;
-        status = 406;
+        status2 = 406;
         statusText = "Not Acceptable";
         if (_this2.shouldThrowOnError) {
           var _error$hint;
@@ -31163,12 +32710,12 @@ ${cause.stack}`;
         if (Array.isArray(error) && res.status === 404) {
           data = [];
           error = null;
-          status = 200;
+          status2 = 200;
           statusText = "OK";
         }
       } catch (_unused2) {
         if (res.status === 404 && body === "") {
-          status = 204;
+          status2 = 204;
           statusText = "No Content";
         } else error = { message: body };
       }
@@ -31179,7 +32726,7 @@ ${cause.stack}`;
       error,
       data,
       count,
-      status,
+      status: status2,
       statusText
     };
   }
@@ -32681,10 +34228,10 @@ var PostgrestQueryBuilder = class {
   * )
   * ```
   */
-  constructor(url, { headers = {}, schema, fetch: fetch$1, urlLengthLimit = 8e3, retry }) {
+  constructor(url, { headers = {}, schema: schema2, fetch: fetch$1, urlLengthLimit = 8e3, retry }) {
     this.url = url;
     this.headers = new Headers(headers);
-    this.schema = schema;
+    this.schema = schema2;
     this.fetch = fetch$1;
     this.urlLengthLimit = urlLengthLimit;
     this.retry = retry;
@@ -34260,10 +35807,10 @@ var PostgrestClient = class PostgrestClient2 {
   * })
   * ```
   */
-  constructor(url, { headers = {}, schema, fetch: fetch$1, timeout, urlLengthLimit = 8e3, retry } = {}) {
+  constructor(url, { headers = {}, schema: schema2, fetch: fetch$1, timeout, urlLengthLimit = 8e3, retry } = {}) {
     this.url = url;
     this.headers = new Headers(headers);
-    this.schemaName = schema;
+    this.schemaName = schema2;
     this.urlLengthLimit = urlLengthLimit;
     const originalFetch = fetch$1 !== null && fetch$1 !== void 0 ? fetch$1 : globalThis.fetch;
     if (timeout !== void 0 && timeout > 0) this.fetch = (input, init) => {
@@ -34309,10 +35856,10 @@ var PostgrestClient = class PostgrestClient2 {
   *
   * @category Database
   */
-  schema(schema) {
+  schema(schema2) {
     return new PostgrestClient2(this.url, {
       headers: this.headers,
-      schema,
+      schema: schema2,
       fetch: this.fetch,
       urlLengthLimit: this.urlLengthLimit,
       retry: this.retry
@@ -35107,12 +36654,12 @@ function _objectSpread22(e) {
   return e;
 }
 var StorageError = class extends Error {
-  constructor(message2, namespace = "storage", status, statusCode) {
+  constructor(message2, namespace = "storage", status2, statusCode) {
     super(message2);
     this.__isStorageError = true;
     this.namespace = namespace;
     this.name = namespace === "vectors" ? "StorageVectorsError" : "StorageError";
-    this.status = status;
+    this.status = status2;
     this.statusCode = statusCode;
   }
   toJSON() {
@@ -35128,10 +36675,10 @@ function isStorageError(error) {
   return typeof error === "object" && error !== null && "__isStorageError" in error;
 }
 var StorageApiError = class extends StorageError {
-  constructor(message2, status, statusCode, namespace = "storage", code) {
-    super(message2, namespace, status, statusCode);
+  constructor(message2, status2, statusCode, namespace = "storage", code) {
+    super(message2, namespace, status2, statusCode);
     this.name = namespace === "vectors" ? "StorageVectorsApiError" : "StorageApiError";
-    this.status = status;
+    this.status = status2;
     this.statusCode = statusCode;
     this.code = code;
   }
@@ -35202,14 +36749,14 @@ var _getErrorMessage = (err) => {
 var handleError = async (error, reject, options, namespace) => {
   if (error !== null && typeof error === "object" && "json" in error && typeof error.json === "function") {
     const responseError = error;
-    let status = parseInt(String(responseError.status), 10);
-    if (!Number.isFinite(status)) status = 500;
+    let status2 = parseInt(String(responseError.status), 10);
+    if (!Number.isFinite(status2)) status2 = 500;
     responseError.json().then((err) => {
-      const statusCode = (err === null || err === void 0 ? void 0 : err.statusCode) || (err === null || err === void 0 ? void 0 : err.code) || status + "";
-      reject(new StorageApiError(_getErrorMessage(err), status, statusCode, namespace, err === null || err === void 0 ? void 0 : err.code));
+      const statusCode = (err === null || err === void 0 ? void 0 : err.statusCode) || (err === null || err === void 0 ? void 0 : err.code) || status2 + "";
+      reject(new StorageApiError(_getErrorMessage(err), status2, statusCode, namespace, err === null || err === void 0 ? void 0 : err.code));
     }).catch(() => {
-      const statusCode = status + "";
-      reject(new StorageApiError(responseError.statusText || `HTTP ${status} error`, status, statusCode, namespace));
+      const statusCode = status2 + "";
+      reject(new StorageApiError(responseError.statusText || `HTTP ${status2} error`, status2, statusCode, namespace));
     });
   } else reject(new StorageUnknownError(_getErrorMessage(error), error, namespace));
 };
@@ -36099,8 +37646,8 @@ var StorageFileApi = class extends BaseApiClient {
       if (_this11.shouldThrowOnError) throw error;
       if (isStorageError(error)) {
         var _error$originalError;
-        const status = error instanceof StorageApiError ? error.status : error instanceof StorageUnknownError ? (_error$originalError = error.originalError) === null || _error$originalError === void 0 ? void 0 : _error$originalError.status : void 0;
-        if (status !== void 0 && [400, 404].includes(status)) return {
+        const status2 = error instanceof StorageApiError ? error.status : error instanceof StorageUnknownError ? (_error$originalError = error.originalError) === null || _error$originalError === void 0 ? void 0 : _error$originalError.status : void 0;
+        if (status2 !== void 0 && [400, 404].includes(status2)) return {
           data: false,
           error
         };
@@ -38399,8 +39946,8 @@ var SupabaseClient = class {
   *
   * @param schema - The schema to query
   */
-  schema(schema) {
-    return this.rest.schema(schema);
+  schema(schema2) {
+    return this.rest.schema(schema2);
   }
   /**
   * Perform a function call.
@@ -38586,8 +40133,8 @@ function randomId(prefix) {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`;
 }
 function kebab(value2) {
-  const slug2 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  return slug2 || "workspace";
+  const slug3 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return slug3 || "workspace";
 }
 var MemoryStore = class {
   workspaces = /* @__PURE__ */ new Map();
@@ -38600,6 +40147,7 @@ var MemoryStore = class {
   users = /* @__PURE__ */ new Map();
   onboardingDrafts = /* @__PURE__ */ new Map();
   imageGenerations = /* @__PURE__ */ new Map();
+  customSections = /* @__PURE__ */ new Map();
   async createWorkspace(input) {
     const ws = {
       id: randomId("ws_"),
@@ -38621,8 +40169,8 @@ var MemoryStore = class {
   async getWorkspace(id2) {
     return this.workspaces.get(id2) ?? null;
   }
-  async getWorkspaceBySlug(slug2) {
-    return [...this.workspaces.values()].find((ws) => ws.slug === slug2) ?? null;
+  async getWorkspaceBySlug(slug3) {
+    return [...this.workspaces.values()].find((ws) => ws.slug === slug3) ?? null;
   }
   async updateWorkspace(id2, patch) {
     const ws = this.workspaces.get(id2);
@@ -38641,6 +40189,9 @@ var MemoryStore = class {
     this.shopify.delete(id2);
     this.whop.delete(id2);
     this.attributions.delete(id2);
+    for (const [key, row] of [...this.customSections.entries()]) {
+      if (row.workspaceId === id2) this.customSections.delete(key);
+    }
     for (const [key, row] of [...this.attributions.entries()]) {
       if (row.referrerWorkspaceId === id2) this.attributions.delete(key);
     }
@@ -38746,18 +40297,18 @@ var MemoryStore = class {
   }
   async createOnboardingDraft(input) {
     const now = (/* @__PURE__ */ new Date()).toISOString();
-    const draft = { ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now };
+    const draft = migrateOnboardingDraft({ ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now });
     this.onboardingDrafts.set(draft.id, draft);
     return structuredClone(draft);
   }
   async getOnboardingDraft(id2) {
     const draft = this.onboardingDrafts.get(id2);
-    return draft ? structuredClone(draft) : null;
+    return draft ? structuredClone(migrateOnboardingDraft(draft)) : null;
   }
   async updateOnboardingDraft(id2, patch) {
     const draft = this.onboardingDrafts.get(id2);
     if (!draft) throw new Error("onboarding draft not found");
-    const updated = { ...draft, ...structuredClone(patch), updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
+    const updated = migrateOnboardingDraft({ ...draft, ...structuredClone(patch), updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
     this.onboardingDrafts.set(id2, updated);
     return structuredClone(updated);
   }
@@ -38773,6 +40324,23 @@ var MemoryStore = class {
   }
   async saveImageGeneration(generation) {
     this.imageGenerations.set(generation.id, structuredClone(generation));
+  }
+  customSectionKey(workspaceId, id2, version3) {
+    return `${workspaceId}:${id2}:${version3}`;
+  }
+  async saveCustomSection(row) {
+    const copy = structuredClone(row);
+    const key = this.customSectionKey(copy.workspaceId, copy.id, copy.version);
+    if (this.customSections.has(key)) throw new Error("custom section version already exists");
+    this.customSections.set(key, copy);
+    return structuredClone(copy);
+  }
+  async listCustomSections(workspaceId, id2) {
+    return [...this.customSections.values()].filter((row) => row.workspaceId === workspaceId && (!id2 || row.id === id2)).sort((a, b2) => b2.version - a.version || b2.createdAt.localeCompare(a.createdAt)).map((row) => structuredClone(row));
+  }
+  async getCustomSection(workspaceId, id2, version3) {
+    const row = this.customSections.get(this.customSectionKey(workspaceId, id2, version3));
+    return row ? structuredClone(row) : null;
   }
 };
 
@@ -39080,7 +40648,7 @@ function values(first2, rest, parameters, types2, options) {
   const columns = rest.length ? rest.flat() : Object.keys(multi ? first2[0] : first2);
   return valuesBuilder(multi ? first2 : [first2], parameters, types2, columns, options);
 }
-function select(first2, rest, parameters, types2, options) {
+function select2(first2, rest, parameters, types2, options) {
   typeof first2 === "string" && (first2 = [first2].concat(rest));
   if (Array.isArray(first2))
     return escapeIdentifiers(first2, options);
@@ -39097,10 +40665,10 @@ var builders = Object.entries({
     const x = values(...xs);
     return x === "()" ? "(null)" : x;
   },
-  select,
-  as: select,
-  returning: select,
-  "\\(": select,
+  select: select2,
+  as: select2,
+  returning: select2,
+  "\\(": select2,
   update(first2, rest, parameters, types2, options) {
     return (rest.length ? rest.flat() : Object.keys(first2)).map(
       (x) => escapeIdentifier(options.transform.column.to ? options.transform.column.to(x) : x) + "=" + stringifyValue("values", first2[x], parameters, types2, options)
@@ -39606,7 +41174,7 @@ function Connection(options, queues = {}, { onopen = noop3, onend = noop3, onclo
         break;
       }
       try {
-        handle(incoming.subarray(0, length + 1));
+        handle2(incoming.subarray(0, length + 1));
       } catch (e) {
         query && (query.cursorFn || query.describeFirst) && write(Sync);
         errored(e);
@@ -39713,7 +41281,7 @@ function Connection(options, queues = {}, { onopen = noop3, onend = noop3, onclo
     delay = (typeof backoff2 === "function" ? backoff2(options.shared.retries) : backoff2) * 1e3;
     onclose(connection2, Errors.connection("CONNECTION_CLOSED", options, socket));
   }
-  function handle(xs, x = xs[0]) {
+  function handle2(xs, x = xs[0]) {
     (x === 68 ? DataRow : (
       // D
       x === 100 ? CopyData : (
@@ -40299,13 +41867,13 @@ function Subscribe(postgres2, options) {
     }
     function data(x2) {
       if (x2[0] === 119) {
-        parse(x2.subarray(25), state2, sql2.options.parsers, handle, options.transform);
+        parse(x2.subarray(25), state2, sql2.options.parsers, handle2, options.transform);
       } else if (x2[0] === 107 && x2[17]) {
         state2.lsn = x2.subarray(1, 9);
         pong();
       }
     }
-    function handle(a, b2) {
+    function handle2(a, b2) {
       const path3 = b2.relation.schema + "." + b2.relation.table;
       call("*", a, b2);
       call("*:" + path3, a, b2);
@@ -40329,7 +41897,7 @@ function Subscribe(postgres2, options) {
 function Time(x) {
   return new Date(Date.UTC(2e3, 0, 1) + Number(x / BigInt(1e3)));
 }
-function parse(x, state, parsers2, handle, transform) {
+function parse(x, state, parsers2, handle2, transform) {
   const char = (acc, [k, v]) => (acc[k.charCodeAt(0)] = v, acc);
   Object.entries({
     R: (x2) => {
@@ -40368,7 +41936,7 @@ function parse(x, state, parsers2, handle, transform) {
       let i = 1;
       const relation = state[x2.readUInt32BE(i)];
       const { row } = tuples(x2, relation.columns, i += 7, transform);
-      handle(row, {
+      handle2(row, {
         command: "insert",
         relation
       });
@@ -40378,7 +41946,7 @@ function parse(x, state, parsers2, handle, transform) {
       const relation = state[x2.readUInt32BE(i)];
       i += 4;
       const key = x2[i] === 75;
-      handle(
+      handle2(
         key || x2[i] === 79 ? tuples(x2, relation.columns, i += 3, transform).row : null,
         {
           command: "delete",
@@ -40395,7 +41963,7 @@ function parse(x, state, parsers2, handle, transform) {
       const xs = key || x2[i] === 79 ? tuples(x2, relation.columns, i += 3, transform) : null;
       xs && (i = xs.i);
       const { row } = tuples(x2, relation.columns, i + 3, transform);
-      handle(row, {
+      handle2(row, {
         command: "update",
         relation,
         key,
@@ -40903,8 +42471,8 @@ function randomId2(prefix) {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`;
 }
 function kebab3(value2) {
-  const slug2 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  return slug2 || "workspace";
+  const slug3 = value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return slug3 || "workspace";
 }
 function iso(value2) {
   return value2 instanceof Date ? value2.toISOString() : value2;
@@ -40917,6 +42485,7 @@ var ONBOARDING_WORKSPACE_SLUG = "weflo-system-onboarding";
 var PostgresStore = class {
   sql;
   imageGenerationsReady = null;
+  customSectionsReady = null;
   constructor(url) {
     this.sql = src_default(url, { prepare: false });
   }
@@ -40974,11 +42543,11 @@ var PostgresStore = class {
       createdAt: iso(row.createdAt)
     };
   }
-  async getWorkspaceBySlug(slug2) {
+  async getWorkspaceBySlug(slug3) {
     const rows = await this.sql`
       select id, name, slug, owner_user_id as "ownerUserId", created_at as "createdAt"
       from workspaces
-      where slug = ${slug2}
+      where slug = ${slug3}
     `;
     const row = rows[0];
     if (!row) return null;
@@ -41008,6 +42577,8 @@ var PostgresStore = class {
     };
   }
   async deleteWorkspace(id2) {
+    await this.ensureCustomSections();
+    await this.sql`delete from custom_sections where workspace_id = ${id2}`;
     await this.sql`delete from referral_attributions where referrer_workspace_id = ${id2}`;
     await this.sql`delete from workspaces where id = ${id2}`;
   }
@@ -41276,7 +42847,7 @@ var PostgresStore = class {
   }
   async createOnboardingDraft(input) {
     const now = (/* @__PURE__ */ new Date()).toISOString();
-    const draft = { ...structuredClone(input), id: randomId2("ob_"), createdAt: now, updatedAt: now };
+    const draft = migrateOnboardingDraft({ ...structuredClone(input), id: randomId2("ob_"), createdAt: now, updatedAt: now });
     await this.ensureOnboardingWorkspace();
     await this.sql`
       insert into pages (id, workspace_id, name, slug, type, status, document, updated_at)
@@ -41290,12 +42861,12 @@ var PostgresStore = class {
       from pages
       where id = ${id2} and workspace_id = ${ONBOARDING_WORKSPACE_ID} and type = ${"onboarding"}
     `;
-    return rows[0]?.payload ? structuredClone(rows[0].payload) : null;
+    return rows[0]?.payload ? structuredClone(migrateOnboardingDraft(rows[0].payload)) : null;
   }
   async updateOnboardingDraft(id2, patch) {
     const draft = await this.getOnboardingDraft(id2);
     if (!draft) throw new Error("onboarding draft not found");
-    const updated = { ...draft, ...structuredClone(patch), updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
+    const updated = migrateOnboardingDraft({ ...draft, ...structuredClone(patch), updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
     const rows = await this.sql`
       update pages
       set status = ${updated.status}, document = ${this.sql.json(updated)}, updated_at = ${updated.updatedAt}
@@ -41331,7 +42902,62 @@ var PostgresStore = class {
       on conflict (id) do nothing
     `;
   }
+  ensureCustomSections() {
+    if (!this.customSectionsReady) this.customSectionsReady = (async () => {
+      await this.sql`
+        create table if not exists custom_sections (
+          workspace_id text not null,
+          section_id text not null,
+          version integer not null check (version > 0),
+          spec jsonb not null,
+          checksum text not null,
+          validation jsonb not null,
+          author_user_id text,
+          created_at timestamptz not null,
+          primary key (workspace_id, section_id, version)
+        )
+      `;
+      await this.sql`create index if not exists custom_sections_workspace_section_version_idx on custom_sections (workspace_id, section_id, version desc)`;
+    })();
+    return this.customSectionsReady;
+  }
+  async saveCustomSection(row) {
+    await this.ensureCustomSections();
+    await this.sql`
+      insert into custom_sections (workspace_id, section_id, version, spec, checksum, validation, author_user_id, created_at)
+      values (${row.workspaceId}, ${row.id}, ${row.version}, ${this.sql.json(row.spec)}, ${row.checksum}, ${this.sql.json(row.validation)}, ${row.authorUserId}, ${row.createdAt})
+    `;
+    return structuredClone(row);
+  }
+  async listCustomSections(workspaceId, id2) {
+    await this.ensureCustomSections();
+    const rows = id2 === void 0 ? await this.sql`
+          select workspace_id as "workspaceId", section_id as id, version, spec, checksum, validation,
+                 author_user_id as "authorUserId", created_at as "createdAt"
+          from custom_sections where workspace_id = ${workspaceId}
+          order by section_id, version desc, created_at desc
+        ` : await this.sql`
+          select workspace_id as "workspaceId", section_id as id, version, spec, checksum, validation,
+                 author_user_id as "authorUserId", created_at as "createdAt"
+          from custom_sections where workspace_id = ${workspaceId} and section_id = ${id2}
+          order by version desc, created_at desc
+        `;
+    return rows.map(mapCustomSection);
+  }
+  async getCustomSection(workspaceId, id2, version3) {
+    await this.ensureCustomSections();
+    const rows = await this.sql`
+      select workspace_id as "workspaceId", section_id as id, version, spec, checksum, validation,
+             author_user_id as "authorUserId", created_at as "createdAt"
+      from custom_sections
+      where workspace_id = ${workspaceId} and section_id = ${id2} and version = ${version3}
+    `;
+    return rows[0] ? mapCustomSection(rows[0]) : null;
+  }
 };
+function mapCustomSection(row) {
+  return { ...row, spec: structuredClone(row.spec), validation: structuredClone(row.validation), createdAt: iso(row.createdAt) };
+}
 function mapPage(row) {
   const stored = row.document;
   const documentVersion = typeof stored.__wefloDocumentVersion === "number" ? stored.__wefloDocumentVersion : 1;
@@ -41441,6 +43067,17 @@ function createOpenAiOnboarding(apiKey) {
       const parsed = JSON.parse(response.choices[0]?.message?.content ?? "{}");
       const product = productFromImageOutput(parsed.product, imageDataUrl, fileName);
       return { product, analysis: validateOnboardingAnalysis(parsed, product) };
+    },
+    async suggestWizard({ stepId, truth, answers, language }) {
+      const response = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: "Return strict JSON: {suggestions:[{title,explanation,tags}]}. Return exactly four concise customer-facing suggestions in French (or the requested language). Use only product truth and accepted answers. Do not invent prices, reviews, ingredients, guarantees, certifications, inventory, shipping or outcomes. Each explanation is at most 180 characters; tags is a non-empty array of short strings." },
+          { role: "user", content: JSON.stringify({ stepId, language, productTruth: truth, acceptedAnswers: answers }) }
+        ]
+      });
+      return JSON.parse(response.choices[0]?.message?.content ?? "{}");
     }
   };
 }

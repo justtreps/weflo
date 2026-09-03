@@ -17,7 +17,9 @@ import type {
 } from "../types";
 import { PageVersionConflictError, type Store } from "./types";
 import type { CreateOnboardingDraftInput, OnboardingDraft, OnboardingDraftPatch } from "../onboarding/types";
+import { migrateOnboardingDraft } from "../onboarding/schema";
 import type { ImageGeneration } from "../studio/types";
+import type { StoredCustomSection } from "../custom-sections/repository";
 
 function randomId(prefix: string): string {
   return `${prefix}${Math.random().toString(36).slice(2, 10)}`;
@@ -47,6 +49,7 @@ const ONBOARDING_WORKSPACE_SLUG = "weflo-system-onboarding";
 export class PostgresStore implements Store {
   private sql: postgres.Sql;
   private imageGenerationsReady: Promise<void> | null = null;
+  private customSectionsReady: Promise<void> | null = null;
 
   constructor(url: string) {
     this.sql = postgres(url, { prepare: false });
@@ -154,6 +157,8 @@ export class PostgresStore implements Store {
   }
 
   async deleteWorkspace(id: string): Promise<void> {
+    await this.ensureCustomSections();
+    await this.sql`delete from custom_sections where workspace_id = ${id}`;
     await this.sql`delete from referral_attributions where referrer_workspace_id = ${id}`;
     await this.sql`delete from workspaces where id = ${id}`;
   }
@@ -456,7 +461,7 @@ export class PostgresStore implements Store {
 
   async createOnboardingDraft(input: CreateOnboardingDraftInput): Promise<OnboardingDraft> {
     const now = new Date().toISOString();
-    const draft: OnboardingDraft = { ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now };
+    const draft = migrateOnboardingDraft({ ...structuredClone(input), id: randomId("ob_"), createdAt: now, updatedAt: now } as OnboardingDraft);
     await this.ensureOnboardingWorkspace();
     await this.sql`
       insert into pages (id, workspace_id, name, slug, type, status, document, updated_at)
@@ -471,13 +476,13 @@ export class PostgresStore implements Store {
       from pages
       where id = ${id} and workspace_id = ${ONBOARDING_WORKSPACE_ID} and type = ${"onboarding"}
     `;
-    return rows[0]?.payload ? structuredClone(rows[0].payload) : null;
+    return rows[0]?.payload ? structuredClone(migrateOnboardingDraft(rows[0].payload)) : null;
   }
 
   async updateOnboardingDraft(id: string, patch: OnboardingDraftPatch): Promise<OnboardingDraft> {
     const draft = await this.getOnboardingDraft(id);
     if (!draft) throw new Error("onboarding draft not found");
-    const updated: OnboardingDraft = { ...draft, ...structuredClone(patch), updatedAt: new Date().toISOString() };
+    const updated = migrateOnboardingDraft({ ...draft, ...structuredClone(patch), updatedAt: new Date().toISOString() });
     const rows = await this.sql<{ id: string }[]>`
       update pages
       set status = ${updated.status}, document = ${this.sql.json(updated as never)}, updated_at = ${updated.updatedAt}
@@ -516,6 +521,64 @@ export class PostgresStore implements Store {
       on conflict (id) do nothing
     `;
   }
+
+  private ensureCustomSections(): Promise<void> {
+    if (!this.customSectionsReady) this.customSectionsReady = (async () => {
+      await this.sql`
+        create table if not exists custom_sections (
+          workspace_id text not null,
+          section_id text not null,
+          version integer not null check (version > 0),
+          spec jsonb not null,
+          checksum text not null,
+          validation jsonb not null,
+          author_user_id text,
+          created_at timestamptz not null,
+          primary key (workspace_id, section_id, version)
+        )
+      `;
+      await this.sql`create index if not exists custom_sections_workspace_section_version_idx on custom_sections (workspace_id, section_id, version desc)`;
+    })();
+    return this.customSectionsReady;
+  }
+
+  async saveCustomSection(row: StoredCustomSection): Promise<StoredCustomSection> {
+    await this.ensureCustomSections();
+    await this.sql`
+      insert into custom_sections (workspace_id, section_id, version, spec, checksum, validation, author_user_id, created_at)
+      values (${row.workspaceId}, ${row.id}, ${row.version}, ${this.sql.json(row.spec as never)}, ${row.checksum}, ${this.sql.json(row.validation as never)}, ${row.authorUserId}, ${row.createdAt})
+    `;
+    return structuredClone(row);
+  }
+
+  async listCustomSections(workspaceId: string, id?: string): Promise<StoredCustomSection[]> {
+    await this.ensureCustomSections();
+    const rows = id === undefined
+      ? await this.sql<CustomSectionRow[]>`
+          select workspace_id as "workspaceId", section_id as id, version, spec, checksum, validation,
+                 author_user_id as "authorUserId", created_at as "createdAt"
+          from custom_sections where workspace_id = ${workspaceId}
+          order by section_id, version desc, created_at desc
+        `
+      : await this.sql<CustomSectionRow[]>`
+          select workspace_id as "workspaceId", section_id as id, version, spec, checksum, validation,
+                 author_user_id as "authorUserId", created_at as "createdAt"
+          from custom_sections where workspace_id = ${workspaceId} and section_id = ${id}
+          order by version desc, created_at desc
+        `;
+    return rows.map(mapCustomSection);
+  }
+
+  async getCustomSection(workspaceId: string, id: string, version: number): Promise<StoredCustomSection | null> {
+    await this.ensureCustomSections();
+    const rows = await this.sql<CustomSectionRow[]>`
+      select workspace_id as "workspaceId", section_id as id, version, spec, checksum, validation,
+             author_user_id as "authorUserId", created_at as "createdAt"
+      from custom_sections
+      where workspace_id = ${workspaceId} and section_id = ${id} and version = ${version}
+    `;
+    return rows[0] ? mapCustomSection(rows[0]) : null;
+  }
 }
 
 type PageRow = {
@@ -547,6 +610,11 @@ type WhopRow = {
 };
 
 type ImageGenerationRow = Omit<ImageGeneration, "createdAt"> & { createdAt: Date | string };
+type CustomSectionRow = Omit<StoredCustomSection, "createdAt"> & { createdAt: Date | string };
+
+function mapCustomSection(row: CustomSectionRow): StoredCustomSection {
+  return { ...row, spec: structuredClone(row.spec), validation: structuredClone(row.validation), createdAt: iso(row.createdAt) };
+}
 
 function mapPage(row: PageRow): Page {
   const stored = row.document as StoredPageDocument & { __wefloDocumentVersion?: unknown };

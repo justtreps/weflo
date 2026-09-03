@@ -60,5 +60,16 @@ export function createOpenAiOnboarding(apiKey: string): OnboardingAiPort {
       const product = productFromImageOutput(parsed.product, imageDataUrl, fileName);
       return { product, analysis: validateOnboardingAnalysis(parsed, product) };
     },
+    async suggestWizard({ stepId, truth, answers, language }) {
+      const response = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: "Return strict JSON: {suggestions:[{title,explanation,tags}]}. Return exactly four concise customer-facing suggestions in French (or the requested language). Use only product truth and accepted answers. Do not invent prices, reviews, ingredients, guarantees, certifications, inventory, shipping or outcomes. Each explanation is at most 180 characters; tags is a non-empty array of short strings." },
+          { role: "user", content: JSON.stringify({ stepId, language, productTruth: truth, acceptedAnswers: answers }) },
+        ],
+      });
+      return JSON.parse(response.choices[0]?.message?.content ?? "{}");
+    },
   };
 }

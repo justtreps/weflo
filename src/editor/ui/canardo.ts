@@ -1,9 +1,10 @@
-import type { CanardoResponse } from "../../canardo/protocol";
+import type { CanardoCustomProposal, CanardoProposal, CanardoResponse } from "../../canardo/protocol";
 import type { EditorDocument } from "../document";
 import type { EditorStore } from "./store";
 import { canardoReviewMarkup } from "./canardo-review";
+import { setCustomPreviewViewport } from "./custom-section-preview";
 
-type ApiResponse = Partial<CanardoResponse> & { document?: EditorDocument; requiresConfirmation?: boolean; error?: string };
+type ApiResponse = Partial<CanardoResponse> & Partial<CanardoCustomProposal> & { document?: EditorDocument; requiresConfirmation?: boolean; error?: string };
 
 export function canardoRequest(prompt: string, selectedId: string | null, extra: Record<string, unknown> = {}): RequestInit {
   return { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ prompt, selectedId, ...extra }) };
@@ -24,7 +25,7 @@ export function mountCanardo(root: HTMLElement, store: EditorStore, pageId: stri
   log.className = "editor-canardo-log";
   log.setAttribute("aria-live", "polite");
   dock.prepend(log);
-  let proposal: CanardoResponse | null = null;
+  let proposal: CanardoProposal | null = null;
   let lastPrompt = "";
 
   const note = (message: string, kind: "user" | "assistant" | "error" = "assistant") => {
@@ -45,7 +46,9 @@ export function mountCanardo(root: HTMLElement, store: EditorStore, pageId: stri
       const body = await response.json().catch(() => ({})) as ApiResponse;
       if (!response.ok) throw new Error(typeof body.message === "string" ? body.message : "Canardo n’a pas pu appliquer cette demande.");
       if (isConsequentialCanardoResponse(body)) {
-        proposal = { message: body.message || "Proposition", summary: body.summary || "Modification", commands: body.commands || [] };
+        proposal = body.mode === "custom-section" && body.spec && body.checksum && body.validation && body.preview
+          ? body as CanardoCustomProposal
+          : { message: body.message || "Proposition", summary: body.summary || "Modification", commands: body.commands || [] };
         log.insertAdjacentHTML("beforeend", canardoReviewMarkup(proposal));
       } else { apply(body); input.value = ""; proposal = null; }
     } catch (error) { note(error instanceof Error ? error.message : "Erreur Canardo", "error"); input.value = lastPrompt; }
@@ -55,6 +58,11 @@ export function mountCanardo(root: HTMLElement, store: EditorStore, pageId: stri
     const target = (event.target as HTMLElement).closest<HTMLElement>("button");
     if (!target) return;
     if (target === send) void request();
+    if (target.matches("[data-canardo-preview-viewport]") && proposal && "mode" in proposal && proposal.mode === "custom-section") {
+      const viewport = target.dataset.canardoPreviewViewport === "mobile" ? "mobile" : "desktop";
+      const container = target.closest<HTMLElement>("[data-canardo-custom-preview]");
+      if (container) setCustomPreviewViewport(container, proposal, viewport);
+    }
     if (target.matches("[data-canardo-accept]")) { target.closest("[data-canardo-review]")?.remove(); void request(true); }
     if (target.matches("[data-canardo-reject]")) { target.closest("[data-canardo-review]")?.remove(); proposal = null; note("Proposition annulée."); }
     if (target.matches("[data-canardo-undo]")) { store.undo(); target.remove(); note("Génération annulée."); }

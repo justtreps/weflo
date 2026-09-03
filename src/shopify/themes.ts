@@ -1,4 +1,6 @@
 export type ShopifyTheme = { id: string; name: string; role: "main" | "unpublished" | "development" | "demo" };
+export { detectThemeAdapter, themeAdapters } from "./adapters/detect";
+export type { ThemeAdapter, ThemeFile, ThemeCapabilityReport, ThemePatch, AdapterConfidence, ThemeValidationResult } from "./adapters/types";
 
 export async function listThemes(fetchJson: (path: string) => Promise<unknown>): Promise<ShopifyTheme[]> {
   const payload = await fetchJson("/themes.json") as { themes?: Array<{ id?: unknown; name?: unknown; role?: unknown }> };

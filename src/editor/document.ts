@@ -1,4 +1,5 @@
 import type { PageTheme } from "../types";
+import type { DesignProfile } from "../design/profile";
 import type { ArtDirectionProfile, BrandKit, BuyerPersona, ImportedProduct, MarketingAngle, ProductTruthSheet } from "../onboarding/types";
 import { validateEditorDocument } from "./schema";
 
@@ -27,6 +28,11 @@ export type EditorSection = {
   style: StyleSettings;
   responsive: ResponsiveSettings;
   blocks: EditorBlock[];
+  /** Versioned pack metadata; absent only in documents saved before section packs. */
+  packVersion?: 1;
+  variantId?: string;
+  bindings?: Record<string, string>;
+  designOverrides?: Record<string, SettingValue>;
 };
 
 export type EditorPage = {
@@ -75,6 +81,8 @@ export type EditorDocument = {
   assets: AssetReference[];
   commerce?: EditorCommerce;
   shopify?: ShopifyBindings;
+  /** Store-wide visual direction, independent from customer-facing section copy. */
+  designProfile?: DesignProfile;
 };
 
 export function isEditorDocument(value: unknown): value is EditorDocument {
