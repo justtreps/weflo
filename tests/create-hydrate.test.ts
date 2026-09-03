@@ -32,6 +32,8 @@ describe("creation hydration URL state", () => {
     expect(source).toContain("creationWorkspaceUrl(state.format, state.templateId");
     expect(source).toContain("mergeCompatibleCreationDraft(initialCreationState(url),readSavedState(),url)");
     expect(source).toContain('querySelector("[data-back-strategy]")');
+    const popstateHandler = source.slice(source.indexOf('window.addEventListener("popstate"'), source.indexOf("\nvoid (async"));
+    expect(popstateHandler).toContain("persistState();replaceWorkspaceUrl();");
   });
 
   it("ships the gallery and URL transitions in the browser bundle", () => {

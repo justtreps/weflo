@@ -154,7 +154,7 @@ function renderTemplateGallery(flow, selectedTemplateId, templateUrl = (template
 }
 
 // src/create/draft-safety.ts
-var sensitiveQueryKey = /(?:^|[_-])(?:token|key|api[_-]?key|password|secret|auth|signature|credential)(?:$|[_-])/i;
+var sensitiveQueryParts = /* @__PURE__ */ new Set(["token", "key", "apikey", "password", "secret", "auth", "signature", "credential"]);
 var urlCandidate = /\b[a-z][a-z0-9+.-]*:\/\/[^\s<>"']+/gi;
 var queryKey = /[?&]([^=&#\s]+)=/g;
 function decoded(value) {
@@ -164,19 +164,23 @@ function decoded(value) {
     return value;
   }
 }
+function isSensitiveQueryKey(value) {
+  const normalized = decoded(value).replace(/([a-z\d])([A-Z])/g, "$1_$2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2").toLowerCase();
+  return normalized.split(/[^a-z\d]+/).some((part) => sensitiveQueryParts.has(part));
+}
 function persistentCreationText(value) {
   if (typeof value !== "string") return "";
-  if (/(?:data|blob):/i.test(value)) return "";
+  if (/\b(?:data|blob):/i.test(value)) return "";
   for (const candidate of value.match(urlCandidate) ?? []) {
     try {
       const url = new URL(candidate);
       if (url.username || url.password) return "";
-      if ([...url.searchParams.keys()].some((key) => sensitiveQueryKey.test(key))) return "";
+      if ([...url.searchParams.keys()].some(isSensitiveQueryKey)) return "";
     } catch {
     }
   }
   for (const match of value.matchAll(queryKey)) {
-    if (sensitiveQueryKey.test(decoded(match[1]))) return "";
+    if (isSensitiveQueryKey(match[1])) return "";
   }
   return value;
 }
@@ -831,6 +835,7 @@ window.addEventListener("popstate", () => {
   const url = new URL(location.href);
   state = mergeCompatibleCreationDraft(initialCreationState(url), readSavedState(), url);
   persistState();
+  replaceWorkspaceUrl();
   if (creationStartupAction(state) === "create-blank") void createSimple().catch((reason) => {
     error = reason instanceof Error ? reason.message : "Cr\xE9ation impossible";
     render();

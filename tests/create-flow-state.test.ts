@@ -119,10 +119,12 @@ describe("creation flow state", () => {
   it.each([
     "https://user:password@example.test/product",
     "https://example.test/product?access_token=secret",
+    "https://example.test/product?accessToken=secret",
     "https://example.test/product?key=secret",
     "https://example.test/product?api_key=secret",
     "https://example.test/product?password=secret",
     "https://example.test/product?secret=secret",
+    "https://example.test/product?clientSecret=secret",
     "https://example.test/product?auth=secret",
     "https://example.test/product?signature=secret",
     "https://example.test/product?credential=secret",
@@ -137,6 +139,17 @@ describe("creation flow state", () => {
     expect(state.prompt).toBe(prompt);
     expect(JSON.parse(serializeCreationDraft(state)).prompt).toBe("");
     expect(creationWorkspaceUrl(state.format, state.templateId, state)).toBe("/creer?format=product&template=product-buybox-premium&source=link");
+  });
+
+  it("persists benign words ending in metadata colon text", () => {
+    const prompt = "Conserver les metadata: produit et les métadonnées: éditoriales";
+    const state = transitionCreationFlow(
+      initialCreationState(new URL("https://weflo.test/creer?format=product&template=product-buybox-premium&source=description")),
+      { type: "UPDATE_INTAKE", prompt, answers: {} },
+    );
+
+    expect(JSON.parse(serializeCreationDraft(state)).prompt).toBe(prompt);
+    expect(new URL(creationWorkspaceUrl(state.format, state.templateId, state), "https://weflo.test").searchParams.get("prompt")).toBe(prompt);
   });
 
   it("restores a current safe draft and rejects malformed or incompatible drafts", () => {
