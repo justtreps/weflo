@@ -1,3 +1,7 @@
+var __freeze = Object.freeze;
+var __defProp = Object.defineProperty;
+var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(raw || cooked.slice()) }));
+
 // src/hydrate/app-chrome.ts
 var NAV_HREF = {
   Accueil: "/dashboard",
@@ -323,9 +327,9 @@ function normalizeSectionPack(definition) {
   assertComplete(definition);
   const candidate = definition;
   const declaredVariants = candidate.variants;
-  const variants = declaredVariants && declaredVariants.length ? declaredVariants.map((variant) => ({ ...variant, defaults: { ...variant.defaults } })) : (definition.previewVariants?.length ? definition.previewVariants : ["default"]).map((id2) => legacyVariant(definition, id2));
+  const variants2 = declaredVariants && declaredVariants.length ? declaredVariants.map((variant) => ({ ...variant, defaults: { ...variant.defaults } })) : (definition.previewVariants?.length ? definition.previewVariants : ["default"]).map((id2) => legacyVariant(definition, id2));
   const ids = /* @__PURE__ */ new Set();
-  for (const variant of variants) {
+  for (const variant of variants2) {
     if (!variant.id?.trim()) throw new Error(`Section ${definition.type} has a variant without an id`);
     if (ids.has(variant.id)) throw new Error(`Duplicate section variant: ${definition.type}:${variant.id}`);
     ids.add(variant.id);
@@ -339,7 +343,7 @@ function normalizeSectionPack(definition) {
     supportedPages: candidate.supportedPages?.length ? [...candidate.supportedPages] : [...ALL_PAGES],
     supportedMarkets: candidate.supportedMarkets?.length ? [...candidate.supportedMarkets] : ["all"],
     capabilities: candidate.capabilities ? [...candidate.capabilities] : [],
-    variants,
+    variants: variants2,
     assets: candidate.assets ? [...candidate.assets] : [],
     migrate: candidate.migrate ?? defaultMigrate
   };
@@ -426,8 +430,8 @@ function web(layout, section2, pageName) {
   if (layout === "imageText") return `<div class="wf-section wf-image-text">${image(section2, "image", value(section2, "image_alt", title))}<div>${intro}${button(section2)}</div></div>`;
   if (layout === "beforeAfter") return `<div class="wf-section wf-before-after">${intro}<div class="wf-before-after__media">${image(section2, "before_image", value(section2, "before_alt", "Avant"))}${image(section2, "after_image", value(section2, "after_alt", "Apr\xE8s"))}</div></div>`;
   if (layout === "product") {
-    const variants = section2.blocks.filter((block3) => block3.type === "variant");
-    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks.filter((block3) => block3.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants.length ? variants.map((block3) => `<option value="${escapeHtml(blockValue(block3, "variant_id", block3.id))}">${escapeHtml(blockValue(block3, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form></div>`;
+    const variants2 = section2.blocks.filter((block3) => block3.type === "variant");
+    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks.filter((block3) => block3.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants2.length ? variants2.map((block3) => `<option value="${escapeHtml(blockValue(block3, "variant_id", block3.id))}">${escapeHtml(blockValue(block3, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form></div>`;
   }
   if (layout === "bundle") return `<div class="wf-section wf-bundle">${intro}<fieldset><legend>Compose ton bundle</legend>${section2.blocks.map((block3) => `<label><input type="checkbox" name="bundle" value="${escapeHtml(block3.id)}"><span>${escapeHtml(blockValue(block3, "title"))}</span><strong>${escapeHtml(blockValue(block3, "price"))}</strong></label>`).join("")}</fieldset><output class="wf-bundle__total" aria-live="polite">${escapeHtml(value(section2, "price", "Total calcul\xE9 dans le panier"))}</output>${button(section2)}</div>`;
   if (layout === "comparison") return `<div class="wf-section wf-comparison">${intro}<div role="table">${renderBlocks(section2.blocks, "div")}</div></div>`;
@@ -444,12 +448,12 @@ function web(layout, section2, pageName) {
   return `<div class="wf-section wf-cards" data-wf-variant="${escapeHtml(variant)}">${intro}<div class="wf-section__grid">${renderBlocks(section2.blocks)}</div>${button(section2)}</div>`;
 }
 function createSectionDefinition(type, name, category, layout, extraDefaults = {}, extraSettings = [], blocks2 = [itemBlock]) {
-  const defaults = { title: name, subtitle: "", text: "", cta_label: "D\xE9couvrir", cta_link: "#", ...extraDefaults };
+  const defaults2 = { title: name, subtitle: "", text: "", cta_label: "D\xE9couvrir", cta_link: "#", ...extraDefaults };
   return {
     type,
     name,
     category,
-    defaults,
+    defaults: defaults2,
     settings: [...common, ...cta, ...layout === "hero" || layout === "productHero" || layout === "imageText" || layout === "videoHero" ? media : [], ...extraSettings],
     blocks: blocks2,
     renderWeb: ({ section: section2, pageName }) => web(layout, section2, pageName),
@@ -515,11 +519,11 @@ for (const definition of brandMediaSections) registerSection(definition);
 function renderProductFormLiquid(options = {}) {
   const sectionClass = options.sectionClass ?? "wf-product";
   const strategy = options.strategy ?? "one-time";
-  const offers = options.includeQuantityOffers ? `<fieldset class="wf-product__quantity-offers"><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% assign wf_breaks = section.settings.quantity_breaks | default: '1,2,3' | split: ',' %}{% for break in wf_breaks %}{% assign wf_quantity = break | plus: 0 %}<button type="button" data-wf-quantity="{{ wf_quantity }}">{{ wf_quantity }}{% if section.settings.quantity_suffix != blank %} {{ section.settings.quantity_suffix | escape }}{% endif %}</button>{% endfor %}</fieldset>` : "";
+  const offers2 = options.includeQuantityOffers ? `<fieldset class="wf-product__quantity-offers"><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% assign wf_breaks = section.settings.quantity_breaks | default: '1,2,3' | split: ',' %}{% for break in wf_breaks %}{% assign wf_quantity = break | plus: 0 %}<button type="button" data-wf-quantity="{{ wf_quantity }}">{{ wf_quantity }}{% if section.settings.quantity_suffix != blank %} {{ section.settings.quantity_suffix | escape }}{% endif %}</button>{% endfor %}</fieldset>` : "";
   const sellingPlans = strategy === "selling-plan" ? `<div class="wf-product__selling-plans">{% if selected_product.selling_plan_groups.size > 0 %}<label for="weflo-selling-plan-{{ section.id }}">{{ section.settings.selling_plan_label | default: 'Fr\xE9quence' | escape }}</label><select id="weflo-selling-plan-{{ section.id }}" name="selling_plan">{% for group in selected_product.selling_plan_groups %}{% for plan in group.selling_plans %}<option value="{{ plan.id }}">{{ plan.name | escape }}</option>{% endfor %}{% endfor %}</select>{% else %}<p class="wf-product__setup" role="status">Configure un abonnement Shopify compatible avant de publier cette offre.</p>{% endif %}</div>` : "";
   const preorder = strategy === "preorder" ? `{% if section.settings.preorder_provider != blank %}<input type="hidden" name="properties[_weflo_preorder_provider]" value="{{ section.settings.preorder_provider | escape }}"><p class="wf-product__preorder-note">{{ section.settings.preorder_note | default: 'Pr\xE9commande \u2014 exp\xE9dition selon les conditions indiqu\xE9es.' | escape }}</p>{% else %}<p class="wf-product__setup" role="status">Configure un fournisseur de pr\xE9commandes compatible avant de publier.</p>{% endif %}` : "";
   const bundle = strategy === "fixed-bundle" ? `<p class="wf-product__bundle-note">{{ section.settings.bundle_note | default: 'Ce produit correspond \xE0 un bundle fixe Shopify.' | escape }}</p>` : strategy === "multipack" ? `<input type="hidden" name="properties[_weflo_multipack]" value="true">` : "";
-  return `<section class="${sectionClass}" data-wf-product data-wf-purchase-strategy="${strategy}" data-wf-section-id="{{ section.id }}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}{% assign form_id = 'weflo-product-form-' | append: section.id %}{% if selected_product != blank %}{% form 'product', selected_product, id: form_id, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input>{% for option in selected_product.options_with_values %}<label class="wf-product__option" for="weflo-option-{{ section.id }}-{{ forloop.index0 }}"><span>{{ option.name | escape }}</span><select id="weflo-option-{{ section.id }}-{{ forloop.index0 }}" data-wf-option-index="{{ forloop.index0 }}">{% for value in option.values %}<option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value | escape }}</option>{% endfor %}</select></label>{% endfor %}<div class="wf-product__prices" aria-live="polite"><strong data-wf-price>{{ selected_product.selected_or_first_available_variant.price | money }}</strong><s data-wf-compare-price{% unless selected_product.selected_or_first_available_variant.compare_at_price > selected_product.selected_or_first_available_variant.price %} hidden{% endunless %}>{{ selected_product.selected_or_first_available_variant.compare_at_price | money }}</s></div><p data-wf-availability>{% if selected_product.selected_or_first_available_variant.available %}En stock{% else %}Indisponible{% endif %}</p>${bundle}${offers}<label class="wf-product__quantity" for="weflo-quantity-{{ section.id }}">Quantit\xE9<input id="weflo-quantity-{{ section.id }}" name="quantity" type="number" min="1" value="1" inputmode="numeric" data-wf-quantity-input></label>${sellingPlans}${preorder}<button type="submit" data-wf-add-to-cart{% unless selected_product.selected_or_first_available_variant.available %} disabled{% endunless %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script type="application/json" data-wf-variants>{{ selected_product.variants | json }}<\/script><script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"><\/script>{% else %}<p class="wf-product__setup" role="status">Associe un produit Shopify \xE0 cette section avant publication.</p>{% endif %}</section>`;
+  return `<section class="${sectionClass}" data-wf-product data-wf-purchase-strategy="${strategy}" data-wf-section-id="{{ section.id }}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}{% assign form_id = 'weflo-product-form-' | append: section.id %}{% if selected_product != blank %}{% form 'product', selected_product, id: form_id, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input>{% for option in selected_product.options_with_values %}<label class="wf-product__option" for="weflo-option-{{ section.id }}-{{ forloop.index0 }}"><span>{{ option.name | escape }}</span><select id="weflo-option-{{ section.id }}-{{ forloop.index0 }}" data-wf-option-index="{{ forloop.index0 }}">{% for value in option.values %}<option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value | escape }}</option>{% endfor %}</select></label>{% endfor %}<div class="wf-product__prices" aria-live="polite"><strong data-wf-price>{{ selected_product.selected_or_first_available_variant.price | money }}</strong><s data-wf-compare-price{% unless selected_product.selected_or_first_available_variant.compare_at_price > selected_product.selected_or_first_available_variant.price %} hidden{% endunless %}>{{ selected_product.selected_or_first_available_variant.compare_at_price | money }}</s></div><p data-wf-availability>{% if selected_product.selected_or_first_available_variant.available %}En stock{% else %}Indisponible{% endif %}</p>${bundle}${offers2}<label class="wf-product__quantity" for="weflo-quantity-{{ section.id }}">Quantit\xE9<input id="weflo-quantity-{{ section.id }}" name="quantity" type="number" min="1" value="1" inputmode="numeric" data-wf-quantity-input></label>${sellingPlans}${preorder}<button type="submit" data-wf-add-to-cart{% unless selected_product.selected_or_first_available_variant.available %} disabled{% endunless %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script type="application/json" data-wf-variants>{{ selected_product.variants | json }}<\/script><script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"><\/script>{% else %}<p class="wf-product__setup" role="status">Associe un produit Shopify \xE0 cette section avant publication.</p>{% endif %}</section>`;
 }
 
 // src/sections/product-main.ts
@@ -535,8 +539,8 @@ var productMainSection = {
     const cta2 = value(section2, "cta_label", "Ajouter au panier");
     const requested = value(section2, "variant", "calm-buy-box");
     const variant = (/* @__PURE__ */ new Set(["calm-buy-box", "beauty-buy-box", "technical-buy-box", "luxury-buy-box", "tasting-buy-box", "conversion-split", "bundle-led"])).has(requested) ? requested : "calm-buy-box";
-    const variants = section2.blocks.filter((block3) => block3.type === "variant");
-    const options = variants.length ? variants.map((block3) => `<option value="${escapeHtml(blockValue(block3, "variant_id", block3.id))}">${escapeHtml(blockValue(block3, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
+    const variants2 = section2.blocks.filter((block3) => block3.type === "variant");
+    const options = variants2.length ? variants2.map((block3) => `<option value="${escapeHtml(blockValue(block3, "variant_id", block3.id))}">${escapeHtml(blockValue(block3, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
     return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section2, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box">${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><div class="wf-product__bundle"></div><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust"></p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
   },
   renderLiquid: () => renderProductFormLiquid({ sectionClass: "weflo-product-main" })
@@ -763,14 +767,14 @@ function liquidFor(pack) {
 }
 function premiumPack(input) {
   const capabilities = input.capabilities ?? [];
-  const variants = input.variants.map(([id2, name, composition]) => ({ id: id2, name, description: composition, composition, previewFixtureId: "", defaults: { variant: id2 } }));
+  const variants2 = input.variants.map(([id2, name, composition]) => ({ id: id2, name, description: composition, composition, previewFixtureId: "", defaults: { variant: id2 } }));
   const productControls = capabilities.some((capability) => capability === "product-form" || capability === "variant-selection") ? [textControl("product_handle", "Produit Shopify", "text")] : [];
-  const defaults = { title: input.name, subtitle: "", text: "", image: "", image_alt: "", cta_label: capabilities.includes("product-form") ? "Ajouter au panier" : "D\xE9couvrir", cta_link: "#", variant: variants[0].id, ...input.extraDefaults };
+  const defaults2 = { title: input.name, subtitle: "", text: "", image: "", image_alt: "", cta_label: capabilities.includes("product-form") ? "Ajouter au panier" : "D\xE9couvrir", cta_link: "#", variant: variants2[0].id, ...input.extraDefaults };
   return {
     type: input.type,
     name: input.name,
     category: input.category,
-    defaults,
+    defaults: defaults2,
     settings: [...baseControls, ...productControls, ...input.extraSettings ?? []],
     blocks: standardBlocks,
     families: [input.family],
@@ -778,11 +782,11 @@ function premiumPack(input) {
     supportedPages: input.supportedPages ?? ["landing", "product", "collection", "home"],
     supportedMarkets: ["all"],
     capabilities,
-    variants,
+    variants: variants2,
     assets: [],
     packVersion: 1,
     renderWeb: ({ section: section2, pageName, editor }) => {
-      const variant = variants.some((item2) => item2.id === value(section2, "variant", variants[0].id)) ? value(section2, "variant", variants[0].id) : variants[0].id;
+      const variant = variants2.some((item2) => item2.id === value(section2, "variant", variants2[0].id)) ? value(section2, "variant", variants2[0].id) : variants2[0].id;
       const heading = value(section2, "title", pageName);
       const intro = `<header>${value(section2, "subtitle") ? `<p class="wf-section__eyebrow">${escapeHtml(value(section2, "subtitle"))}</p>` : ""}<h2 data-wf-edit-key="title">${escapeHtml(heading)}</h2>${value(section2, "text") ? `<p class="wf-section__copy" data-wf-edit-key="text">${escapeHtml(value(section2, "text"))}</p>` : ""}</header>`;
       const action = value(section2, "cta_label") ? `<a class="wf-section__button" href="${safeLink(section2.settings.cta_link)}">${escapeHtml(value(section2, "cta_label"))}</a>` : "";
@@ -793,8 +797,8 @@ function premiumPack(input) {
       return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}">${media3}${intro}<div class="wf-section__grid">${cards(section2.blocks)}</div>${action}${setup}</section>`;
     },
     renderLiquid: () => liquidFor(input),
-    renderSchema: () => ({ name: input.name, settings: [...baseControls, ...productControls, ...input.extraSettings ?? []].map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })), blocks: standardBlocks.map((block3) => ({ type: block3.type, name: block3.name, settings: block3.settings.map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })) })), presets: variants.map((variant) => ({ name: variant.name, settings: { ...variant.defaults } })) }),
-    migrate: (section2) => ({ ...section2, packVersion: 1, variantId: section2.variantId ?? value(section2, "variant", variants[0].id) })
+    renderSchema: () => ({ name: input.name, settings: [...baseControls, ...productControls, ...input.extraSettings ?? []].map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })), blocks: standardBlocks.map((block3) => ({ type: block3.type, name: block3.name, settings: block3.settings.map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })) })), presets: variants2.map((variant) => ({ name: variant.name, settings: { ...variant.defaults } })) }),
+    migrate: (section2) => ({ ...section2, packVersion: 1, variantId: section2.variantId ?? value(section2, "variant", variants2[0].id) })
   };
 }
 
@@ -820,11 +824,6 @@ var productPacks = [
 // src/sections/packs/offer-packs.ts
 var select = (key, label, options) => ({ key, label, type: "select", scope: "settings", options });
 var offerPacks = [
-  premiumPack({ type: "quantity-offer", name: "Offre quantit\xE9", category: "commerce", family: "quantity-offer", tags: ["quantit\xE9", "volume", "\xE9conomie"], capabilities: ["product-form", "quantity-breaks"], layout: "product", extraDefaults: { quantity_breaks: "1,2,3", quantity_label: "Choisir la quantit\xE9", quantity_suffix: "unit\xE9s" }, variants: [
-    ["single-duo-trio", "Solo, duo, trio", "Trois offres \xE9gales et imm\xE9diatement comparables."],
-    ["tier-table", "Table de paliers", "Lecture par niveau de quantit\xE9 et \xE9conomie."],
-    ["volume-ladder", "\xC9chelle de volume", "Progression verticale guidant vers le meilleur volume."]
-  ] }),
   premiumPack({ type: "fixed-bundle", name: "Bundle fixe", category: "commerce", family: "fixed-bundle", tags: ["bundle", "multipack", "offre"], capabilities: ["product-form", "fixed-bundle"], layout: "product", extraDefaults: { bundle_note: "Ce produit correspond \xE0 un bundle fixe Shopify." }, variants: [
     ["routine", "Routine compl\xE8te", "Produits compl\xE9mentaires ordonn\xE9s par usage."],
     ["multipack", "Multipack", "M\xEAme produit d\xE9clin\xE9 en quantit\xE9 avec \xE9conomie."],
@@ -841,6 +840,49 @@ var offerPacks = [
     ["limited", "S\xE9rie limit\xE9e", "Disponibilit\xE9 limit\xE9e accompagn\xE9e d\u2019une r\xE9assurance."]
   ] })
 ];
+
+// src/sections/quantity-offer.ts
+var MIXED = "Une application Shopify est requise pour les offres multi-produits.";
+var controls = [textControl("title", "Titre"), textControl("subtitle", "Sous-titre"), textControl("text", "Texte", "textarea"), textControl("product_handle", "Produit Shopify"), textControl("quantity_label", "Libell\xE9 des quantit\xE9s"), textControl("cta_label", "Libell\xE9 du bouton")];
+var tierControls = [textControl("title", "Titre"), textControl("subtitle", "Sous-titre"), textControl("badge", "Badge"), { key: "quantity", label: "Quantit\xE9", type: "number", scope: "settings" }, { key: "discount_type", label: "Type de remise", type: "select", scope: "settings", options: ["percentage", "amount", "none"], optionLabels: { percentage: "Pourcentage", amount: "Montant fixe", none: "Aucune remise" } }, { key: "discount_value", label: "Valeur de la remise", type: "number", scope: "settings" }, textControl("product_handle", "Produit Shopify"), textControl("variant_id", "Variante Shopify"), { key: "preselected", label: "S\xE9lectionn\xE9e par d\xE9faut", type: "toggle", scope: "settings" }, { key: "show_variant_picker", label: "Afficher le choix de variante", type: "toggle", scope: "settings" }];
+var tier = { type: "offer-tier", name: "Palier d\u2019offre", defaults: { title: "Duo", subtitle: "2 unit\xE9s", badge: "Le plus choisi", quantity: 2, discount_type: "percentage", discount_value: 10, product_handle: "", variant_id: "", preselected: false, show_variant_picker: false }, settings: tierControls };
+var variants = ["horizontal-cards", "stacked-premium", "tier-table"].map((id2) => ({ id: id2, name: id2 === "horizontal-cards" ? "Cartes horizontales" : id2 === "stacked-premium" ? "Paliers premium" : "Table de paliers", description: "Composition d\u2019offre quantit\xE9.", composition: id2, previewFixtureId: "", defaults: { variant: id2 } }));
+var defaults = { title: "Choisissez votre quantit\xE9", subtitle: "Plus vous choisissez, plus vous \xE9conomisez.", text: "", product_handle: "", quantity_label: "Choisir la quantit\xE9", cta_label: "Ajouter au panier", variant: "horizontal-cards" };
+var offers = (section2) => section2.blocks.filter((block3) => block3.type === "offer-tier" || block3.type === "offer");
+function chosen(items) {
+  return items.find((item2) => item2.settings.preselected === true)?.id ?? items[0]?.id ?? "";
+}
+function isMixed(section2, items) {
+  let root = String(section2.settings.product_handle ?? "").trim().toLowerCase();
+  for (const item2 of items) {
+    const current = String(item2.settings.product_handle ?? root).trim().toLowerCase();
+    if (root && current && root !== current) return true;
+    root ||= current;
+  }
+  return false;
+}
+function webTier(block3, active, locked) {
+  const quantity = Math.max(1, Number(blockValue(block3, "quantity", "1")) || 1);
+  const variant = blockValue(block3, "variant_id");
+  return `<label data-wf-block-id="${escapeHtml(block3.id)}"><input type="radio" name="quantity" value="${quantity}"${block3.id === active ? " checked" : ""}${locked ? " disabled" : ""} data-wf-quantity="${quantity}"${variant ? ` data-wf-variant-id="${escapeHtml(variant)}"` : ""}><span>${escapeHtml(blockValue(block3, "title", `${quantity} unit\xE9s`))}</span>${blockValue(block3, "subtitle", blockValue(block3, "text")) ? `<small>${escapeHtml(blockValue(block3, "subtitle", blockValue(block3, "text")))}</small>` : ""}${blockValue(block3, "badge") ? `<strong>${escapeHtml(blockValue(block3, "badge"))}</strong>` : ""}</label>`;
+}
+function renderWeb(section2, pageName) {
+  const items = offers(section2);
+  const locked = isMixed(section2, items);
+  const layout = variants.some((item2) => item2.id === value(section2, "variant")) ? value(section2, "variant") : "horizontal-cards";
+  return `<section class="wf-section wf-quantity-offer wf-quantity-offer--${escapeHtml(layout)}"><header>${value(section2, "subtitle") ? `<p>${escapeHtml(value(section2, "subtitle"))}</p>` : ""}<h2>${escapeHtml(value(section2, "title", pageName))}</h2>${value(section2, "text") ? `<p>${escapeHtml(value(section2, "text"))}</p>` : ""}</header>${locked ? `<aside class="wf-quantity-offer__app-required" role="status">${MIXED}</aside>` : ""}<form class="wf-product__form" action="/cart/add"><fieldset><legend>${escapeHtml(value(section2, "quantity_label", "Choisir la quantit\xE9"))}</legend>${items.map((item2) => webTier(item2, chosen(items), locked)).join("")}</fieldset><button type="submit"${locked ? " disabled" : ""}>${escapeHtml(value(section2, "cta_label", "Ajouter au panier"))}</button></form></section>`;
+}
+var _a;
+function renderLiquid() {
+  return String.raw(_a || (_a = __template([`{% assign wf_reference_handle = section.settings.product_handle | strip | downcase %}{% assign wf_mixed_product_offer = false %}{% assign wf_selected_tier_id = '' %}{% for block in section.blocks %}{% if block.type == 'offer-tier' or block.type == 'offer' %}{% assign wf_tier_handle = block.settings.product_handle | default: wf_reference_handle | strip | downcase %}{% if wf_reference_handle == blank %}{% assign wf_reference_handle = wf_tier_handle %}{% elsif wf_tier_handle != blank and wf_tier_handle != wf_reference_handle %}{% assign wf_mixed_product_offer = true %}{% endif %}{% if block.settings.preselected %}{% if wf_selected_tier_id == blank %}{% assign wf_selected_tier_id = block.id %}{% endif %}{% endif %}{% endif %}{% endfor %}{% if wf_selected_tier_id == blank %}{% for block in section.blocks %}{% if block.type == 'offer-tier' or block.type == 'offer' %}{% assign wf_selected_tier_id = block.id %}{% break %}{% endif %}{% endfor %}{% endif %}<section class="wf-section wf-quantity-offer wf-quantity-offer--{{ section.settings.variant | escape }}" data-wf-product data-wf-purchase-strategy="multipack" data-wf-section-id="{{ section.id }}"><header>{% if section.settings.subtitle != blank %}<p>{{ section.settings.subtitle | escape }}</p>{% endif %}<h2>{{ section.settings.title | escape }}</h2>{% if section.settings.text != blank %}<p>{{ section.settings.text | escape }}</p>{% endif %}</header>{% assign selected_product = all_products[wf_reference_handle] | default: product %}{% if wf_mixed_product_offer %}<aside class="wf-quantity-offer__app-required" role="status">Une application Shopify est requise pour les offres multi-produits.</aside>{% endif %}{% if selected_product != blank %}{% form 'product', selected_product, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input><fieldset><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% for block in section.blocks %}{% if block.type == 'offer-tier' or block.type == 'offer' %}<label data-wf-block-id="{{ block.id }}" {{ block.shopify_attributes }}><input type="radio" name="quantity" value="{{ block.settings.quantity | default: 1 }}" data-wf-quantity="{{ block.settings.quantity | default: 1 }}" data-wf-variant-id="{{ block.settings.variant_id | default: selected_product.selected_or_first_available_variant.id }}"{% if block.id == wf_selected_tier_id %} checked{% endif %}{% if wf_mixed_product_offer %} disabled{% endif %}><span>{{ block.settings.title | escape }}</span></label>{% endif %}{% endfor %}</fieldset><button type="submit" data-wf-add-to-cart{% if wf_mixed_product_offer or selected_product.selected_or_first_available_variant.available == false %} disabled{% endif %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"><\/script>{% endif %}</section>`])));
+}
+function migrate(section2) {
+  const quantities = value(section2, "quantity_breaks", "1,2,3").split(",").map(Number);
+  let index = 0;
+  const variant = value(section2, "variant") === "single-duo-trio" ? "horizontal-cards" : value(section2, "variant") === "volume-ladder" ? "stacked-premium" : value(section2, "variant", "horizontal-cards");
+  return { ...section2, settings: { ...section2.settings, variant }, blocks: section2.blocks.map((block3) => block3.type !== "offer" ? { ...block3, settings: { ...block3.settings } } : { ...block3, type: "offer-tier", settings: { ...block3.settings, subtitle: blockValue(block3, "subtitle", blockValue(block3, "text")), quantity: Number(block3.settings.quantity) || quantities[index++] || 1, discount_type: blockValue(block3, "discount_type", "none"), discount_value: block3.settings.discount_value ?? 0, product_handle: blockValue(block3, "product_handle", value(section2, "product_handle")), variant_id: blockValue(block3, "variant_id"), preselected: block3.settings.preselected === true, show_variant_picker: block3.settings.show_variant_picker === true } }), packVersion: 1, variantId: section2.variantId ?? variant };
+}
+var quantityOfferSection = { type: "quantity-offer", name: "Offre quantit\xE9", category: "commerce", defaults, settings: controls, blocks: [tier], families: ["quantity-offer"], tags: ["quantit\xE9", "volume", "\xE9conomie"], supportedPages: ["landing", "product", "collection", "home"], supportedMarkets: ["all"], capabilities: ["product-form", "quantity-breaks"], variants, assets: [], packVersion: 1, renderWeb: ({ section: section2, pageName }) => renderWeb(section2, pageName), renderLiquid, renderSchema: () => ({ name: "Offre quantit\xE9", settings: controls.map((control) => ({ id: control.key, label: control.label, type: control.type })), blocks: [{ type: tier.type, name: tier.name, settings: tierControls.map((control) => ({ id: control.key, label: control.label, type: control.type })) }], presets: variants.map((variant) => ({ name: variant.name, settings: variant.defaults })) }), migrate };
 
 // src/sections/packs/proof-packs.ts
 var proofPacks = [
@@ -918,7 +960,7 @@ var brandStoryPacks = [
 registerSection(spacerSection);
 registerSection(dividerSection);
 registerSection(customCodeSection);
-for (const pack of [...productPacks, ...offerPacks, ...proofPacks, ...discoveryPacks, ...advertorialPacks, ...listiclePacks, ...quizPacks, ...brandStoryPacks]) registerSection(pack);
+for (const pack of [...productPacks, quantityOfferSection, ...offerPacks, ...proofPacks, ...discoveryPacks, ...advertorialPacks, ...listiclePacks, ...quizPacks, ...brandStoryPacks]) registerSection(pack);
 
 // src/section-preview/manifests.ts
 var item = (sectionType, variantId, title, conversionGoal, category, supportedArchetypes, defaultFixtureId, compatibleFixtureIds, extra = {}) => {
@@ -967,8 +1009,8 @@ function dynamicManifests() {
   for (const definition of listSectionDefinitions()) {
     const type = typeof definition.type === "string" ? definition.type : "";
     if (!type) continue;
-    const variants = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : Array.isArray(definition.previewVariants) && definition.previewVariants.length ? definition.previewVariants : ["default"];
-    for (const rawVariant of variants) {
+    const variants2 = Array.isArray(definition.variants) && definition.variants.length ? definition.variants : Array.isArray(definition.previewVariants) && definition.previewVariants.length ? definition.previewVariants : ["default"];
+    for (const rawVariant of variants2) {
       const variant = typeof rawVariant === "string" ? { id: rawVariant } : rawVariant && typeof rawVariant === "object" ? rawVariant : null;
       const variantId = variant && typeof variant.id === "string" ? variant.id : "default";
       if (existing.has(`${type}:${variantId}`)) continue;
@@ -1082,12 +1124,300 @@ function addSectionPanel() {
   return `<section data-panel="add"><p class="editor-panel-help">Choisis une vraie composition, teste-la avec un produit fictif puis adapte-la \xE0 ta marque.</p>${sectionCatalogShellMarkup()}</section>`;
 }
 
+// src/editor/ui/offer-editor.ts
+var TIER_DEFAULTS = {
+  title: "Nouveau palier",
+  subtitle: "",
+  badge: "",
+  quantity: 1,
+  discount_type: "none",
+  discount_value: 0,
+  product_handle: "",
+  variant_id: "",
+  preselected: false,
+  show_variant_picker: false
+};
+var COMPOSITIONS = [
+  ["horizontal-cards", "Cartes horizontales"],
+  ["stacked-premium", "Paliers premium"],
+  ["tier-table", "Table de paliers"]
+];
+function escapeHtml2(value2) {
+  return String(value2 ?? "").replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character] ?? character);
+}
+function currentPage(state) {
+  return state.document.pages.find((page) => page.id === state.pageId) ?? state.document.pages[0];
+}
+function selectedOfferSection(state) {
+  return currentPage(state)?.sections.find((section2) => section2.id === state.selectedId && section2.type === "quantity-offer");
+}
+function offerTiers(section2) {
+  return section2.blocks.filter((block3) => block3.type === "offer-tier" || block3.type === "offer");
+}
+function effectivePreselectedId(tiers) {
+  return tiers.find((tier2) => tier2.settings.preselected === true)?.id ?? tiers[0]?.id;
+}
+function effectiveProductHandles(section2, tiers) {
+  const sectionHandle = String(section2.settings.product_handle ?? "").trim().toLowerCase();
+  return [...new Set(tiers.map((tier2) => (String(tier2.settings.product_handle ?? "").trim() || sectionHandle).toLowerCase()).filter(Boolean))];
+}
+function setting(block3, key, fallback = "") {
+  return block3.settings[key] ?? fallback;
+}
+function tierMarkup(section2, block3, selectedBlockId, preselectedId, index, count) {
+  const title = String(setting(block3, "title", `Palier ${index + 1}`));
+  const sectionId = escapeHtml2(section2.id);
+  const blockId = escapeHtml2(block3.id);
+  const attributes = `data-section-id="${sectionId}" data-block-id="${blockId}"`;
+  const selected = block3.id === selectedBlockId;
+  const checked = block3.id === preselectedId;
+  return `<article class="editor-offer-tier" data-offer-tier="${blockId}" ${attributes} tabindex="0" aria-label="Modifier le palier ${escapeHtml2(title)}" aria-selected="${selected}">
+    <header class="editor-offer-tier__header">
+      <button type="button" class="editor-offer-tier__handle" data-offer-drag-handle ${attributes} draggable="${!section2.locked}" aria-label="D\xE9placer le palier ${escapeHtml2(title)}"${section2.locked ? " disabled" : ""}><span aria-hidden="true">\u283F</span></button>
+      <button type="button" class="editor-offer-tier__select" data-offer-action="select" ${attributes}><strong>${escapeHtml2(title)}</strong><small>${escapeHtml2(setting(block3, "subtitle", `${setting(block3, "quantity", 1)} unit\xE9(s)`))}</small></button>
+      <label class="editor-offer-tier__default"><input type="radio" name="offer-preselected-${sectionId}" data-offer-setting="preselected" ${attributes}${checked ? " checked" : ""}${section2.locked ? " disabled" : ""}>Par d\xE9faut</label>
+    </header>
+    <div class="editor-offer-tier__fields">
+      <label><span>Nom</span><input type="text" value="${escapeHtml2(title)}" data-offer-setting="title" ${attributes}${section2.locked ? " disabled" : ""}></label>
+      <label><span>Badge</span><input type="text" value="${escapeHtml2(setting(block3, "badge"))}" placeholder="Le plus choisi" data-offer-setting="badge" ${attributes}${section2.locked ? " disabled" : ""}></label>
+      <div class="editor-offer-quantity"><span>Quantit\xE9</span><div><button type="button" data-offer-action="quantity-down" ${attributes} aria-label="Diminuer la quantit\xE9 du palier ${escapeHtml2(title)}"${Number(setting(block3, "quantity", 1)) <= 1 || section2.locked ? " disabled" : ""}>\u2212</button><input type="number" min="1" step="1" value="${escapeHtml2(setting(block3, "quantity", 1))}" data-offer-setting="quantity" ${attributes} aria-label="Quantit\xE9 du palier ${escapeHtml2(title)}"${section2.locked ? " disabled" : ""}><button type="button" data-offer-action="quantity-up" ${attributes} aria-label="Augmenter la quantit\xE9 du palier ${escapeHtml2(title)}"${section2.locked ? " disabled" : ""}>+</button></div></div>
+      <label><span>Remise</span><select data-offer-setting="discount_type" ${attributes}${section2.locked ? " disabled" : ""}>${[["none", "Aucune"], ["percentage", "Pourcentage"], ["amount", "Montant fixe"]].map(([value2, label]) => `<option value="${value2}"${setting(block3, "discount_type", "none") === value2 ? " selected" : ""}>${label}</option>`).join("")}</select></label>
+      <label><span>Valeur</span><input type="number" min="0" step="0.01" value="${escapeHtml2(setting(block3, "discount_value", 0))}" data-offer-setting="discount_value" ${attributes}${section2.locked ? " disabled" : ""}></label>
+      <label><span>Produit Shopify</span><input type="text" value="${escapeHtml2(setting(block3, "product_handle"))}" placeholder="handle-produit" data-offer-setting="product_handle" ${attributes}${section2.locked ? " disabled" : ""}></label>
+      <label><span>Variante Shopify</span><input type="text" value="${escapeHtml2(setting(block3, "variant_id"))}" placeholder="ID de variante" data-offer-setting="variant_id" ${attributes}${section2.locked ? " disabled" : ""}></label>
+      <label class="editor-offer-tier__toggle"><input type="checkbox" data-offer-setting="show_variant_picker" ${attributes}${setting(block3, "show_variant_picker", false) === true ? " checked" : ""}${section2.locked ? " disabled" : ""}>Afficher le choix de variante</label>
+    </div>
+    <footer><button type="button" data-offer-action="move-up" ${attributes} aria-label="Monter le palier ${escapeHtml2(title)}"${index === 0 || section2.locked ? " disabled" : ""}>\u2191</button><button type="button" data-offer-action="move-down" ${attributes} aria-label="Descendre le palier ${escapeHtml2(title)}"${index === count - 1 || section2.locked ? " disabled" : ""}>\u2193</button><button type="button" data-offer-action="duplicate" ${attributes}${section2.locked ? " disabled" : ""}>Dupliquer</button><button type="button" data-offer-action="remove" ${attributes} aria-label="Supprimer le palier ${escapeHtml2(title)}"${count === 1 || section2.locked ? " disabled" : ""}>Supprimer</button></footer>
+  </article>`;
+}
+function offerEditorMarkup(state) {
+  const section2 = selectedOfferSection(state);
+  if (!section2) return "";
+  const tiers = offerTiers(section2);
+  const preselectedId = effectivePreselectedId(tiers);
+  const mixedProducts = effectiveProductHandles(section2, tiers).length > 1;
+  const composition = String(section2.settings.variant ?? section2.variantId ?? "horizontal-cards");
+  return `<section class="editor-offer" data-offer-editor data-section-id="${escapeHtml2(section2.id)}">
+    <header class="editor-offer__heading"><div><h2>Offres et bundles</h2><p>Compose tes paliers de quantit\xE9 et relie-les \xE0 Shopify.</p></div><button type="button" data-offer-action="add" data-section-id="${escapeHtml2(section2.id)}"${section2.locked ? " disabled" : ""}>Ajouter un palier</button></header>
+    <label class="editor-offer__composition"><span>Composition</span><select data-offer-composition="${escapeHtml2(composition)}" data-section-id="${escapeHtml2(section2.id)}"${section2.locked ? " disabled" : ""}>${COMPOSITIONS.map(([value2, label]) => `<option value="${value2}"${composition === value2 ? " selected" : ""}>${label}</option>`).join("")}</select></label>
+    <aside class="editor-offer__capability" data-offer-capability="${mixedProducts ? "app-required" : "native"}" role="status"><strong>${mixedProducts ? "Offre multi-produits" : "Offre quantit\xE9 native"}</strong><span>${mixedProducts ? "Une application Shopify est requise pour combiner plusieurs produits." : "Compatible avec le panier Shopify natif."}</span></aside>
+    <div class="editor-offer__tiers" role="list">${tiers.map((block3, index) => tierMarkup(section2, block3, state.selectedBlockId, preselectedId, index, tiers.length)).join("")}</div>
+    ${tiers.length ? "" : '<p class="editor-offer__empty">Ajoute un palier pour commencer ton offre.</p>'}
+  </section>`;
+}
+function uniqueBlockId(state, base9) {
+  const ids = new Set(state.document.pages.flatMap((page) => page.sections.flatMap((section2) => section2.blocks.map((block3) => block3.id))));
+  let candidate = base9;
+  let suffix = 2;
+  while (ids.has(candidate)) candidate = `${base9}-${suffix++}`;
+  return candidate;
+}
+function sectionById(state, sectionId) {
+  return state.document.pages.flatMap((page) => page.sections).find((section2) => section2.id === sectionId);
+}
+function exclusivePreselection(section2, preferredId) {
+  const tiers = offerTiers(section2);
+  const chosen2 = preferredId && tiers.some((tier2) => tier2.id === preferredId) ? preferredId : effectivePreselectedId(tiers);
+  return chosen2 ? { type: "setExclusiveBlockSetting", sectionId: section2.id, blockId: chosen2, key: "preselected" } : void 0;
+}
+function transaction(commands) {
+  return { type: "transaction", commands: commands.filter((command) => command !== void 0) };
+}
+function runOfferEditorAction(store, action) {
+  const section2 = sectionById(store.getState(), action.sectionId);
+  if (!section2 || section2.type !== "quantity-offer") return;
+  if (action.action === "select") {
+    store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId, rightCollapsed: false });
+    return;
+  }
+  if (section2.locked) return;
+  if (action.action === "composition") {
+    if (COMPOSITIONS.some(([value2]) => value2 === action.value)) store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: "variant", value: action.value });
+    return;
+  }
+  if (action.action === "setting") {
+    if (action.key === "preselected") {
+      store.dispatch({ type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: "preselected" });
+      return;
+    }
+    store.dispatch({ type: "updateBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: action.key, value: action.value });
+    return;
+  }
+  if (action.action === "preselect") {
+    store.dispatch({ type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: action.blockId, key: "preselected" });
+    store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId });
+    return;
+  }
+  if (action.action === "add") {
+    const id2 = uniqueBlockId(store.getState(), "offer-tier-1");
+    const tiers = offerTiers(section2);
+    const chosen2 = effectivePreselectedId(tiers) ?? id2;
+    store.dispatch(transaction([
+      { type: "insertBlock", sectionId: action.sectionId, index: section2.blocks.length, block: { id: id2, type: "offer-tier", settings: { ...TIER_DEFAULTS, preselected: false } } },
+      { type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: chosen2, key: "preselected" }
+    ]));
+    store.setState({ selectedId: action.sectionId, selectedBlockId: id2, rightCollapsed: false });
+    return;
+  }
+  if (action.action === "duplicate") {
+    const sourceIndex = section2.blocks.findIndex((block3) => block3.id === action.blockId);
+    if (sourceIndex < 0) return;
+    const id2 = uniqueBlockId(store.getState(), `${action.blockId}-copy`);
+    store.dispatch(transaction([
+      { type: "duplicateBlock", sectionId: action.sectionId, blockId: action.blockId, newBlockId: id2, index: sourceIndex + 1 },
+      exclusivePreselection(section2)
+    ]));
+    store.setState({ selectedId: action.sectionId, selectedBlockId: id2, rightCollapsed: false });
+    return;
+  }
+  if (action.action === "remove") {
+    const tiers = offerTiers(section2);
+    if (tiers.length <= 1 || !tiers.some((tier2) => tier2.id === action.blockId)) return;
+    const index = tiers.findIndex((tier2) => tier2.id === action.blockId);
+    const wasSelected = action.blockId === store.getState().selectedBlockId;
+    const remaining = tiers.filter((tier2) => tier2.id !== action.blockId);
+    const nextId = remaining[Math.min(index, remaining.length - 1)]?.id;
+    const chosen2 = effectivePreselectedId(remaining) ?? nextId;
+    store.dispatch(transaction([
+      { type: "removeBlock", sectionId: action.sectionId, blockId: action.blockId },
+      chosen2 ? { type: "setExclusiveBlockSetting", sectionId: action.sectionId, blockId: chosen2, key: "preselected" } : void 0
+    ]));
+    if (wasSelected) store.setState({ selectedBlockId: nextId ?? null });
+    return;
+  }
+  if (action.action === "move") {
+    if (Number.isInteger(action.toIndex) && action.toIndex >= 0 && action.toIndex <= section2.blocks.length) {
+      store.dispatch({ type: "moveBlock", sectionId: action.sectionId, blockId: action.blockId, toIndex: action.toIndex });
+      store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId });
+    }
+  }
+}
+function eventTarget(event, selector) {
+  return event.target?.closest?.(selector) ?? null;
+}
+function blockLocation(store, sectionId, blockId) {
+  const section2 = sectionById(store.getState(), sectionId);
+  const index = section2?.blocks.findIndex((block3) => block3.id === blockId) ?? -1;
+  return section2 && index >= 0 ? { section: section2, index, block: section2.blocks[index] } : void 0;
+}
+function bindOfferEditor(root, store) {
+  const click = (event) => {
+    const target = eventTarget(event, "[data-offer-action],[data-offer-tier]");
+    if (!target) return;
+    const sectionId = target.dataset.sectionId;
+    const blockId = target.dataset.blockId;
+    const action = target.dataset.offerAction;
+    if (!sectionId) return;
+    if (!action && blockId) {
+      runOfferEditorAction(store, { action: "select", sectionId, blockId });
+      return;
+    }
+    if (action === "add") runOfferEditorAction(store, { action, sectionId });
+    if ((action === "select" || action === "duplicate" || action === "remove") && blockId) {
+      runOfferEditorAction(store, { action, sectionId, blockId });
+    }
+    if ((action === "quantity-up" || action === "quantity-down") && blockId) {
+      const location2 = blockLocation(store, sectionId, blockId);
+      if (!location2) return;
+      const current = Math.max(1, Math.round(Number(location2.block.settings.quantity) || 1));
+      runOfferEditorAction(store, { action: "setting", sectionId, blockId, key: "quantity", value: Math.max(1, current + (action === "quantity-up" ? 1 : -1)) });
+    }
+    if ((action === "move-up" || action === "move-down") && blockId) {
+      const location2 = blockLocation(store, sectionId, blockId);
+      if (!location2) return;
+      const toIndex = action === "move-up" ? location2.index - 1 : location2.index + 2;
+      if (toIndex >= 0 && toIndex <= location2.section.blocks.length) runOfferEditorAction(store, { action: "move", sectionId, blockId, toIndex });
+    }
+  };
+  const change = (event) => {
+    const composition = eventTarget(event, "[data-offer-composition]");
+    if (composition?.dataset.sectionId) {
+      runOfferEditorAction(store, { action: "composition", sectionId: composition.dataset.sectionId, value: composition.value });
+      return;
+    }
+    const control = eventTarget(event, "[data-offer-setting]");
+    const sectionId = control?.dataset.sectionId;
+    const blockId = control?.dataset.blockId;
+    const key = control?.dataset.offerSetting;
+    if (!control || !sectionId || !blockId || !key) return;
+    if (key === "preselected") {
+      if (control.checked) runOfferEditorAction(store, { action: "preselect", sectionId, blockId });
+      return;
+    }
+    const value2 = control.type === "checkbox" ? control.checked : key === "quantity" ? Math.max(1, Math.round(Number(control.value) || 1)) : key === "discount_value" ? Math.max(0, Number(control.value) || 0) : control.value;
+    runOfferEditorAction(store, { action: "setting", sectionId, blockId, key, value: value2 });
+  };
+  const keydown = (event) => {
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    if (event.target?.closest?.("input,select,textarea,button")) return;
+    const row = eventTarget(event, "[data-offer-tier]");
+    const sectionId = row?.dataset.sectionId;
+    const blockId = row?.dataset.blockId;
+    if (!sectionId || !blockId) return;
+    const location2 = blockLocation(store, sectionId, blockId);
+    if (!location2) return;
+    const toIndex = event.key === "ArrowUp" ? location2.index - 1 : location2.index + 2;
+    if (toIndex < 0 || toIndex > location2.section.blocks.length) return;
+    event.preventDefault();
+    runOfferEditorAction(store, { action: "move", sectionId, blockId, toIndex });
+  };
+  const dragstart = (event) => {
+    const handle = eventTarget(event, "[data-offer-drag-handle]");
+    if (!handle?.dataset.sectionId || !handle.dataset.blockId || !event.dataTransfer) return;
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", `${handle.dataset.sectionId}:${handle.dataset.blockId}`);
+  };
+  const dragover = (event) => {
+    if (!eventTarget(event, "[data-offer-tier]")) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
+  };
+  const drop = (event) => {
+    const row = eventTarget(event, "[data-offer-tier]");
+    const destinationSectionId = row?.dataset.sectionId;
+    const destinationBlockId = row?.dataset.blockId;
+    const payload = event.dataTransfer?.getData("text/plain") ?? "";
+    const separator = payload.indexOf(":");
+    const sectionId = payload.slice(0, separator);
+    const blockId = payload.slice(separator + 1);
+    if (!destinationSectionId || !destinationBlockId || separator < 1 || sectionId !== destinationSectionId || blockId === destinationBlockId) return;
+    const source = blockLocation(store, sectionId, blockId);
+    const destination = blockLocation(store, sectionId, destinationBlockId);
+    if (!source || !destination) return;
+    event.preventDefault();
+    runOfferEditorAction(store, { action: "move", sectionId, blockId, toIndex: source.index < destination.index ? destination.index + 1 : destination.index });
+  };
+  root.addEventListener("click", click);
+  root.addEventListener("change", change);
+  root.addEventListener("keydown", keydown);
+  root.addEventListener("dragstart", dragstart);
+  root.addEventListener("dragover", dragover);
+  root.addEventListener("drop", drop);
+  return () => {
+    root.removeEventListener("click", click);
+    root.removeEventListener("change", change);
+    root.removeEventListener("keydown", keydown);
+    root.removeEventListener("dragstart", dragstart);
+    root.removeEventListener("dragover", dragover);
+    root.removeEventListener("drop", drop);
+  };
+}
+
 // src/editor/ui/panels/commerce.ts
 function commercePanel(state) {
   const product = state.document.commerce?.sourceProduct;
   const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
-  const groups = [["Produit", ["productHero", "gallery", "productMain"]], ["Offres group\xE9es", ["bundle", "cta"]], ["Client cible", ["benefits", "reviews", "testimonials"]], ["Angle marketing", ["imageText", "comparison", "guarantees"]]];
-  return `<section data-panel="commerce">${product ? `<div class="editor-product-card">${product.images[0] ? `<img src="${product.images[0]}" alt="">` : ""}<div><strong>${product.title}</strong><small>${product.vendor}</small></div></div>` : ""}<p class="editor-panel-help">Sections e-commerce cr\xE9\xE9es \xE0 partir de ton produit et de ta strat\xE9gie.</p><div class="editor-commerce-groups">${groups.map(([label, types]) => {
+  const productCard = product ? `<div class="editor-product-card">${product.images[0] ? `<img src="${product.images[0]}" alt="">` : ""}<div><strong>${product.title}</strong><small>${product.vendor}</small></div></div>` : "";
+  const selected = page.sections.find((section2) => section2.id === state.selectedId);
+  if (selected?.type === "quantity-offer") return `<section data-panel="commerce">${productCard}${offerEditorMarkup(state)}<a class="editor-shopify-link" href="/dashboard#shopify">Connexion et publication Shopify \u2192</a></section>`;
+  const groups = [["Produit", ["productHero", "gallery", "productMain"]], ["Offres group\xE9es", ["quantity-offer", "bundle", "cta"]], ["Client cible", ["benefits", "reviews", "testimonials"]], ["Angle marketing", ["imageText", "comparison", "guarantees"]]];
+  return `<section data-panel="commerce">${productCard}<p class="editor-panel-help">Sections e-commerce cr\xE9\xE9es \xE0 partir de ton produit et de ta strat\xE9gie.</p><div class="editor-commerce-groups">${groups.map(([label, types]) => {
     const section2 = page.sections.find((item2) => types.includes(item2.type));
     return `<button type="button" data-panel-action="${section2 ? "select" : "insert"}" ${section2 ? `data-section-id="${section2.id}"` : `data-section-type="${types[0]}"`}><span><b>${label}</b><small>${section2 ? section2.name : "Ajouter \xE0 la page"}</small></span><i>\u203A</i></button>`;
   }).join("")}</div><a class="editor-shopify-link" href="/dashboard#shopify">Connexion et publication Shopify \u2192</a></section>`;
@@ -1127,8 +1457,8 @@ function requiredDefinition(type) {
 }
 function variantDefaults(type, variantId) {
   const definition = requiredDefinition(type);
-  const variants = Array.isArray(definition.variants) ? definition.variants : [];
-  const variant = variants.find((candidate) => candidate && typeof candidate === "object" && candidate.id === variantId);
+  const variants2 = Array.isArray(definition.variants) ? definition.variants : [];
+  const variant = variants2.find((candidate) => candidate && typeof candidate === "object" && candidate.id === variantId);
   return variant && variant.defaults && typeof variant.defaults === "object" && !Array.isArray(variant.defaults) ? structuredClone(variant.defaults) : {};
 }
 function block(id2, type, settings2) {
@@ -1251,7 +1581,9 @@ var premiumSectionStyles = String.raw`
 /* Quiz and lead capture. */
 .wf-quizProgress,.wf-quizQuestion,.wf-quizResult,.wf-leadCapture{max-width:780px}.wf-quizProgress .wf-section__grid{grid-template-columns:repeat(3,1fr);margin-top:26px}.wf-quizProgress .wf-section__card{padding:12px 14px;text-align:center}.wf-quizProgress[data-wf-variant="bar"] .wf-section__grid{grid-template-columns:1fr}.wf-quizProgress[data-wf-variant="bar"] .wf-section__card{height:10px;padding:0;border:0;border-radius:999px;background:color-mix(in srgb,var(--wf-canvas-ink) 12%,transparent)}.wf-quizProgress[data-wf-variant="bar"] .wf-section__card:first-child{background:var(--wf-canvas-accent)}.wf-quizQuestion,.wf-quizResult{padding:clamp(36px,7vw,82px);border-radius:var(--wf-canvas-radius);background:color-mix(in srgb,var(--wf-canvas-accent) 18%,var(--wf-canvas-bg))}.wf-quizQuestion .wf-quiz__form{margin-top:28px}.wf-quizQuestion fieldset{border:0;margin:0;padding:0}.wf-quizQuestion legend{font-size:clamp(24px,4vw,38px);font-weight:760;line-height:1.08;letter-spacing:-.04em}.wf-quizQuestion label{display:flex;align-items:center;gap:12px;margin-top:14px;padding:17px 18px;border:1px solid var(--wf-canvas-border);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-surface);cursor:pointer;transition:border-color var(--wf-canvas-motion) ease,transform var(--wf-canvas-motion) ease}.wf-quizQuestion label:hover{transform:translateX(4px);border-color:var(--wf-canvas-ink)}.wf-quizQuestion label:has(input:checked){border:2px solid var(--wf-canvas-ink)}.wf-quizQuestion .wf-quiz__form>button,.wf-leadCapture .wf-section__button{width:100%;border-radius:var(--wf-canvas-button-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-quizResult .wf-section__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-quizResult .wf-section__card:first-child{background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-leadCapture{padding:clamp(30px,6vw,70px);border-radius:var(--wf-canvas-radius);background:var(--wf-canvas-ink);color:var(--wf-canvas-surface)}.wf-leadCapture .wf-section__grid{grid-template-columns:1fr}.wf-leadCapture .wf-section__card{background:rgba(255,255,255,.09);color:inherit;border-color:rgba(255,255,255,.18)}.wf-leadCapture .wf-section__button{background:var(--wf-canvas-accent);color:var(--wf-canvas-ink)}
 @media(max-width:700px){.wf-product-hero,.wf-buy-box,.wf-variant-selector,.wf-quantity-offer,.wf-fixed-bundle,.wf-subscription-selector,.wf-preorder-selector,.wf-inlineProduct,.wf-productRecommendation,.wf-faq-trust,.wf-numberedReason,.wf-founderStory,.wf-editorialChapter[data-wf-variant="split"]{display:block}.wf-product-hero>.wf-section__media,.wf-buy-box>.wf-section__media,.wf-variant-selector>.wf-section__media,.wf-quantity-offer>.wf-section__media,.wf-fixed-bundle>.wf-section__media,.wf-subscription-selector>.wf-section__media,.wf-preorder-selector>.wf-section__media,.wf-inlineProduct>.wf-section__media,.wf-productRecommendation>.wf-section__media{position:static;margin:0 0 24px}.wf-product-hero .wf-section__media img,.wf-buy-box .wf-section__media img,.wf-variant-selector .wf-section__media img,.wf-quantity-offer .wf-section__media img,.wf-fixed-bundle .wf-section__media img,.wf-subscription-selector .wf-section__media img,.wf-preorder-selector .wf-section__media img,.wf-inlineProduct .wf-section__media img,.wf-productRecommendation .wf-section__media img{min-height:360px}.wf-product-hero>.wf-section__grid,.wf-buy-box>.wf-section__grid,.wf-variant-selector>.wf-section__grid,.wf-quantity-offer>.wf-section__grid,.wf-fixed-bundle>.wf-section__grid,.wf-subscription-selector>.wf-section__grid,.wf-preorder-selector>.wf-section__grid,.wf-inlineProduct>.wf-section__grid,.wf-productRecommendation>.wf-section__grid,.wf-benefits-results .wf-section__grid,.wf-product-media .wf-section__grid,.wf-reviews-ugc .wf-section__grid,.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__grid,.wf-comparisonInsert .wf-section__grid,.wf-faq-trust[data-wf-variant="guarantee-cards"]>.wf-section__grid,.wf-recommendations .wf-section__grid,.wf-conversionClose .wf-section__grid,.wf-listicleIndex[data-wf-variant="cards"] .wf-section__grid,.wf-brandManifesto .wf-section__grid,.wf-quizResult .wf-section__grid,.wf-campaignLookbook .wf-section__grid{grid-template-columns:1fr}.wf-product-hero .wf-product__form,.wf-buy-box .wf-product__form,.wf-variant-selector .wf-product__form,.wf-quantity-offer .wf-product__form,.wf-fixed-bundle .wf-product__form,.wf-subscription-selector .wf-product__form,.wf-preorder-selector .wf-product__form,.wf-inlineProduct .wf-product__form,.wf-productRecommendation .wf-product__form{grid-template-columns:1fr}.wf-before-after .wf-section__grid{grid-template-columns:1fr}.wf-reviews-ugc[data-wf-variant="spotlight"] .wf-section__card:first-child{grid-column:auto}.wf-product-media[data-wf-variant="masonry"] .wf-section__card:nth-child(2),.wf-reviews-ugc[data-wf-variant="review-wall"] .wf-section__card:nth-child(2n){transform:none}.wf-comparison,.wf-comparisonInsert,.wf-quizQuestion,.wf-quizResult,.wf-leadCapture{width:calc(100% - 28px);padding:30px 20px}.wf-comparison [role="table"]>*{grid-template-columns:1fr;padding:15px}.wf-recommendations[data-wf-variant="cross-sell-stack"] .wf-section__card{grid-template-columns:76px 1fr}.wf-editorialChapter[data-wf-variant="full-bleed"]{min-height:560px;padding-inline:20px}.wf-editorialChapter[data-wf-variant="full-bleed"]>.wf-section__grid{grid-template-columns:1fr}.wf-campaignLookbook[data-wf-variant="masonry"] .wf-section__card:nth-child(3n+1){grid-row:auto}.wf-campaignLookbook[data-wf-variant="sequence"] .wf-section__card{display:block}.wf-quizProgress .wf-section__grid{grid-template-columns:1fr}}
+.wf-quantity-offer{max-width:980px}.wf-quantity-offer .wf-quantity-offer__form{grid-template-columns:1fr}.wf-quantity-offer__product{display:none!important}.wf-quantity-offer__tiers{min-width:0;margin:0;padding:0;border:0}.wf-quantity-offer__tiers legend{margin-bottom:12px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.wf-quantity-offer__tiers-layout{display:grid;gap:10px}.wf-quantity-offer__tier{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:16px;border:1px solid var(--wf-canvas-border);border-radius:calc(var(--wf-canvas-radius) - 4px);background:var(--wf-canvas-surface);cursor:pointer;transition:border-color var(--wf-canvas-motion) ease,transform var(--wf-canvas-motion) ease}.wf-quantity-offer__tier:has(input:checked),.wf-quantity-offer__tier.is-selected{border:2px solid var(--wf-canvas-ink);background:color-mix(in srgb,var(--wf-canvas-accent) 15%,var(--wf-canvas-surface))}.wf-quantity-offer__tier:hover{transform:translateY(-2px);border-color:var(--wf-canvas-ink)}.wf-quantity-offer__tier-copy{display:grid;gap:3px}.wf-quantity-offer__tier-title{font-weight:780}.wf-quantity-offer__tier-subtitle,.wf-quantity-offer__variant{font-size:13px;opacity:.68}.wf-quantity-offer__badge{padding:4px 8px;border-radius:999px;background:var(--wf-canvas-ink);color:var(--wf-canvas-surface);font-size:11px;font-weight:800}.wf-quantity-offer__discount{font-size:14px}.wf-quantity-offer--horizontal-cards .wf-quantity-offer__tiers-layout{grid-template-columns:repeat(3,minmax(0,1fr))}.wf-quantity-offer--horizontal-cards .wf-quantity-offer__tier{grid-template-columns:auto 1fr;align-items:start}.wf-quantity-offer--horizontal-cards .wf-quantity-offer__badge,.wf-quantity-offer--horizontal-cards .wf-quantity-offer__discount{grid-column:2}.wf-quantity-offer--stacked-premium .wf-quantity-offer__tier.is-selected{box-shadow:0 14px 30px color-mix(in srgb,var(--wf-canvas-ink) 11%,transparent)}.wf-quantity-offer--tier-table .wf-quantity-offer__tiers-layout{gap:0;border:1px solid var(--wf-canvas-border);border-radius:calc(var(--wf-canvas-radius) - 4px);overflow:hidden}.wf-quantity-offer--tier-table .wf-quantity-offer__tier{border-width:0 0 1px;border-radius:0}.wf-quantity-offer--tier-table .wf-quantity-offer__tier:last-child{border-bottom:0}@media(max-width:700px){.wf-quantity-offer--horizontal-cards .wf-quantity-offer__tiers-layout{grid-template-columns:1fr}.wf-quantity-offer__tier{grid-template-columns:auto minmax(0,1fr);gap:9px}.wf-quantity-offer__badge,.wf-quantity-offer__discount{grid-column:2;justify-self:start}}
 @media(prefers-reduced-motion:reduce){.wf-product-hero *,.wf-buy-box *,.wf-variant-selector *,.wf-quantity-offer *,.wf-fixed-bundle *,.wf-subscription-selector *,.wf-preorder-selector *,.wf-benefits-results *,.wf-product-media *,.wf-before-after *,.wf-reviews-ugc *,.wf-faq-trust *,.wf-recommendations *,.wf-advertorialMasthead *,.wf-authorLine *,.wf-editorialBody *,.wf-evidenceCallout *,.wf-inlineProduct *,.wf-conversionClose *,.wf-listicleIndex *,.wf-numberedReason *,.wf-comparisonInsert *,.wf-productRecommendation *,.wf-quizProgress *,.wf-quizQuestion *,.wf-quizResult *,.wf-leadCapture *,.wf-brandManifesto *,.wf-founderStory *,.wf-editorialChapter *,.wf-campaignLookbook *,.wf-comparison *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.wf-quantity-offer{display:block}
 `;
 
 // src/editor/render/render-section.ts
@@ -1499,15 +1831,15 @@ function nextSection(state, type) {
 }
 function runPanelAction(store, action) {
   const state = store.getState();
-  if (action.action === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+  if (action.action === "select") store.setState({ selectedId: action.sectionId, selectedBlockId: null, rightCollapsed: false });
   if (action.action === "remove") {
     store.dispatch({ type: "removeSection", sectionId: action.sectionId });
-    if (state.selectedId === action.sectionId) store.setState({ selectedId: null });
+    if (state.selectedId === action.sectionId) store.setState({ selectedId: null, selectedBlockId: null });
   }
   if (action.action === "toggleHidden" || action.action === "toggleLocked") {
     store.dispatch({ type: action.action, sectionId: action.sectionId });
   }
-  if (action.action === "selectPage") store.setState({ pageId: action.pageId, selectedId: null });
+  if (action.action === "selectPage") store.setState({ pageId: action.pageId, selectedId: null, selectedBlockId: null });
   if (action.action === "addPage") {
     const name = action.name.trim() || "Nouvelle page";
     const base9 = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
@@ -1516,7 +1848,7 @@ function runPanelAction(store, action) {
     let suffix = 2;
     while (slugs.has(slug2)) slug2 = `${base9}-${suffix++}`;
     const page = { id: `page-${slug2}`, name, slug: slug2, sections: [] };
-    store.setState({ document: { ...state.document, pages: [...state.document.pages, page] }, pageId: page.id, selectedId: null, saveStatus: "modified" });
+    store.setState({ document: { ...state.document, pages: [...state.document.pages, page] }, pageId: page.id, selectedId: null, selectedBlockId: null, saveStatus: "modified" });
   }
   if (action.action === "addAsset") {
     store.setState({ document: { ...state.document, assets: [...state.document.assets.filter((asset) => asset.id !== action.asset.id), action.asset] }, saveStatus: "modified" });
@@ -1530,7 +1862,7 @@ function runPanelAction(store, action) {
     const selectedIndex = page.sections.findIndex((section3) => section3.id === state.selectedId);
     const section2 = nextSection(state, action.sectionType);
     store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section: section2 });
-    store.setState({ selectedId: section2.id, activePanel: "structure", rightCollapsed: false });
+    store.setState({ selectedId: section2.id, selectedBlockId: null, activePanel: "structure", rightCollapsed: false });
   }
   if (action.action === "insertVariant") {
     const page = state.document.pages.find((item2) => item2.id === state.pageId) ?? state.document.pages[0];
@@ -1540,10 +1872,11 @@ function runPanelAction(store, action) {
     while (used.has(`${action.sectionType}-${suffix}`)) suffix += 1;
     const result = materializeSectionVariant({ document: state.document, sectionType: action.sectionType, variantId: action.variantId, sectionId: `${action.sectionType}-${suffix}` });
     store.dispatch({ type: "insertSection", pageId: page.id, index: selectedIndex < 0 ? page.sections.length : selectedIndex + 1, section: result.section });
-    store.setState({ selectedId: result.section.id, activePanel: "structure", rightCollapsed: false });
+    store.setState({ selectedId: result.section.id, selectedBlockId: null, activePanel: "structure", rightCollapsed: false });
   }
 }
 function bindLeftRail(root, store) {
+  const unbindOfferEditor = bindOfferEditor(root, store);
   const refreshCatalog = (catalog) => {
     const viewport = catalog.dataset.catalogViewport || "desktop";
     const family = catalog.dataset.catalogFamily || void 0;
@@ -1653,6 +1986,7 @@ function bindLeftRail(root, store) {
   };
   root.addEventListener("input", input);
   return () => {
+    unbindOfferEditor();
     root.removeEventListener("click", click);
     root.removeEventListener("change", change);
     root.removeEventListener("input", input);
@@ -1731,7 +2065,7 @@ function bindInspector(root, store) {
       const section2 = selectedSection(store.getState());
       if (section2 && window.confirm(`Supprimer la section \xAB ${section2.name} \xBB ?`)) {
         store.dispatch({ type: "removeSection", sectionId: section2.id });
-        store.setState({ selectedId: null });
+        store.setState({ selectedId: null, selectedBlockId: null });
       }
       return;
     }
@@ -1792,13 +2126,19 @@ function parseCanvasBridgeMessage(value2) {
   const message = value2;
   if (message.source !== "weflo-canvas") return null;
   if (typeof message.sectionId !== "string" || !/^[a-z0-9_-]+$/i.test(message.sectionId)) return null;
-  if (message.type === "canvas:select") return { type: "select", sectionId: message.sectionId };
+  if (message.type === "canvas:select") {
+    if (message.blockId !== void 0 && (typeof message.blockId !== "string" || !/^[a-z0-9_-]+$/i.test(message.blockId))) return null;
+    return { type: "select", sectionId: message.sectionId, ...typeof message.blockId === "string" ? { blockId: message.blockId } : {} };
+  }
   if (message.type === "canvas:inline-edit" && typeof message.key === "string" && /^[a-z][a-z0-9_]*$/i.test(message.key) && typeof message.value === "string") {
     return { type: "inlineEdit", sectionId: message.sectionId, key: message.key, value: message.value };
   }
   if (message.type === "canvas:image-edit" && typeof message.key === "string" && /^[a-z][a-z0-9_]*$/i.test(message.key)) return { type: "imageEdit", sectionId: message.sectionId, key: message.key };
   if (message.type === "canvas:move" && typeof message.toIndex === "number" && Number.isInteger(message.toIndex) && message.toIndex >= 0) {
     return { type: "move", sectionId: message.sectionId, toIndex: message.toIndex };
+  }
+  if (message.type === "canvas:block-move" && typeof message.blockId === "string" && /^[a-z0-9_-]+$/i.test(message.blockId) && typeof message.targetBlockId === "string" && /^[a-z0-9_-]+$/i.test(message.targetBlockId) && typeof message.after === "boolean") {
+    return { type: "blockMove", sectionId: message.sectionId, blockId: message.blockId, targetBlockId: message.targetBlockId, after: message.after };
   }
   const actions = ["moveUp", "moveDown", "duplicate", "hide", "remove"];
   if (message.type === "canvas:action" && actions.includes(message.action)) {
@@ -1807,27 +2147,10 @@ function parseCanvasBridgeMessage(value2) {
   return null;
 }
 
-// src/editor/ui/canvas-runtime.ts
-var CANVAS_RUNTIME = `<style>.wf-canvas-toolbar{position:absolute;z-index:9999;display:flex;gap:2px;padding:3px;border-radius:7px;background:#141310;color:#fff;transform:translateY(-100%)}.wf-canvas-toolbar button{border:0;padding:6px 8px;background:transparent;color:inherit;font:600 11px/1 sans-serif;cursor:pointer}[data-wf-section-id]{position:relative}[data-wf-section-id][draggable="true"]{cursor:grab}[data-wf-edit-key][contenteditable="true"]{outline:2px solid #315efb;outline-offset:3px}</style><script>(()=>{
-  const post=(type,payload={})=>parent.postMessage({source:"weflo-canvas",type,...payload},location.origin);
-  let dragging=null;
-  const toolbar=(section,imageKey)=>{document.querySelector("[data-canvas-toolbar]")?.remove();const bar=document.createElement("div");bar.className="wf-canvas-toolbar";bar.dataset.canvasToolbar="";bar.innerHTML=(imageKey?'<button data-canvas-action="editImage">\u2726 Modifier avec l\u2019IA</button>':'')+'<button data-canvas-action="moveUp" title="Monter">\u2191</button><button data-canvas-action="moveDown" title="Descendre">\u2193</button><button data-canvas-action="duplicate">Dupliquer</button><button data-canvas-action="hide">Masquer</button><button data-canvas-action="remove">Supprimer</button>';bar.addEventListener("click",e=>{const action=e.target.closest("[data-canvas-action]")?.dataset.canvasAction;if(action==="editImage")post("canvas:image-edit",{sectionId:section.dataset.wfSectionId,key:imageKey});else if(action)post("canvas:action",{sectionId:section.dataset.wfSectionId,action})});section.prepend(bar)};
-  document.addEventListener("click",event=>{
-    if(document.body.dataset.wfMode!=="edit")return;
-    const section=event.target.closest("[data-wf-section-id]");
-    if(!section)return;
-    event.preventDefault();
-    event.stopPropagation();
-    post("canvas:select",{sectionId:section.dataset.wfSectionId});
-    toolbar(section,event.target.closest("[data-wf-media-key]")?.dataset.wfMediaKey);
-  },true);
-  document.querySelectorAll("[data-wf-section-id]").forEach(section=>{section.draggable=true;section.addEventListener("dragstart",()=>{dragging=section.dataset.wfSectionId});section.addEventListener("dragover",event=>event.preventDefault());section.addEventListener("drop",event=>{event.preventDefault();if(!dragging)return;const siblings=[...section.parentElement.querySelectorAll(":scope > [data-wf-section-id]")];post("canvas:move",{sectionId:dragging,toIndex:siblings.indexOf(section)});dragging=null})});
-  document.addEventListener("dblclick",event=>{if(document.body.dataset.wfMode!=="edit")return;const editable=event.target.closest("[data-wf-edit-key]");if(!editable)return;editable.setAttribute("contenteditable","true");editable.focus()});
-  document.addEventListener("submit",event=>{if(document.body.dataset.wfMode==="edit")event.preventDefault()},true);
-  document.addEventListener("focusout",event=>{const editable=event.target.closest?.("[data-wf-edit-key][contenteditable="true"]");if(!editable)return;editable.removeAttribute("contenteditable");const section=editable.closest("[data-wf-section-id]");post("canvas:inline-edit",{sectionId:section.dataset.wfSectionId,key:editable.dataset.wfEditKey,value:editable.textContent||""})},true);
-})();<\/script>`;
-
 // src/editor/ui/drag-sections.ts
+function pointerDropPosition(clientY, bounds) {
+  return clientY < bounds.top + bounds.height / 2 ? "before" : "after";
+}
 function sectionMoveTarget(document2, sectionId, direction) {
   for (const page of document2.pages) {
     const index = page.sections.findIndex((section2) => section2.id === sectionId);
@@ -1838,6 +2161,112 @@ function sectionMoveTarget(document2, sectionId, direction) {
   }
   return null;
 }
+function blockDropTarget(document2, sectionId, blockId, targetBlockId, after = false) {
+  for (const page of document2.pages) {
+    const section2 = page.sections.find((item2) => item2.id === sectionId);
+    if (!section2) continue;
+    const source = section2.blocks.find((block3) => block3.id === blockId);
+    const targetIndex = section2.blocks.findIndex((block3) => block3.id === targetBlockId && block3.type === "offer-tier");
+    if (source?.type !== "offer-tier" || targetIndex < 0) return null;
+    return { sectionId, toIndex: targetIndex + (after ? 1 : 0) };
+  }
+  return null;
+}
+
+// src/editor/ui/canvas-runtime.ts
+function keyboardMoveDirection(key, altKey, ownsFocus) {
+  if (!altKey || !ownsFocus) return null;
+  if (key === "ArrowUp") return -1;
+  if (key === "ArrowDown") return 1;
+  return null;
+}
+var CANVAS_RUNTIME = `<style>
+.wf-canvas-toolbar{position:absolute;z-index:9999;display:flex;gap:2px;padding:3px;border-radius:7px;background:#141310;color:#fff;transform:translateY(-100%)}
+.wf-canvas-toolbar button{border:0;padding:6px 8px;background:transparent;color:inherit;font:600 11px/1 sans-serif;cursor:pointer}
+[data-wf-section-id],[data-wf-block-id]{position:relative}
+[data-wf-section-id][draggable="true"],[data-wf-block-id][draggable="true"]{cursor:grab}
+[data-wf-dragging="true"]{opacity:.55}
+[data-wf-drop-position]::before,[data-wf-drop-position]::after{content:"";position:absolute;z-index:10000;left:12px;right:12px;height:4px;border-radius:999px;background:#176dff;box-shadow:0 0 0 2px #fff,0 2px 8px #0005;pointer-events:none}
+[data-wf-drop-position="before"]::before{top:0;transform:translateY(-50%)}
+[data-wf-drop-position="after"]::after{bottom:0;transform:translateY(50%)}
+[data-wf-block-id][data-wf-drop-position]::before,[data-wf-block-id][data-wf-drop-position]::after{left:0;right:0}
+[data-wf-edit-key][contenteditable="true"]{outline:2px solid #315efb;outline-offset:3px}
+</style><script>(()=>{
+  const post=(type,payload={})=>parent.postMessage({source:"weflo-canvas",type,...payload},location.origin);
+  const sections=()=>[...document.querySelectorAll("[data-wf-section-id]")];
+  const blocksIn=(section)=>[...section.querySelectorAll("[data-wf-block-id]")].filter(block=>block.closest("[data-wf-section-id]")===section);
+  const offerBlock=(target)=>{const block=target?.closest?.("[data-wf-block-id]");const section=block?.closest?.("[data-wf-section-id]");return block&&section?.dataset.wfSectionType==="quantity-offer"?{block,section}:null};
+  const pointerDropPosition=${pointerDropPosition.toString()};
+  const keyboardMoveDirection=${keyboardMoveDirection.toString()};
+  const positionAt=(event,target)=>pointerDropPosition(event.clientY,target.getBoundingClientRect());
+  let draggingSection=null;
+  let draggingBlock=null;
+  let dragOrigin=null;
+  const clearRails=()=>document.querySelectorAll("[data-wf-drop-position]").forEach(target=>target.removeAttribute("data-wf-drop-position"));
+  const clearDrag=()=>{clearRails();document.querySelectorAll("[data-wf-dragging]").forEach(target=>target.removeAttribute("data-wf-dragging"));draggingSection=null;draggingBlock=null;dragOrigin=null};
+  const showRail=(target,position)=>{clearRails();target.dataset.wfDropPosition=position};
+  const moveBlockBy=(section,block,direction)=>{const blocks=blocksIn(section);const index=blocks.indexOf(block);const target=blocks[index+direction];if(index<0||!target)return;post("canvas:block-move",{sectionId:section.dataset.wfSectionId,blockId:block.dataset.wfBlockId,targetBlockId:target.dataset.wfBlockId,after:direction>0})};
+  const toolbar=(section,imageKey,block)=>{
+    document.querySelector("[data-canvas-toolbar]")?.remove();
+    const bar=document.createElement("div");bar.className="wf-canvas-toolbar";bar.dataset.canvasToolbar="";
+    if(block)bar.dataset.canvasBlockId=block.dataset.wfBlockId;if(imageKey)bar.dataset.canvasImageKey=imageKey;
+    const blockActions=block?'<button type="button" data-canvas-block-direction="-1" title="Monter le palier" aria-label="Monter le palier">\u2191</button><button type="button" data-canvas-block-direction="1" title="Descendre le palier" aria-label="Descendre le palier">\u2193</button>':'';
+    bar.innerHTML=blockActions+(imageKey?'<button type="button" data-canvas-action="editImage">\u2726 Modifier avec l\u2019IA</button>':'')+'<button type="button" data-canvas-action="moveUp" title="Monter la section" aria-label="Monter la section">\u2191</button><button type="button" data-canvas-action="moveDown" title="Descendre la section" aria-label="Descendre la section">\u2193</button><button type="button" data-canvas-action="duplicate">Dupliquer</button><button type="button" data-canvas-action="hide">Masquer</button><button type="button" data-canvas-action="remove">Supprimer</button>';
+    section.prepend(bar)
+  };
+  document.addEventListener("click",event=>{
+    if(document.body.dataset.wfMode!=="edit")return;
+    const bar=event.target.closest("[data-canvas-toolbar]");
+    if(bar){event.preventDefault();event.stopPropagation();const section=bar.closest("[data-wf-section-id]");if(!section)return;const direction=Number(event.target.closest("[data-canvas-block-direction]")?.dataset.canvasBlockDirection);const block=blocksIn(section).find(item=>item.dataset.wfBlockId===bar.dataset.canvasBlockId);if(block&&direction)moveBlockBy(section,block,direction);const action=event.target.closest("[data-canvas-action]")?.dataset.canvasAction;if(action==="editImage"&&bar.dataset.canvasImageKey)post("canvas:image-edit",{sectionId:section.dataset.wfSectionId,key:bar.dataset.canvasImageKey});else if(action)post("canvas:action",{sectionId:section.dataset.wfSectionId,action});return}
+    const section=event.target.closest("[data-wf-section-id]");
+    if(!section)return;
+    event.preventDefault();event.stopPropagation();
+    const found=offerBlock(event.target);const block=found?.section===section?found.block:null;
+    post("canvas:select",{sectionId:section.dataset.wfSectionId,...(block?{blockId:block.dataset.wfBlockId}:{})});
+    toolbar(section,event.target.closest("[data-wf-media-key]")?.dataset.wfMediaKey,block);
+  },true);
+  sections().forEach(section=>{
+    section.draggable=true;
+    if(section.tabIndex<0)section.tabIndex=0;
+    section.setAttribute("aria-keyshortcuts","Alt+ArrowUp Alt+ArrowDown");
+    if(!section.getAttribute("aria-label"))section.setAttribute("aria-label","D\xE9placer la section "+(section.dataset.wfSectionType||""));
+    blocksIn(section).forEach(block=>{if(section.dataset.wfSectionType!=="quantity-offer")return;block.draggable=true;if(block.tabIndex<0)block.tabIndex=0;block.setAttribute("aria-keyshortcuts","Alt+ArrowUp Alt+ArrowDown");if(!block.getAttribute("aria-label"))block.setAttribute("aria-label",("D\xE9placer le palier "+(block.textContent?.trim()||"")).trim())});
+  });
+  document.addEventListener("keydown",event=>{
+    const found=offerBlock(event.target);
+    if(found){const direction=keyboardMoveDirection(event.key,event.altKey,event.target===found.block);if(!direction)return;event.preventDefault();event.stopPropagation();moveBlockBy(found.section,found.block,direction);return}
+    const section=event.target.closest?.("[data-wf-section-id]");
+    const direction=keyboardMoveDirection(event.key,event.altKey,event.target===section);
+    if(!section||!direction)return;
+    event.preventDefault();event.stopPropagation();post("canvas:action",{sectionId:section.dataset.wfSectionId,action:direction<0?"moveUp":"moveDown"});
+  });
+  const rememberDragOrigin=event=>{dragOrigin=event.target};
+  const interactiveOrigin=target=>Boolean(target?.closest?.("input,button,select,textarea,a,[contenteditable=true]"));
+  document.addEventListener("pointerdown",rememberDragOrigin,true);
+  document.addEventListener("mousedown",rememberDragOrigin,true);
+  document.addEventListener("dragstart",event=>{
+    if(interactiveOrigin(dragOrigin||event.target)){clearDrag();event.preventDefault();return}
+    const found=offerBlock(event.target);
+    if(found){draggingBlock={sectionId:found.section.dataset.wfSectionId,blockId:found.block.dataset.wfBlockId};draggingSection=null;found.block.dataset.wfDragging="true";if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain","block:"+draggingBlock.sectionId+":"+draggingBlock.blockId)}return}
+    const section=event.target.closest?.("[data-wf-section-id]");
+    if(!section||dragOrigin?.closest?.("[data-canvas-toolbar]")){clearDrag();event.preventDefault();return}
+    draggingSection=section.dataset.wfSectionId;draggingBlock=null;section.dataset.wfDragging="true";if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain","section:"+draggingSection)}
+  });
+  document.addEventListener("dragover",event=>{
+    if(draggingBlock){const found=offerBlock(event.target);if(!found||found.section.dataset.wfSectionId!==draggingBlock.sectionId){clearRails();return}event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect="move";showRail(found.block,positionAt(event,found.block));return}
+    if(draggingSection){const section=event.target.closest?.("[data-wf-section-id]");if(!section){clearRails();return}event.preventDefault();if(event.dataTransfer)event.dataTransfer.dropEffect="move";showRail(section,positionAt(event,section))}
+  });
+  document.addEventListener("drop",event=>{
+    try{
+      if(draggingBlock){const found=offerBlock(event.target);if(!found||found.section.dataset.wfSectionId!==draggingBlock.sectionId)return;event.preventDefault();const after=positionAt(event,found.block)==="after";post("canvas:block-move",{sectionId:draggingBlock.sectionId,blockId:draggingBlock.blockId,targetBlockId:found.block.dataset.wfBlockId,after});return}
+      if(draggingSection){const section=event.target.closest?.("[data-wf-section-id]");if(!section)return;event.preventDefault();const siblings=[...section.parentElement.querySelectorAll(":scope > [data-wf-section-id]")];const targetIndex=siblings.indexOf(section);if(targetIndex<0)return;const after=positionAt(event,section)==="after";post("canvas:move",{sectionId:draggingSection,toIndex:targetIndex+(after?1:0)})}
+    }finally{clearDrag()}
+  });
+  document.addEventListener("dragend",clearDrag);
+  document.addEventListener("dblclick",event=>{if(document.body.dataset.wfMode!=="edit")return;const editable=event.target.closest("[data-wf-edit-key]");if(!editable)return;editable.setAttribute("contenteditable","true");editable.focus()});
+  document.addEventListener("submit",event=>{if(document.body.dataset.wfMode==="edit")event.preventDefault()},true);
+  document.addEventListener("focusout",event=>{const editable=event.target.closest?.("[data-wf-edit-key][contenteditable=\\"true\\"]");if(!editable)return;editable.removeAttribute("contenteditable");const section=editable.closest("[data-wf-section-id]");post("canvas:inline-edit",{sectionId:section.dataset.wfSectionId,key:editable.dataset.wfEditKey,value:editable.textContent||""})},true);
+})();<\/script>`;
 
 // src/editor/ui/canvas.ts
 function viewportLayout(breakpoint, availableWidth) {
@@ -1856,6 +2285,16 @@ function canvasSrcdoc(document2, options) {
     ...options.selectedId ? { selectedId: options.selectedId } : {}
   });
   return options.mode === "edit" ? html.replace("</body>", `${CANVAS_RUNTIME}</body>`) : html;
+}
+function runCanvasMoveAction(store, action) {
+  if (action.type === "move") {
+    store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: store.getState().pageId, toIndex: action.toIndex });
+    return;
+  }
+  const target = blockDropTarget(store.getState().document, action.sectionId, action.blockId, action.targetBlockId, action.after);
+  if (!target) return;
+  store.dispatch({ type: "moveBlock", sectionId: target.sectionId, blockId: action.blockId, toIndex: target.toIndex });
+  store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId, rightCollapsed: false });
 }
 function mountCanvas(container, store) {
   const iframe = document.createElement("iframe");
@@ -1881,7 +2320,7 @@ function mountCanvas(container, store) {
     if (event.source !== iframe.contentWindow) return;
     const action = parseCanvasBridgeMessage(event.data);
     if (!action) return;
-    if (action.type === "select") store.setState({ selectedId: action.sectionId, rightCollapsed: false });
+    if (action.type === "select") store.setState({ selectedId: action.sectionId, selectedBlockId: action.blockId ?? null, rightCollapsed: false });
     if (action.type === "inlineEdit") store.dispatch({ type: "updateSetting", sectionId: action.sectionId, key: action.key, value: action.value });
     if (action.type === "imageEdit") {
       const section2 = store.getState().document.pages.flatMap((page) => page.sections).find((item2) => item2.id === action.sectionId);
@@ -1898,7 +2337,7 @@ function mountCanvas(container, store) {
         }
       }
     }
-    if (action.type === "move") store.dispatch({ type: "moveSection", sectionId: action.sectionId, toPageId: store.getState().pageId, toIndex: action.toIndex });
+    if (action.type === "move" || action.type === "blockMove") runCanvasMoveAction(store, action);
     if (action.type === "action") {
       if (action.action === "hide") store.dispatch({ type: "toggleHidden", sectionId: action.sectionId });
       if (action.action === "remove") store.dispatch({ type: "removeSection", sectionId: action.sectionId });
@@ -2052,6 +2491,7 @@ function editableSection(document2, sectionId) {
 }
 function applyCommand(document2, command) {
   if (command.type === "restoreDocument") return clone(command.document);
+  if (command.type === "transaction") return command.commands.reduce((current, nested) => applyCommand(current, nested), clone(document2));
   const next = clone(document2);
   switch (command.type) {
     case "insertSection": {
@@ -2137,6 +2577,32 @@ function applyCommand(document2, command) {
       section2.blocks.splice(index, 1);
       break;
     }
+    case "updateBlockSetting": {
+      const { section: section2 } = editableSection(next, command.sectionId);
+      const block3 = section2.blocks.find((item2) => item2.id === command.blockId);
+      if (!block3) throw new EditorCommandError(`Block not found: ${command.blockId}`);
+      block3.settings[command.key] = clone(command.value);
+      break;
+    }
+    case "setExclusiveBlockSetting": {
+      const { section: section2 } = editableSection(next, command.sectionId);
+      const selected = section2.blocks.find((block3) => block3.id === command.blockId);
+      if (!selected) throw new EditorCommandError(`Block not found: ${command.blockId}`);
+      for (const block3 of section2.blocks) {
+        block3.settings[command.key] = block3.id === selected.id;
+      }
+      break;
+    }
+    case "duplicateBlock": {
+      const { section: section2 } = editableSection(next, command.sectionId);
+      if (blockIds(next).has(command.newBlockId)) throw new EditorCommandError(`Duplicate block id: ${command.newBlockId}`);
+      const from = section2.blocks.findIndex((block3) => block3.id === command.blockId);
+      if (from < 0) throw new EditorCommandError(`Block not found: ${command.blockId}`);
+      const copy = clone(section2.blocks[from]);
+      copy.id = command.newBlockId;
+      section2.blocks.splice(checkedIndex(command.index ?? from + 1, section2.blocks.length), 0, copy);
+      break;
+    }
   }
   return next;
 }
@@ -2184,7 +2650,9 @@ function createEditorStore(initial) {
     setState(patch) {
       const changes = typeof patch === "function" ? patch(state) : patch;
       if (changes.document && changes.document !== state.document) history = createHistory(changes.document);
-      state = { ...state, ...changes };
+      const selectedSectionChanged = changes.selectedId !== void 0 && changes.selectedId !== state.selectedId;
+      const selectedPageChanged = changes.pageId !== void 0 && changes.pageId !== state.pageId;
+      state = { ...state, ...changes, ...(selectedSectionChanged || selectedPageChanged) && changes.selectedBlockId === void 0 ? { selectedBlockId: null } : {} };
       listeners.forEach((listener) => listener(state));
       return state;
     },
@@ -2658,8 +3126,8 @@ function validateBlock(value2, errors, blockIds2) {
   }
   if (blockIds2.has(value2.id)) errors.push(`Duplicate block id: ${value2.id}`);
   blockIds2.add(value2.id);
-  for (const [key, setting2] of Object.entries(value2.settings)) {
-    if (!settingValue(setting2)) errors.push(`Invalid setting value at ${value2.id}.${key}`);
+  for (const [key, setting3] of Object.entries(value2.settings)) {
+    if (!settingValue(setting3)) errors.push(`Invalid setting value at ${value2.id}.${key}`);
   }
   return true;
 }
@@ -2676,8 +3144,8 @@ function validateSection(value2, errors, sectionIds2, blockIds2) {
   }
   if (!object(value2.settings)) errors.push(`Invalid section settings: ${id2}`);
   else {
-    for (const [key, setting2] of Object.entries(value2.settings)) {
-      if (!settingValue(setting2)) errors.push(`Invalid setting value at ${id2}.${key}`);
+    for (const [key, setting3] of Object.entries(value2.settings)) {
+      if (!settingValue(setting3)) errors.push(`Invalid setting value at ${id2}.${key}`);
     }
     if (value2.type === "collectionGrid" && value2.settings.collection_handle !== void 0 && typeof value2.settings.collection_handle !== "string") {
       errors.push(`Invalid Shopify collection handle: ${id2}`);
@@ -2857,7 +3325,7 @@ function profileFromArtDirection(direction, market = "FR") {
 function slug(value2) {
   return value2.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "page";
 }
-function setting(value2) {
+function setting2(value2) {
   if (value2 === null || typeof value2 === "string" || typeof value2 === "number" || typeof value2 === "boolean") return value2;
   if (Array.isArray(value2) && value2.every((item2) => item2 === null || ["string", "number", "boolean"].includes(typeof item2))) {
     return value2;
@@ -2865,7 +3333,7 @@ function setting(value2) {
   return JSON.stringify(value2);
 }
 function settings(values) {
-  return Object.fromEntries(Object.entries(values).map(([key, value2]) => [key, setting(value2)]));
+  return Object.fromEntries(Object.entries(values).map(([key, value2]) => [key, setting2(value2)]));
 }
 function legacyBlocks(section2) {
   const value2 = section2.settings.blocks;
@@ -2903,10 +3371,12 @@ function editorKind(type) {
 function migrateDocument(document2, kind = "landing") {
   if (isEditorDocument(document2)) {
     const migrated = structuredClone(document2);
-    for (const page of migrated.pages) for (const section2 of page.sections) {
+    for (const page of migrated.pages) page.sections = page.sections.map((section2) => {
       section2.packVersion ??= 1;
       section2.variantId ??= typeof section2.settings.variant === "string" ? section2.settings.variant : "default";
-    }
+      const definition = getSectionDefinition(section2.type);
+      return definition ? definition.migrate(section2, section2.packVersion) : section2;
+    });
     if (!migrated.designProfile && migrated.commerce?.artDirection) migrated.designProfile = profileFromArtDirection(migrated.commerce.artDirection);
     return migrated;
   }
@@ -2933,7 +3403,7 @@ function migrateDocument(document2, kind = "landing") {
 }
 
 // src/lib/render-document.ts
-function escapeHtml2(value2) {
+function escapeHtml3(value2) {
   return value2.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 function safeColor(value2, fallback) {
@@ -2943,7 +3413,7 @@ function safeImage(value2) {
   if (typeof value2 !== "string") return "";
   try {
     const url = new URL(value2);
-    return url.protocol === "https:" || url.protocol === "http:" ? escapeHtml2(url.toString()) : "";
+    return url.protocol === "https:" || url.protocol === "http:" ? escapeHtml3(url.toString()) : "";
   } catch {
     return "";
   }
@@ -2951,7 +3421,7 @@ function safeImage(value2) {
 function text2(settings2, ...keys2) {
   for (const key of keys2) {
     const value2 = settings2[key];
-    if (typeof value2 === "string" && value2.trim()) return escapeHtml2(value2.trim());
+    if (typeof value2 === "string" && value2.trim()) return escapeHtml3(value2.trim());
   }
   return "";
 }
@@ -2979,7 +3449,7 @@ function media2(section2, title) {
   return `<div class="wf-media"><img src="${image2}" alt="${title}" loading="lazy"></div>`;
 }
 function sectionHtml(section2, pageName) {
-  const title = text2(section2.settings, "title", "heading") || escapeHtml2(pageName);
+  const title = text2(section2.settings, "title", "heading") || escapeHtml3(pageName);
   const subtitle = text2(section2.settings, "subtitle", "subheading");
   const body = text2(section2.settings, "text", "body");
   const price = text2(section2.settings, "price");
@@ -3018,7 +3488,7 @@ function renderDocument(doc, options = {}) {
     return renderEditorDocument(doc, { mode: "preview", breakpoint: "desktop" });
   }
   const theme = themeValues(doc.theme);
-  const title = escapeHtml2(doc.name);
+  const title = escapeHtml3(doc.name);
   const content = doc.sections.map((section2) => sectionHtml(section2, doc.name)).join("");
   const compact = options.compact ? " wf-compact" : "";
   if (doc.referencePreviews && !options.compact) {
@@ -3045,7 +3515,7 @@ var MODEL_THEMES = [
   "Mode & accessoires",
   "Sport & plein air"
 ];
-function escapeHtml3(value2) {
+function escapeHtml4(value2) {
   return value2.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 function galleryItems(theme) {
@@ -3069,18 +3539,18 @@ function galleryItems(theme) {
 }
 function renderGalleryMarkup(items) {
   return items.map((item2) => {
-    const preview = `<iframe data-model-preview="${escapeHtml3(item2.id)}" title="Aper\xE7u du mod\xE8le ${escapeHtml3(item2.name)}" tabindex="-1"></iframe>`;
+    const preview = `<iframe data-model-preview="${escapeHtml4(item2.id)}" title="Aper\xE7u du mod\xE8le ${escapeHtml4(item2.name)}" tabindex="-1"></iframe>`;
     return `
-    <button class="model-card${item2.id === "blank" ? " model-card--blank" : ""}" type="button" data-model-id="${escapeHtml3(item2.id)}" aria-label="Choisir ${escapeHtml3(item2.name)}">
+    <button class="model-card${item2.id === "blank" ? " model-card--blank" : ""}" type="button" data-model-id="${escapeHtml4(item2.id)}" aria-label="Choisir ${escapeHtml4(item2.name)}">
       <span class="model-card__preview">
         ${preview}
         <span class="model-card__action">Utiliser ce mod\xE8le <span aria-hidden="true">\u2197</span></span>
       </span>
       <span class="model-card__meta">
-        <span class="model-card__theme">${escapeHtml3(item2.id === "blank" ? "Commencer de z\xE9ro" : item2.theme)}</span>
-        <strong>${escapeHtml3(item2.name)}</strong>
-        <span class="model-card__brand">${escapeHtml3(item2.brand)}</span>
-        <span class="model-card__description">${escapeHtml3(item2.description)}</span>
+        <span class="model-card__theme">${escapeHtml4(item2.id === "blank" ? "Commencer de z\xE9ro" : item2.theme)}</span>
+        <strong>${escapeHtml4(item2.name)}</strong>
+        <span class="model-card__brand">${escapeHtml4(item2.brand)}</span>
+        <span class="model-card__description">${escapeHtml4(item2.description)}</span>
       </span>
     </button>`;
   }).join("");
@@ -3205,7 +3675,7 @@ function mountEditorGallery(options) {
     paintViewport(gallery.dataset.viewport ?? "desktop");
     bindCards();
   };
-  filters.innerHTML = MODEL_THEMES.map((theme) => `<button class="model-filter" type="button" data-gallery-theme="${escapeHtml3(theme)}" aria-pressed="${theme === activeTheme}">${escapeHtml3(theme)}</button>`).join("");
+  filters.innerHTML = MODEL_THEMES.map((theme) => `<button class="model-filter" type="button" data-gallery-theme="${escapeHtml4(theme)}" aria-pressed="${theme === activeTheme}">${escapeHtml4(theme)}</button>`).join("");
   filters.querySelectorAll("[data-gallery-theme]").forEach((button2) => {
     button2.addEventListener("click", () => {
       activeTheme = button2.dataset.galleryTheme ?? "Tout";
@@ -3260,6 +3730,7 @@ function visualEditorInitialState(page) {
     document: page.document,
     pageId: page.document.pages[0].id,
     selectedId: null,
+    selectedBlockId: null,
     activePanel: "commerce",
     breakpoint: "desktop",
     mode: "edit",

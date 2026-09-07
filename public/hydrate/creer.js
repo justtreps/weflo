@@ -1,3 +1,7 @@
+var __freeze = Object.freeze;
+var __defProp = Object.defineProperty;
+var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(raw || cooked.slice()) }));
+
 // public/template-previews/manifest.json
 var manifest_default = {
   "store-editorial-commerce": {
@@ -627,9 +631,9 @@ function normalizeSectionPack(definition) {
   assertComplete(definition);
   const candidate = definition;
   const declaredVariants = candidate.variants;
-  const variants = declaredVariants && declaredVariants.length ? declaredVariants.map((variant) => ({ ...variant, defaults: { ...variant.defaults } })) : (definition.previewVariants?.length ? definition.previewVariants : ["default"]).map((id) => legacyVariant(definition, id));
+  const variants2 = declaredVariants && declaredVariants.length ? declaredVariants.map((variant) => ({ ...variant, defaults: { ...variant.defaults } })) : (definition.previewVariants?.length ? definition.previewVariants : ["default"]).map((id) => legacyVariant(definition, id));
   const ids = /* @__PURE__ */ new Set();
-  for (const variant of variants) {
+  for (const variant of variants2) {
     if (!variant.id?.trim()) throw new Error(`Section ${definition.type} has a variant without an id`);
     if (ids.has(variant.id)) throw new Error(`Duplicate section variant: ${definition.type}:${variant.id}`);
     ids.add(variant.id);
@@ -643,7 +647,7 @@ function normalizeSectionPack(definition) {
     supportedPages: candidate.supportedPages?.length ? [...candidate.supportedPages] : [...ALL_PAGES],
     supportedMarkets: candidate.supportedMarkets?.length ? [...candidate.supportedMarkets] : ["all"],
     capabilities: candidate.capabilities ? [...candidate.capabilities] : [],
-    variants,
+    variants: variants2,
     assets: candidate.assets ? [...candidate.assets] : [],
     migrate: candidate.migrate ?? defaultMigrate
   };
@@ -724,8 +728,8 @@ function web(layout, section, pageName) {
   if (layout === "imageText") return `<div class="wf-section wf-image-text">${image(section, "image", value(section, "image_alt", title))}<div>${intro}${button(section)}</div></div>`;
   if (layout === "beforeAfter") return `<div class="wf-section wf-before-after">${intro}<div class="wf-before-after__media">${image(section, "before_image", value(section, "before_alt", "Avant"))}${image(section, "after_image", value(section, "after_alt", "Apr\xE8s"))}</div></div>`;
   if (layout === "product") {
-    const variants = section.blocks.filter((block) => block.type === "variant");
-    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section.blocks.filter((block) => block.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants.length ? variants.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section, "cta_label", "Ajouter au panier"))}</button></form></div>`;
+    const variants2 = section.blocks.filter((block) => block.type === "variant");
+    return `<div class="wf-section wf-product">${intro}<div class="wf-section__grid">${renderBlocks(section.blocks.filter((block) => block.type !== "variant"))}</div><form class="wf-product__form" action="/cart/add" method="post"><label>Variante<select name="id">${variants2.length ? variants2.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>'}</select></label><label>Quantit\xE9<input type="number" name="quantity" value="1" min="1"></label><button type="submit">${escapeHtml(value(section, "cta_label", "Ajouter au panier"))}</button></form></div>`;
   }
   if (layout === "bundle") return `<div class="wf-section wf-bundle">${intro}<fieldset><legend>Compose ton bundle</legend>${section.blocks.map((block) => `<label><input type="checkbox" name="bundle" value="${escapeHtml(block.id)}"><span>${escapeHtml(blockValue(block, "title"))}</span><strong>${escapeHtml(blockValue(block, "price"))}</strong></label>`).join("")}</fieldset><output class="wf-bundle__total" aria-live="polite">${escapeHtml(value(section, "price", "Total calcul\xE9 dans le panier"))}</output>${button(section)}</div>`;
   if (layout === "comparison") return `<div class="wf-section wf-comparison">${intro}<div role="table">${renderBlocks(section.blocks, "div")}</div></div>`;
@@ -742,12 +746,12 @@ function web(layout, section, pageName) {
   return `<div class="wf-section wf-cards" data-wf-variant="${escapeHtml(variant)}">${intro}<div class="wf-section__grid">${renderBlocks(section.blocks)}</div>${button(section)}</div>`;
 }
 function createSectionDefinition(type, name, category, layout, extraDefaults = {}, extraSettings = [], blocks = [itemBlock]) {
-  const defaults = { title: name, subtitle: "", text: "", cta_label: "D\xE9couvrir", cta_link: "#", ...extraDefaults };
+  const defaults2 = { title: name, subtitle: "", text: "", cta_label: "D\xE9couvrir", cta_link: "#", ...extraDefaults };
   return {
     type,
     name,
     category,
-    defaults,
+    defaults: defaults2,
     settings: [...common, ...cta, ...layout === "hero" || layout === "productHero" || layout === "imageText" || layout === "videoHero" ? media : [], ...extraSettings],
     blocks,
     renderWeb: ({ section, pageName }) => web(layout, section, pageName),
@@ -813,11 +817,11 @@ for (const definition of brandMediaSections) registerSection(definition);
 function renderProductFormLiquid(options = {}) {
   const sectionClass = options.sectionClass ?? "wf-product";
   const strategy = options.strategy ?? "one-time";
-  const offers = options.includeQuantityOffers ? `<fieldset class="wf-product__quantity-offers"><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% assign wf_breaks = section.settings.quantity_breaks | default: '1,2,3' | split: ',' %}{% for break in wf_breaks %}{% assign wf_quantity = break | plus: 0 %}<button type="button" data-wf-quantity="{{ wf_quantity }}">{{ wf_quantity }}{% if section.settings.quantity_suffix != blank %} {{ section.settings.quantity_suffix | escape }}{% endif %}</button>{% endfor %}</fieldset>` : "";
+  const offers2 = options.includeQuantityOffers ? `<fieldset class="wf-product__quantity-offers"><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% assign wf_breaks = section.settings.quantity_breaks | default: '1,2,3' | split: ',' %}{% for break in wf_breaks %}{% assign wf_quantity = break | plus: 0 %}<button type="button" data-wf-quantity="{{ wf_quantity }}">{{ wf_quantity }}{% if section.settings.quantity_suffix != blank %} {{ section.settings.quantity_suffix | escape }}{% endif %}</button>{% endfor %}</fieldset>` : "";
   const sellingPlans = strategy === "selling-plan" ? `<div class="wf-product__selling-plans">{% if selected_product.selling_plan_groups.size > 0 %}<label for="weflo-selling-plan-{{ section.id }}">{{ section.settings.selling_plan_label | default: 'Fr\xE9quence' | escape }}</label><select id="weflo-selling-plan-{{ section.id }}" name="selling_plan">{% for group in selected_product.selling_plan_groups %}{% for plan in group.selling_plans %}<option value="{{ plan.id }}">{{ plan.name | escape }}</option>{% endfor %}{% endfor %}</select>{% else %}<p class="wf-product__setup" role="status">Configure un abonnement Shopify compatible avant de publier cette offre.</p>{% endif %}</div>` : "";
   const preorder = strategy === "preorder" ? `{% if section.settings.preorder_provider != blank %}<input type="hidden" name="properties[_weflo_preorder_provider]" value="{{ section.settings.preorder_provider | escape }}"><p class="wf-product__preorder-note">{{ section.settings.preorder_note | default: 'Pr\xE9commande \u2014 exp\xE9dition selon les conditions indiqu\xE9es.' | escape }}</p>{% else %}<p class="wf-product__setup" role="status">Configure un fournisseur de pr\xE9commandes compatible avant de publier.</p>{% endif %}` : "";
   const bundle = strategy === "fixed-bundle" ? `<p class="wf-product__bundle-note">{{ section.settings.bundle_note | default: 'Ce produit correspond \xE0 un bundle fixe Shopify.' | escape }}</p>` : strategy === "multipack" ? `<input type="hidden" name="properties[_weflo_multipack]" value="true">` : "";
-  return `<section class="${sectionClass}" data-wf-product data-wf-purchase-strategy="${strategy}" data-wf-section-id="{{ section.id }}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}{% assign form_id = 'weflo-product-form-' | append: section.id %}{% if selected_product != blank %}{% form 'product', selected_product, id: form_id, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input>{% for option in selected_product.options_with_values %}<label class="wf-product__option" for="weflo-option-{{ section.id }}-{{ forloop.index0 }}"><span>{{ option.name | escape }}</span><select id="weflo-option-{{ section.id }}-{{ forloop.index0 }}" data-wf-option-index="{{ forloop.index0 }}">{% for value in option.values %}<option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value | escape }}</option>{% endfor %}</select></label>{% endfor %}<div class="wf-product__prices" aria-live="polite"><strong data-wf-price>{{ selected_product.selected_or_first_available_variant.price | money }}</strong><s data-wf-compare-price{% unless selected_product.selected_or_first_available_variant.compare_at_price > selected_product.selected_or_first_available_variant.price %} hidden{% endunless %}>{{ selected_product.selected_or_first_available_variant.compare_at_price | money }}</s></div><p data-wf-availability>{% if selected_product.selected_or_first_available_variant.available %}En stock{% else %}Indisponible{% endif %}</p>${bundle}${offers}<label class="wf-product__quantity" for="weflo-quantity-{{ section.id }}">Quantit\xE9<input id="weflo-quantity-{{ section.id }}" name="quantity" type="number" min="1" value="1" inputmode="numeric" data-wf-quantity-input></label>${sellingPlans}${preorder}<button type="submit" data-wf-add-to-cart{% unless selected_product.selected_or_first_available_variant.available %} disabled{% endunless %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script type="application/json" data-wf-variants>{{ selected_product.variants | json }}<\/script><script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"><\/script>{% else %}<p class="wf-product__setup" role="status">Associe un produit Shopify \xE0 cette section avant publication.</p>{% endif %}</section>`;
+  return `<section class="${sectionClass}" data-wf-product data-wf-purchase-strategy="${strategy}" data-wf-section-id="{{ section.id }}">{% assign selected_product = all_products[section.settings.product_handle] | default: product %}{% assign form_id = 'weflo-product-form-' | append: section.id %}{% if selected_product != blank %}{% form 'product', selected_product, id: form_id, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input>{% for option in selected_product.options_with_values %}<label class="wf-product__option" for="weflo-option-{{ section.id }}-{{ forloop.index0 }}"><span>{{ option.name | escape }}</span><select id="weflo-option-{{ section.id }}-{{ forloop.index0 }}" data-wf-option-index="{{ forloop.index0 }}">{% for value in option.values %}<option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value | escape }}</option>{% endfor %}</select></label>{% endfor %}<div class="wf-product__prices" aria-live="polite"><strong data-wf-price>{{ selected_product.selected_or_first_available_variant.price | money }}</strong><s data-wf-compare-price{% unless selected_product.selected_or_first_available_variant.compare_at_price > selected_product.selected_or_first_available_variant.price %} hidden{% endunless %}>{{ selected_product.selected_or_first_available_variant.compare_at_price | money }}</s></div><p data-wf-availability>{% if selected_product.selected_or_first_available_variant.available %}En stock{% else %}Indisponible{% endif %}</p>${bundle}${offers2}<label class="wf-product__quantity" for="weflo-quantity-{{ section.id }}">Quantit\xE9<input id="weflo-quantity-{{ section.id }}" name="quantity" type="number" min="1" value="1" inputmode="numeric" data-wf-quantity-input></label>${sellingPlans}${preorder}<button type="submit" data-wf-add-to-cart{% unless selected_product.selected_or_first_available_variant.available %} disabled{% endunless %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script type="application/json" data-wf-variants>{{ selected_product.variants | json }}<\/script><script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"><\/script>{% else %}<p class="wf-product__setup" role="status">Associe un produit Shopify \xE0 cette section avant publication.</p>{% endif %}</section>`;
 }
 
 // src/sections/product-main.ts
@@ -833,8 +837,8 @@ var productMainSection = {
     const cta2 = value(section, "cta_label", "Ajouter au panier");
     const requested = value(section, "variant", "calm-buy-box");
     const variant = (/* @__PURE__ */ new Set(["calm-buy-box", "beauty-buy-box", "technical-buy-box", "luxury-buy-box", "tasting-buy-box", "conversion-split", "bundle-led"])).has(requested) ? requested : "calm-buy-box";
-    const variants = section.blocks.filter((block) => block.type === "variant");
-    const options = variants.length ? variants.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
+    const variants2 = section.blocks.filter((block) => block.type === "variant");
+    const options = variants2.length ? variants2.map((block) => `<option value="${escapeHtml(blockValue(block, "variant_id", block.id))}">${escapeHtml(blockValue(block, "title", "Option"))}</option>`).join("") : '<option value="">Choisir dans Shopify</option>';
     return `<section class="wf-section wf-product wf-product--${escapeHtml(variant)}" id="product" data-wf-variant="${escapeHtml(variant)}"><div class="wf-product__gallery">${image(section, "image", title, "wf-product__image")}<div class="wf-product__thumbs"><button type="button" aria-label="Voir l\u2019image principale"></button><button type="button" aria-label="Voir une autre image"></button></div></div><div class="wf-product__buy-box">${edit("h1", "title", title)}${edit("p", "text", body)}<div class="wf-product__prices">${edit("strong", "price", price, "wf-section__price")}${compare ? `<s data-wf-edit-key="compare_at_price">${escapeHtml(compare)}</s>` : ""}</div><form action="/cart/add" method="post"><label>Option<select name="id">${options}</select></label><label>Quantit\xE9<input name="quantity" type="number" value="1" min="1"></label><div class="wf-product__bundle"></div><button type="submit">${escapeHtml(cta2)}</button></form><p class="wf-product__trust"></p></div><div class="wf-product__sticky"><span>${escapeHtml(title)}</span><strong>${escapeHtml(price)}</strong><button type="button">${escapeHtml(cta2)}</button></div></section>`;
   },
   renderLiquid: () => renderProductFormLiquid({ sectionClass: "weflo-product-main" })
@@ -1061,14 +1065,14 @@ function liquidFor(pack) {
 }
 function premiumPack(input) {
   const capabilities = input.capabilities ?? [];
-  const variants = input.variants.map(([id, name, composition]) => ({ id, name, description: composition, composition, previewFixtureId: "", defaults: { variant: id } }));
+  const variants2 = input.variants.map(([id, name, composition]) => ({ id, name, description: composition, composition, previewFixtureId: "", defaults: { variant: id } }));
   const productControls = capabilities.some((capability) => capability === "product-form" || capability === "variant-selection") ? [textControl("product_handle", "Produit Shopify", "text")] : [];
-  const defaults = { title: input.name, subtitle: "", text: "", image: "", image_alt: "", cta_label: capabilities.includes("product-form") ? "Ajouter au panier" : "D\xE9couvrir", cta_link: "#", variant: variants[0].id, ...input.extraDefaults };
+  const defaults2 = { title: input.name, subtitle: "", text: "", image: "", image_alt: "", cta_label: capabilities.includes("product-form") ? "Ajouter au panier" : "D\xE9couvrir", cta_link: "#", variant: variants2[0].id, ...input.extraDefaults };
   return {
     type: input.type,
     name: input.name,
     category: input.category,
-    defaults,
+    defaults: defaults2,
     settings: [...baseControls, ...productControls, ...input.extraSettings ?? []],
     blocks: standardBlocks,
     families: [input.family],
@@ -1076,11 +1080,11 @@ function premiumPack(input) {
     supportedPages: input.supportedPages ?? ["landing", "product", "collection", "home"],
     supportedMarkets: ["all"],
     capabilities,
-    variants,
+    variants: variants2,
     assets: [],
     packVersion: 1,
     renderWeb: ({ section, pageName, editor }) => {
-      const variant = variants.some((item) => item.id === value(section, "variant", variants[0].id)) ? value(section, "variant", variants[0].id) : variants[0].id;
+      const variant = variants2.some((item) => item.id === value(section, "variant", variants2[0].id)) ? value(section, "variant", variants2[0].id) : variants2[0].id;
       const heading = value(section, "title", pageName);
       const intro = `<header>${value(section, "subtitle") ? `<p class="wf-section__eyebrow">${escapeHtml(value(section, "subtitle"))}</p>` : ""}<h2 data-wf-edit-key="title">${escapeHtml(heading)}</h2>${value(section, "text") ? `<p class="wf-section__copy" data-wf-edit-key="text">${escapeHtml(value(section, "text"))}</p>` : ""}</header>`;
       const action = value(section, "cta_label") ? `<a class="wf-section__button" href="${safeLink(section.settings.cta_link)}">${escapeHtml(value(section, "cta_label"))}</a>` : "";
@@ -1091,8 +1095,8 @@ function premiumPack(input) {
       return `<section class="wf-section wf-${input.type} wf-${input.type}--${escapeHtml(variant)}" data-wf-variant="${escapeHtml(variant)}">${media2}${intro}<div class="wf-section__grid">${cards(section.blocks)}</div>${action}${setup}</section>`;
     },
     renderLiquid: () => liquidFor(input),
-    renderSchema: () => ({ name: input.name, settings: [...baseControls, ...productControls, ...input.extraSettings ?? []].map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })), blocks: standardBlocks.map((block) => ({ type: block.type, name: block.name, settings: block.settings.map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })) })), presets: variants.map((variant) => ({ name: variant.name, settings: { ...variant.defaults } })) }),
-    migrate: (section) => ({ ...section, packVersion: 1, variantId: section.variantId ?? value(section, "variant", variants[0].id) })
+    renderSchema: () => ({ name: input.name, settings: [...baseControls, ...productControls, ...input.extraSettings ?? []].map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })), blocks: standardBlocks.map((block) => ({ type: block.type, name: block.name, settings: block.settings.map((control) => ({ id: control.key, label: control.label, type: control.type === "textarea" ? "textarea" : "text" })) })), presets: variants2.map((variant) => ({ name: variant.name, settings: { ...variant.defaults } })) }),
+    migrate: (section) => ({ ...section, packVersion: 1, variantId: section.variantId ?? value(section, "variant", variants2[0].id) })
   };
 }
 
@@ -1118,11 +1122,6 @@ var productPacks = [
 // src/sections/packs/offer-packs.ts
 var select = (key, label, options) => ({ key, label, type: "select", scope: "settings", options });
 var offerPacks = [
-  premiumPack({ type: "quantity-offer", name: "Offre quantit\xE9", category: "commerce", family: "quantity-offer", tags: ["quantit\xE9", "volume", "\xE9conomie"], capabilities: ["product-form", "quantity-breaks"], layout: "product", extraDefaults: { quantity_breaks: "1,2,3", quantity_label: "Choisir la quantit\xE9", quantity_suffix: "unit\xE9s" }, variants: [
-    ["single-duo-trio", "Solo, duo, trio", "Trois offres \xE9gales et imm\xE9diatement comparables."],
-    ["tier-table", "Table de paliers", "Lecture par niveau de quantit\xE9 et \xE9conomie."],
-    ["volume-ladder", "\xC9chelle de volume", "Progression verticale guidant vers le meilleur volume."]
-  ] }),
   premiumPack({ type: "fixed-bundle", name: "Bundle fixe", category: "commerce", family: "fixed-bundle", tags: ["bundle", "multipack", "offre"], capabilities: ["product-form", "fixed-bundle"], layout: "product", extraDefaults: { bundle_note: "Ce produit correspond \xE0 un bundle fixe Shopify." }, variants: [
     ["routine", "Routine compl\xE8te", "Produits compl\xE9mentaires ordonn\xE9s par usage."],
     ["multipack", "Multipack", "M\xEAme produit d\xE9clin\xE9 en quantit\xE9 avec \xE9conomie."],
@@ -1139,6 +1138,49 @@ var offerPacks = [
     ["limited", "S\xE9rie limit\xE9e", "Disponibilit\xE9 limit\xE9e accompagn\xE9e d\u2019une r\xE9assurance."]
   ] })
 ];
+
+// src/sections/quantity-offer.ts
+var MIXED = "Une application Shopify est requise pour les offres multi-produits.";
+var controls = [textControl("title", "Titre"), textControl("subtitle", "Sous-titre"), textControl("text", "Texte", "textarea"), textControl("product_handle", "Produit Shopify"), textControl("quantity_label", "Libell\xE9 des quantit\xE9s"), textControl("cta_label", "Libell\xE9 du bouton")];
+var tierControls = [textControl("title", "Titre"), textControl("subtitle", "Sous-titre"), textControl("badge", "Badge"), { key: "quantity", label: "Quantit\xE9", type: "number", scope: "settings" }, { key: "discount_type", label: "Type de remise", type: "select", scope: "settings", options: ["percentage", "amount", "none"], optionLabels: { percentage: "Pourcentage", amount: "Montant fixe", none: "Aucune remise" } }, { key: "discount_value", label: "Valeur de la remise", type: "number", scope: "settings" }, textControl("product_handle", "Produit Shopify"), textControl("variant_id", "Variante Shopify"), { key: "preselected", label: "S\xE9lectionn\xE9e par d\xE9faut", type: "toggle", scope: "settings" }, { key: "show_variant_picker", label: "Afficher le choix de variante", type: "toggle", scope: "settings" }];
+var tier = { type: "offer-tier", name: "Palier d\u2019offre", defaults: { title: "Duo", subtitle: "2 unit\xE9s", badge: "Le plus choisi", quantity: 2, discount_type: "percentage", discount_value: 10, product_handle: "", variant_id: "", preselected: false, show_variant_picker: false }, settings: tierControls };
+var variants = ["horizontal-cards", "stacked-premium", "tier-table"].map((id) => ({ id, name: id === "horizontal-cards" ? "Cartes horizontales" : id === "stacked-premium" ? "Paliers premium" : "Table de paliers", description: "Composition d\u2019offre quantit\xE9.", composition: id, previewFixtureId: "", defaults: { variant: id } }));
+var defaults = { title: "Choisissez votre quantit\xE9", subtitle: "Plus vous choisissez, plus vous \xE9conomisez.", text: "", product_handle: "", quantity_label: "Choisir la quantit\xE9", cta_label: "Ajouter au panier", variant: "horizontal-cards" };
+var offers = (section) => section.blocks.filter((block) => block.type === "offer-tier" || block.type === "offer");
+function chosen(items) {
+  return items.find((item) => item.settings.preselected === true)?.id ?? items[0]?.id ?? "";
+}
+function isMixed(section, items) {
+  let root2 = String(section.settings.product_handle ?? "").trim().toLowerCase();
+  for (const item of items) {
+    const current = String(item.settings.product_handle ?? root2).trim().toLowerCase();
+    if (root2 && current && root2 !== current) return true;
+    root2 ||= current;
+  }
+  return false;
+}
+function webTier(block, active, locked) {
+  const quantity = Math.max(1, Number(blockValue(block, "quantity", "1")) || 1);
+  const variant = blockValue(block, "variant_id");
+  return `<label data-wf-block-id="${escapeHtml(block.id)}"><input type="radio" name="quantity" value="${quantity}"${block.id === active ? " checked" : ""}${locked ? " disabled" : ""} data-wf-quantity="${quantity}"${variant ? ` data-wf-variant-id="${escapeHtml(variant)}"` : ""}><span>${escapeHtml(blockValue(block, "title", `${quantity} unit\xE9s`))}</span>${blockValue(block, "subtitle", blockValue(block, "text")) ? `<small>${escapeHtml(blockValue(block, "subtitle", blockValue(block, "text")))}</small>` : ""}${blockValue(block, "badge") ? `<strong>${escapeHtml(blockValue(block, "badge"))}</strong>` : ""}</label>`;
+}
+function renderWeb(section, pageName) {
+  const items = offers(section);
+  const locked = isMixed(section, items);
+  const layout = variants.some((item) => item.id === value(section, "variant")) ? value(section, "variant") : "horizontal-cards";
+  return `<section class="wf-section wf-quantity-offer wf-quantity-offer--${escapeHtml(layout)}"><header>${value(section, "subtitle") ? `<p>${escapeHtml(value(section, "subtitle"))}</p>` : ""}<h2>${escapeHtml(value(section, "title", pageName))}</h2>${value(section, "text") ? `<p>${escapeHtml(value(section, "text"))}</p>` : ""}</header>${locked ? `<aside class="wf-quantity-offer__app-required" role="status">${MIXED}</aside>` : ""}<form class="wf-product__form" action="/cart/add"><fieldset><legend>${escapeHtml(value(section, "quantity_label", "Choisir la quantit\xE9"))}</legend>${items.map((item) => webTier(item, chosen(items), locked)).join("")}</fieldset><button type="submit"${locked ? " disabled" : ""}>${escapeHtml(value(section, "cta_label", "Ajouter au panier"))}</button></form></section>`;
+}
+var _a;
+function renderLiquid() {
+  return String.raw(_a || (_a = __template([`{% assign wf_reference_handle = section.settings.product_handle | strip | downcase %}{% assign wf_mixed_product_offer = false %}{% assign wf_selected_tier_id = '' %}{% for block in section.blocks %}{% if block.type == 'offer-tier' or block.type == 'offer' %}{% assign wf_tier_handle = block.settings.product_handle | default: wf_reference_handle | strip | downcase %}{% if wf_reference_handle == blank %}{% assign wf_reference_handle = wf_tier_handle %}{% elsif wf_tier_handle != blank and wf_tier_handle != wf_reference_handle %}{% assign wf_mixed_product_offer = true %}{% endif %}{% if block.settings.preselected %}{% if wf_selected_tier_id == blank %}{% assign wf_selected_tier_id = block.id %}{% endif %}{% endif %}{% endif %}{% endfor %}{% if wf_selected_tier_id == blank %}{% for block in section.blocks %}{% if block.type == 'offer-tier' or block.type == 'offer' %}{% assign wf_selected_tier_id = block.id %}{% break %}{% endif %}{% endfor %}{% endif %}<section class="wf-section wf-quantity-offer wf-quantity-offer--{{ section.settings.variant | escape }}" data-wf-product data-wf-purchase-strategy="multipack" data-wf-section-id="{{ section.id }}"><header>{% if section.settings.subtitle != blank %}<p>{{ section.settings.subtitle | escape }}</p>{% endif %}<h2>{{ section.settings.title | escape }}</h2>{% if section.settings.text != blank %}<p>{{ section.settings.text | escape }}</p>{% endif %}</header>{% assign selected_product = all_products[wf_reference_handle] | default: product %}{% if wf_mixed_product_offer %}<aside class="wf-quantity-offer__app-required" role="status">Une application Shopify est requise pour les offres multi-produits.</aside>{% endif %}{% if selected_product != blank %}{% form 'product', selected_product, class: 'wf-product__form' %}<input type="hidden" name="id" value="{{ selected_product.selected_or_first_available_variant.id }}" data-wf-variant-input><fieldset><legend>{{ section.settings.quantity_label | default: 'Choisir la quantit\xE9' | escape }}</legend>{% for block in section.blocks %}{% if block.type == 'offer-tier' or block.type == 'offer' %}<label data-wf-block-id="{{ block.id }}" {{ block.shopify_attributes }}><input type="radio" name="quantity" value="{{ block.settings.quantity | default: 1 }}" data-wf-quantity="{{ block.settings.quantity | default: 1 }}" data-wf-variant-id="{{ block.settings.variant_id | default: selected_product.selected_or_first_available_variant.id }}"{% if block.id == wf_selected_tier_id %} checked{% endif %}{% if wf_mixed_product_offer %} disabled{% endif %}><span>{{ block.settings.title | escape }}</span></label>{% endif %}{% endfor %}</fieldset><button type="submit" data-wf-add-to-cart{% if wf_mixed_product_offer or selected_product.selected_or_first_available_variant.available == false %} disabled{% endif %}>{{ section.settings.cta_label | default: 'Ajouter au panier' | escape }}</button>{% endform %}<script src="{{ 'weflo-product-form.js' | asset_url }}" defer="defer"><\/script>{% endif %}</section>`])));
+}
+function migrate(section) {
+  const quantities = value(section, "quantity_breaks", "1,2,3").split(",").map(Number);
+  let index = 0;
+  const variant = value(section, "variant") === "single-duo-trio" ? "horizontal-cards" : value(section, "variant") === "volume-ladder" ? "stacked-premium" : value(section, "variant", "horizontal-cards");
+  return { ...section, settings: { ...section.settings, variant }, blocks: section.blocks.map((block) => block.type !== "offer" ? { ...block, settings: { ...block.settings } } : { ...block, type: "offer-tier", settings: { ...block.settings, subtitle: blockValue(block, "subtitle", blockValue(block, "text")), quantity: Number(block.settings.quantity) || quantities[index++] || 1, discount_type: blockValue(block, "discount_type", "none"), discount_value: block.settings.discount_value ?? 0, product_handle: blockValue(block, "product_handle", value(section, "product_handle")), variant_id: blockValue(block, "variant_id"), preselected: block.settings.preselected === true, show_variant_picker: block.settings.show_variant_picker === true } }), packVersion: 1, variantId: section.variantId ?? variant };
+}
+var quantityOfferSection = { type: "quantity-offer", name: "Offre quantit\xE9", category: "commerce", defaults, settings: controls, blocks: [tier], families: ["quantity-offer"], tags: ["quantit\xE9", "volume", "\xE9conomie"], supportedPages: ["landing", "product", "collection", "home"], supportedMarkets: ["all"], capabilities: ["product-form", "quantity-breaks"], variants, assets: [], packVersion: 1, renderWeb: ({ section, pageName }) => renderWeb(section, pageName), renderLiquid, renderSchema: () => ({ name: "Offre quantit\xE9", settings: controls.map((control) => ({ id: control.key, label: control.label, type: control.type })), blocks: [{ type: tier.type, name: tier.name, settings: tierControls.map((control) => ({ id: control.key, label: control.label, type: control.type })) }], presets: variants.map((variant) => ({ name: variant.name, settings: variant.defaults })) }), migrate };
 
 // src/sections/packs/proof-packs.ts
 var proofPacks = [
@@ -1216,7 +1258,7 @@ var brandStoryPacks = [
 registerSection(spacerSection);
 registerSection(dividerSection);
 registerSection(customCodeSection);
-for (const pack of [...productPacks, ...offerPacks, ...proofPacks, ...discoveryPacks, ...advertorialPacks, ...listiclePacks, ...quizPacks, ...brandStoryPacks]) registerSection(pack);
+for (const pack of [...productPacks, quantityOfferSection, ...offerPacks, ...proofPacks, ...discoveryPacks, ...advertorialPacks, ...listiclePacks, ...quizPacks, ...brandStoryPacks]) registerSection(pack);
 
 // src/onboarding/template-recipe.ts
 var TEMPLATE_RECIPES = [
